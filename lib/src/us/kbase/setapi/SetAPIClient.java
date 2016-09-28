@@ -166,7 +166,7 @@ public class SetAPIClient {
      * <pre>
      * </pre>
      * @param   params   instance of type {@link us.kbase.setapi.GetReadsSetV1Params GetReadsSetV1Params}
-     * @return   instance of type {@link us.kbase.setapi.GetReadsSetV1Result GetReadsSetV1Result}
+     * @return   parameter "result" of type {@link us.kbase.setapi.GetReadsSetV1Result GetReadsSetV1Result}
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
@@ -183,7 +183,7 @@ public class SetAPIClient {
      * <pre>
      * </pre>
      * @param   params   instance of type {@link us.kbase.setapi.SaveReadsSetV1Params SaveReadsSetV1Params}
-     * @return   instance of type {@link us.kbase.setapi.SaveReadsSetV1Result SaveReadsSetV1Result}
+     * @return   parameter "result" of type {@link us.kbase.setapi.SaveReadsSetV1Result SaveReadsSetV1Result}
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */

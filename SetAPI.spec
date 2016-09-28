@@ -66,33 +66,31 @@ module SetAPI {
 
     typedef structure {
         ReadsSet data;
+        Workspace.object_info info;
     } GetReadsSetV1Result;
 
     funcdef get_reads_set_v1(GetReadsSetV1Params params)
-        returns (GetReadsSetV1Result) authentication optional;
+        returns (GetReadsSetV1Result result) authentication optional;
 
     /*
         workspace_name or workspace_id - alternative options defining 
             target workspace,
         output_object_name - workspace object name (this parameter is
-            used together with one of workspace params from above),
-        output_ref - optional workspace reference to ReadsGroup object
-            (alternative to previous params, this way is preferable when 
-            group object already exists and saving operation overrides it).
+            used together with one of workspace params from above)
     */
     typedef structure {
         string workspace_name;
         int workspace_id;
         string output_object_name;
-        string output_ref;
         ReadsSet data;
     } SaveReadsSetV1Params;
 
     typedef structure {
         string set_ref;
+        Workspace.object_info set_info;
     } SaveReadsSetV1Result;
 
     funcdef save_reads_set_v1(SaveReadsSetV1Params params)
-        returns (SaveReadsSetV1Result) authentication required;
+        returns (SaveReadsSetV1Result result) authentication required;
 
 };

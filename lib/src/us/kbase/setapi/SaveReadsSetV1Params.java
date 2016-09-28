@@ -17,10 +17,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * workspace_name or workspace_id - alternative options defining 
  *     target workspace,
  * output_object_name - workspace object name (this parameter is
- *     used together with one of workspace params from above),
- * output_ref - optional workspace reference to ReadsGroup object
- *     (alternative to previous params, this way is preferable when 
- *     group object already exists and saving operation overrides it).
+ *     used together with one of workspace params from above)
  * </pre>
  * 
  */
@@ -30,7 +27,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "workspace_name",
     "workspace_id",
     "output_object_name",
-    "output_ref",
     "data"
 })
 public class SaveReadsSetV1Params {
@@ -41,8 +37,6 @@ public class SaveReadsSetV1Params {
     private Long workspaceId;
     @JsonProperty("output_object_name")
     private String outputObjectName;
-    @JsonProperty("output_ref")
-    private String outputRef;
     /**
      * <p>Original spec-file type: ReadsSet</p>
      * <pre>
@@ -100,21 +94,6 @@ public class SaveReadsSetV1Params {
         return this;
     }
 
-    @JsonProperty("output_ref")
-    public String getOutputRef() {
-        return outputRef;
-    }
-
-    @JsonProperty("output_ref")
-    public void setOutputRef(String outputRef) {
-        this.outputRef = outputRef;
-    }
-
-    public SaveReadsSetV1Params withOutputRef(String outputRef) {
-        this.outputRef = outputRef;
-        return this;
-    }
-
     /**
      * <p>Original spec-file type: ReadsSet</p>
      * <pre>
@@ -158,7 +137,7 @@ public class SaveReadsSetV1Params {
 
     @Override
     public String toString() {
-        return ((((((((((((("SaveReadsSetV1Params"+" [workspaceName=")+ workspaceName)+", workspaceId=")+ workspaceId)+", outputObjectName=")+ outputObjectName)+", outputRef=")+ outputRef)+", data=")+ data)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((("SaveReadsSetV1Params"+" [workspaceName=")+ workspaceName)+", workspaceId=")+ workspaceId)+", outputObjectName=")+ outputObjectName)+", data=")+ data)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import us.kbase.common.service.Tuple11;
 
 
 /**
@@ -19,7 +20,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "data"
+    "data",
+    "info"
 })
 public class GetReadsSetV1Result {
 
@@ -33,7 +35,9 @@ public class GetReadsSetV1Result {
      */
     @JsonProperty("data")
     private ReadsSet data;
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    @JsonProperty("info")
+    private Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> info;
+    private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     /**
      * <p>Original spec-file type: ReadsSet</p>
@@ -66,19 +70,34 @@ public class GetReadsSetV1Result {
         return this;
     }
 
+    @JsonProperty("info")
+    public Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> getInfo() {
+        return info;
+    }
+
+    @JsonProperty("info")
+    public void setInfo(Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> info) {
+        this.info = info;
+    }
+
+    public GetReadsSetV1Result withInfo(Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> info) {
+        this.info = info;
+        return this;
+    }
+
     @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
+    public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
     }
 
     @JsonAnySetter
-    public void setAdditionalProperties(String name, Object value) {
+    public void setAdditionalProperties(java.lang.String name, Object value) {
         this.additionalProperties.put(name, value);
     }
 
     @Override
-    public String toString() {
-        return ((((("GetReadsSetV1Result"+" [data=")+ data)+", additionalProperties=")+ additionalProperties)+"]");
+    public java.lang.String toString() {
+        return ((((((("GetReadsSetV1Result"+" [data=")+ data)+", info=")+ info)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

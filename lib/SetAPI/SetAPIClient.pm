@@ -103,7 +103,7 @@ sub new
 
 =head2 get_reads_set_v1
 
-  $return = $obj->get_reads_set_v1($params)
+  $result = $obj->get_reads_set_v1($params)
 
 =over 4
 
@@ -113,7 +113,7 @@ sub new
 
 <pre>
 $params is a SetAPI.GetReadsSetV1Params
-$return is a SetAPI.GetReadsSetV1Result
+$result is a SetAPI.GetReadsSetV1Result
 GetReadsSetV1Params is a reference to a hash where the following keys are defined:
 	ref has a value which is a string
 	include_item_info has a value which is a SetAPI.boolean
@@ -121,6 +121,7 @@ GetReadsSetV1Params is a reference to a hash where the following keys are define
 boolean is an int
 GetReadsSetV1Result is a reference to a hash where the following keys are defined:
 	data has a value which is a SetAPI.ReadsSet
+	info has a value which is a Workspace.object_info
 ReadsSet is a reference to a hash where the following keys are defined:
 	description has a value which is a string
 	items has a value which is a reference to a list where each element is a SetAPI.ReadsSetItem
@@ -162,7 +163,7 @@ usermeta is a reference to a hash where the key is a string and the value is a s
 =begin text
 
 $params is a SetAPI.GetReadsSetV1Params
-$return is a SetAPI.GetReadsSetV1Result
+$result is a SetAPI.GetReadsSetV1Result
 GetReadsSetV1Params is a reference to a hash where the following keys are defined:
 	ref has a value which is a string
 	include_item_info has a value which is a SetAPI.boolean
@@ -170,6 +171,7 @@ GetReadsSetV1Params is a reference to a hash where the following keys are define
 boolean is an int
 GetReadsSetV1Result is a reference to a hash where the following keys are defined:
 	data has a value which is a SetAPI.ReadsSet
+	info has a value which is a Workspace.object_info
 ReadsSet is a reference to a hash where the following keys are defined:
 	description has a value which is a string
 	items has a value which is a reference to a list where each element is a SetAPI.ReadsSetItem
@@ -265,7 +267,7 @@ usermeta is a reference to a hash where the key is a string and the value is a s
 
 =head2 save_reads_set_v1
 
-  $return = $obj->save_reads_set_v1($params)
+  $result = $obj->save_reads_set_v1($params)
 
 =over 4
 
@@ -275,12 +277,11 @@ usermeta is a reference to a hash where the key is a string and the value is a s
 
 <pre>
 $params is a SetAPI.SaveReadsSetV1Params
-$return is a SetAPI.SaveReadsSetV1Result
+$result is a SetAPI.SaveReadsSetV1Result
 SaveReadsSetV1Params is a reference to a hash where the following keys are defined:
 	workspace_name has a value which is a string
 	workspace_id has a value which is an int
 	output_object_name has a value which is a string
-	output_ref has a value which is a string
 	data has a value which is a SetAPI.ReadsSet
 ReadsSet is a reference to a hash where the following keys are defined:
 	description has a value which is a string
@@ -317,6 +318,7 @@ ws_name is a string
 usermeta is a reference to a hash where the key is a string and the value is a string
 SaveReadsSetV1Result is a reference to a hash where the following keys are defined:
 	set_ref has a value which is a string
+	set_info has a value which is a Workspace.object_info
 
 </pre>
 
@@ -325,12 +327,11 @@ SaveReadsSetV1Result is a reference to a hash where the following keys are defin
 =begin text
 
 $params is a SetAPI.SaveReadsSetV1Params
-$return is a SetAPI.SaveReadsSetV1Result
+$result is a SetAPI.SaveReadsSetV1Result
 SaveReadsSetV1Params is a reference to a hash where the following keys are defined:
 	workspace_name has a value which is a string
 	workspace_id has a value which is an int
 	output_object_name has a value which is a string
-	output_ref has a value which is a string
 	data has a value which is a SetAPI.ReadsSet
 ReadsSet is a reference to a hash where the following keys are defined:
 	description has a value which is a string
@@ -367,6 +368,7 @@ ws_name is a string
 usermeta is a reference to a hash where the key is a string and the value is a string
 SaveReadsSetV1Result is a reference to a hash where the following keys are defined:
 	set_ref has a value which is a string
+	set_info has a value which is a Workspace.object_info
 
 
 =end text
@@ -776,6 +778,7 @@ ref_path_to_set has a value which is a reference to a list where each element is
 <pre>
 a reference to a hash where the following keys are defined:
 data has a value which is a SetAPI.ReadsSet
+info has a value which is a Workspace.object_info
 
 </pre>
 
@@ -785,6 +788,7 @@ data has a value which is a SetAPI.ReadsSet
 
 a reference to a hash where the following keys are defined:
 data has a value which is a SetAPI.ReadsSet
+info has a value which is a Workspace.object_info
 
 
 =end text
@@ -804,10 +808,7 @@ data has a value which is a SetAPI.ReadsSet
 workspace_name or workspace_id - alternative options defining 
     target workspace,
 output_object_name - workspace object name (this parameter is
-    used together with one of workspace params from above),
-output_ref - optional workspace reference to ReadsGroup object
-    (alternative to previous params, this way is preferable when 
-    group object already exists and saving operation overrides it).
+    used together with one of workspace params from above)
 
 
 =item Definition
@@ -819,7 +820,6 @@ a reference to a hash where the following keys are defined:
 workspace_name has a value which is a string
 workspace_id has a value which is an int
 output_object_name has a value which is a string
-output_ref has a value which is a string
 data has a value which is a SetAPI.ReadsSet
 
 </pre>
@@ -832,7 +832,6 @@ a reference to a hash where the following keys are defined:
 workspace_name has a value which is a string
 workspace_id has a value which is an int
 output_object_name has a value which is a string
-output_ref has a value which is a string
 data has a value which is a SetAPI.ReadsSet
 
 
@@ -855,6 +854,7 @@ data has a value which is a SetAPI.ReadsSet
 <pre>
 a reference to a hash where the following keys are defined:
 set_ref has a value which is a string
+set_info has a value which is a Workspace.object_info
 
 </pre>
 
@@ -864,6 +864,7 @@ set_ref has a value which is a string
 
 a reference to a hash where the following keys are defined:
 set_ref has a value which is a string
+set_info has a value which is a Workspace.object_info
 
 
 =end text

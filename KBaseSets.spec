@@ -32,8 +32,8 @@ module KBaseSets {
     } ReadsSetItem;
 
     /*
-        @meta ws description as description
-        @meta ws length(items) as item_count
+        @metadata ws description as description
+        @metadata ws length(items) as item_count
     */
     typedef structure {
         string description;
