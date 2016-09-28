@@ -17,7 +17,7 @@ class ReadsSetInterfaceV1:
 
     def save_reads_set(self, ctx, params):
         save_result = self.set.save_set(
-                'KBaseSets.ReadsSet-0.2',
+                'KBaseSets.ReadsSet',
                 ctx['provenance'],
                 params
             )
