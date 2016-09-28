@@ -61,11 +61,10 @@ class SetInterfaceV1:
         ws_data = self._get_set_from_ws(ref, ref_path_to_set)
 
         if include_item_info:
-            self._populate_item_object_info(ws_data['data'], ref_path_to_set)
+            self._populate_item_object_info(ws_data, ref_path_to_set)
 
         return ws_data
     
-
 
 
     def _get_set_from_ws(self, ref, ref_path_to_set):
@@ -77,7 +76,6 @@ class SetInterfaceV1:
         # } GetObjects2Params;
         selector = self._build_ws_obj_selector(ref, ref_path_to_set)
         ws_data = self.ws.get_objects2({'objects': [selector] })
-        pprint(ws_data)
 
         data = ws_data['data'][0]['data']
         info = ws_data['data'][0]['info']
@@ -86,9 +84,24 @@ class SetInterfaceV1:
 
 
 
-    def _populate_item_object_info(self, set_data):
+    def _populate_item_object_info(self, set, ref_path_to_set):
 
-        pass
+        info = set['info']
+        items = set['data']['items']
+        set_ref = str(info[6]) + '/' + str(info[0]) + '/' + str(info[4])
+        ref_path_to_item = ref_path_to_set + [set_ref]
+
+        objects = []
+        for item in items:
+            objects.append(
+                self._build_ws_obj_selector(item['ref'], ref_path_to_item))
+
+        obj_info_list = self.ws.get_object_info_new({
+                                    'objects': objects,
+                                    'includeMetadata': 1 })
+
+        for k in range(0, len(obj_info_list)):
+            items[k]['info'] = obj_info_list[k]
 
 
     def _build_ws_obj_selector(self, ref, ref_path_to_set):
@@ -98,7 +111,7 @@ class SetInterfaceV1:
                 obj_ref_path.append(r)
             obj_ref_path.append(ref)
             return {
-                'ref': ref_path_to_genome[0],
+                'ref': ref_path_to_set[0],
                 'obj_ref_path':obj_ref_path
             }
         return { 'ref': ref } 
