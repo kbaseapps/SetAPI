@@ -93,4 +93,58 @@ module SetAPI {
     funcdef save_reads_set_v1(SaveReadsSetV1Params params)
         returns (SaveReadsSetV1Result result) authentication required;
 
+
+
+    /* ******* Generic SET METHODS ************ */
+
+
+    /* 
+        workspace - workspace name or ID of 
+        include_set_contents 
+    */
+    typedef structure {
+        string workspace;
+        boolean include_set_contents;
+    } ListSetParams;
+
+
+    typedef structure {
+        ws_obj_id ref;
+        Workspace.object_info info;
+    } SetItemInfo;
+
+    typedef structure {
+        Workspace.object_info info;
+        list<SetItemInfo> items;
+    } SetInfo;
+
+    typedef structure {
+        list <SetInfo> sets;
+    } ListSetResult;
+
+    /* Use to get the top-level sets in a WS. Optionally can include
+    one level down members of those sets. */
+    funcdef list_sets(ListSetParams params)
+                returns (ListSetResult result) authentication optional;
+
+
+    
+    typedef structure {
+        ws_obj_id ref;
+        list <ws_obj_id> path_to_set;
+    } SetReference;
+
+    typedef structure {
+        list <SetReference> SetReference;
+    } GetSetItemsParams;
+
+    typedef structure {
+        list <SetInfo> sets;
+    } GetSetItemsResult;
+
+    /* Use to drill down into one or more sets, the position in the
+    return 'sets' list will match the position in the input ref list */
+    funcdef get_set_items(GetSetItemsParams params)
+                returns (GetSetItemsResult result) authentication optional;
+
 };
