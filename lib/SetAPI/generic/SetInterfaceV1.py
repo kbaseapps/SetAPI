@@ -47,9 +47,9 @@ class SetInterfaceV1:
 
         if 'workspace' in params:
             if str(params['workspace']).isdigit():
-                save_params['id'] = [ int(params['workspace']) ]
+                save_params['id'] = int(params['workspace'])
             else:
-                save_params['workspace'] = [params['workspace']]
+                save_params['workspace'] = params['workspace']
         elif 'workspace_name' in params:
             save_params['workspace'] = params['workspace_name']
         elif 'workspace_id' in params:
