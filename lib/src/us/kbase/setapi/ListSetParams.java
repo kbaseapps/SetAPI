@@ -23,14 +23,14 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "workspace",
-    "include_set_contents"
+    "include_set_item_info"
 })
 public class ListSetParams {
 
     @JsonProperty("workspace")
     private String workspace;
-    @JsonProperty("include_set_contents")
-    private Long includeSetContents;
+    @JsonProperty("include_set_item_info")
+    private Long includeSetItemInfo;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("workspace")
@@ -48,18 +48,18 @@ public class ListSetParams {
         return this;
     }
 
-    @JsonProperty("include_set_contents")
-    public Long getIncludeSetContents() {
-        return includeSetContents;
+    @JsonProperty("include_set_item_info")
+    public Long getIncludeSetItemInfo() {
+        return includeSetItemInfo;
     }
 
-    @JsonProperty("include_set_contents")
-    public void setIncludeSetContents(Long includeSetContents) {
-        this.includeSetContents = includeSetContents;
+    @JsonProperty("include_set_item_info")
+    public void setIncludeSetItemInfo(Long includeSetItemInfo) {
+        this.includeSetItemInfo = includeSetItemInfo;
     }
 
-    public ListSetParams withIncludeSetContents(Long includeSetContents) {
-        this.includeSetContents = includeSetContents;
+    public ListSetParams withIncludeSetItemInfo(Long includeSetItemInfo) {
+        this.includeSetItemInfo = includeSetItemInfo;
         return this;
     }
 
@@ -75,7 +75,7 @@ public class ListSetParams {
 
     @Override
     public String toString() {
-        return ((((((("ListSetParams"+" [workspace=")+ workspace)+", includeSetContents=")+ includeSetContents)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((("ListSetParams"+" [workspace=")+ workspace)+", includeSetItemInfo=")+ includeSetItemInfo)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

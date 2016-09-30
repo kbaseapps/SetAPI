@@ -21,16 +21,34 @@ import us.kbase.common.service.Tuple11;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
+    "ref",
     "info",
     "items"
 })
 public class SetInfo {
 
+    @JsonProperty("ref")
+    private java.lang.String ref;
     @JsonProperty("info")
     private Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> info;
     @JsonProperty("items")
     private List<SetItemInfo> items;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
+
+    @JsonProperty("ref")
+    public java.lang.String getRef() {
+        return ref;
+    }
+
+    @JsonProperty("ref")
+    public void setRef(java.lang.String ref) {
+        this.ref = ref;
+    }
+
+    public SetInfo withRef(java.lang.String ref) {
+        this.ref = ref;
+        return this;
+    }
 
     @JsonProperty("info")
     public Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> getInfo() {
@@ -74,7 +92,7 @@ public class SetInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((("SetInfo"+" [info=")+ info)+", items=")+ items)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((("SetInfo"+" [ref=")+ ref)+", info=")+ info)+", items=")+ items)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

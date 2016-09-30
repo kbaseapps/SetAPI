@@ -27,8 +27,8 @@ class SetInterfaceV1:
     def _check_save_set_params(self, params):
         if 'data' not in params:
             raise ValueError('"data" parameter field specifiying the set is required')
-        if 'workspace_id' not in params and 'workspace_name' not in params:
-            raise ValueError('"workspace_id" or "workspace_name" parameter fields specifiying the workspace is required')
+        if 'workspace' not in params and 'workspace_id' not in params and 'workspace_name' not in params:
+            raise ValueError('"workspace" or "workspace_id" or "workspace_name" parameter field is required')
         if 'output_object_name' not in params:
             raise ValueError('"output_object_name" parameter field is required')
 
@@ -45,9 +45,14 @@ class SetInterfaceV1:
             }]
         }
 
-        if 'workspace_name' in params:
+        if 'workspace' in params:
+            if str(params['workspace']).isdigit():
+                save_params['id'] = [ int(params['workspace']) ]
+            else:
+                save_params['workspace'] = [params['workspace']]
+        elif 'workspace_name' in params:
             save_params['workspace'] = params['workspace_name']
-        else:
+        elif 'workspace_id' in params:
             save_params['id'] = params['workspace_id']
 
         return save_params

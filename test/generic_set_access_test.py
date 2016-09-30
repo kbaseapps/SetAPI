@@ -93,40 +93,12 @@ class SetAPITest(unittest.TestCase):
     # NOTE: According to Python unittest naming rules test method names should start from 'test'.
     def test_your_method(self):
 
-
-        set_data = {
-            'description':'my first reads',
-            'items': [ 
-            {
-                'ref':'11492/19/4',
-                'label':'reads1'
-            },
-            {
-                'ref':'11492/23/4',
-                'label':'reads2'
-            }
-            ]
-        }
-
         setAPI = self.getImpl()
-        res = setAPI.save_reads_set_v1(self.getContext(), {
-                'data':set_data,
-                'output_object_name':'set_o_reads4',
-                'workspace_id': 11492
+        res = setAPI.list_sets(self.getContext(), {
+                'workspace':'11492',
+                'include_set_item_info':1
             })[0]
         pprint(res)
 
 
-        d1 = setAPI.get_reads_set_v1(self.getContext(), {
-                'ref':res['set_ref']
-            })
-        pprint(d1)
 
-        d2 = setAPI.get_reads_set_v1(self.getContext(), {
-                'ref':res['set_ref'],
-                'include_item_info':1
-            })
-        pprint(d2)
-
-        pass
-        

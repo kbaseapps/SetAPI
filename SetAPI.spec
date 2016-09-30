@@ -79,8 +79,7 @@ module SetAPI {
             used together with one of workspace params from above)
     */
     typedef structure {
-        string workspace_name;
-        int workspace_id;
+        string workspace;
         string output_object_name;
         ReadsSet data;
     } SaveReadsSetV1Params;
@@ -104,7 +103,7 @@ module SetAPI {
     */
     typedef structure {
         string workspace;
-        boolean include_set_contents;
+        boolean include_set_item_info;
     } ListSetParams;
 
 
@@ -114,6 +113,7 @@ module SetAPI {
     } SetItemInfo;
 
     typedef structure {
+        ws_obj_id ref;
         Workspace.object_info info;
         list<SetItemInfo> items;
     } SetInfo;

@@ -279,8 +279,7 @@ usermeta is a reference to a hash where the key is a string and the value is a s
 $params is a SetAPI.SaveReadsSetV1Params
 $result is a SetAPI.SaveReadsSetV1Result
 SaveReadsSetV1Params is a reference to a hash where the following keys are defined:
-	workspace_name has a value which is a string
-	workspace_id has a value which is an int
+	workspace has a value which is a string
 	output_object_name has a value which is a string
 	data has a value which is a SetAPI.ReadsSet
 ReadsSet is a reference to a hash where the following keys are defined:
@@ -329,8 +328,7 @@ SaveReadsSetV1Result is a reference to a hash where the following keys are defin
 $params is a SetAPI.SaveReadsSetV1Params
 $result is a SetAPI.SaveReadsSetV1Result
 SaveReadsSetV1Params is a reference to a hash where the following keys are defined:
-	workspace_name has a value which is a string
-	workspace_id has a value which is an int
+	workspace has a value which is a string
 	output_object_name has a value which is a string
 	data has a value which is a SetAPI.ReadsSet
 ReadsSet is a reference to a hash where the following keys are defined:
@@ -444,13 +442,15 @@ $params is a SetAPI.ListSetParams
 $result is a SetAPI.ListSetResult
 ListSetParams is a reference to a hash where the following keys are defined:
 	workspace has a value which is a string
-	include_set_contents has a value which is a SetAPI.boolean
+	include_set_item_info has a value which is a SetAPI.boolean
 boolean is an int
 ListSetResult is a reference to a hash where the following keys are defined:
 	sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
 SetInfo is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_obj_id
 	info has a value which is a Workspace.object_info
 	items has a value which is a reference to a list where each element is a SetAPI.SetItemInfo
+ws_obj_id is a string
 object_info is a reference to a list containing 11 items:
 	0: (objid) a Workspace.obj_id
 	1: (name) a Workspace.obj_name
@@ -474,7 +474,6 @@ usermeta is a reference to a hash where the key is a string and the value is a s
 SetItemInfo is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_obj_id
 	info has a value which is a Workspace.object_info
-ws_obj_id is a string
 
 </pre>
 
@@ -486,13 +485,15 @@ $params is a SetAPI.ListSetParams
 $result is a SetAPI.ListSetResult
 ListSetParams is a reference to a hash where the following keys are defined:
 	workspace has a value which is a string
-	include_set_contents has a value which is a SetAPI.boolean
+	include_set_item_info has a value which is a SetAPI.boolean
 boolean is an int
 ListSetResult is a reference to a hash where the following keys are defined:
 	sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
 SetInfo is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_obj_id
 	info has a value which is a Workspace.object_info
 	items has a value which is a reference to a list where each element is a SetAPI.SetItemInfo
+ws_obj_id is a string
 object_info is a reference to a list containing 11 items:
 	0: (objid) a Workspace.obj_id
 	1: (name) a Workspace.obj_name
@@ -516,7 +517,6 @@ usermeta is a reference to a hash where the key is a string and the value is a s
 SetItemInfo is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_obj_id
 	info has a value which is a Workspace.object_info
-ws_obj_id is a string
 
 
 =end text
@@ -600,6 +600,7 @@ ws_obj_id is a string
 GetSetItemsResult is a reference to a hash where the following keys are defined:
 	sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
 SetInfo is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_obj_id
 	info has a value which is a Workspace.object_info
 	items has a value which is a reference to a list where each element is a SetAPI.SetItemInfo
 object_info is a reference to a list containing 11 items:
@@ -643,6 +644,7 @@ ws_obj_id is a string
 GetSetItemsResult is a reference to a hash where the following keys are defined:
 	sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
 SetInfo is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_obj_id
 	info has a value which is a Workspace.object_info
 	items has a value which is a reference to a list where each element is a SetAPI.SetItemInfo
 object_info is a reference to a list containing 11 items:
@@ -1117,8 +1119,7 @@ output_object_name - workspace object name (this parameter is
 
 <pre>
 a reference to a hash where the following keys are defined:
-workspace_name has a value which is a string
-workspace_id has a value which is an int
+workspace has a value which is a string
 output_object_name has a value which is a string
 data has a value which is a SetAPI.ReadsSet
 
@@ -1129,8 +1130,7 @@ data has a value which is a SetAPI.ReadsSet
 =begin text
 
 a reference to a hash where the following keys are defined:
-workspace_name has a value which is a string
-workspace_id has a value which is an int
+workspace has a value which is a string
 output_object_name has a value which is a string
 data has a value which is a SetAPI.ReadsSet
 
@@ -1192,7 +1192,7 @@ include_set_contents
 <pre>
 a reference to a hash where the following keys are defined:
 workspace has a value which is a string
-include_set_contents has a value which is a SetAPI.boolean
+include_set_item_info has a value which is a SetAPI.boolean
 
 </pre>
 
@@ -1202,7 +1202,7 @@ include_set_contents has a value which is a SetAPI.boolean
 
 a reference to a hash where the following keys are defined:
 workspace has a value which is a string
-include_set_contents has a value which is a SetAPI.boolean
+include_set_item_info has a value which is a SetAPI.boolean
 
 
 =end text
@@ -1255,6 +1255,7 @@ info has a value which is a Workspace.object_info
 
 <pre>
 a reference to a hash where the following keys are defined:
+ref has a value which is a SetAPI.ws_obj_id
 info has a value which is a Workspace.object_info
 items has a value which is a reference to a list where each element is a SetAPI.SetItemInfo
 
@@ -1265,6 +1266,7 @@ items has a value which is a reference to a list where each element is a SetAPI.
 =begin text
 
 a reference to a hash where the following keys are defined:
+ref has a value which is a SetAPI.ws_obj_id
 info has a value which is a Workspace.object_info
 items has a value which is a reference to a list where each element is a SetAPI.SetItemInfo
 

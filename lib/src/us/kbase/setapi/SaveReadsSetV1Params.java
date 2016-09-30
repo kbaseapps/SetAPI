@@ -24,17 +24,14 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "workspace_name",
-    "workspace_id",
+    "workspace",
     "output_object_name",
     "data"
 })
 public class SaveReadsSetV1Params {
 
-    @JsonProperty("workspace_name")
-    private String workspaceName;
-    @JsonProperty("workspace_id")
-    private Long workspaceId;
+    @JsonProperty("workspace")
+    private String workspace;
     @JsonProperty("output_object_name")
     private String outputObjectName;
     /**
@@ -49,33 +46,18 @@ public class SaveReadsSetV1Params {
     private ReadsSet data;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("workspace_name")
-    public String getWorkspaceName() {
-        return workspaceName;
+    @JsonProperty("workspace")
+    public String getWorkspace() {
+        return workspace;
     }
 
-    @JsonProperty("workspace_name")
-    public void setWorkspaceName(String workspaceName) {
-        this.workspaceName = workspaceName;
+    @JsonProperty("workspace")
+    public void setWorkspace(String workspace) {
+        this.workspace = workspace;
     }
 
-    public SaveReadsSetV1Params withWorkspaceName(String workspaceName) {
-        this.workspaceName = workspaceName;
-        return this;
-    }
-
-    @JsonProperty("workspace_id")
-    public Long getWorkspaceId() {
-        return workspaceId;
-    }
-
-    @JsonProperty("workspace_id")
-    public void setWorkspaceId(Long workspaceId) {
-        this.workspaceId = workspaceId;
-    }
-
-    public SaveReadsSetV1Params withWorkspaceId(Long workspaceId) {
-        this.workspaceId = workspaceId;
+    public SaveReadsSetV1Params withWorkspace(String workspace) {
+        this.workspace = workspace;
         return this;
     }
 
@@ -137,7 +119,7 @@ public class SaveReadsSetV1Params {
 
     @Override
     public String toString() {
-        return ((((((((((("SaveReadsSetV1Params"+" [workspaceName=")+ workspaceName)+", workspaceId=")+ workspaceId)+", outputObjectName=")+ outputObjectName)+", data=")+ data)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((("SaveReadsSetV1Params"+" [workspace=")+ workspace)+", outputObjectName=")+ outputObjectName)+", data=")+ data)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

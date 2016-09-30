@@ -16,52 +16,35 @@ class GenericSetNavigator:
     def __init__(self, workspace_client):
         self.ws = workspace_client
 
-
-
-    # typedef structure {
-    #     string workspace;
-    #     boolean include_set_contents;
-    # } ListSetParams;
-
-
-    # typedef structure {
-    #     ws_obj_id ref;
-    #     Workspace.object_info info;
-    # } SetItemInfo;
-
-    # typedef structure {
-    #     Workspace.object_info info;
-    #     list<SetItemInfo> items;
-    # } SetInfo;
-
-    # typedef structure {
-    #     list <SetInfo> sets;
-    # } ListSetResult;
-
-    # /* Use to get the top-level sets in a WS. Optionally can include
-    # one level down members of those sets. */
-    # funcdef list_sets(ListSetParams params)
-    #             returns (ListSetResult result) authentication optional;
-
     def list_sets(self, params):
-
+        '''
+        Get a list of the top-level sets (that is, sets that are unreferenced by
+        any other sets in the specified workspace). Set item references are always
+        returned, ws info for each of those items can optionally be included too.
+        '''
         self._validate_list_params(params)
 
         workspace = params['workspace']
         all_sets = self._list_all_sets(workspace)
-        print('ALL SETS')
-        pprint(all_sets)
+        all_sets = self._populate_set_refs(all_sets)
 
         # the top level sets list includes not just the set info, but
         # the list of obj refs contained in each of those sets
         top_level_sets = self._get_top_level_sets(all_sets)
 
-        return {}
+        if 'include_set_item_info' in params and params['include_set_item_info']==1:
+            top_level_sets = self._populate_set_item_info(top_level_sets)
+
+        return {'sets': top_level_sets}
 
 
     def _validate_list_params(self, params):
         if 'workspace' not in params:
             raise ValueError('"workspace" field required to list sets')
+
+        if 'include_set_item_info' in params and params['include_set_item_info'] is not None:
+            if params['include_set_item_info'] not in [0,1]:
+                raise ValueError('"include_set_item_info" field must be set to 0 or 1')
 
 
     def _list_all_sets(self, workspace):
@@ -77,7 +60,12 @@ class GenericSetNavigator:
         sets = []
         for t in GenericSetNavigator.SET_TYPES:
             list_params['type'] = t
-            sets.extend(self._list_until_exhausted(list_params, max_id))
+            sets_of_type_t = self._list_until_exhausted(list_params, max_id)
+            for s in sets_of_type_t:
+                sets.append({
+                        'ref': self._build_obj_ref(s),
+                        'info': s
+                    })
         return sets
 
 
@@ -108,62 +96,94 @@ class GenericSetNavigator:
 
 
     def _get_top_level_sets(self, set_list):
+        '''
+        Assumes set_list items are populated, kicks out any set that
+        is directly referenced by another set on the list.
+        '''
 
-        set_refs = self._get_set_refs(set_list)
-        return []
+        # create lookup hash for the sets
+        set_ref_lookup = {}
+        for s in set_list:
+            set_ref_lookup[s['ref']] = 1
+
+        # create a lookup to identify non-root sets
+        sets_referenced_by_another_set = {}
+        for s in set_list:
+            for i in s['items']:
+                if i['ref'] in set_ref_lookup:
+                    sets_referenced_by_another_set[i['ref']] = 1
+
+        # only add the sets that are root in this WS
+        top_level_sets = []
+        for s in set_list:
+            if s['ref'] in sets_referenced_by_another_set:
+                continue
+            top_level_sets.append(s)
+
+        return top_level_sets
 
 
 
 
-    def _get_set_refs(self, set_list):
+    def _populate_set_refs(self, set_list):
 
         objects = []
         for s in set_list:
-            objects.append({'ref': str(s[6]) + '/' + str(s[0]) + '/' + str(s[4]) })
+            objects.append({'ref':s['ref']})
         obj_data = self.ws.get_objects2({
                 'objects':objects,
                 'no_data':1
-            })
+            })['data']
 
-        refs = []
-        for d in obj_data['data']:
-            refs.append(d['refs'])
-
-
-        print(refs)
-
-
-        return []
+        # if ws call worked, then len(obj_data)==len(set_list)
+        for k in range(0,len(obj_data)):
+            items = []
+            for item_ref in obj_data[k]['refs']:
+                items.append({'ref':item_ref})
+            set_list[k]['items'] = items
+        return set_list
 
 
+    def _populate_set_item_info(self, set_list):
+
+        # keys are refs to items, values are a ref to one of the
+        # sets that they are in.  We build a lookup here first so that
+        # we don't duplicate items in the ws call, but depending
+        # on the set composition it may be cheaper to omit this
+        # check and build the objects call directly with duplicates
+        item_refs = {}
+        for s in set_list:
+            for i in s['items']:
+                item_refs[i['ref']] = s['ref']
+
+        objects = []
+        for ref in item_refs:
+            objects.append({
+                    'ref': item_refs[ref],
+                    'obj_ref_path': [ref]
+                })
+
+        obj_info_list = self.ws.get_object_info_new({
+                                    'objects':objects,
+                                    'includeMetadata':1
+                                })
+
+        # build info lookup
+        item_info = {}
+        for o in obj_info_list:
+            item_info[self._build_obj_ref(o)] = o
+
+        for s in set_list:
+            for item in s['items']:
+                if item['ref'] in item_info:
+                    item['info'] = item_info[item['ref']]
+
+        return set_list
 
 
 
-
-
-
- # list<ws_name> workspaces;
- #        list<ws_id> ids;
- #        type_string type;
- #        permission perm;
- #        list<username> savedby;
- #        usermeta meta;
- #        timestamp after;
- #        timestamp before;
- #        epoch after_epoch;
- #        epoch before_epoch;
- #        obj_id minObjectID;
- #        obj_id maxObjectID;
- #        boolean showDeleted;
- #        boolean showOnlyDeleted;
- #        boolean showHidden;
- #        boolean showAllVersions;
- #        boolean includeMetadata;
- #        boolean excludeGlobal;
- #        int limit;
-
-
-
+    def _build_obj_ref(self, obj_info):
+        return str(obj_info[6]) + '/' + str(obj_info[0]) + '/' + str(obj_info[4])
 
 
     def get_set_items(self, params):
