@@ -195,6 +195,44 @@ public class SetAPIClient {
         return res.get(0);
     }
 
+    /**
+     * <p>Original spec-file function name: list_sets</p>
+     * <pre>
+     * Use to get the top-level sets in a WS. Optionally can include
+     * one level down members of those sets.
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.setapi.ListSetParams ListSetParams}
+     * @return   parameter "result" of type {@link us.kbase.setapi.ListSetResult ListSetResult}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public ListSetResult listSets(ListSetParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<ListSetResult>> retType = new TypeReference<List<ListSetResult>>() {};
+        List<ListSetResult> res = caller.jsonrpcCall("SetAPI.list_sets", args, retType, true, false, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: get_set_items</p>
+     * <pre>
+     * Use to drill down into one or more sets, the position in the
+     * return 'sets' list will match the position in the input ref list
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.setapi.GetSetItemsParams GetSetItemsParams}
+     * @return   parameter "result" of type {@link us.kbase.setapi.GetSetItemsResult GetSetItemsResult}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public GetSetItemsResult getSetItems(GetSetItemsParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<GetSetItemsResult>> retType = new TypeReference<List<GetSetItemsResult>>() {};
+        List<GetSetItemsResult> res = caller.jsonrpcCall("SetAPI.get_set_items", args, retType, true, false, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
     public Map<String, Object> status(RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         TypeReference<List<Map<String, Object>>> retType = new TypeReference<List<Map<String, Object>>>() {};

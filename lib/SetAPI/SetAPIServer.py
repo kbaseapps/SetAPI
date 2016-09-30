@@ -337,6 +337,14 @@ class Application(object):
                              name='SetAPI.save_reads_set_v1',
                              types=[dict])
         self.method_authentication['SetAPI.save_reads_set_v1'] = 'required'
+        self.rpc_service.add(impl_SetAPI.list_sets,
+                             name='SetAPI.list_sets',
+                             types=[dict])
+        self.method_authentication['SetAPI.list_sets'] = 'optional'
+        self.rpc_service.add(impl_SetAPI.get_set_items,
+                             name='SetAPI.get_set_items',
+                             types=[dict])
+        self.method_authentication['SetAPI.get_set_items'] = 'optional'
         self.rpc_service.add(impl_SetAPI.status,
                              name='SetAPI.status',
                              types=[dict])

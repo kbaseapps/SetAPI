@@ -1,7 +1,7 @@
 
 
 
-from SetAPI.SetInterfaceV1 import SetInterfaceV1
+from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
 
 from biokbase.workspace.client import Workspace
 
@@ -38,22 +38,22 @@ class ReadsSetInterfaceV1:
 
     def _validate_reads_set_data(self, data):
 
-        info = set['info']
-        items = set['data']['items']
-        set_ref = str(info[6]) + '/' + str(info[0]) + '/' + str(info[4])
-        ref_path_to_item = ref_path_to_set + [set_ref]
+        # info = set['info']
+        # items = data['data']['items']
+        # set_ref = str(info[6]) + '/' + str(info[0]) + '/' + str(info[4])
+        # ref_path_to_item = ref_path_to_set + [set_ref]
 
-        objects = []
-        for item in items:
-            objects.append(
-                self._build_ws_obj_selector(item['ref'], ref_path_to_item))
+        # objects = []
+        # for item in items:
+        #     objects.append(
+        #         self._build_ws_obj_selector(item['ref'], ref_path_to_item))
 
-        obj_info_list = self.ws.get_object_info_new({
-                                    'objects': objects,
-                                    'includeMetadata': 1 })
+        # obj_info_list = self.ws.get_object_info_new({
+        #                             'objects': objects,
+        #                             'includeMetadata': 1 })
 
-        for k in range(0, len(obj_info_list)):
-            items[k]['info'] = obj_info_list[k]
+        # for k in range(0, len(obj_info_list)):
+        #     items[k]['info'] = obj_info_list[k]
         pass
 
 

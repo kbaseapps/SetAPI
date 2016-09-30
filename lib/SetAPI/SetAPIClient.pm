@@ -427,6 +427,306 @@ SaveReadsSetV1Result is a reference to a hash where the following keys are defin
     }
 }
  
+
+
+=head2 list_sets
+
+  $result = $obj->list_sets($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a SetAPI.ListSetParams
+$result is a SetAPI.ListSetResult
+ListSetParams is a reference to a hash where the following keys are defined:
+	workspace has a value which is a string
+	include_set_contents has a value which is a SetAPI.boolean
+boolean is an int
+ListSetResult is a reference to a hash where the following keys are defined:
+	sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
+SetInfo is a reference to a hash where the following keys are defined:
+	info has a value which is a Workspace.object_info
+	items has a value which is a reference to a list where each element is a SetAPI.SetItemInfo
+object_info is a reference to a list containing 11 items:
+	0: (objid) a Workspace.obj_id
+	1: (name) a Workspace.obj_name
+	2: (type) a Workspace.type_string
+	3: (save_date) a Workspace.timestamp
+	4: (version) an int
+	5: (saved_by) a Workspace.username
+	6: (wsid) a Workspace.ws_id
+	7: (workspace) a Workspace.ws_name
+	8: (chsum) a string
+	9: (size) an int
+	10: (meta) a Workspace.usermeta
+obj_id is an int
+obj_name is a string
+type_string is a string
+timestamp is a string
+username is a string
+ws_id is an int
+ws_name is a string
+usermeta is a reference to a hash where the key is a string and the value is a string
+SetItemInfo is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_obj_id
+	info has a value which is a Workspace.object_info
+ws_obj_id is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a SetAPI.ListSetParams
+$result is a SetAPI.ListSetResult
+ListSetParams is a reference to a hash where the following keys are defined:
+	workspace has a value which is a string
+	include_set_contents has a value which is a SetAPI.boolean
+boolean is an int
+ListSetResult is a reference to a hash where the following keys are defined:
+	sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
+SetInfo is a reference to a hash where the following keys are defined:
+	info has a value which is a Workspace.object_info
+	items has a value which is a reference to a list where each element is a SetAPI.SetItemInfo
+object_info is a reference to a list containing 11 items:
+	0: (objid) a Workspace.obj_id
+	1: (name) a Workspace.obj_name
+	2: (type) a Workspace.type_string
+	3: (save_date) a Workspace.timestamp
+	4: (version) an int
+	5: (saved_by) a Workspace.username
+	6: (wsid) a Workspace.ws_id
+	7: (workspace) a Workspace.ws_name
+	8: (chsum) a string
+	9: (size) an int
+	10: (meta) a Workspace.usermeta
+obj_id is an int
+obj_name is a string
+type_string is a string
+timestamp is a string
+username is a string
+ws_id is an int
+ws_name is a string
+usermeta is a reference to a hash where the key is a string and the value is a string
+SetItemInfo is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_obj_id
+	info has a value which is a Workspace.object_info
+ws_obj_id is a string
+
+
+=end text
+
+=item Description
+
+Use to get the top-level sets in a WS. Optionally can include
+one level down members of those sets.
+
+=back
+
+=cut
+
+ sub list_sets
+{
+    my($self, @args) = @_;
+
+# Authentication: optional
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function list_sets (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to list_sets:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'list_sets');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "SetAPI.list_sets",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'list_sets',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method list_sets",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'list_sets',
+				       );
+    }
+}
+ 
+
+
+=head2 get_set_items
+
+  $result = $obj->get_set_items($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a SetAPI.GetSetItemsParams
+$result is a SetAPI.GetSetItemsResult
+GetSetItemsParams is a reference to a hash where the following keys are defined:
+	SetReference has a value which is a reference to a list where each element is a SetAPI.SetReference
+SetReference is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_obj_id
+	path_to_set has a value which is a reference to a list where each element is a SetAPI.ws_obj_id
+ws_obj_id is a string
+GetSetItemsResult is a reference to a hash where the following keys are defined:
+	sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
+SetInfo is a reference to a hash where the following keys are defined:
+	info has a value which is a Workspace.object_info
+	items has a value which is a reference to a list where each element is a SetAPI.SetItemInfo
+object_info is a reference to a list containing 11 items:
+	0: (objid) a Workspace.obj_id
+	1: (name) a Workspace.obj_name
+	2: (type) a Workspace.type_string
+	3: (save_date) a Workspace.timestamp
+	4: (version) an int
+	5: (saved_by) a Workspace.username
+	6: (wsid) a Workspace.ws_id
+	7: (workspace) a Workspace.ws_name
+	8: (chsum) a string
+	9: (size) an int
+	10: (meta) a Workspace.usermeta
+obj_id is an int
+obj_name is a string
+type_string is a string
+timestamp is a string
+username is a string
+ws_id is an int
+ws_name is a string
+usermeta is a reference to a hash where the key is a string and the value is a string
+SetItemInfo is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_obj_id
+	info has a value which is a Workspace.object_info
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a SetAPI.GetSetItemsParams
+$result is a SetAPI.GetSetItemsResult
+GetSetItemsParams is a reference to a hash where the following keys are defined:
+	SetReference has a value which is a reference to a list where each element is a SetAPI.SetReference
+SetReference is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_obj_id
+	path_to_set has a value which is a reference to a list where each element is a SetAPI.ws_obj_id
+ws_obj_id is a string
+GetSetItemsResult is a reference to a hash where the following keys are defined:
+	sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
+SetInfo is a reference to a hash where the following keys are defined:
+	info has a value which is a Workspace.object_info
+	items has a value which is a reference to a list where each element is a SetAPI.SetItemInfo
+object_info is a reference to a list containing 11 items:
+	0: (objid) a Workspace.obj_id
+	1: (name) a Workspace.obj_name
+	2: (type) a Workspace.type_string
+	3: (save_date) a Workspace.timestamp
+	4: (version) an int
+	5: (saved_by) a Workspace.username
+	6: (wsid) a Workspace.ws_id
+	7: (workspace) a Workspace.ws_name
+	8: (chsum) a string
+	9: (size) an int
+	10: (meta) a Workspace.usermeta
+obj_id is an int
+obj_name is a string
+type_string is a string
+timestamp is a string
+username is a string
+ws_id is an int
+ws_name is a string
+usermeta is a reference to a hash where the key is a string and the value is a string
+SetItemInfo is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_obj_id
+	info has a value which is a Workspace.object_info
+
+
+=end text
+
+=item Description
+
+Use to drill down into one or more sets, the position in the
+return 'sets' list will match the position in the input ref list
+
+=back
+
+=cut
+
+ sub get_set_items
+{
+    my($self, @args) = @_;
+
+# Authentication: optional
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function get_set_items (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to get_set_items:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'get_set_items');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "SetAPI.get_set_items",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'get_set_items',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method get_set_items",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'get_set_items',
+				       );
+    }
+}
+ 
   
 sub status
 {
@@ -470,16 +770,16 @@ sub version {
             Bio::KBase::Exceptions::JSONRPC->throw(
                 error => $result->error_message,
                 code => $result->content->{code},
-                method_name => 'save_reads_set_v1',
+                method_name => 'get_set_items',
             );
         } else {
             return wantarray ? @{$result->result} : $result->result->[0];
         }
     } else {
         Bio::KBase::Exceptions::HTTP->throw(
-            error => "Error invoking method save_reads_set_v1",
+            error => "Error invoking method get_set_items",
             status_line => $self->{client}->status_line,
-            method_name => 'save_reads_set_v1',
+            method_name => 'get_set_items',
         );
     }
 }
@@ -865,6 +1165,230 @@ set_info has a value which is a Workspace.object_info
 a reference to a hash where the following keys are defined:
 set_ref has a value which is a string
 set_info has a value which is a Workspace.object_info
+
+
+=end text
+
+=back
+
+
+
+=head2 ListSetParams
+
+=over 4
+
+
+
+=item Description
+
+workspace - workspace name or ID of 
+include_set_contents
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+workspace has a value which is a string
+include_set_contents has a value which is a SetAPI.boolean
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+workspace has a value which is a string
+include_set_contents has a value which is a SetAPI.boolean
+
+
+=end text
+
+=back
+
+
+
+=head2 SetItemInfo
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+ref has a value which is a SetAPI.ws_obj_id
+info has a value which is a Workspace.object_info
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+ref has a value which is a SetAPI.ws_obj_id
+info has a value which is a Workspace.object_info
+
+
+=end text
+
+=back
+
+
+
+=head2 SetInfo
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+info has a value which is a Workspace.object_info
+items has a value which is a reference to a list where each element is a SetAPI.SetItemInfo
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+info has a value which is a Workspace.object_info
+items has a value which is a reference to a list where each element is a SetAPI.SetItemInfo
+
+
+=end text
+
+=back
+
+
+
+=head2 ListSetResult
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
+
+
+=end text
+
+=back
+
+
+
+=head2 SetReference
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+ref has a value which is a SetAPI.ws_obj_id
+path_to_set has a value which is a reference to a list where each element is a SetAPI.ws_obj_id
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+ref has a value which is a SetAPI.ws_obj_id
+path_to_set has a value which is a reference to a list where each element is a SetAPI.ws_obj_id
+
+
+=end text
+
+=back
+
+
+
+=head2 GetSetItemsParams
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+SetReference has a value which is a reference to a list where each element is a SetAPI.SetReference
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+SetReference has a value which is a reference to a list where each element is a SetAPI.SetReference
+
+
+=end text
+
+=back
+
+
+
+=head2 GetSetItemsResult
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
 
 
 =end text
