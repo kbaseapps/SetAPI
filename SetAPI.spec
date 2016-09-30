@@ -123,7 +123,8 @@ module SetAPI {
     } ListSetResult;
 
     /* Use to get the top-level sets in a WS. Optionally can include
-    one level down members of those sets. */
+    one level down members of those sets. 
+    NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA */
     funcdef list_sets(ListSetParams params)
                 returns (ListSetResult result) authentication optional;
 
@@ -135,7 +136,7 @@ module SetAPI {
     } SetReference;
 
     typedef structure {
-        list <SetReference> SetReference;
+        list <SetReference> set_refs;
     } GetSetItemsParams;
 
     typedef structure {
@@ -143,7 +144,8 @@ module SetAPI {
     } GetSetItemsResult;
 
     /* Use to drill down into one or more sets, the position in the
-    return 'sets' list will match the position in the input ref list */
+    return 'sets' list will match the position in the input ref list.
+    NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA */
     funcdef get_set_items(GetSetItemsParams params)
                 returns (GetSetItemsResult result) authentication optional;
 

@@ -186,10 +186,111 @@ class GenericSetNavigator:
         return str(obj_info[6]) + '/' + str(obj_info[0]) + '/' + str(obj_info[4])
 
 
-    def get_set_items(self, params):
-        
 
-        return {}
+    
+    # typedef structure {
+    #     ws_obj_id ref;
+    #     list <ws_obj_id> path_to_set;
+    # } SetReference;
+
+    # typedef structure {
+    #     list <SetReference> SetReference;
+    # } GetSetItemsParams;
+
+    # typedef structure {
+    #     list <SetInfo> sets;
+    # } GetSetItemsResult;
+
+
+
+    def get_set_items(self, params):
+        '''
+        Given a list of reference to set objects, get the list of items for each set
+        with metadata.  NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST
+        '''
+        self._validate_get_set_items_params(params)
+
+        set_list = self._get_set_info(params['set_refs'])
+
+        set_list = self._populate_set_refs(set_list)
+        set_list = self._populate_set_item_info(set_list)
+
+        return { 'sets': set_list }
+
+
+    def _validate_get_set_items_params(self, params):
+        if 'set_refs' not in params:
+            raise ValueError('"set_refs" field providing list of refs to sets is required to get_set_items')
+        for s in params['set_refs']:
+            if 'ref' not in s:
+                raise ValueError('"ref" field in each object of "set_refs" list is required')
+
+
+
+    def _get_set_info(self, set_refs):
+
+        objects = []
+        for s in set_refs:
+            if 'path_to_set' in s and s['path_to_set'] is not None and len(s['path_to_set'])>0:
+                obj_ref_path = s['path_to_set'][1:]
+                obj_ref_path.append(s['ref'])
+                objects.append({
+                        'ref': s['path_to_set'][0],
+                        'obj_ref_path': obj_ref_path
+                    })
+            else:
+                objects.append({'ref':s['ref']})
+
+
+        obj_info_list = self.ws.get_object_info_new({
+                                    'objects':objects,
+                                    'includeMetadata':1
+                                })
+        set_list = []
+        for o in obj_info_list:
+            set_list.append({
+                    'ref': self._build_obj_ref(o),
+                    'info': o
+                })
+        return set_list
+
+
+
+    # def _populate_set_item_info(self, set_list):
+
+    #     # keys are refs to items, values are a ref to one of the
+    #     # sets that they are in.  We build a lookup here first so that
+    #     # we don't duplicate items in the ws call, but depending
+    #     # on the set composition it may be cheaper to omit this
+    #     # check and build the objects call directly with duplicates
+    #     item_refs = {}
+    #     for s in set_list:
+    #         for i in s['items']:
+    #             item_refs[i['ref']] = s['ref']
+
+    #     objects = []
+    #     for ref in item_refs:
+    #         objects.append({
+    #                 'ref': item_refs[ref],
+    #                 'obj_ref_path': [ref]
+    #             })
+
+    #     obj_info_list = self.ws.get_object_info_new({
+    #                                 'objects':objects,
+    #                                 'includeMetadata':1
+    #                             })
+
+    #     # build info lookup
+    #     item_info = {}
+    #     for o in obj_info_list:
+    #         item_info[self._build_obj_ref(o)] = o
+
+    #     for s in set_list:
+    #         for item in s['items']:
+    #             if item['ref'] in item_info:
+    #                 item['info'] = item_info[item['ref']]
+
+    #     return set_list
 
 
     # def _check_save_set_params(self, params):

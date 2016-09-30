@@ -98,6 +98,14 @@ class SetAPITest(unittest.TestCase):
                 'workspace':'11492',
                 'include_set_item_info':1
             })[0]
+        print('LIST_SETS')
+        pprint(res)
+
+        res = setAPI.get_set_items(self.getContext(), {
+                'set_refs': [{'ref':'11492/26/1'}]
+            })[0]
+
+        print('GET_SET_ITEMS')
         pprint(res)
 
 
