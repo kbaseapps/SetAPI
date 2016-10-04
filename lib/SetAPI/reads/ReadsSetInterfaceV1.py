@@ -34,26 +34,9 @@ class ReadsSetInterfaceV1:
         }
 
 
-
-
     def _validate_reads_set_data(self, data):
-
-        # info = set['info']
-        # items = data['data']['items']
-        # set_ref = str(info[6]) + '/' + str(info[0]) + '/' + str(info[4])
-        # ref_path_to_item = ref_path_to_set + [set_ref]
-
-        # objects = []
-        # for item in items:
-        #     objects.append(
-        #         self._build_ws_obj_selector(item['ref'], ref_path_to_item))
-
-        # obj_info_list = self.ws.get_object_info_new({
-        #                             'objects': objects,
-        #                             'includeMetadata': 1 })
-
-        # for k in range(0, len(obj_info_list)):
-        #     items[k]['info'] = obj_info_list[k]
+        # TODO: add checks that only one copy of each reads data is in the set
+        # TODO?: add checks that reads data list is homogenous (no mixed single/paired-end libs)
         pass
 
 
@@ -70,11 +53,14 @@ class ReadsSetInterfaceV1:
         if 'ref_path_to_set' in params:
             ref_path_to_set = params['ref_path_to_set']
 
-        return self.setInterface.get_set(
+        set_data = self.setInterface.get_set(
                 params['ref'],
                 include_item_info,
                 ref_path_to_set
             )
+        set_data = self._normalize_read_set_data(set_data)
+
+        return set_data
 
     def _check_get_reads_set_params(self, params):
         if 'ref' not in params:
@@ -82,4 +68,13 @@ class ReadsSetInterfaceV1:
         if 'include_item_info' in params:
             if params['include_item_info'] not in [0,1]:
                 raise ValueError('"include_item_info" parameter field can only be set to 0 or 1')
+
+
+    def _normalize_read_set_data(self, set_data):
+        # make sure that optional/missing fields are filled in or are defined
+        # TODO: populate empty description field
+        # TODO?: populate empty label fields
+        return set_data
+
+
 

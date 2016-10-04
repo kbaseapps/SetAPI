@@ -91,42 +91,84 @@ class SetAPITest(unittest.TestCase):
         return self.__class__.ctx
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'.
-    def test_your_method(self):
+    def test_basic_save_and_get(self):
 
+        read1ref = '11492/19/4'
+        read2ref = '11492/23/4'
+        read3ref = '11492/23/4'
 
+        workspace = '11492'
+        setObjName = 'set_o_reads'
+
+        # create the set object
         set_data = {
             'description':'my first reads',
-            'items': [ 
-            {
-                'ref':'11492/19/4',
-                'label':'reads1'
-            },
-            {
-                'ref':'11492/23/4',
-                'label':'reads2'
-            }
+            'items': [ {
+                    'ref': read1ref,
+                    'label':'reads1'
+                },{
+                    'ref': read2ref,
+                    'label':'reads2'
+                }, {
+                    'ref': read2ref,
+                    'label':'reads3'
+                }
             ]
         }
 
+        # test a save
         setAPI = self.getImpl()
         res = setAPI.save_reads_set_v1(self.getContext(), {
                 'data':set_data,
-                'output_object_name':'set_o_reads4',
-                'workspace_id': 11492
+                'output_object_name':setObjName,
+                'workspace': workspace
             })[0]
-        pprint(res)
+        self.assertTrue('set_ref' in res)
+        self.assertTrue('set_info' in res)
+        self.assertEqual(len(res['set_info']), 11)
+
+        self.assertEqual(res['set_info'][1], setObjName)
+        self.assertTrue('item_count' in res['set_info'][10])
+        self.assertEqual(res['set_info'][10]['item_count'], '3')
 
 
+        # test get of that object
         d1 = setAPI.get_reads_set_v1(self.getContext(), {
-                'ref':res['set_ref']
-            })
-        pprint(d1)
+                'ref': workspace + '/' + setObjName
+            })[0]
+        self.assertTrue('data' in d1)
+        self.assertTrue('info' in d1)
+        self.assertEqual(len(d1['info']), 11)
+        self.assertTrue('item_count' in d1['info'][10])
+        self.assertEqual(d1['info'][10]['item_count'], '3')
 
+        self.assertEqual(d1['data']['description'], 'my first reads')
+        self.assertEqual(len(d1['data']['items']), 3)
+
+        item2 = d1['data']['items'][2]
+        self.assertTrue('info' not in item2)
+        self.assertTrue('ref' in item2)
+        self.assertEqual(item2['ref'],read2ref)
+
+
+        # test the call to make sure we get info for each item
         d2 = setAPI.get_reads_set_v1(self.getContext(), {
                 'ref':res['set_ref'],
                 'include_item_info':1
-            })
-        pprint(d2)
+            })[0]
+        self.assertTrue('data' in d2)
+        self.assertTrue('info' in d2)
+        self.assertEqual(len(d2['info']), 11)
+        self.assertTrue('item_count' in d2['info'][10])
+        self.assertEqual(d2['info'][10]['item_count'], '3')
 
-        pass
-        
+        self.assertEqual(d2['data']['description'], 'my first reads')
+        self.assertEqual(len(d2['data']['items']), 3)
+
+        item2 = d2['data']['items'][2]
+        self.assertTrue('info' in item2)
+        self.assertTrue(len(item2['info']), 11)
+        self.assertTrue('ref' in item2)
+        self.assertEqual(item2['ref'],read2ref)
+
+
