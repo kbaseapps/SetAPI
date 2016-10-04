@@ -50,8 +50,6 @@ class SetAPITest(unittest.TestCase):
         cls.wsClient = workspaceService(cls.wsURL, token=token)
         cls.serviceImpl = SetAPI(cls.cfg)
 
-        pprint(cls.cfg)
-
         # setup data at the class level for now (so that the code is run
         # once for all tests, not before each test case.  Not sure how to
         # do that outside this function..)

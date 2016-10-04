@@ -4,6 +4,7 @@ import os
 import json
 import time
 import requests
+import shutil
 
 from os import environ
 try:
@@ -50,21 +51,34 @@ class SetAPITest(unittest.TestCase):
         cls.serviceImpl = SetAPI(cls.cfg)
 
 
-    # @classmethod
-    # def setup_data(cls):
+        # setup data at the class level for now (so that the code is run
+        # once for all tests, not before each test case.  Not sure how to
+        # do that outside this function..)
+        suffix = int(time.time() * 1000)
+        wsName = "test_SetAPI_" + str(suffix)
+        ret = cls.wsClient.create_workspace({'workspace': wsName})
+        cls.wsName = wsName
 
-    #     ws = self.getWsClient()
-    #     ws_name = self.getWsName()
+        # copy test file to scratch area
+        fq_filename = "interleaved.fastq"
+        fq_path = os.path.join(cls.cfg['scratch'], fq_filename)
+        shutil.copy(os.path.join("data", fq_filename), fq_path)
 
-    #     ru = ReadsUtils(os.environ['SDK_CALLBACK_URL'])
-    #     shutil.copy('data/GCF_000005845.2_ASM584v2_genomic.gbff', cls.cfg['scratch'])
-    #     shock_file = dfu.file_to_shock({
-    #                         'file_path': os.path.join(cls.cfg['scratch'], 'GCF_000005845.2_ASM584v2_genomic.gbff'),
-    #                         'make_handle': 1
-    #                     })
-
-
-
+        ru = ReadsUtils(os.environ['SDK_CALLBACK_URL'])
+        cls.read1ref = ru.upload_reads({
+                'fwd_file': fq_path,
+                'sequencing_tech': 'tech1',
+                'wsname': wsName,
+                'name': 'reads1',
+                'interleaved':1
+            })['obj_ref']
+        cls.read2ref = ru.upload_reads({
+                'fwd_file': fq_path,
+                'sequencing_tech': 'tech2',
+                'wsname': wsName,
+                'name': 'reads2',
+                'interleaved':1
+            })['obj_ref']
 
     @classmethod
     def tearDownClass(cls):
@@ -90,23 +104,103 @@ class SetAPITest(unittest.TestCase):
     def getContext(self):
         return self.__class__.ctx
 
-    # NOTE: According to Python unittest naming rules test method names should start from 'test'.
-    def test_your_method(self):
+
+    def create_sets(self):
+        if hasattr(self.__class__, 'setNames'):
+            return
+
+        workspace = self.getWsName()
+        self.__class__.setNames = ['set_o_reads1', 'set_o_reads2', 'set_o_reads3']
+        self.__class__.setRefs = []
 
         setAPI = self.getImpl()
+        for s in self.setNames:
+
+            set_data = {
+                'description':'my first reads',
+                'items': [ {
+                        'ref': self.read1ref,
+                        'label':'reads1'
+                    },{
+                        'ref': self.read2ref,
+                        'label':'reads2'
+                    }
+                ]
+            }
+
+            # test a save
+            res = setAPI.save_reads_set_v1(self.getContext(), {
+                    'data':set_data,
+                    'output_object_name':s,
+                    'workspace': workspace
+                })[0]
+            self.setRefs.append(res['set_ref'])
+
+
+    # NOTE: According to Python unittest naming rules test method names should start from 'test'.
+    def test_list_sets(self):
+
+        # create the test sets
+        self.create_sets()
+
+        workspace = self.getWsName()
+        setAPI = self.getImpl()
+
+
         res = setAPI.list_sets(self.getContext(), {
-                'workspace':'11492',
+                'workspace':workspace,
                 'include_set_item_info':1
             })[0]
-        print('LIST_SETS')
-        pprint(res)
+        self.assertTrue('sets' in res)
+        self.assertEqual(len(res['sets']), len(self.setNames))
+        for s in res['sets']:
+            self.assertTrue('ref' in s)
+            self.assertTrue('info' in s)
+            self.assertTrue('items' in s)
+            self.assertEqual(len(s['info']),11)
+            self.assertEqual(len(s['items']),2)
+            for item in s['items']:
+                self.assertTrue('ref' in item)
+                self.assertTrue('info' in item)
+                self.assertEqual(len(item['info']),11)
 
-        res = setAPI.get_set_items(self.getContext(), {
-                'set_refs': [{'ref':'11492/26/1'}]
+
+
+        res2 = setAPI.list_sets(self.getContext(), {
+                'workspace':workspace
             })[0]
+        self.assertTrue('sets' in res2)
+        self.assertEqual(len(res2['sets']), len(self.setNames))
+        for s in res2['sets']:
+            self.assertTrue('ref' in s)
+            self.assertTrue('info' in s)
+            self.assertTrue('items' in s)
+            self.assertEqual(len(s['info']),11)
+            self.assertEqual(len(s['items']),2)
+            for item in s['items']:
+                self.assertTrue('ref' in item)
+                self.assertTrue('info' not in item)
 
-        print('GET_SET_ITEMS')
-        pprint(res)
+
+    def test_get_set_items(self):
+
+        self.create_sets()
+
+        setAPI = self.getImpl()
+        res = setAPI.get_set_items(self.getContext(), {
+                'set_refs': [{'ref':self.setRefs[0]}]
+            })[0]
+        self.assertEqual(len(res['sets']), 1)
+        for s in res['sets']:
+            self.assertTrue('ref' in s)
+            self.assertTrue('info' in s)
+            self.assertTrue('items' in s)
+            self.assertEqual(len(s['info']),11)
+            self.assertEqual(len(s['items']),2)
+            for item in s['items']:
+                self.assertTrue('ref' in item)
+                self.assertTrue('info' in item)
+                self.assertEqual(len(item['info']),11)
 
 
 
