@@ -37,7 +37,16 @@ class ReadsSetInterfaceV1:
     def _validate_reads_set_data(self, data):
         # TODO: add checks that only one copy of each reads data is in the set
         # TODO?: add checks that reads data list is homogenous (no mixed single/paired-end libs)
-        pass
+        
+        if 'items' not in data:
+            raise ValueError('"items" list must be defined in data to save a ReadsSet')
+
+        # add 'description' and 'label' fields if not present in data:
+        for item in data['items']:
+            if 'label' not in item:
+                item['label'] = ''
+        if 'description' not in data:
+            data['description'] = ''
 
 
 

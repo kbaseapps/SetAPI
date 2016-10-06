@@ -126,8 +126,7 @@ class SetAPITest(unittest.TestCase):
                     'ref': self.read2ref,
                     'label':'reads2'
                 }, {
-                    'ref': self.read2ref,
-                    'label':'reads3'
+                    'ref': self.read3ref
                 }
             ]
         }
@@ -161,10 +160,19 @@ class SetAPITest(unittest.TestCase):
         self.assertEqual(d1['data']['description'], 'my first reads')
         self.assertEqual(len(d1['data']['items']), 3)
 
-        item2 = d1['data']['items'][2]
+        item2 = d1['data']['items'][1]
         self.assertTrue('info' not in item2)
         self.assertTrue('ref' in item2)
+        self.assertTrue('label' in item2)
+        self.assertEqual(item2['label'],'reads2')
         self.assertEqual(item2['ref'],self.read2ref)
+
+        item3 = d1['data']['items'][2]
+        self.assertTrue('info' not in item3)
+        self.assertTrue('ref' in item3)
+        self.assertTrue('label' in item3)
+        self.assertEqual(item3['label'],'')
+        self.assertEqual(item3['ref'],self.read3ref)
 
 
         # test the call to make sure we get info for each item
@@ -181,7 +189,7 @@ class SetAPITest(unittest.TestCase):
         self.assertEqual(d2['data']['description'], 'my first reads')
         self.assertEqual(len(d2['data']['items']), 3)
 
-        item2 = d2['data']['items'][2]
+        item2 = d2['data']['items'][1]
         self.assertTrue('info' in item2)
         self.assertTrue(len(item2['info']), 11)
         self.assertTrue('ref' in item2)
