@@ -188,3 +188,59 @@ class SetAPITest(unittest.TestCase):
         self.assertEqual(item2['ref'],self.read2ref)
 
 
+        # NOTE: According to Python unittest naming rules test method names should start from 'test'.
+    def skip_test_save_and_get_of_emtpy_set(self):
+
+        workspace = self.getWsName()
+        setObjName = 'nada_set'
+
+        # create the set object
+        set_data = {
+            'description':'nothing to see here',
+            'items': [ 
+            ]
+        }
+
+        # test a save
+        setAPI = self.getImpl()
+        res = setAPI.save_reads_set_v1(self.getContext(), {
+                'data':set_data,
+                'output_object_name':setObjName,
+                'workspace': workspace
+            })[0]
+        self.assertTrue('set_ref' in res)
+        self.assertTrue('set_info' in res)
+        self.assertEqual(len(res['set_info']), 11)
+
+        self.assertEqual(res['set_info'][1], setObjName)
+        self.assertTrue('item_count' in res['set_info'][10])
+        self.assertEqual(res['set_info'][10]['item_count'], '0')
+
+
+        # test get of that object
+        d1 = setAPI.get_reads_set_v1(self.getContext(), {
+                'ref': workspace + '/' + setObjName
+            })[0]
+        self.assertTrue('data' in d1)
+        self.assertTrue('info' in d1)
+        self.assertEqual(len(d1['info']), 11)
+        self.assertTrue('item_count' in d1['info'][10])
+        self.assertEqual(d1['info'][10]['item_count'], '0')
+
+        self.assertEqual(d1['data']['description'], 'nothing to see here')
+        self.assertEqual(len(d1['data']['items']), 0)
+
+        d2 = setAPI.get_reads_set_v1(self.getContext(), {
+                'ref':res['set_ref'],
+                'include_item_info':1
+            })[0]
+
+        self.assertTrue('data' in d2)
+        self.assertTrue('info' in d2)
+        self.assertEqual(len(d2['info']), 11)
+        self.assertTrue('item_count' in d2['info'][10])
+        self.assertEqual(d2['info'][10]['item_count'], '0')
+
+        self.assertEqual(d2['data']['description'], 'nothing to see here')
+        self.assertEqual(len(d2['data']['items']), 0)
+

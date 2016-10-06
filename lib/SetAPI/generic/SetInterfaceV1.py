@@ -101,12 +101,13 @@ class SetInterfaceV1:
             objects.append(
                 self._build_ws_obj_selector(item['ref'], ref_path_to_item))
 
-        obj_info_list = self.ws.get_object_info_new({
-                                    'objects': objects,
-                                    'includeMetadata': 1 })
+        if len(objects)>0:
+            obj_info_list = self.ws.get_object_info_new({
+                                        'objects': objects,
+                                        'includeMetadata': 1 })
 
-        for k in range(0, len(obj_info_list)):
-            items[k]['info'] = obj_info_list[k]
+            for k in range(0, len(obj_info_list)):
+                items[k]['info'] = obj_info_list[k]
 
 
     def _build_ws_obj_selector(self, ref, ref_path_to_set):
