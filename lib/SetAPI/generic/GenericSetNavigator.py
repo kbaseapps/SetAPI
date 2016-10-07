@@ -130,17 +130,20 @@ class GenericSetNavigator:
         objects = []
         for s in set_list:
             objects.append({'ref':s['ref']})
-        obj_data = self.ws.get_objects2({
-                'objects':objects,
-                'no_data':1
-            })['data']
 
-        # if ws call worked, then len(obj_data)==len(set_list)
-        for k in range(0,len(obj_data)):
-            items = []
-            for item_ref in obj_data[k]['refs']:
-                items.append({'ref':item_ref})
-            set_list[k]['items'] = items
+        if len(objects)>0:
+            obj_data = self.ws.get_objects2({
+                    'objects':objects,
+                    'no_data':1
+                })['data']
+
+            # if ws call worked, then len(obj_data)==len(set_list)
+            for k in range(0,len(obj_data)):
+                items = []
+                for item_ref in obj_data[k]['refs']:
+                    items.append({'ref':item_ref})
+                set_list[k]['items'] = items
+
         return set_list
 
 
@@ -163,20 +166,21 @@ class GenericSetNavigator:
                     'obj_ref_path': [ref]
                 })
 
-        obj_info_list = self.ws.get_object_info_new({
-                                    'objects':objects,
-                                    'includeMetadata':1
-                                })
+        if len(objects)>0:
+            obj_info_list = self.ws.get_object_info_new({
+                                        'objects':objects,
+                                        'includeMetadata':1
+                                    })
 
-        # build info lookup
-        item_info = {}
-        for o in obj_info_list:
-            item_info[self._build_obj_ref(o)] = o
+            # build info lookup
+            item_info = {}
+            for o in obj_info_list:
+                item_info[self._build_obj_ref(o)] = o
 
-        for s in set_list:
-            for item in s['items']:
-                if item['ref'] in item_info:
-                    item['info'] = item_info[item['ref']]
+            for s in set_list:
+                for item in s['items']:
+                    if item['ref'] in item_info:
+                        item['info'] = item_info[item['ref']]
 
         return set_list
 
@@ -241,17 +245,17 @@ class GenericSetNavigator:
             else:
                 objects.append({'ref':s['ref']})
 
-
-        obj_info_list = self.ws.get_object_info_new({
-                                    'objects':objects,
-                                    'includeMetadata':1
-                                })
-        set_list = []
-        for o in obj_info_list:
-            set_list.append({
-                    'ref': self._build_obj_ref(o),
-                    'info': o
-                })
+        if len(objects)>0:
+            obj_info_list = self.ws.get_object_info_new({
+                                        'objects':objects,
+                                        'includeMetadata':1
+                                    })
+            set_list = []
+            for o in obj_info_list:
+                set_list.append({
+                        'ref': self._build_obj_ref(o),
+                        'info': o
+                    })
         return set_list
 
 

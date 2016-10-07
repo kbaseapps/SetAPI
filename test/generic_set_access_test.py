@@ -140,12 +140,18 @@ class SetAPITest(unittest.TestCase):
     # NOTE: According to Python unittest naming rules test method names should start from 'test'.
     def test_list_sets(self):
 
-        # create the test sets
-        self.create_sets()
-
         workspace = self.getWsName()
         setAPI = self.getImpl()
 
+        # make sure we can see an empty list of sets before WS has any
+        res = setAPI.list_sets(self.getContext(), {
+                'workspace':workspace,
+                'include_set_item_info':1
+            })[0]
+
+
+        # create the test sets
+        self.create_sets()
 
         res = setAPI.list_sets(self.getContext(), {
                 'workspace':workspace,
@@ -164,8 +170,6 @@ class SetAPITest(unittest.TestCase):
                 self.assertTrue('info' in item)
                 self.assertEqual(len(item['info']),11)
 
-
-
         res2 = setAPI.list_sets(self.getContext(), {
                 'workspace':workspace
             })[0]
@@ -182,11 +186,6 @@ class SetAPITest(unittest.TestCase):
                 self.assertTrue('info' not in item)
 
 
-    def test_get_set_items(self):
-
-        self.create_sets()
-
-        setAPI = self.getImpl()
         res = setAPI.get_set_items(self.getContext(), {
                 'set_refs': [{'ref':self.setRefs[0]}]
             })[0]
