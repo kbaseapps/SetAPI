@@ -16,6 +16,9 @@ module KBaseSets {
     } DataAttachment;
 
 
+    /****************************** */
+    /* READS SET */
+
     /*
         The workspace ID for a Reads data object.
         @id ws KBaseFile.PairedEndLibrary KBaseFile.SingleEndLibrary 
@@ -39,5 +42,44 @@ module KBaseSets {
         string description;
         list<ReadsSetItem> items;
     } ReadsSet;
+
+
+    /****************************** */
+    /* ASSEMBLY SET */
+
+    /* @optional label */
+    typedef structure {
+        ws_reads_id ref;
+        string label;
+    } AssemblySetItem;
+
+    /*
+        @metadata ws description as description
+        @metadata ws length(items) as item_count
+    */
+    typedef structure {
+        string description;
+        list<AssemblySetItem> items;
+    } AssemblySet;
+
+
+
+    /*************************************************************** */
+    /* GENOME SET */
+
+    /* @optional label */
+    typedef structure {
+        ws_reads_id ref;
+        string label;
+    } GenomeSetItem;
+
+    /*
+        @metadata ws description as description
+        @metadata ws length(items) as item_count
+    */
+    typedef structure {
+        string description;
+        list<GenomeSetItem> items;
+    } GenomeSet;
 
 };
