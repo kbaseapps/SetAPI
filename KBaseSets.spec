@@ -47,9 +47,15 @@ module KBaseSets {
     /****************************** */
     /* ASSEMBLY SET */
 
+    /*
+        The workspace ID for an Assembly data object.
+        @id ws KBaseGenomeAnnotations.Assembly
+    */
+    typedef string ws_assembly_id;
+
     /* @optional label */
     typedef structure {
-        ws_reads_id ref;
+        ws_assembly_id ref;
         string label;
     } AssemblySetItem;
 
@@ -67,9 +73,15 @@ module KBaseSets {
     /*************************************************************** */
     /* GENOME SET */
 
+    /*
+        The workspace ID for an Assembly data object.
+        @id ws KBaseGenomes.Genome
+    */
+    typedef string ws_genome_id;
+
     /* @optional label */
     typedef structure {
-        ws_reads_id ref;
+        ws_genome_id ref;
         string label;
     } GenomeSetItem;
 
