@@ -19,6 +19,7 @@ from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
 
 from ReadsUtils.ReadsUtilsClient import ReadsUtils
+from DataPaletteService.DataPaletteServiceClient import DataPaletteService
 
 
 class SetAPITest(unittest.TestCase):
@@ -49,6 +50,9 @@ class SetAPITest(unittest.TestCase):
         cls.wsURL = cls.cfg['workspace-url']
         cls.wsClient = workspaceService(cls.wsURL, token=token)
         cls.serviceImpl = SetAPI(cls.cfg)
+        cls.serviceWizardURL = cls.cfg['service-wizard']
+        cls.dataPaletteServiceVersion = cls.cfg['datapaletteservice-version']
+
 
         # setup data at the class level for now (so that the code is run
         # once for all tests, not before each test case.  Not sure how to
@@ -252,3 +256,59 @@ class SetAPITest(unittest.TestCase):
         self.assertEqual(d2['data']['description'], 'nothing to see here')
         self.assertEqual(len(d2['data']['items']), 0)
 
+
+    def test_list_sets(self):
+        setObjName = 'MyReadsSet.2'
+
+        # create the set object
+        set_data = {
+            'description':'my first reads',
+            'items': [ {
+                    'ref': self.read1ref,
+                    'label':'reads1'
+                },{
+                    'ref': self.read2ref,
+                    'label':'reads2'
+                }, {
+                    'ref': self.read3ref
+                }
+            ]
+        }
+
+        # test a save
+        setAPI = self.getImpl()
+        setAPI.save_reads_set_v1(self.getContext(), 
+                                 {'data':set_data,
+                                  'output_object_name':setObjName,
+                                  'workspace': self.getWsName()})[0]
+        set_list = self.getImpl().list_sets(self.getContext(),
+                                            {'workspace': self.getWsName(), 
+                                             'include_set_item_info': 1})[0]['sets']
+        set_found = False
+        for set_info in set_list:
+            info = set_info['info']
+            if info[7] == self.getWsName() and info[1] == setObjName:
+                set_found = True
+        self.assertTrue(set_found)
+
+        wsName2 = "test_SetAPI_" + str(int(time.time() * 1000)) + "_two"
+        self.getWsClient().create_workspace({'workspace': wsName2})
+        try:
+            set_obj_ref = self.getWsName() + '/' + setObjName
+            dps = DataPaletteService(self.serviceWizardURL, 
+                                     token=self.getContext()['token'],
+                                     service_ver=self.dataPaletteServiceVersion)
+            dps.add_to_palette({'workspace': wsName2, 
+                                'new_refs': [{'ref': set_obj_ref}]})
+            set_list = self.getImpl().list_sets(self.getContext(),
+                                                {'workspace': wsName2, 
+                                                 'include_set_item_info': 1})[0]['sets']
+            set_found = False
+            for set_info in set_list:
+                info = set_info['info']
+                if info[7] == self.getWsName() and info[1] == setObjName:
+                    set_found = True
+            self.assertTrue(set_found)
+        finally:
+            self.getWsClient().delete_workspace({'workspace': wsName2})
+        
