@@ -19,6 +19,7 @@ from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
 
 from ReadsUtils.ReadsUtilsClient import ReadsUtils
+from DataPaletteService.DataPaletteServiceClient import DataPaletteService
 
 
 class SetAPITest(unittest.TestCase):
@@ -49,6 +50,8 @@ class SetAPITest(unittest.TestCase):
         cls.wsURL = cls.cfg['workspace-url']
         cls.wsClient = workspaceService(cls.wsURL, token=token)
         cls.serviceImpl = SetAPI(cls.cfg)
+        cls.serviceWizardURL = cls.cfg['service-wizard']
+        cls.dataPaletteServiceVersion = cls.cfg['datapaletteservice-version']
 
 
         # setup data at the class level for now (so that the code is run
@@ -201,5 +204,25 @@ class SetAPITest(unittest.TestCase):
                 self.assertTrue('info' in item)
                 self.assertEqual(len(item['info']),11)
 
+        set_obj_name = self.setNames[0]
+        wsName2 = "test_SetAPI_" + str(int(time.time() * 1000)) + "_two"
+        self.getWsClient().create_workspace({'workspace': wsName2})
+        try:
+            set_obj_ref = self.getWsName() + '/' + set_obj_name
+            dps = DataPaletteService(self.serviceWizardURL, 
+                                     token=self.getContext()['token'],
+                                     service_ver=self.dataPaletteServiceVersion)
+            dps.add_to_palette({'workspace': wsName2, 
+                                'new_refs': [{'ref': set_obj_ref}]})
+            set_list = self.getImpl().list_sets(self.getContext(),
+                                                {'workspace': wsName2, 
+                                                 'include_set_item_info': 1})[0]['sets']
+            self.assertEqual(1, len(set_list))
+            set_info = set_list[0]
+            info = set_info['info']
+            self.assertEqual(self.getWsName(), info[7])
+            self.assertEqual(set_obj_name, info[1])
+        finally:
+            self.getWsClient().delete_workspace({'workspace': wsName2})
 
 
