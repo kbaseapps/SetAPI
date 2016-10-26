@@ -427,6 +427,312 @@ SaveReadsSetV1Result is a reference to a hash where the following keys are defin
  
 
 
+=head2 get_assembly_set_v1
+
+  $result = $obj->get_assembly_set_v1($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a SetAPI.GetAssemblySetV1Params
+$result is a SetAPI.GetAssemblySetV1Result
+GetAssemblySetV1Params is a reference to a hash where the following keys are defined:
+	ref has a value which is a string
+	include_item_info has a value which is a SetAPI.boolean
+	ref_path_to_set has a value which is a reference to a list where each element is a string
+boolean is an int
+GetAssemblySetV1Result is a reference to a hash where the following keys are defined:
+	data has a value which is a SetAPI.AssemblySet
+	info has a value which is a Workspace.object_info
+AssemblySet is a reference to a hash where the following keys are defined:
+	description has a value which is a string
+	items has a value which is a reference to a list where each element is a SetAPI.AssemblySetItem
+AssemblySetItem is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_reads_id
+	label has a value which is a string
+	info has a value which is a Workspace.object_info
+ws_reads_id is a string
+object_info is a reference to a list containing 11 items:
+	0: (objid) a Workspace.obj_id
+	1: (name) a Workspace.obj_name
+	2: (type) a Workspace.type_string
+	3: (save_date) a Workspace.timestamp
+	4: (version) an int
+	5: (saved_by) a Workspace.username
+	6: (wsid) a Workspace.ws_id
+	7: (workspace) a Workspace.ws_name
+	8: (chsum) a string
+	9: (size) an int
+	10: (meta) a Workspace.usermeta
+obj_id is an int
+obj_name is a string
+type_string is a string
+timestamp is a string
+username is a string
+ws_id is an int
+ws_name is a string
+usermeta is a reference to a hash where the key is a string and the value is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a SetAPI.GetAssemblySetV1Params
+$result is a SetAPI.GetAssemblySetV1Result
+GetAssemblySetV1Params is a reference to a hash where the following keys are defined:
+	ref has a value which is a string
+	include_item_info has a value which is a SetAPI.boolean
+	ref_path_to_set has a value which is a reference to a list where each element is a string
+boolean is an int
+GetAssemblySetV1Result is a reference to a hash where the following keys are defined:
+	data has a value which is a SetAPI.AssemblySet
+	info has a value which is a Workspace.object_info
+AssemblySet is a reference to a hash where the following keys are defined:
+	description has a value which is a string
+	items has a value which is a reference to a list where each element is a SetAPI.AssemblySetItem
+AssemblySetItem is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_reads_id
+	label has a value which is a string
+	info has a value which is a Workspace.object_info
+ws_reads_id is a string
+object_info is a reference to a list containing 11 items:
+	0: (objid) a Workspace.obj_id
+	1: (name) a Workspace.obj_name
+	2: (type) a Workspace.type_string
+	3: (save_date) a Workspace.timestamp
+	4: (version) an int
+	5: (saved_by) a Workspace.username
+	6: (wsid) a Workspace.ws_id
+	7: (workspace) a Workspace.ws_name
+	8: (chsum) a string
+	9: (size) an int
+	10: (meta) a Workspace.usermeta
+obj_id is an int
+obj_name is a string
+type_string is a string
+timestamp is a string
+username is a string
+ws_id is an int
+ws_name is a string
+usermeta is a reference to a hash where the key is a string and the value is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+ sub get_assembly_set_v1
+{
+    my($self, @args) = @_;
+
+# Authentication: optional
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function get_assembly_set_v1 (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to get_assembly_set_v1:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'get_assembly_set_v1');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "SetAPI.get_assembly_set_v1",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'get_assembly_set_v1',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method get_assembly_set_v1",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'get_assembly_set_v1',
+				       );
+    }
+}
+ 
+
+
+=head2 save_assembly_set_v1
+
+  $result = $obj->save_assembly_set_v1($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a SetAPI.SaveAssemblySetV1Params
+$result is a SetAPI.SaveAssemblySetV1Result
+SaveAssemblySetV1Params is a reference to a hash where the following keys are defined:
+	workspace has a value which is a string
+	output_object_name has a value which is a string
+	data has a value which is a SetAPI.AssemblySet
+AssemblySet is a reference to a hash where the following keys are defined:
+	description has a value which is a string
+	items has a value which is a reference to a list where each element is a SetAPI.AssemblySetItem
+AssemblySetItem is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_reads_id
+	label has a value which is a string
+	info has a value which is a Workspace.object_info
+ws_reads_id is a string
+object_info is a reference to a list containing 11 items:
+	0: (objid) a Workspace.obj_id
+	1: (name) a Workspace.obj_name
+	2: (type) a Workspace.type_string
+	3: (save_date) a Workspace.timestamp
+	4: (version) an int
+	5: (saved_by) a Workspace.username
+	6: (wsid) a Workspace.ws_id
+	7: (workspace) a Workspace.ws_name
+	8: (chsum) a string
+	9: (size) an int
+	10: (meta) a Workspace.usermeta
+obj_id is an int
+obj_name is a string
+type_string is a string
+timestamp is a string
+username is a string
+ws_id is an int
+ws_name is a string
+usermeta is a reference to a hash where the key is a string and the value is a string
+SaveAssemblySetV1Result is a reference to a hash where the following keys are defined:
+	set_ref has a value which is a string
+	set_info has a value which is a Workspace.object_info
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a SetAPI.SaveAssemblySetV1Params
+$result is a SetAPI.SaveAssemblySetV1Result
+SaveAssemblySetV1Params is a reference to a hash where the following keys are defined:
+	workspace has a value which is a string
+	output_object_name has a value which is a string
+	data has a value which is a SetAPI.AssemblySet
+AssemblySet is a reference to a hash where the following keys are defined:
+	description has a value which is a string
+	items has a value which is a reference to a list where each element is a SetAPI.AssemblySetItem
+AssemblySetItem is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_reads_id
+	label has a value which is a string
+	info has a value which is a Workspace.object_info
+ws_reads_id is a string
+object_info is a reference to a list containing 11 items:
+	0: (objid) a Workspace.obj_id
+	1: (name) a Workspace.obj_name
+	2: (type) a Workspace.type_string
+	3: (save_date) a Workspace.timestamp
+	4: (version) an int
+	5: (saved_by) a Workspace.username
+	6: (wsid) a Workspace.ws_id
+	7: (workspace) a Workspace.ws_name
+	8: (chsum) a string
+	9: (size) an int
+	10: (meta) a Workspace.usermeta
+obj_id is an int
+obj_name is a string
+type_string is a string
+timestamp is a string
+username is a string
+ws_id is an int
+ws_name is a string
+usermeta is a reference to a hash where the key is a string and the value is a string
+SaveAssemblySetV1Result is a reference to a hash where the following keys are defined:
+	set_ref has a value which is a string
+	set_info has a value which is a Workspace.object_info
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+ sub save_assembly_set_v1
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function save_assembly_set_v1 (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to save_assembly_set_v1:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'save_assembly_set_v1');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "SetAPI.save_assembly_set_v1",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'save_assembly_set_v1',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method save_assembly_set_v1",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'save_assembly_set_v1',
+				       );
+    }
+}
+ 
+
+
 =head2 list_sets
 
   $result = $obj->list_sets($params)
@@ -524,7 +830,8 @@ SetItemInfo is a reference to a hash where the following keys are defined:
 =item Description
 
 Use to get the top-level sets in a WS. Optionally can include
-one level down members of those sets.
+one level down members of those sets. 
+NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA
 
 =back
 
@@ -592,7 +899,7 @@ one level down members of those sets.
 $params is a SetAPI.GetSetItemsParams
 $result is a SetAPI.GetSetItemsResult
 GetSetItemsParams is a reference to a hash where the following keys are defined:
-	SetReference has a value which is a reference to a list where each element is a SetAPI.SetReference
+	set_refs has a value which is a reference to a list where each element is a SetAPI.SetReference
 SetReference is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_obj_id
 	path_to_set has a value which is a reference to a list where each element is a SetAPI.ws_obj_id
@@ -636,7 +943,7 @@ SetItemInfo is a reference to a hash where the following keys are defined:
 $params is a SetAPI.GetSetItemsParams
 $result is a SetAPI.GetSetItemsResult
 GetSetItemsParams is a reference to a hash where the following keys are defined:
-	SetReference has a value which is a reference to a list where each element is a SetAPI.SetReference
+	set_refs has a value which is a reference to a list where each element is a SetAPI.SetReference
 SetReference is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_obj_id
 	path_to_set has a value which is a reference to a list where each element is a SetAPI.ws_obj_id
@@ -677,7 +984,8 @@ SetItemInfo is a reference to a hash where the following keys are defined:
 =item Description
 
 Use to drill down into one or more sets, the position in the
-return 'sets' list will match the position in the input ref list
+return 'sets' list will match the position in the input ref list.
+NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA
 
 =back
 
@@ -1173,6 +1481,264 @@ set_info has a value which is a Workspace.object_info
 
 
 
+=head2 ws_assembly_id
+
+=over 4
+
+
+
+=item Description
+
+The workspace ID for an Assembly object.
+@id ws KBaseGenomeAnnotations.Assembly
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a string
+</pre>
+
+=end html
+
+=begin text
+
+a string
+
+=end text
+
+=back
+
+
+
+=head2 AssemblySetItem
+
+=over 4
+
+
+
+=item Description
+
+When saving an AssemblySet, only 'ref' is required.
+You should never set 'info'.  'info' is provided optionally when fetching
+the AssemblySet.
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+ref has a value which is a SetAPI.ws_reads_id
+label has a value which is a string
+info has a value which is a Workspace.object_info
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+ref has a value which is a SetAPI.ws_reads_id
+label has a value which is a string
+info has a value which is a Workspace.object_info
+
+
+=end text
+
+=back
+
+
+
+=head2 AssemblySet
+
+=over 4
+
+
+
+=item Description
+
+@meta ws description as description
+@meta ws length(items) as item_count
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+description has a value which is a string
+items has a value which is a reference to a list where each element is a SetAPI.AssemblySetItem
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+description has a value which is a string
+items has a value which is a reference to a list where each element is a SetAPI.AssemblySetItem
+
+
+=end text
+
+=back
+
+
+
+=head2 GetAssemblySetV1Params
+
+=over 4
+
+
+
+=item Description
+
+ref - workspace reference to AssemblyGroup object.
+include_item_info - 1 or 0, if 1 additionally provides workspace info (with
+                    metadata) for each Assembly object in the Set
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+ref has a value which is a string
+include_item_info has a value which is a SetAPI.boolean
+ref_path_to_set has a value which is a reference to a list where each element is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+ref has a value which is a string
+include_item_info has a value which is a SetAPI.boolean
+ref_path_to_set has a value which is a reference to a list where each element is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 GetAssemblySetV1Result
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+data has a value which is a SetAPI.AssemblySet
+info has a value which is a Workspace.object_info
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+data has a value which is a SetAPI.AssemblySet
+info has a value which is a Workspace.object_info
+
+
+=end text
+
+=back
+
+
+
+=head2 SaveAssemblySetV1Params
+
+=over 4
+
+
+
+=item Description
+
+workspace_name or workspace_id - alternative options defining 
+    target workspace,
+output_object_name - workspace object name (this parameter is
+    used together with one of workspace params from above)
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+workspace has a value which is a string
+output_object_name has a value which is a string
+data has a value which is a SetAPI.AssemblySet
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+workspace has a value which is a string
+output_object_name has a value which is a string
+data has a value which is a SetAPI.AssemblySet
+
+
+=end text
+
+=back
+
+
+
+=head2 SaveAssemblySetV1Result
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+set_ref has a value which is a string
+set_info has a value which is a Workspace.object_info
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+set_ref has a value which is a string
+set_info has a value which is a Workspace.object_info
+
+
+=end text
+
+=back
+
+
+
 =head2 ListSetParams
 
 =over 4
@@ -1351,7 +1917,7 @@ path_to_set has a value which is a reference to a list where each element is a S
 
 <pre>
 a reference to a hash where the following keys are defined:
-SetReference has a value which is a reference to a list where each element is a SetAPI.SetReference
+set_refs has a value which is a reference to a list where each element is a SetAPI.SetReference
 
 </pre>
 
@@ -1360,7 +1926,7 @@ SetReference has a value which is a reference to a list where each element is a 
 =begin text
 
 a reference to a hash where the following keys are defined:
-SetReference has a value which is a reference to a list where each element is a SetAPI.SetReference
+set_refs has a value which is a reference to a list where each element is a SetAPI.SetReference
 
 
 =end text
