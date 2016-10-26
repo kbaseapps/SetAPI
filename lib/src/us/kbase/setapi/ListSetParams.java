@@ -14,8 +14,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 /**
  * <p>Original spec-file type: ListSetParams</p>
  * <pre>
- * workspace - workspace name or ID of 
- * include_set_contents
+ * workspace - workspace name or ID (alternative to
+ *     workspaces parameter),
+ * workspaces - list of workspace name ot ID (alternative to
+ *     workspace parameter).
  * </pre>
  * 
  */
@@ -23,12 +25,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "workspace",
+    "workspaces",
     "include_set_item_info"
 })
 public class ListSetParams {
 
     @JsonProperty("workspace")
     private String workspace;
+    @JsonProperty("workspaces")
+    private String workspaces;
     @JsonProperty("include_set_item_info")
     private Long includeSetItemInfo;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -45,6 +50,21 @@ public class ListSetParams {
 
     public ListSetParams withWorkspace(String workspace) {
         this.workspace = workspace;
+        return this;
+    }
+
+    @JsonProperty("workspaces")
+    public String getWorkspaces() {
+        return workspaces;
+    }
+
+    @JsonProperty("workspaces")
+    public void setWorkspaces(String workspaces) {
+        this.workspaces = workspaces;
+    }
+
+    public ListSetParams withWorkspaces(String workspaces) {
+        this.workspaces = workspaces;
         return this;
     }
 
@@ -75,7 +95,7 @@ public class ListSetParams {
 
     @Override
     public String toString() {
-        return ((((((("ListSetParams"+" [workspace=")+ workspace)+", includeSetItemInfo=")+ includeSetItemInfo)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((("ListSetParams"+" [workspace=")+ workspace)+", workspaces=")+ workspaces)+", includeSetItemInfo=")+ includeSetItemInfo)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

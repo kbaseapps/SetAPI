@@ -20,16 +20,16 @@ class SetAPI:
     
     '''
 
-    ######## WARNING FOR GEVENT USERS #######
+    ######## WARNING FOR GEVENT USERS ####### noqa
     # Since asynchronous IO can lead to methods - even the same method -
     # interrupting each other, you must be *very* careful when using global
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
-    #########################################
-    VERSION = "0.0.1"
-    GIT_URL = "git@github.com:kbaseapps/SetAPI.git"
-    GIT_COMMIT_HASH = "20d56c48898613db8bbce2d203dfa6ed1e45962a"
-    
+    ######################################### noqa
+    VERSION = "0.1.1"
+    GIT_URL = "https://github.com/rsutormin/SetAPI"
+    GIT_COMMIT_HASH = "b4ca5b2daf3611e4e3e7b4884338ffeb3540bc36"
+
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
 
@@ -42,7 +42,7 @@ class SetAPI:
         self.dataPaletteServiceVersion = config['datapaletteservice-version']
         #END_CONSTRUCTOR
         pass
-    
+
 
     def get_reads_set_v1(self, ctx, params):
         """
@@ -302,11 +302,15 @@ class SetAPI:
     def list_sets(self, ctx, params):
         """
         Use to get the top-level sets in a WS. Optionally can include
-        one level down members of those sets.
+        one level down members of those sets. 
+        NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA
         :param params: instance of type "ListSetParams" (workspace -
-           workspace name or ID of include_set_contents) -> structure:
-           parameter "workspace" of String, parameter "include_set_item_info"
-           of type "boolean" (A boolean. 0 = false, 1 = true.)
+           workspace name or ID (alternative to workspaces parameter),
+           workspaces - list of workspace name ot ID (alternative to
+           workspace parameter).) -> structure: parameter "workspace" of
+           String, parameter "workspaces" of String, parameter
+           "include_set_item_info" of type "boolean" (A boolean. 0 = false, 1
+           = true.)
         :returns: instance of type "ListSetResult" -> structure: parameter
            "sets" of list of type "SetInfo" -> structure: parameter "ref" of
            type "ws_obj_id" (The workspace ID for a any data object. @id ws),
@@ -423,12 +427,13 @@ class SetAPI:
     def get_set_items(self, ctx, params):
         """
         Use to drill down into one or more sets, the position in the
-        return 'sets' list will match the position in the input ref list
+        return 'sets' list will match the position in the input ref list.
+        NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA
         :param params: instance of type "GetSetItemsParams" -> structure:
-           parameter "SetReference" of list of type "SetReference" ->
-           structure: parameter "ref" of type "ws_obj_id" (The workspace ID
-           for a any data object. @id ws), parameter "path_to_set" of list of
-           type "ws_obj_id" (The workspace ID for a any data object. @id ws)
+           parameter "set_refs" of list of type "SetReference" -> structure:
+           parameter "ref" of type "ws_obj_id" (The workspace ID for a any
+           data object. @id ws), parameter "path_to_set" of list of type
+           "ws_obj_id" (The workspace ID for a any data object. @id ws)
         :returns: instance of type "GetSetItemsResult" -> structure:
            parameter "sets" of list of type "SetInfo" -> structure: parameter
            "ref" of type "ws_obj_id" (The workspace ID for a any data object.
@@ -539,7 +544,6 @@ class SetAPI:
                              'result is not type dict as required.')
         # return the results
         return [result]
-
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK", 'message': "", 'version': self.VERSION, 
