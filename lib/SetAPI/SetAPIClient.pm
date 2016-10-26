@@ -442,6 +442,7 @@ $params is a SetAPI.ListSetParams
 $result is a SetAPI.ListSetResult
 ListSetParams is a reference to a hash where the following keys are defined:
 	workspace has a value which is a string
+	workspaces has a value which is a string
 	include_set_item_info has a value which is a SetAPI.boolean
 boolean is an int
 ListSetResult is a reference to a hash where the following keys are defined:
@@ -485,6 +486,7 @@ $params is a SetAPI.ListSetParams
 $result is a SetAPI.ListSetResult
 ListSetParams is a reference to a hash where the following keys are defined:
 	workspace has a value which is a string
+	workspaces has a value which is a string
 	include_set_item_info has a value which is a SetAPI.boolean
 boolean is an int
 ListSetResult is a reference to a hash where the following keys are defined:
@@ -524,7 +526,8 @@ SetItemInfo is a reference to a hash where the following keys are defined:
 =item Description
 
 Use to get the top-level sets in a WS. Optionally can include
-one level down members of those sets.
+one level down members of those sets. 
+NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA
 
 =back
 
@@ -592,7 +595,7 @@ one level down members of those sets.
 $params is a SetAPI.GetSetItemsParams
 $result is a SetAPI.GetSetItemsResult
 GetSetItemsParams is a reference to a hash where the following keys are defined:
-	SetReference has a value which is a reference to a list where each element is a SetAPI.SetReference
+	set_refs has a value which is a reference to a list where each element is a SetAPI.SetReference
 SetReference is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_obj_id
 	path_to_set has a value which is a reference to a list where each element is a SetAPI.ws_obj_id
@@ -636,7 +639,7 @@ SetItemInfo is a reference to a hash where the following keys are defined:
 $params is a SetAPI.GetSetItemsParams
 $result is a SetAPI.GetSetItemsResult
 GetSetItemsParams is a reference to a hash where the following keys are defined:
-	SetReference has a value which is a reference to a list where each element is a SetAPI.SetReference
+	set_refs has a value which is a reference to a list where each element is a SetAPI.SetReference
 SetReference is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_obj_id
 	path_to_set has a value which is a reference to a list where each element is a SetAPI.ws_obj_id
@@ -677,7 +680,8 @@ SetItemInfo is a reference to a hash where the following keys are defined:
 =item Description
 
 Use to drill down into one or more sets, the position in the
-return 'sets' list will match the position in the input ref list
+return 'sets' list will match the position in the input ref list.
+NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA
 
 =back
 
@@ -1181,8 +1185,10 @@ set_info has a value which is a Workspace.object_info
 
 =item Description
 
-workspace - workspace name or ID of 
-include_set_contents
+workspace - workspace name or ID (alternative to
+    workspaces parameter),
+workspaces - list of workspace name ot ID (alternative to
+    workspace parameter).
 
 
 =item Definition
@@ -1192,6 +1198,7 @@ include_set_contents
 <pre>
 a reference to a hash where the following keys are defined:
 workspace has a value which is a string
+workspaces has a value which is a string
 include_set_item_info has a value which is a SetAPI.boolean
 
 </pre>
@@ -1202,6 +1209,7 @@ include_set_item_info has a value which is a SetAPI.boolean
 
 a reference to a hash where the following keys are defined:
 workspace has a value which is a string
+workspaces has a value which is a string
 include_set_item_info has a value which is a SetAPI.boolean
 
 
@@ -1351,7 +1359,7 @@ path_to_set has a value which is a reference to a list where each element is a S
 
 <pre>
 a reference to a hash where the following keys are defined:
-SetReference has a value which is a reference to a list where each element is a SetAPI.SetReference
+set_refs has a value which is a reference to a list where each element is a SetAPI.SetReference
 
 </pre>
 
@@ -1360,7 +1368,7 @@ SetReference has a value which is a reference to a list where each element is a 
 =begin text
 
 a reference to a hash where the following keys are defined:
-SetReference has a value which is a reference to a list where each element is a SetAPI.SetReference
+set_refs has a value which is a reference to a list where each element is a SetAPI.SetReference
 
 
 =end text

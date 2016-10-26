@@ -222,6 +222,10 @@ class SetAPITest(unittest.TestCase):
             info = set_info['info']
             self.assertEqual(self.getWsName(), info[7])
             self.assertEqual(set_obj_name, info[1])
+            set_list2 = self.getImpl().list_sets(self.getContext(),
+                                                 {'workspaces': [workspace, wsName2], 
+                                                  'include_set_item_info': 1})[0]['sets']
+            self.assertEqual(len(set_list2), len(self.setNames))
         finally:
             self.getWsClient().delete_workspace({'workspace': wsName2})
 

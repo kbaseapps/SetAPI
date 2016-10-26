@@ -199,7 +199,8 @@ public class SetAPIClient {
      * <p>Original spec-file function name: list_sets</p>
      * <pre>
      * Use to get the top-level sets in a WS. Optionally can include
-     * one level down members of those sets.
+     * one level down members of those sets. 
+     * NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA
      * </pre>
      * @param   params   instance of type {@link us.kbase.setapi.ListSetParams ListSetParams}
      * @return   parameter "result" of type {@link us.kbase.setapi.ListSetResult ListSetResult}
@@ -218,7 +219,8 @@ public class SetAPIClient {
      * <p>Original spec-file function name: get_set_items</p>
      * <pre>
      * Use to drill down into one or more sets, the position in the
-     * return 'sets' list will match the position in the input ref list
+     * return 'sets' list will match the position in the input ref list.
+     * NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA
      * </pre>
      * @param   params   instance of type {@link us.kbase.setapi.GetSetItemsParams GetSetItemsParams}
      * @return   parameter "result" of type {@link us.kbase.setapi.GetSetItemsResult GetSetItemsResult}

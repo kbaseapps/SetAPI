@@ -20,26 +20,26 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "SetReference"
+    "set_refs"
 })
 public class GetSetItemsParams {
 
-    @JsonProperty("SetReference")
-    private List<us.kbase.setapi.SetReference> SetReference;
+    @JsonProperty("set_refs")
+    private List<SetReference> setRefs;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("SetReference")
-    public List<us.kbase.setapi.SetReference> getSetReference() {
-        return SetReference;
+    @JsonProperty("set_refs")
+    public List<SetReference> getSetRefs() {
+        return setRefs;
     }
 
-    @JsonProperty("SetReference")
-    public void setSetReference(List<us.kbase.setapi.SetReference> SetReference) {
-        this.SetReference = SetReference;
+    @JsonProperty("set_refs")
+    public void setSetRefs(List<SetReference> setRefs) {
+        this.setRefs = setRefs;
     }
 
-    public GetSetItemsParams withSetReference(List<us.kbase.setapi.SetReference> SetReference) {
-        this.SetReference = SetReference;
+    public GetSetItemsParams withSetRefs(List<SetReference> setRefs) {
+        this.setRefs = setRefs;
         return this;
     }
 
@@ -55,7 +55,7 @@ public class GetSetItemsParams {
 
     @Override
     public String toString() {
-        return ((((("GetSetItemsParams"+" [SetReference=")+ SetReference)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((("GetSetItemsParams"+" [setRefs=")+ setRefs)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

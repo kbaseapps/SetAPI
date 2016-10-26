@@ -265,11 +265,15 @@ class SetAPI(object):
     def list_sets(self, params, context=None):
         """
         Use to get the top-level sets in a WS. Optionally can include
-        one level down members of those sets.
+        one level down members of those sets. 
+        NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA
         :param params: instance of type "ListSetParams" (workspace -
-           workspace name or ID of include_set_contents) -> structure:
-           parameter "workspace" of String, parameter "include_set_item_info"
-           of type "boolean" (A boolean. 0 = false, 1 = true.)
+           workspace name or ID (alternative to workspaces parameter),
+           workspaces - list of workspace name ot ID (alternative to
+           workspace parameter).) -> structure: parameter "workspace" of
+           String, parameter "workspaces" of String, parameter
+           "include_set_item_info" of type "boolean" (A boolean. 0 = false, 1
+           = true.)
         :returns: instance of type "ListSetResult" -> structure: parameter
            "sets" of list of type "SetInfo" -> structure: parameter "ref" of
            type "ws_obj_id" (The workspace ID for a any data object. @id ws),
@@ -371,12 +375,13 @@ class SetAPI(object):
     def get_set_items(self, params, context=None):
         """
         Use to drill down into one or more sets, the position in the
-        return 'sets' list will match the position in the input ref list
+        return 'sets' list will match the position in the input ref list.
+        NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA
         :param params: instance of type "GetSetItemsParams" -> structure:
-           parameter "SetReference" of list of type "SetReference" ->
-           structure: parameter "ref" of type "ws_obj_id" (The workspace ID
-           for a any data object. @id ws), parameter "path_to_set" of list of
-           type "ws_obj_id" (The workspace ID for a any data object. @id ws)
+           parameter "set_refs" of list of type "SetReference" -> structure:
+           parameter "ref" of type "ws_obj_id" (The workspace ID for a any
+           data object. @id ws), parameter "path_to_set" of list of type
+           "ws_obj_id" (The workspace ID for a any data object. @id ws)
         :returns: instance of type "GetSetItemsResult" -> structure:
            parameter "sets" of list of type "SetInfo" -> structure: parameter
            "ref" of type "ws_obj_id" (The workspace ID for a any data object.
