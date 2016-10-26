@@ -5,6 +5,8 @@ from biokbase.workspace.client import Workspace
 
 from SetAPI.reads.ReadsSetInterfaceV1 import ReadsSetInterfaceV1
 from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
+from DataPaletteService.DataPaletteServiceClient import DataPaletteService
+
 
 #END_HEADER
 
@@ -36,6 +38,8 @@ class SetAPI:
     def __init__(self, config):
         #BEGIN_CONSTRUCTOR
         self.workspaceURL = config['workspace-url']
+        self.serviceWizardURL = config['service-wizard']
+        self.dataPaletteServiceVersion = config['datapaletteservice-version']
         #END_CONSTRUCTOR
         pass
     
@@ -402,7 +406,9 @@ class SetAPI:
         #BEGIN list_sets
 
         ws = Workspace(self.workspaceURL, token=ctx['token'])
-        gsn = GenericSetNavigator(ws)
+        dps = DataPaletteService(self.serviceWizardURL, token=ctx['token'], 
+                                 service_ver=self.dataPaletteServiceVersion)
+        gsn = GenericSetNavigator(ws, data_palette_client=dps)
         result = gsn.list_sets(params)
 
         #END list_sets
