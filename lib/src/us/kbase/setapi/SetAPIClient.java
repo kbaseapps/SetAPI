@@ -196,6 +196,40 @@ public class SetAPIClient {
     }
 
     /**
+     * <p>Original spec-file function name: get_assembly_set_v1</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.setapi.GetAssemblySetV1Params GetAssemblySetV1Params}
+     * @return   parameter "result" of type {@link us.kbase.setapi.GetAssemblySetV1Result GetAssemblySetV1Result}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public GetAssemblySetV1Result getAssemblySetV1(GetAssemblySetV1Params params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<GetAssemblySetV1Result>> retType = new TypeReference<List<GetAssemblySetV1Result>>() {};
+        List<GetAssemblySetV1Result> res = caller.jsonrpcCall("SetAPI.get_assembly_set_v1", args, retType, true, false, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: save_assembly_set_v1</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.setapi.SaveAssemblySetV1Params SaveAssemblySetV1Params}
+     * @return   parameter "result" of type {@link us.kbase.setapi.SaveAssemblySetV1Result SaveAssemblySetV1Result}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public SaveAssemblySetV1Result saveAssemblySetV1(SaveAssemblySetV1Params params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<SaveAssemblySetV1Result>> retType = new TypeReference<List<SaveAssemblySetV1Result>>() {};
+        List<SaveAssemblySetV1Result> res = caller.jsonrpcCall("SetAPI.save_assembly_set_v1", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
      * <p>Original spec-file function name: list_sets</p>
      * <pre>
      * Use to get the top-level sets in a WS. Optionally can include
