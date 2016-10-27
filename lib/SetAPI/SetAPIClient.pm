@@ -748,6 +748,7 @@ $params is a SetAPI.ListSetParams
 $result is a SetAPI.ListSetResult
 ListSetParams is a reference to a hash where the following keys are defined:
 	workspace has a value which is a string
+	workspaces has a value which is a string
 	include_set_item_info has a value which is a SetAPI.boolean
 boolean is an int
 ListSetResult is a reference to a hash where the following keys are defined:
@@ -791,6 +792,7 @@ $params is a SetAPI.ListSetParams
 $result is a SetAPI.ListSetResult
 ListSetParams is a reference to a hash where the following keys are defined:
 	workspace has a value which is a string
+	workspaces has a value which is a string
 	include_set_item_info has a value which is a SetAPI.boolean
 boolean is an int
 ListSetResult is a reference to a hash where the following keys are defined:
@@ -1747,8 +1749,10 @@ set_info has a value which is a Workspace.object_info
 
 =item Description
 
-workspace - workspace name or ID of 
-include_set_contents
+workspace - workspace name or ID (alternative to
+    workspaces parameter),
+workspaces - list of workspace name ot ID (alternative to
+    workspace parameter).
 
 
 =item Definition
@@ -1758,6 +1762,7 @@ include_set_contents
 <pre>
 a reference to a hash where the following keys are defined:
 workspace has a value which is a string
+workspaces has a value which is a string
 include_set_item_info has a value which is a SetAPI.boolean
 
 </pre>
@@ -1768,6 +1773,7 @@ include_set_item_info has a value which is a SetAPI.boolean
 
 a reference to a hash where the following keys are defined:
 workspace has a value which is a string
+workspaces has a value which is a string
 include_set_item_info has a value which is a SetAPI.boolean
 
 

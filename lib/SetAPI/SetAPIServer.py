@@ -45,7 +45,7 @@ def get_config():
 
 config = get_config()
 
-from SetAPI.SetAPIImpl import SetAPI  # @IgnorePep8
+from SetAPI.SetAPIImpl import SetAPI  # noqa @IgnorePep8
 impl_SetAPI = SetAPI(config)
 
 
@@ -171,7 +171,7 @@ class JSONRPCServiceCustom(JSONRPCService):
 
     def _handle_request(self, ctx, request):
         """Handles given request and returns its response."""
-        if self.method_data[request['method']].has_key('types'): # @IgnorePep8
+        if self.method_data[request['method']].has_key('types'):  # noqa @IgnorePep8
             self._validate_params_types(request['method'], request['params'])
 
         result = self._call_method(ctx, request)
@@ -332,27 +332,27 @@ class Application(object):
         self.rpc_service.add(impl_SetAPI.get_reads_set_v1,
                              name='SetAPI.get_reads_set_v1',
                              types=[dict])
-        self.method_authentication['SetAPI.get_reads_set_v1'] = 'optional'
+        self.method_authentication['SetAPI.get_reads_set_v1'] = 'optional' # noqa
         self.rpc_service.add(impl_SetAPI.save_reads_set_v1,
                              name='SetAPI.save_reads_set_v1',
                              types=[dict])
-        self.method_authentication['SetAPI.save_reads_set_v1'] = 'required'
+        self.method_authentication['SetAPI.save_reads_set_v1'] = 'required' # noqa
         self.rpc_service.add(impl_SetAPI.get_assembly_set_v1,
                              name='SetAPI.get_assembly_set_v1',
                              types=[dict])
-        self.method_authentication['SetAPI.get_assembly_set_v1'] = 'optional'
+        self.method_authentication['SetAPI.get_assembly_set_v1'] = 'optional' # noqa
         self.rpc_service.add(impl_SetAPI.save_assembly_set_v1,
                              name='SetAPI.save_assembly_set_v1',
                              types=[dict])
-        self.method_authentication['SetAPI.save_assembly_set_v1'] = 'required'
+        self.method_authentication['SetAPI.save_assembly_set_v1'] = 'required' # noqa
         self.rpc_service.add(impl_SetAPI.list_sets,
                              name='SetAPI.list_sets',
                              types=[dict])
-        self.method_authentication['SetAPI.list_sets'] = 'optional'
+        self.method_authentication['SetAPI.list_sets'] = 'optional' # noqa
         self.rpc_service.add(impl_SetAPI.get_set_items,
                              name='SetAPI.get_set_items',
                              types=[dict])
-        self.method_authentication['SetAPI.get_set_items'] = 'optional'
+        self.method_authentication['SetAPI.get_set_items'] = 'optional' # noqa
         self.rpc_service.add(impl_SetAPI.status,
                              name='SetAPI.status',
                              types=[dict])
@@ -408,7 +408,8 @@ class Application(object):
                         if token is None and auth_req == 'required':
                             err = JSONServerError()
                             err.data = (
-                                'Authentication required for SetAPI ' +
+                                'Authentication required for ' +
+                                'SetAPI ' +
                                 'but no authentication header was passed')
                             raise err
                         elif token is None and auth_req == 'optional':
@@ -440,7 +441,7 @@ class Application(object):
                            }
                     trace = jre.trace if hasattr(jre, 'trace') else None
                     rpc_result = self.process_error(err, ctx, req, trace)
-                except Exception, e:
+                except Exception:
                     err = {'error': {'code': 0,
                                      'name': 'Unexpected Server Error',
                                      'message': 'An unexpected server error ' +
@@ -450,10 +451,10 @@ class Application(object):
                     rpc_result = self.process_error(err, ctx, req,
                                                     traceback.format_exc())
 
-        # print 'The request method was %s\n' % environ['REQUEST_METHOD']
-        # print 'The environment dictionary is:\n%s\n' % pprint.pformat(environ) @IgnorePep8
-        # print 'The request body was: %s' % request_body
-        # print 'The result from the method call is:\n%s\n' % \
+        # print 'Request method was %s\n' % environ['REQUEST_METHOD']
+        # print 'Environment dictionary is:\n%s\n' % pprint.pformat(environ)
+        # print 'Request body was: %s' % request_body
+        # print 'Result from the method call is:\n%s\n' % \
         #    pprint.pformat(rpc_result)
 
         if rpc_result:
@@ -489,11 +490,12 @@ class Application(object):
         return json.dumps(error)
 
     def now_in_utc(self):
-        # Taken from http://stackoverflow.com/questions/3401428/how-to-get-an-isoformat-datetime-string-including-the-default-timezone @IgnorePep8
+        # noqa Taken from http://stackoverflow.com/questions/3401428/how-to-get-an-isoformat-datetime-string-including-the-default-timezone @IgnorePep8
         dtnow = datetime.datetime.now()
         dtutcnow = datetime.datetime.utcnow()
         delta = dtnow - dtutcnow
-        hh, mm = divmod((delta.days * 24*60*60 + delta.seconds + 30) // 60, 60)
+        hh, mm = divmod((delta.days * 24 * 60 * 60 + delta.seconds + 30) // 60,
+                        60)
         return "%s%+02d:%02d" % (dtnow.isoformat(), hh, mm)
 
 application = Application()
@@ -522,9 +524,7 @@ try:
         print "Monkeypatching std libraries for async"
         from gevent import monkey
         monkey.patch_all()
-    uwsgi.applications = {
-        '': application
-        }
+    uwsgi.applications = {'': application}
 except ImportError:
     # Not available outside of wsgi, ignore
     pass
