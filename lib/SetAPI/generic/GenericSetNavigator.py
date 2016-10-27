@@ -1,9 +1,11 @@
 
 
 
-from biokbase.workspace.client import Workspace
+from Workspace.WorkspaceClient import Workspace
 
 from pprint import pprint
+
+from SetAPI.generic.WorkspaceListObjectsIterator import WorkspaceListObjectsIterator
 
 
 
@@ -52,25 +54,30 @@ class GenericSetNavigator:
 
 
     def _list_all_sets(self, workspaces):
+        ws_info_list = []
+        if len(workspaces) == 1:
+            ws = workspaces[0]
+            list_params = {}
+            if str(ws).isdigit():
+                list_params['id'] = int(ws)
+            else:
+                list_params['workspace'] = str(ws)
+            ws_info_list.append(self.ws.get_workspace_info(list_params))
+        else:
+            ws_map = {key: True for key in workspaces}
+            for ws_info in self.ws.list_workspace_info({'perm': 'r'}):
+                if ws_info[1] in ws_map or str(ws_info[0]) in ws_map:
+                    ws_info_list.append(ws_info)
+        
         info_list = []
         processed_refs = {}
-        for workspace in workspaces:
-            ws_info = self._get_workspace_info(workspace)
-            max_id = ws_info[4]
-    
-            list_params = { 'includeMetadata': 1 }
-            if str(workspace).isdigit():
-                list_params['ids'] = [ int(workspace) ]
-            else:
-                list_params['workspaces'] = [workspace]
-    
-            for t in GenericSetNavigator.SET_TYPES:
-                list_params['type'] = t
-                sets_of_type_t = self._list_until_exhausted(list_params, max_id)
-                info_list.extend(sets_of_type_t)
-                for s in sets_of_type_t:
-                    ref = str(s[6]) + '/' + str(s[0]) + '/' + str(s[4])
-                    processed_refs[ref] = True
+        for t in GenericSetNavigator.SET_TYPES:
+            list_params = {'includeMetadata': 1, 'type': t}
+            for s in WorkspaceListObjectsIterator(self.ws, list_objects_params=list_params,
+                                                  ws_info_list=ws_info_list):
+                info_list.append(s)
+                ref = str(s[6]) + '/' + str(s[0]) + '/' + str(s[4])
+                processed_refs[ref] = True
             
         info_list2 = self._list_from_data_palette(workspaces,
                                                   GenericSetNavigator.SET_TYPES)
