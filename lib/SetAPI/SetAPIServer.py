@@ -345,6 +345,14 @@ class Application(object):
                              name='SetAPI.save_assembly_set_v1',
                              types=[dict])
         self.method_authentication['SetAPI.save_assembly_set_v1'] = 'required'
+        self.rpc_service.add(impl_SetAPI.get_genome_set_v1,
+                             name='SetAPI.get_genome_set_v1',
+                             types=[dict])
+        self.method_authentication['SetAPI.get_genome_set_v1'] = 'optional'
+        self.rpc_service.add(impl_SetAPI.save_genome_set_v1,
+                             name='SetAPI.save_genome_set_v1',
+                             types=[dict])
+        self.method_authentication['SetAPI.save_genome_set_v1'] = 'required'
         self.rpc_service.add(impl_SetAPI.list_sets,
                              name='SetAPI.list_sets',
                              types=[dict])
