@@ -1,9 +1,11 @@
 
 
 
-from biokbase.workspace.client import Workspace
+from Workspace.WorkspaceClient import Workspace
 
 from pprint import pprint
+
+from SetAPI.generic.WorkspaceListObjectsIterator import WorkspaceListObjectsIterator
 
 
 
@@ -13,8 +15,9 @@ class GenericSetNavigator:
     SET_TYPES = ['KBaseSets.ReadsSet']
 
 
-    def __init__(self, workspace_client):
+    def __init__(self, workspace_client, data_palette_client=None):
         self.ws = workspace_client
+        self.dp = data_palette_client
 
     def list_sets(self, params):
         '''
@@ -24,8 +27,11 @@ class GenericSetNavigator:
         '''
         self._validate_list_params(params)
 
-        workspace = params['workspace']
-        all_sets = self._list_all_sets(workspace)
+        workspace = params.get('workspace')
+        workspaces = params.get('workspaces')
+        if not workspaces:
+            workspaces = [str(workspace)]
+        all_sets = self._list_all_sets(workspaces)
         all_sets = self._populate_set_refs(all_sets)
 
         # the top level sets list includes not just the set info, but
@@ -39,33 +45,53 @@ class GenericSetNavigator:
 
 
     def _validate_list_params(self, params):
-        if 'workspace' not in params:
-            raise ValueError('"workspace" field required to list sets')
+        if ('workspace' not in params) and ('workspaces' not in params):
+            raise ValueError('One of "workspace" or "workspaces" field required to list sets')
 
         if 'include_set_item_info' in params and params['include_set_item_info'] is not None:
             if params['include_set_item_info'] not in [0,1]:
                 raise ValueError('"include_set_item_info" field must be set to 0 or 1')
 
 
-    def _list_all_sets(self, workspace):
-        ws_info = self._get_workspace_info(workspace)
-        max_id = ws_info[4]
-
-        list_params = { 'includeMetadata': 1 }
-        if str(workspace).isdigit():
-            list_params['ids'] = [ int(workspace) ]
+    def _list_all_sets(self, workspaces):
+        ws_info_list = []
+        if len(workspaces) == 1:
+            ws = workspaces[0]
+            list_params = {}
+            if str(ws).isdigit():
+                list_params['id'] = int(ws)
+            else:
+                list_params['workspace'] = str(ws)
+            ws_info_list.append(self.ws.get_workspace_info(list_params))
         else:
-            list_params['workspaces'] = [workspace]
+            ws_map = {key: True for key in workspaces}
+            for ws_info in self.ws.list_workspace_info({'perm': 'r'}):
+                if ws_info[1] in ws_map or str(ws_info[0]) in ws_map:
+                    ws_info_list.append(ws_info)
+        
+        info_list = []
+        processed_refs = {}
+        for t in GenericSetNavigator.SET_TYPES:
+            list_params = {'includeMetadata': 1, 'type': t}
+            for s in WorkspaceListObjectsIterator(self.ws, list_objects_params=list_params,
+                                                  ws_info_list=ws_info_list):
+                info_list.append(s)
+                ref = str(s[6]) + '/' + str(s[0]) + '/' + str(s[4])
+                processed_refs[ref] = True
+            
+        info_list2 = self._list_from_data_palette(workspaces,
+                                                  GenericSetNavigator.SET_TYPES)
+        for s in info_list2:
+            ref = str(s[6]) + '/' + str(s[0]) + '/' + str(s[4])
+            if ref not in processed_refs:
+                info_list.append(s)
+                processed_refs[ref] = True
 
         sets = []
-        for t in GenericSetNavigator.SET_TYPES:
-            list_params['type'] = t
-            sets_of_type_t = self._list_until_exhausted(list_params, max_id)
-            for s in sets_of_type_t:
-                sets.append({
-                        'ref': self._build_obj_ref(s),
-                        'info': s
-                    })
+        for s in info_list:
+            sets.append({'ref': self._build_obj_ref(s),
+                         'info': s
+                         })
         return sets
 
 
@@ -258,6 +284,19 @@ class GenericSetNavigator:
                     })
         return set_list
 
+
+    def _list_from_data_palette(self, workspaces, type_list):
+        if not self.dp:
+            raise ValueError("'data_palette_client' parameter is not set in GenericSetNavigator")
+        type_map = {obj_type: True for obj_type in type_list}
+        info_list = []
+        dp_ret = self.dp.list_data({'workspaces': workspaces})
+        for item in dp_ret['data']:
+            info = item['info']
+            obj_type = info[2].split('-')[0]
+            if obj_type in type_map:
+                info_list.append(info)
+        return info_list
 
 
     # def _populate_set_item_info(self, set_list):

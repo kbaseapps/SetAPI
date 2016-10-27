@@ -712,9 +712,12 @@ class SetAPI(object):
         one level down members of those sets. 
         NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA
         :param params: instance of type "ListSetParams" (workspace -
-           workspace name or ID of include_set_contents) -> structure:
-           parameter "workspace" of String, parameter "include_set_item_info"
-           of type "boolean" (A boolean. 0 = false, 1 = true.)
+           workspace name or ID (alternative to workspaces parameter),
+           workspaces - list of workspace name ot ID (alternative to
+           workspace parameter).) -> structure: parameter "workspace" of
+           String, parameter "workspaces" of String, parameter
+           "include_set_item_info" of type "boolean" (A boolean. 0 = false, 1
+           = true.)
         :returns: instance of type "ListSetResult" -> structure: parameter
            "sets" of list of type "SetInfo" -> structure: parameter "ref" of
            type "ws_obj_id" (The workspace ID for a any data object. @id ws),

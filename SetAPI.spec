@@ -249,11 +249,14 @@ module SetAPI {
 
 
     /* 
-        workspace - workspace name or ID of 
-        include_set_contents 
+        workspace - workspace name or ID (alternative to
+            workspaces parameter),
+        workspaces - list of workspace name ot ID (alternative to
+            workspace parameter).
     */
     typedef structure {
         string workspace;
+        string workspaces;
         boolean include_set_item_info;
     } ListSetParams;
 

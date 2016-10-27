@@ -7,6 +7,8 @@ from SetAPI.reads.ReadsSetInterfaceV1 import ReadsSetInterfaceV1
 from SetAPI.assembly.AssemblySetInterfaceV1 import AssemblySetInterfaceV1
 from SetAPI.genome.GenomeSetInterfaceV1 import GenomeSetInterfaceV1
 from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
+from DataPaletteService.DataPaletteServiceClient import DataPaletteService
+
 
 #END_HEADER
 
@@ -20,7 +22,7 @@ class SetAPI:
     
     '''
 
-    ######## WARNING FOR GEVENT USERS #######
+    ######## WARNING FOR GEVENT USERS ####### noqa
     # Since asynchronous IO can lead to methods - even the same method -
     # interrupting each other, you must be *very* careful when using global
     # state. A method could easily clobber the state set by another while
@@ -38,9 +40,11 @@ class SetAPI:
     def __init__(self, config):
         #BEGIN_CONSTRUCTOR
         self.workspaceURL = config['workspace-url']
+        self.serviceWizardURL = config['service-wizard']
+        self.dataPaletteServiceVersion = config['datapaletteservice-version']
         #END_CONSTRUCTOR
         pass
-    
+
 
     def get_reads_set_v1(self, ctx, params):
         """
@@ -795,9 +799,12 @@ class SetAPI:
         one level down members of those sets. 
         NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA
         :param params: instance of type "ListSetParams" (workspace -
-           workspace name or ID of include_set_contents) -> structure:
-           parameter "workspace" of String, parameter "include_set_item_info"
-           of type "boolean" (A boolean. 0 = false, 1 = true.)
+           workspace name or ID (alternative to workspaces parameter),
+           workspaces - list of workspace name ot ID (alternative to
+           workspace parameter).) -> structure: parameter "workspace" of
+           String, parameter "workspaces" of String, parameter
+           "include_set_item_info" of type "boolean" (A boolean. 0 = false, 1
+           = true.)
         :returns: instance of type "ListSetResult" -> structure: parameter
            "sets" of list of type "SetInfo" -> structure: parameter "ref" of
            type "ws_obj_id" (The workspace ID for a any data object. @id ws),
@@ -897,7 +904,9 @@ class SetAPI:
         #BEGIN list_sets
 
         ws = Workspace(self.workspaceURL, token=ctx['token'])
-        gsn = GenericSetNavigator(ws)
+        dps = DataPaletteService(self.serviceWizardURL, token=ctx['token'], 
+                                 service_ver=self.dataPaletteServiceVersion)
+        gsn = GenericSetNavigator(ws, data_palette_client=dps)
         result = gsn.list_sets(params)
 
         #END list_sets
@@ -1029,7 +1038,6 @@ class SetAPI:
                              'result is not type dict as required.')
         # return the results
         return [result]
-
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK", 'message': "", 'version': self.VERSION, 
