@@ -230,3 +230,17 @@ class SetAPITest(unittest.TestCase):
             self.getWsClient().delete_workspace({'workspace': wsName2})
 
 
+    def test_bulk_list_sets(self):
+        ids = []
+        for ws_info in self.getWsClient().list_workspace_info({'perm': 'r', 'excludeGlobal': 1}):
+            if ws_info[4] < 1000:
+                ids.append(str(ws_info[0]))
+            else:
+                print("Workspace: " + ws_info[1] + ", size=" + str(ws_info[4]) + " (skipped)")
+
+        print("Number of workspaces for bulk list_sets: " + str(len(ids)))
+        t1 = time.time()
+        ret = self.getImpl().list_sets(self.getContext(),
+                                       {'workspaces': ids, 
+                                        'include_set_item_info': 1})[0]['sets']
+        print("Objects found: " + str(len(ret)) + ", time=" + str(time.time() - t1))
