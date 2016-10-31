@@ -17,6 +17,7 @@ from pprint import pprint
 from biokbase.workspace.client import Workspace as workspaceService
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
+from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
 
 from ReadsUtils.ReadsUtilsClient import ReadsUtils
 from DataPaletteService.DataPaletteServiceClient import DataPaletteService
@@ -231,16 +232,28 @@ class SetAPITest(unittest.TestCase):
 
 
     def test_bulk_list_sets(self):
-        ids = []
-        for ws_info in self.getWsClient().list_workspace_info({'perm': 'r', 'excludeGlobal': 1}):
-            if ws_info[4] < 1000:
-                ids.append(str(ws_info[0]))
-            else:
-                print("Workspace: " + ws_info[1] + ", size=" + str(ws_info[4]) + " (skipped)")
-
-        print("Number of workspaces for bulk list_sets: " + str(len(ids)))
-        t1 = time.time()
-        ret = self.getImpl().list_sets(self.getContext(),
-                                       {'workspaces': ids, 
-                                        'include_set_item_info': 1})[0]['sets']
-        print("Objects found: " + str(len(ret)) + ", time=" + str(time.time() - t1))
+        try:
+            ids = []
+            for ws_info in self.getWsClient().list_workspace_info({'perm': 'r', 'excludeGlobal': 1}):
+                if ws_info[4] < 1000:
+                    ids.append(str(ws_info[0]))
+                else:
+                    print("Workspace: " + ws_info[1] + ", size=" + str(ws_info[4]) + " (skipped)")
+    
+            print("Number of workspaces for bulk list_sets: " + str(len(ids)))
+            if len(ids) > 0:
+                ret = self.getImpl().list_sets(self.getContext(),
+                                         {'workspaces': [ids[0]], 
+                                          'include_set_item_info': 1})[0]
+                self.assertTrue('raw_data_palettes' not in ret)
+            GenericSetNavigator.DEBUG = True
+            t1 = time.time()
+            ret = self.getImpl().list_sets(self.getContext(),
+                                           {'workspaces': ids, 
+                                            'include_set_item_info': 1,
+                                            'include_raw_data_palettes': 1})[0]
+            print("Objects found: " + str(len(ret['sets'])) + ", time=" + str(time.time() - t1))
+            self.assertTrue('raw_data_palettes' in ret)
+            self.assertTrue(len(ret['raw_data_palettes']) >= 0)
+        finally:
+            GenericSetNavigator.DEBUG = False
