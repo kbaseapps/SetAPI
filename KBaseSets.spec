@@ -74,7 +74,7 @@ module KBaseSets {
     /* GENOME SET */
 
     /*
-        The workspace ID for an Assembly data object.
+        The workspace ID for a Genome data object.
         @id ws KBaseGenomes.Genome
     */
     typedef string ws_genome_id;

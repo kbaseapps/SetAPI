@@ -1,6 +1,7 @@
 
 
 #include <workspace.spec>
+#include <DataPaletteService.spec>
 
 
 module SetAPI {
@@ -112,7 +113,7 @@ module SetAPI {
         the AssemblySet.
     */
     typedef structure {
-        ws_reads_id ref;
+        ws_assembly_id ref;
         string label;
         Workspace.object_info info;
     } AssemblySetItem;
@@ -168,6 +169,78 @@ module SetAPI {
 
 
 
+    /* ******* Genome SET METHODS ************ */
+
+    /* NOTE: data type explicitly copied from KBaseSets so type and
+    API can evolve independently */
+
+    /*
+        The workspace ID for a Genome object.
+        @id ws KBaseGenomes.Genome 
+    */
+    typedef string ws_genome_id;
+
+    /*
+        When saving an GenomeSet, only 'ref' is required.
+        You should never set 'info'.  'info' is provided optionally when fetching
+        the GenomeSet.
+    */
+    typedef structure {
+        ws_genome_id ref;
+        string label;
+        Workspace.object_info info;
+    } GenomeSetItem;
+
+    /*
+        @meta ws description as description
+        @meta ws length(items) as item_count
+    */
+    typedef structure {
+        string description;
+        list<GenomeSetItem> items;
+    } GenomeSet;
+
+
+    /*
+        ref - workspace reference to GenomeGroup object.
+        include_item_info - 1 or 0, if 1 additionally provides workspace info (with
+                            metadata) for each Genome object in the Set
+    */
+    typedef structure {
+        string ref;
+        boolean include_item_info;
+        list <string> ref_path_to_set;
+    } GetGenomeSetV1Params;
+
+    typedef structure {
+        GenomeSet data;
+        Workspace.object_info info;
+    } GetGenomeSetV1Result;
+
+    funcdef get_genome_set_v1(GetGenomeSetV1Params params)
+        returns (GetGenomeSetV1Result result) authentication optional;
+
+    /*
+        workspace_name or workspace_id - alternative options defining 
+            target workspace,
+        output_object_name - workspace object name (this parameter is
+            used together with one of workspace params from above)
+    */
+    typedef structure {
+        string workspace;
+        string output_object_name;
+        GenomeSet data;
+    } SaveGenomeSetV1Params;
+
+    typedef structure {
+        string set_ref;
+        Workspace.object_info set_info;
+    } SaveGenomeSetV1Result;
+
+    funcdef save_genome_set_v1(SaveGenomeSetV1Params params)
+        returns (SaveGenomeSetV1Result result) authentication required;
+
+
 
 
 
@@ -203,13 +276,15 @@ module SetAPI {
         list<SetItemInfo> items;
     } SetInfo;
 
+
+
     /*
         raw_data_palettes - optional output turned on by 'include_raw_data_palettes'
             in input parameters.
     */
     typedef structure {
         list <SetInfo> sets;
-        list <UnspecifiedObject> raw_data_palettes;
+        list <DataPaletteService.DataInfo> raw_data_palettes;
     } ListSetResult;
 
     /* Use to get the top-level sets in a WS. Optionally can include

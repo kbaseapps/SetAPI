@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import us.kbase.common.service.UObject;
+import us.kbase.datapaletteservice.DataInfo;
 
 
 /**
@@ -32,7 +32,7 @@ public class ListSetResult {
     @JsonProperty("sets")
     private List<SetInfo> sets;
     @JsonProperty("raw_data_palettes")
-    private List<UObject> rawDataPalettes;
+    private List<DataInfo> rawDataPalettes;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("sets")
@@ -51,16 +51,16 @@ public class ListSetResult {
     }
 
     @JsonProperty("raw_data_palettes")
-    public List<UObject> getRawDataPalettes() {
+    public List<DataInfo> getRawDataPalettes() {
         return rawDataPalettes;
     }
 
     @JsonProperty("raw_data_palettes")
-    public void setRawDataPalettes(List<UObject> rawDataPalettes) {
+    public void setRawDataPalettes(List<DataInfo> rawDataPalettes) {
         this.rawDataPalettes = rawDataPalettes;
     }
 
-    public ListSetResult withRawDataPalettes(List<UObject> rawDataPalettes) {
+    public ListSetResult withRawDataPalettes(List<DataInfo> rawDataPalettes) {
         this.rawDataPalettes = rawDataPalettes;
         return this;
     }

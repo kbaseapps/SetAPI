@@ -230,6 +230,40 @@ public class SetAPIClient {
     }
 
     /**
+     * <p>Original spec-file function name: get_genome_set_v1</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.setapi.GetGenomeSetV1Params GetGenomeSetV1Params}
+     * @return   parameter "result" of type {@link us.kbase.setapi.GetGenomeSetV1Result GetGenomeSetV1Result}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public GetGenomeSetV1Result getGenomeSetV1(GetGenomeSetV1Params params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<GetGenomeSetV1Result>> retType = new TypeReference<List<GetGenomeSetV1Result>>() {};
+        List<GetGenomeSetV1Result> res = caller.jsonrpcCall("SetAPI.get_genome_set_v1", args, retType, true, false, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: save_genome_set_v1</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.setapi.SaveGenomeSetV1Params SaveGenomeSetV1Params}
+     * @return   parameter "result" of type {@link us.kbase.setapi.SaveGenomeSetV1Result SaveGenomeSetV1Result}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public SaveGenomeSetV1Result saveGenomeSetV1(SaveGenomeSetV1Params params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<SaveGenomeSetV1Result>> retType = new TypeReference<List<SaveGenomeSetV1Result>>() {};
+        List<SaveGenomeSetV1Result> res = caller.jsonrpcCall("SetAPI.save_genome_set_v1", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
      * <p>Original spec-file function name: list_sets</p>
      * <pre>
      * Use to get the top-level sets in a WS. Optionally can include
