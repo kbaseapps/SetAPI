@@ -10,22 +10,29 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import us.kbase.datapaletteservice.DataInfo;
 
 
 /**
  * <p>Original spec-file type: ListSetResult</p>
- * 
+ * <pre>
+ * raw_data_palettes - optional output turned on by 'include_raw_data_palettes'
+ *     in input parameters.
+ * </pre>
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "sets"
+    "sets",
+    "raw_data_palettes"
 })
 public class ListSetResult {
 
     @JsonProperty("sets")
     private List<SetInfo> sets;
+    @JsonProperty("raw_data_palettes")
+    private List<DataInfo> rawDataPalettes;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("sets")
@@ -43,6 +50,21 @@ public class ListSetResult {
         return this;
     }
 
+    @JsonProperty("raw_data_palettes")
+    public List<DataInfo> getRawDataPalettes() {
+        return rawDataPalettes;
+    }
+
+    @JsonProperty("raw_data_palettes")
+    public void setRawDataPalettes(List<DataInfo> rawDataPalettes) {
+        this.rawDataPalettes = rawDataPalettes;
+    }
+
+    public ListSetResult withRawDataPalettes(List<DataInfo> rawDataPalettes) {
+        this.rawDataPalettes = rawDataPalettes;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -55,7 +77,7 @@ public class ListSetResult {
 
     @Override
     public String toString() {
-        return ((((("ListSetResult"+" [sets=")+ sets)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((("ListSetResult"+" [sets=")+ sets)+", rawDataPalettes=")+ rawDataPalettes)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

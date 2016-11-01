@@ -18,6 +18,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  *     workspaces parameter),
  * workspaces - list of workspace name ot ID (alternative to
  *     workspace parameter).
+ * include_raw_data_palettes - advanced option designed for 
+ *     optimization of listing methods in NarrativeService.
  * </pre>
  * 
  */
@@ -26,7 +28,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
     "workspace",
     "workspaces",
-    "include_set_item_info"
+    "include_set_item_info",
+    "include_raw_data_palettes"
 })
 public class ListSetParams {
 
@@ -36,6 +39,8 @@ public class ListSetParams {
     private String workspaces;
     @JsonProperty("include_set_item_info")
     private Long includeSetItemInfo;
+    @JsonProperty("include_raw_data_palettes")
+    private Long includeRawDataPalettes;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("workspace")
@@ -83,6 +88,21 @@ public class ListSetParams {
         return this;
     }
 
+    @JsonProperty("include_raw_data_palettes")
+    public Long getIncludeRawDataPalettes() {
+        return includeRawDataPalettes;
+    }
+
+    @JsonProperty("include_raw_data_palettes")
+    public void setIncludeRawDataPalettes(Long includeRawDataPalettes) {
+        this.includeRawDataPalettes = includeRawDataPalettes;
+    }
+
+    public ListSetParams withIncludeRawDataPalettes(Long includeRawDataPalettes) {
+        this.includeRawDataPalettes = includeRawDataPalettes;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -95,7 +115,7 @@ public class ListSetParams {
 
     @Override
     public String toString() {
-        return ((((((((("ListSetParams"+" [workspace=")+ workspace)+", workspaces=")+ workspaces)+", includeSetItemInfo=")+ includeSetItemInfo)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((("ListSetParams"+" [workspace=")+ workspace)+", workspaces=")+ workspaces)+", includeSetItemInfo=")+ includeSetItemInfo)+", includeRawDataPalettes=")+ includeRawDataPalettes)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

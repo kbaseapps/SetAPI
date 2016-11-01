@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 
+import time
 
 
 from Workspace.WorkspaceClient import Workspace
@@ -8,16 +10,17 @@ from pprint import pprint
 from SetAPI.generic.WorkspaceListObjectsIterator import WorkspaceListObjectsIterator
 
 
-
 class GenericSetNavigator:
 
 
     SET_TYPES = ['KBaseSets.ReadsSet']
+    DEBUG = False
 
 
-    def __init__(self, workspace_client, data_palette_client=None):
+    def __init__(self, workspace_client, data_palette_cache=None, token=None):
         self.ws = workspace_client
-        self.dp = data_palette_client
+        self.dpc = data_palette_cache
+        self.token = token
 
     def list_sets(self, params):
         '''
@@ -25,13 +28,15 @@ class GenericSetNavigator:
         any other sets in the specified workspace). Set item references are always
         returned, ws info for each of those items can optionally be included too.
         '''
+        t1 = time.time()
         self._validate_list_params(params)
 
         workspace = params.get('workspace')
         workspaces = params.get('workspaces')
         if not workspaces:
             workspaces = [str(workspace)]
-        all_sets = self._list_all_sets(workspaces)
+        [all_sets, raw_dp] = self._list_all_sets(workspaces)
+        t2 = time.time()
         all_sets = self._populate_set_refs(all_sets)
 
         # the top level sets list includes not just the set info, but
@@ -41,7 +46,15 @@ class GenericSetNavigator:
         if 'include_set_item_info' in params and params['include_set_item_info']==1:
             top_level_sets = self._populate_set_item_info(top_level_sets)
 
-        return {'sets': top_level_sets}
+        if self.DEBUG:
+            print("Time of populate_sets: " + str(time.time() - t2))
+            print("Total time of list_sets: " + str(time.time() - t1))
+
+        ret = {'sets': top_level_sets}
+        include_raw_data_palettes = params.get('include_raw_data_palettes', 0)
+        if include_raw_data_palettes == 1:
+            ret['raw_data_palettes'] = raw_dp
+        return ret
 
 
     def _validate_list_params(self, params):
@@ -55,6 +68,7 @@ class GenericSetNavigator:
 
     def _list_all_sets(self, workspaces):
         ws_info_list = []
+        t1 = time.time()
         if len(workspaces) == 1:
             ws = workspaces[0]
             list_params = {}
@@ -68,7 +82,10 @@ class GenericSetNavigator:
             for ws_info in self.ws.list_workspace_info({'perm': 'r'}):
                 if ws_info[1] in ws_map or str(ws_info[0]) in ws_map:
                     ws_info_list.append(ws_info)
+        if self.DEBUG:
+            print("Time of ws_info listing: " + str(time.time() - t1))
         
+        t2 = time.time()
         info_list = []
         processed_refs = {}
         for t in GenericSetNavigator.SET_TYPES:
@@ -78,21 +95,26 @@ class GenericSetNavigator:
                 info_list.append(s)
                 ref = str(s[6]) + '/' + str(s[0]) + '/' + str(s[4])
                 processed_refs[ref] = True
-            
-        info_list2 = self._list_from_data_palette(workspaces,
-                                                  GenericSetNavigator.SET_TYPES)
+        if self.DEBUG:
+            print("Time of object info listing: " + str(time.time() - t2))
+        
+        t3 = time.time()
+        [info_list2, raw_dp] = self._list_from_data_palette(workspaces,
+                                                            GenericSetNavigator.SET_TYPES)
         for s in info_list2:
             ref = str(s[6]) + '/' + str(s[0]) + '/' + str(s[4])
             if ref not in processed_refs:
                 info_list.append(s)
                 processed_refs[ref] = True
+        if self.DEBUG:
+            print("Time of data palette loading: " + str(time.time() - t3))
 
         sets = []
         for s in info_list:
             sets.append({'ref': self._build_obj_ref(s),
                          'info': s
                          })
-        return sets
+        return [sets, raw_dp]
 
 
     def _get_workspace_info(self, workspace):
@@ -286,17 +308,17 @@ class GenericSetNavigator:
 
 
     def _list_from_data_palette(self, workspaces, type_list):
-        if not self.dp:
+        if not self.dpc:
             raise ValueError("'data_palette_client' parameter is not set in GenericSetNavigator")
         type_map = {obj_type: True for obj_type in type_list}
         info_list = []
-        dp_ret = self.dp.list_data({'workspaces': workspaces})
+        dp_ret = self.dpc.call_method('list_data', [{'workspaces': workspaces}], self.token)
         for item in dp_ret['data']:
             info = item['info']
             obj_type = info[2].split('-')[0]
             if obj_type in type_map:
                 info_list.append(info)
-        return info_list
+        return [info_list, dp_ret['data']]
 
 
     # def _populate_set_item_info(self, set_list):

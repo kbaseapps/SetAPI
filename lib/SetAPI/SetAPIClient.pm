@@ -1056,9 +1056,11 @@ ListSetParams is a reference to a hash where the following keys are defined:
 	workspace has a value which is a string
 	workspaces has a value which is a string
 	include_set_item_info has a value which is a SetAPI.boolean
+	include_raw_data_palettes has a value which is a SetAPI.boolean
 boolean is an int
 ListSetResult is a reference to a hash where the following keys are defined:
 	sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
+	raw_data_palettes has a value which is a reference to a list where each element is a DataPaletteService.DataInfo
 SetInfo is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_obj_id
 	info has a value which is a Workspace.object_info
@@ -1087,6 +1089,10 @@ usermeta is a reference to a hash where the key is a string and the value is a s
 SetItemInfo is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_obj_id
 	info has a value which is a Workspace.object_info
+DataInfo is a reference to a hash where the following keys are defined:
+	ref has a value which is a DataPaletteService.ws_ref
+	info has a value which is a Workspace.object_info
+ws_ref is a string
 
 </pre>
 
@@ -1100,9 +1106,11 @@ ListSetParams is a reference to a hash where the following keys are defined:
 	workspace has a value which is a string
 	workspaces has a value which is a string
 	include_set_item_info has a value which is a SetAPI.boolean
+	include_raw_data_palettes has a value which is a SetAPI.boolean
 boolean is an int
 ListSetResult is a reference to a hash where the following keys are defined:
 	sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
+	raw_data_palettes has a value which is a reference to a list where each element is a DataPaletteService.DataInfo
 SetInfo is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_obj_id
 	info has a value which is a Workspace.object_info
@@ -1131,6 +1139,10 @@ usermeta is a reference to a hash where the key is a string and the value is a s
 SetItemInfo is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_obj_id
 	info has a value which is a Workspace.object_info
+DataInfo is a reference to a hash where the following keys are defined:
+	ref has a value which is a DataPaletteService.ws_ref
+	info has a value which is a Workspace.object_info
+ws_ref is a string
 
 
 =end text
@@ -2317,6 +2329,8 @@ workspace - workspace name or ID (alternative to
     workspaces parameter),
 workspaces - list of workspace name ot ID (alternative to
     workspace parameter).
+include_raw_data_palettes - advanced option designed for 
+    optimization of listing methods in NarrativeService.
 
 
 =item Definition
@@ -2328,6 +2342,7 @@ a reference to a hash where the following keys are defined:
 workspace has a value which is a string
 workspaces has a value which is a string
 include_set_item_info has a value which is a SetAPI.boolean
+include_raw_data_palettes has a value which is a SetAPI.boolean
 
 </pre>
 
@@ -2339,6 +2354,7 @@ a reference to a hash where the following keys are defined:
 workspace has a value which is a string
 workspaces has a value which is a string
 include_set_item_info has a value which is a SetAPI.boolean
+include_raw_data_palettes has a value which is a SetAPI.boolean
 
 
 =end text
@@ -2419,6 +2435,12 @@ items has a value which is a reference to a list where each element is a SetAPI.
 
 
 
+=item Description
+
+raw_data_palettes - optional output turned on by 'include_raw_data_palettes'
+    in input parameters.
+
+
 =item Definition
 
 =begin html
@@ -2426,6 +2448,7 @@ items has a value which is a reference to a list where each element is a SetAPI.
 <pre>
 a reference to a hash where the following keys are defined:
 sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
+raw_data_palettes has a value which is a reference to a list where each element is a DataPaletteService.DataInfo
 
 </pre>
 
@@ -2435,6 +2458,7 @@ sets has a value which is a reference to a list where each element is a SetAPI.S
 
 a reference to a hash where the following keys are defined:
 sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
+raw_data_palettes has a value which is a reference to a list where each element is a DataPaletteService.DataInfo
 
 
 =end text
