@@ -253,7 +253,9 @@ module SetAPI {
         workspace - workspace name or ID (alternative to
             workspaces parameter),
         workspaces - list of workspace name ot ID (alternative to
-            workspace parameter).
+            workspace parameter),
+        include_metadata - flag for including metadata into Set object info 
+            and into object info of items (it affects DP raw data as well),
         include_raw_data_palettes - advanced option designed for 
             optimization of listing methods in NarrativeService.
     */
@@ -261,6 +263,7 @@ module SetAPI {
         string workspace;
         string workspaces;
         boolean include_set_item_info;
+        boolean include_metadata;
         boolean include_raw_data_palettes;
     } ListSetParams;
 
@@ -279,12 +282,16 @@ module SetAPI {
 
 
     /*
-        raw_data_palettes - optional output turned on by 'include_raw_data_palettes'
-            in input parameters.
+        raw_data_palettes - optional DP output turned on by 'include_raw_data_palettes'
+            in input parameters,
+        raw_data_palette_refs - optional DP output (mapping from workspace Id to reference
+            to DataPalette container existing in particular workspace) turned on by
+            'include_raw_data_palettes' in input parameters,
     */
     typedef structure {
         list <SetInfo> sets;
         list <DataPaletteService.DataInfo> raw_data_palettes;
+        mapping<string ws_text_id, string ws_ref> raw_data_palette_refs;
     } ListSetResult;
 
     /* Use to get the top-level sets in a WS. Optionally can include

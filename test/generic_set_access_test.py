@@ -215,18 +215,33 @@ class SetAPITest(unittest.TestCase):
                                      service_ver=self.dataPaletteServiceVersion)
             dps.add_to_palette({'workspace': wsName2, 
                                 'new_refs': [{'ref': set_obj_ref}]})
-            set_list = self.getImpl().list_sets(self.getContext(),
+            ret = self.getImpl().list_sets(self.getContext(),
                                                 {'workspace': wsName2, 
-                                                 'include_set_item_info': 1})[0]['sets']
+                                                 'include_set_item_info': 1,
+                                                 'include_raw_data_palettes': 1})[0]
+            set_list = ret['sets']
             self.assertEqual(1, len(set_list))
             set_info = set_list[0]
             info = set_info['info']
             self.assertEqual(self.getWsName(), info[7])
             self.assertEqual(set_obj_name, info[1])
+            self.assertTrue('raw_data_palettes' in ret)
+            self.assertEqual(1, len(ret['raw_data_palettes']))
+            self.assertIn('info', ret['raw_data_palettes'][0])
+            self.assertIn('ref', ret['raw_data_palettes'][0])
+            self.assertTrue('raw_data_palette_refs' in ret)
+            self.assertEqual(1, len(ret['raw_data_palette_refs']))
+            
             set_list2 = self.getImpl().list_sets(self.getContext(),
                                                  {'workspaces': [workspace, wsName2], 
-                                                  'include_set_item_info': 1})[0]['sets']
+                                                  'include_set_item_info': 1,
+                                                  'include_metadata': 1})[0]['sets']
             self.assertEqual(len(set_list2), len(self.setNames))
+            self.assertTrue(len(set_list2) > 0)
+            for set_obj in set_list2:
+                self.assertIsNotNone(set_obj['info'][10])
+                for item in set_obj['items']:
+                    self.assertIsNotNone(item['info'][10])
         finally:
             self.getWsClient().delete_workspace({'workspace': wsName2})
 
@@ -250,10 +265,7 @@ class SetAPITest(unittest.TestCase):
             t1 = time.time()
             ret = self.getImpl().list_sets(self.getContext(),
                                            {'workspaces': ids, 
-                                            'include_set_item_info': 1,
-                                            'include_raw_data_palettes': 1})[0]
+                                            'include_set_item_info': 1})[0]
             print("Objects found: " + str(len(ret['sets'])) + ", time=" + str(time.time() - t1))
-            self.assertTrue('raw_data_palettes' in ret)
-            self.assertTrue(len(ret['raw_data_palettes']) >= 0)
         finally:
             GenericSetNavigator.DEBUG = False

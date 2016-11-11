@@ -1056,6 +1056,7 @@ ListSetParams is a reference to a hash where the following keys are defined:
 	workspace has a value which is a string
 	workspaces has a value which is a string
 	include_set_item_info has a value which is a SetAPI.boolean
+	include_metadata has a value which is a SetAPI.boolean
 	include_raw_data_palettes has a value which is a SetAPI.boolean
 boolean is an int
 ListSetResult is a reference to a hash where the following keys are defined:
@@ -1106,6 +1107,7 @@ ListSetParams is a reference to a hash where the following keys are defined:
 	workspace has a value which is a string
 	workspaces has a value which is a string
 	include_set_item_info has a value which is a SetAPI.boolean
+	include_metadata has a value which is a SetAPI.boolean
 	include_raw_data_palettes has a value which is a SetAPI.boolean
 boolean is an int
 ListSetResult is a reference to a hash where the following keys are defined:
@@ -2328,7 +2330,9 @@ set_info has a value which is a Workspace.object_info
 workspace - workspace name or ID (alternative to
     workspaces parameter),
 workspaces - list of workspace name ot ID (alternative to
-    workspace parameter).
+    workspace parameter),
+include_metadata - flag for including metadata into Set object
+    info and into object info of items,
 include_raw_data_palettes - advanced option designed for 
     optimization of listing methods in NarrativeService.
 
@@ -2342,6 +2346,7 @@ a reference to a hash where the following keys are defined:
 workspace has a value which is a string
 workspaces has a value which is a string
 include_set_item_info has a value which is a SetAPI.boolean
+include_metadata has a value which is a SetAPI.boolean
 include_raw_data_palettes has a value which is a SetAPI.boolean
 
 </pre>
@@ -2354,6 +2359,7 @@ a reference to a hash where the following keys are defined:
 workspace has a value which is a string
 workspaces has a value which is a string
 include_set_item_info has a value which is a SetAPI.boolean
+include_metadata has a value which is a SetAPI.boolean
 include_raw_data_palettes has a value which is a SetAPI.boolean
 
 
