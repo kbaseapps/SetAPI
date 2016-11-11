@@ -17,7 +17,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * workspace - workspace name or ID (alternative to
  *     workspaces parameter),
  * workspaces - list of workspace name ot ID (alternative to
- *     workspace parameter).
+ *     workspace parameter),
+ * include_metadata - flag for including metadata into Set object
+ *     info and into object info of items,
  * include_raw_data_palettes - advanced option designed for 
  *     optimization of listing methods in NarrativeService.
  * </pre>
@@ -29,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "workspace",
     "workspaces",
     "include_set_item_info",
+    "include_metadata",
     "include_raw_data_palettes"
 })
 public class ListSetParams {
@@ -39,6 +42,8 @@ public class ListSetParams {
     private String workspaces;
     @JsonProperty("include_set_item_info")
     private Long includeSetItemInfo;
+    @JsonProperty("include_metadata")
+    private Long includeMetadata;
     @JsonProperty("include_raw_data_palettes")
     private Long includeRawDataPalettes;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -88,6 +93,21 @@ public class ListSetParams {
         return this;
     }
 
+    @JsonProperty("include_metadata")
+    public Long getIncludeMetadata() {
+        return includeMetadata;
+    }
+
+    @JsonProperty("include_metadata")
+    public void setIncludeMetadata(Long includeMetadata) {
+        this.includeMetadata = includeMetadata;
+    }
+
+    public ListSetParams withIncludeMetadata(Long includeMetadata) {
+        this.includeMetadata = includeMetadata;
+        return this;
+    }
+
     @JsonProperty("include_raw_data_palettes")
     public Long getIncludeRawDataPalettes() {
         return includeRawDataPalettes;
@@ -115,7 +135,7 @@ public class ListSetParams {
 
     @Override
     public String toString() {
-        return ((((((((((("ListSetParams"+" [workspace=")+ workspace)+", workspaces=")+ workspaces)+", includeSetItemInfo=")+ includeSetItemInfo)+", includeRawDataPalettes=")+ includeRawDataPalettes)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((("ListSetParams"+" [workspace=")+ workspace)+", workspaces=")+ workspaces)+", includeSetItemInfo=")+ includeSetItemInfo)+", includeMetadata=")+ includeMetadata)+", includeRawDataPalettes=")+ includeRawDataPalettes)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

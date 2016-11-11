@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import time
+
 try:
     # baseclient and this client are in a package
     from .baseclient import BaseClient as _BaseClient  # @UnusedImport
@@ -9,15 +11,18 @@ except:
 
 class DynamicServiceCache:
 
-    def __init__(self, sw_url, service_ver, module_name):
+    def __init__(self, sw_url, service_ver, module_name, refresh_cycle_seconds = 300):
         self.sw_url = sw_url
         self.service_ver = service_ver
         self.module_name = module_name
+        self.refresh_cycle_seconds = refresh_cycle_seconds
         self.cached_url = None
+        self.last_refresh_time = None
 
     def call_method(self, method, params_array, token):
         was_url_refreshed = False
-        if not self.cached_url:
+        if (not self.cached_url) or (time.time() - self.last_refresh_time > 
+                                     self.refresh_cycle_seconds):
             self._lookup_url()
             was_url_refreshed = True
         try:
@@ -34,6 +39,7 @@ class DynamicServiceCache:
         self.cached_url = bc.call_method('ServiceWizard.get_service_status',
                                          [{'module_name': self.module_name, 
                                            'version': self.service_ver}])['url']
+        self.last_refresh_time = time.time()
 
     def _call(self, method, params_array, token):
         bc = _BaseClient(url=self.cached_url, token=token, lookup_url=False)

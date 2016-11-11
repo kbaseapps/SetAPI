@@ -33,9 +33,10 @@ class GenericSetNavigator:
 
         workspace = params.get('workspace')
         workspaces = params.get('workspaces')
+        include_metadata = params.get('include_metadata', 0)
         if not workspaces:
             workspaces = [str(workspace)]
-        [all_sets, raw_dp] = self._list_all_sets(workspaces)
+        [all_sets, raw_dp, raw_dp_refs] = self._list_all_sets(workspaces, include_metadata)
         t2 = time.time()
         all_sets = self._populate_set_refs(all_sets)
 
@@ -54,6 +55,7 @@ class GenericSetNavigator:
         include_raw_data_palettes = params.get('include_raw_data_palettes', 0)
         if include_raw_data_palettes == 1:
             ret['raw_data_palettes'] = raw_dp
+            ret['raw_data_palette_refs'] = raw_dp_refs
         return ret
 
 
@@ -66,7 +68,7 @@ class GenericSetNavigator:
                 raise ValueError('"include_set_item_info" field must be set to 0 or 1')
 
 
-    def _list_all_sets(self, workspaces):
+    def _list_all_sets(self, workspaces, include_metadata):
         ws_info_list = []
         t1 = time.time()
         if len(workspaces) == 1:
@@ -89,7 +91,7 @@ class GenericSetNavigator:
         info_list = []
         processed_refs = {}
         for t in GenericSetNavigator.SET_TYPES:
-            list_params = {'includeMetadata': 1, 'type': t}
+            list_params = {'includeMetadata': include_metadata, 'type': t}
             for s in WorkspaceListObjectsIterator(self.ws, list_objects_params=list_params,
                                                   ws_info_list=ws_info_list):
                 info_list.append(s)
@@ -99,8 +101,8 @@ class GenericSetNavigator:
             print("Time of object info listing: " + str(time.time() - t2))
         
         t3 = time.time()
-        [info_list2, raw_dp] = self._list_from_data_palette(workspaces,
-                                                            GenericSetNavigator.SET_TYPES)
+        [info_list2, raw_dp, raw_dp_refs] = self._list_from_data_palette(
+                workspaces, GenericSetNavigator.SET_TYPES, include_metadata)
         for s in info_list2:
             ref = str(s[6]) + '/' + str(s[0]) + '/' + str(s[4])
             if ref not in processed_refs:
@@ -114,7 +116,7 @@ class GenericSetNavigator:
             sets.append({'ref': self._build_obj_ref(s),
                          'info': s
                          })
-        return [sets, raw_dp]
+        return [sets, raw_dp, raw_dp_refs]
 
 
     def _get_workspace_info(self, workspace):
@@ -307,18 +309,19 @@ class GenericSetNavigator:
         return set_list
 
 
-    def _list_from_data_palette(self, workspaces, type_list):
+    def _list_from_data_palette(self, workspaces, type_list, include_metadata):
         if not self.dpc:
             raise ValueError("'data_palette_client' parameter is not set in GenericSetNavigator")
         type_map = {obj_type: True for obj_type in type_list}
         info_list = []
-        dp_ret = self.dpc.call_method('list_data', [{'workspaces': workspaces}], self.token)
+        dp_ret = self.dpc.call_method('list_data', [{'workspaces': workspaces,
+                                                     'include_metadata': include_metadata}], self.token)
         for item in dp_ret['data']:
             info = item['info']
             obj_type = info[2].split('-')[0]
             if obj_type in type_map:
                 info_list.append(info)
-        return [info_list, dp_ret['data']]
+        return [info_list, dp_ret['data'], dp_ret['data_palette_refs']]
 
 
     # def _populate_set_item_info(self, set_list):

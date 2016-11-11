@@ -714,11 +714,14 @@ class SetAPI(object):
         :param params: instance of type "ListSetParams" (workspace -
            workspace name or ID (alternative to workspaces parameter),
            workspaces - list of workspace name ot ID (alternative to
-           workspace parameter). include_raw_data_palettes - advanced option
-           designed for optimization of listing methods in NarrativeService.)
-           -> structure: parameter "workspace" of String, parameter
-           "workspaces" of String, parameter "include_set_item_info" of type
-           "boolean" (A boolean. 0 = false, 1 = true.), parameter
+           workspace parameter), include_metadata - flag for including
+           metadata into Set object info and into object info of items,
+           include_raw_data_palettes - advanced option designed for
+           optimization of listing methods in NarrativeService.) ->
+           structure: parameter "workspace" of String, parameter "workspaces"
+           of String, parameter "include_set_item_info" of type "boolean" (A
+           boolean. 0 = false, 1 = true.), parameter "include_metadata" of
+           type "boolean" (A boolean. 0 = false, 1 = true.), parameter
            "include_raw_data_palettes" of type "boolean" (A boolean. 0 =
            false, 1 = true.)
         :returns: instance of type "ListSetResult" (raw_data_palettes -
