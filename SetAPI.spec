@@ -273,10 +273,15 @@ module SetAPI {
         Workspace.object_info info;
     } SetItemInfo;
 
+    /*
+        dp_ref - optional reference to DataPalette container in case given set object
+            is coming from DataPalette.
+    */
     typedef structure {
         ws_obj_id ref;
         Workspace.object_info info;
         list<SetItemInfo> items;
+        ws_obj_id dp_ref;
     } SetInfo;
 
 
