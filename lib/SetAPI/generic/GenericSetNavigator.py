@@ -88,34 +88,32 @@ class GenericSetNavigator:
             print("Time of ws_info listing: " + str(time.time() - t1))
         
         t2 = time.time()
-        info_list = []
+        sets = []
         processed_refs = {}
         for t in GenericSetNavigator.SET_TYPES:
             list_params = {'includeMetadata': include_metadata, 'type': t}
             for s in WorkspaceListObjectsIterator(self.ws, list_objects_params=list_params,
                                                   ws_info_list=ws_info_list):
-                info_list.append(s)
+                sets.append({'ref': self._build_obj_ref(s),
+                             'info': s})
                 ref = str(s[6]) + '/' + str(s[0]) + '/' + str(s[4])
                 processed_refs[ref] = True
         if self.DEBUG:
             print("Time of object info listing: " + str(time.time() - t2))
         
         t3 = time.time()
-        [info_list2, raw_dp, raw_dp_refs] = self._list_from_data_palette(
+        [dp_info_list, raw_dp, raw_dp_refs] = self._list_from_data_palette(
                 workspaces, GenericSetNavigator.SET_TYPES, include_metadata)
-        for s in info_list2:
-            ref = str(s[6]) + '/' + str(s[0]) + '/' + str(s[4])
+        for dp_info in dp_info_list:
+            s = dp_info['info']
+            dp_ref = dp_info['dp_ref']
+            ref = self._build_obj_ref(s)
             if ref not in processed_refs:
-                info_list.append(s)
+                sets.append({'ref': ref, 'info': s, 'dp_ref': dp_ref})
                 processed_refs[ref] = True
         if self.DEBUG:
             print("Time of data palette loading: " + str(time.time() - t3))
 
-        sets = []
-        for s in info_list:
-            sets.append({'ref': self._build_obj_ref(s),
-                         'info': s
-                         })
         return [sets, raw_dp, raw_dp_refs]
 
 
@@ -130,19 +128,6 @@ class GenericSetNavigator:
             ws_identity['workspace'] = workspace
         return self.ws.get_workspace_info(ws_identity)
 
-
-
-    def _list_until_exhausted(self, options, max_id):
-        min_id = 0
-        step = 10000
-        obj_info_list = []
-        while min_id < max_id:
-            options['minObjectID'] = min_id
-            options['maxObjectID'] = min_id + step
-            min_id = min_id + step
-            result = self.ws.list_objects(options)
-            obj_info_list.extend(result)
-        return obj_info_list
 
 
     def _get_top_level_sets(self, set_list):
@@ -179,7 +164,10 @@ class GenericSetNavigator:
 
         objects = []
         for s in set_list:
-            objects.append({'ref':s['ref']})
+            set_ref = s['ref']
+            if 'dp_ref' in s:
+                set_ref = s['dp_ref'] + ';' + set_ref
+            objects.append({'ref': set_ref})
 
         if len(objects)>0:
             obj_data = self.ws.get_objects2({
@@ -207,13 +195,15 @@ class GenericSetNavigator:
         item_refs = {}
         for s in set_list:
             for i in s['items']:
-                item_refs[i['ref']] = s['ref']
+                set_ref = s['ref']
+                if 'dp_ref' in s:
+                    set_ref = s['dp_ref'] + ';' + set_ref
+                item_refs[i['ref']] = set_ref
 
         objects = []
         for ref in item_refs:
             objects.append({
-                    'ref': item_refs[ref],
-                    'obj_ref_path': [ref]
+                    'ref': item_refs[ref] + ';' + ref
                 })
 
         if len(objects)>0:
@@ -313,15 +303,15 @@ class GenericSetNavigator:
         if not self.dpc:
             raise ValueError("'data_palette_client' parameter is not set in GenericSetNavigator")
         type_map = {obj_type: True for obj_type in type_list}
-        info_list = []
+        dp_info_list = []
         dp_ret = self.dpc.call_method('list_data', [{'workspaces': workspaces,
                                                      'include_metadata': include_metadata}], self.token)
         for item in dp_ret['data']:
             info = item['info']
             obj_type = info[2].split('-')[0]
             if obj_type in type_map:
-                info_list.append(info)
-        return [info_list, dp_ret['data'], dp_ret['data_palette_refs']]
+                dp_info_list.append({'info': info, 'dp_ref': item['dp_ref']})
+        return [dp_info_list, dp_ret['data'], dp_ret['data_palette_refs']]
 
 
     # def _populate_set_item_info(self, set_list):
