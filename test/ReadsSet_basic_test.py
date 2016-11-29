@@ -18,7 +18,7 @@ from biokbase.workspace.client import Workspace as workspaceService
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
 
-from ReadsUtils.ReadsUtilsClient import ReadsUtils
+from FakeObjectsForTests.FakeObjectsForTestsClient import FakeObjectsForTests
 
 
 class SetAPITest(unittest.TestCase):
@@ -58,33 +58,13 @@ class SetAPITest(unittest.TestCase):
         ret = cls.wsClient.create_workspace({'workspace': wsName})
         cls.wsName = wsName
 
-        # copy test file to scratch area
-        fq_filename = "interleaved.fastq"
-        fq_path = os.path.join(cls.cfg['scratch'], fq_filename)
-        shutil.copy(os.path.join("data", fq_filename), fq_path)
-
-        ru = ReadsUtils(os.environ['SDK_CALLBACK_URL'])
-        cls.read1ref = ru.upload_reads({
-                'fwd_file': fq_path,
-                'sequencing_tech': 'tech1',
-                'wsname': wsName,
-                'name': 'reads1',
-                'interleaved':1
-            })['obj_ref']
-        cls.read2ref = ru.upload_reads({
-                'fwd_file': fq_path,
-                'sequencing_tech': 'tech2',
-                'wsname': wsName,
-                'name': 'reads2',
-                'interleaved':1
-            })['obj_ref']
-        cls.read3ref = ru.upload_reads({
-                'fwd_file': fq_path,
-                'sequencing_tech': 'tech3',
-                'wsname': wsName,
-                'name': 'reads3',
-                'interleaved':1
-            })['obj_ref']
+        foft = FakeObjectsForTests(os.environ['SDK_CALLBACK_URL'])
+        [info1, info2, info3] = foft.create_fake_reads({'ws_name': wsName, 
+                                                        'obj_names': ['reads1', 'reads2', 
+                                                                      'reads3']})
+        cls.read1ref = str(info1[6]) + '/' + str(info1[0]) + '/' + str(info1[4])
+        cls.read2ref = str(info2[6]) + '/' + str(info2[0]) + '/' + str(info2[4])
+        cls.read3ref = str(info3[6]) + '/' + str(info3[0]) + '/' + str(info3[4])
 
     @classmethod
     def tearDownClass(cls):

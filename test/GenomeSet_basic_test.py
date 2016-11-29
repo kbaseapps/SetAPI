@@ -18,8 +18,9 @@ from biokbase.workspace.client import Workspace as workspaceService
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
 
-#from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
-from GenomeFileUtil.GenomeFileUtilClient import GenomeFileUtil
+from FakeObjectsForTests.FakeObjectsForTestsClient import FakeObjectsForTests
+
+
 class SetAPITest(unittest.TestCase):
 
     @classmethod
@@ -55,27 +56,14 @@ class SetAPITest(unittest.TestCase):
         suffix = int(time.time() * 1000)
         wsName = "test_SetAPI_" + str(suffix)
         ret = cls.wsClient.create_workspace({'workspace': wsName})
-#        wsName = 'pranjan77:1477441032423'
         cls.wsName = wsName
-        # copy test file to scratch area
-        gbff_filename = "GCF_000005845.2_ASM584v2_genomic.gbff"
-        gbff_path = os.path.join(cls.cfg['scratch'], gbff_filename)
-        shutil.copy(os.path.join("data", gbff_filename), gbff_path)
 
-        ru = GenomeFileUtil(os.environ['SDK_CALLBACK_URL'])
-        ws_obj_name = 'MyNewGenome'
-        cls.genome1ref = ru.genbank_to_genome( 
-            {
-                'file':{'path':gbff_path},
-                'workspace_name':wsName,
-                'genome_name':'genome_obj_1'
-            })['genome_ref']
-        cls.genome2ref = ru.genbank_to_genome( 
-            {
-                'file':{'path':gbff_path},
-                'workspace_name':wsName,
-                'genome_name':'genome_obj_2'
-            })['genome_ref']
+        foft = FakeObjectsForTests(os.environ['SDK_CALLBACK_URL'])
+        [info1, info2] = foft.create_fake_genomes({'ws_name': wsName, 
+                                                   'obj_names': ['genome_obj_1', 
+                                                                 'genome_obj_2']})
+        cls.genome1ref = str(info1[6]) + '/' + str(info1[0]) + '/' + str(info1[4])
+        cls.genome2ref = str(info2[6]) + '/' + str(info2[0]) + '/' + str(info2[4])
 
 
     @classmethod
