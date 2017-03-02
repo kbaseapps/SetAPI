@@ -16,8 +16,11 @@ import us.kbase.datapaletteservice.DataInfo;
 /**
  * <p>Original spec-file type: ListSetResult</p>
  * <pre>
- * raw_data_palettes - optional output turned on by 'include_raw_data_palettes'
- *     in input parameters.
+ * raw_data_palettes - optional DP output turned on by 'include_raw_data_palettes'
+ *     in input parameters,
+ * raw_data_palette_refs - optional DP output (mapping from workspace Id to reference
+ *     to DataPalette container existing in particular workspace) turned on by
+ *     'include_raw_data_palettes' in input parameters,
  * </pre>
  * 
  */
@@ -25,7 +28,8 @@ import us.kbase.datapaletteservice.DataInfo;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "sets",
-    "raw_data_palettes"
+    "raw_data_palettes",
+    "raw_data_palette_refs"
 })
 public class ListSetResult {
 
@@ -33,7 +37,9 @@ public class ListSetResult {
     private List<SetInfo> sets;
     @JsonProperty("raw_data_palettes")
     private List<DataInfo> rawDataPalettes;
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    @JsonProperty("raw_data_palette_refs")
+    private Map<String, String> rawDataPaletteRefs;
+    private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("sets")
     public List<SetInfo> getSets() {
@@ -65,19 +71,34 @@ public class ListSetResult {
         return this;
     }
 
+    @JsonProperty("raw_data_palette_refs")
+    public Map<String, String> getRawDataPaletteRefs() {
+        return rawDataPaletteRefs;
+    }
+
+    @JsonProperty("raw_data_palette_refs")
+    public void setRawDataPaletteRefs(Map<String, String> rawDataPaletteRefs) {
+        this.rawDataPaletteRefs = rawDataPaletteRefs;
+    }
+
+    public ListSetResult withRawDataPaletteRefs(Map<String, String> rawDataPaletteRefs) {
+        this.rawDataPaletteRefs = rawDataPaletteRefs;
+        return this;
+    }
+
     @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
+    public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
     }
 
     @JsonAnySetter
-    public void setAdditionalProperties(String name, Object value) {
+    public void setAdditionalProperties(java.lang.String name, Object value) {
         this.additionalProperties.put(name, value);
     }
 
     @Override
-    public String toString() {
-        return ((((((("ListSetResult"+" [sets=")+ sets)+", rawDataPalettes=")+ rawDataPalettes)+", additionalProperties=")+ additionalProperties)+"]");
+    public java.lang.String toString() {
+        return ((((((((("ListSetResult"+" [sets=")+ sets)+", rawDataPalettes=")+ rawDataPalettes)+", rawDataPaletteRefs=")+ rawDataPaletteRefs)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

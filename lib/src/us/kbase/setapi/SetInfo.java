@@ -15,7 +15,10 @@ import us.kbase.common.service.Tuple11;
 
 /**
  * <p>Original spec-file type: SetInfo</p>
- * 
+ * <pre>
+ * dp_ref - optional reference to DataPalette container in case given set object
+ *     is coming from DataPalette.
+ * </pre>
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -23,7 +26,8 @@ import us.kbase.common.service.Tuple11;
 @JsonPropertyOrder({
     "ref",
     "info",
-    "items"
+    "items",
+    "dp_ref"
 })
 public class SetInfo {
 
@@ -33,6 +37,8 @@ public class SetInfo {
     private Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> info;
     @JsonProperty("items")
     private List<SetItemInfo> items;
+    @JsonProperty("dp_ref")
+    private java.lang.String dpRef;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("ref")
@@ -80,6 +86,21 @@ public class SetInfo {
         return this;
     }
 
+    @JsonProperty("dp_ref")
+    public java.lang.String getDpRef() {
+        return dpRef;
+    }
+
+    @JsonProperty("dp_ref")
+    public void setDpRef(java.lang.String dpRef) {
+        this.dpRef = dpRef;
+    }
+
+    public SetInfo withDpRef(java.lang.String dpRef) {
+        this.dpRef = dpRef;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -92,7 +113,7 @@ public class SetInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((("SetInfo"+" [ref=")+ ref)+", info=")+ info)+", items=")+ items)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((("SetInfo"+" [ref=")+ ref)+", info=")+ info)+", items=")+ items)+", dpRef=")+ dpRef)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

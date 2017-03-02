@@ -20,7 +20,7 @@ from SetAPI.authclient import KBaseAuth as _KBaseAuth
 
 DEPLOY = 'KB_DEPLOYMENT_CONFIG'
 SERVICE = 'KB_SERVICE_NAME'
-AUTH = 'auth-server-url'
+AUTH = 'auth-service-url'
 
 # Note that the error fields do not match the 2.0 JSONRPC spec
 
@@ -109,7 +109,11 @@ class JSONRPCServiceCustom(JSONRPCService):
             # Exception was raised inside the method.
             newerr = JSONServerError()
             newerr.trace = traceback.format_exc()
-            newerr.data = e.message
+            if isinstance(e.message, basestring):
+                newerr.data = e.message
+            else:
+                # Some exceptions embed other exceptions as the message
+                newerr.data = repr(e.message)
             raise newerr
         return result
 
@@ -332,35 +336,35 @@ class Application(object):
         self.rpc_service.add(impl_SetAPI.get_reads_set_v1,
                              name='SetAPI.get_reads_set_v1',
                              types=[dict])
-        self.method_authentication['SetAPI.get_reads_set_v1'] = 'optional' # noqa
+        self.method_authentication['SetAPI.get_reads_set_v1'] = 'optional'  # noqa
         self.rpc_service.add(impl_SetAPI.save_reads_set_v1,
                              name='SetAPI.save_reads_set_v1',
                              types=[dict])
-        self.method_authentication['SetAPI.save_reads_set_v1'] = 'required' # noqa
+        self.method_authentication['SetAPI.save_reads_set_v1'] = 'required'  # noqa
         self.rpc_service.add(impl_SetAPI.get_assembly_set_v1,
                              name='SetAPI.get_assembly_set_v1',
                              types=[dict])
-        self.method_authentication['SetAPI.get_assembly_set_v1'] = 'optional' # noqa
+        self.method_authentication['SetAPI.get_assembly_set_v1'] = 'optional'  # noqa
         self.rpc_service.add(impl_SetAPI.save_assembly_set_v1,
                              name='SetAPI.save_assembly_set_v1',
                              types=[dict])
-        self.method_authentication['SetAPI.save_assembly_set_v1'] = 'required' # noqa
+        self.method_authentication['SetAPI.save_assembly_set_v1'] = 'required'  # noqa
         self.rpc_service.add(impl_SetAPI.get_genome_set_v1,
                              name='SetAPI.get_genome_set_v1',
                              types=[dict])
-        self.method_authentication['SetAPI.get_genome_set_v1'] = 'optional' # noqa
+        self.method_authentication['SetAPI.get_genome_set_v1'] = 'optional'  # noqa
         self.rpc_service.add(impl_SetAPI.save_genome_set_v1,
                              name='SetAPI.save_genome_set_v1',
                              types=[dict])
-        self.method_authentication['SetAPI.save_genome_set_v1'] = 'required' # noqa
+        self.method_authentication['SetAPI.save_genome_set_v1'] = 'required'  # noqa
         self.rpc_service.add(impl_SetAPI.list_sets,
                              name='SetAPI.list_sets',
                              types=[dict])
-        self.method_authentication['SetAPI.list_sets'] = 'optional' # noqa
+        self.method_authentication['SetAPI.list_sets'] = 'optional'  # noqa
         self.rpc_service.add(impl_SetAPI.get_set_items,
                              name='SetAPI.get_set_items',
                              types=[dict])
-        self.method_authentication['SetAPI.get_set_items'] = 'optional' # noqa
+        self.method_authentication['SetAPI.get_set_items'] = 'optional'  # noqa
         self.rpc_service.add(impl_SetAPI.status,
                              name='SetAPI.status',
                              types=[dict])
