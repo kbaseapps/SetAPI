@@ -18,6 +18,10 @@ module KBaseSets {
     /****************************** */
     /* READS ALIGNMENTS SET */
 
+    /*
+        The workspace id for a ReadsAlignment data object.
+        @id ws KBaseRNASeq.RNASeqAlignment
+    */
     typedef string ws_reads_align_id;
 
     typedef structure {
