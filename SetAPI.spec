@@ -9,6 +9,80 @@ module SetAPI {
     /* A boolean. 0 = false, 1 = true. */
     typedef int boolean;
 
+    /* ******* READS ALIGNMENT SET METHODS ******** */
+
+    /* NOTE: data type explicitly copied from KBaseSets so type and
+    API can evolve independently */
+
+    /*
+        The workspace id for a ReadsAlignment data object.
+        @id ws KBaseRNASeq.RNASeqAlignment
+    */
+    typedef string ws_reads_align_id;
+
+    /*
+        When saving a ReadsAlignmentSet, only 'ref' is required.
+        You should never set 'info'.  'info' is provided optionally when fetching
+        the ReadsAlignmentSet.
+    */
+    typedef structure {
+        ws_reads_align_id ref;
+        string label;
+        Workspace.object_info info;
+    } ReadsAlignmentSetItem;
+
+    /*
+        When building a ReadsAlignmentSet, all ReadsAlignments must be aligned against the same
+        genome. This is not part of the object type, but enforced during a call to
+        save_reads_alignment_v1.
+        @meta ws description as description
+        @meta ws length(items) as item_count
+    */
+    typedef structure {
+        string description;
+        list<ReadsAlignmentSetItem> items;
+    } ReadsAlignmentSet;
+
+    /*
+        ref - workspace reference to ReadsAlignmentSet object.
+        include_item_info - 1 or 0, if 1 additionally provides workspace info (with
+                            metadata) for each ReadsAlignment object in the Set
+    */
+    typedef structure {
+        string ref;
+        boolean include_item_info;
+        list <string> ref_path_to_set;
+    } GetReadsAlignmentSetV1Params;
+
+    typedef structure {
+        ReadsAlignmentSet data;
+        Workspace.object_info info;
+    } GetReadsAlignmentSetV1Result;
+
+    funcdef get_reads_alignment_set_v1(GetReadsAlignmentSetV1Params params)
+        returns (GetReadsAlignmentSetV1Result) authentication optional;
+
+    /*
+        workspace_name or workspace_id - alternative options defining
+            target workspace,
+        output_object_name - workspace object name (this parameter is
+            used together with one of workspace params from above)
+    */
+    typedef structure {
+        string workspace;
+        string output_object_name;
+        ReadsAlignmentSet data;
+    } SaveReadsAlignmentSetV1Params;
+
+    typedef structure {
+        string set_ref;
+        Workspace.object_info set_info;
+    } SaveReadsAlignmentSetV1Result;
+
+    funcdef save_reads_alignment_set_v1(SaveReadsAlignmentSetV1Params params)
+        returns (SaveReadsAlignmentSetV1Result result) authentication required;
+
+
 
     /* ******* READS SET METHODS ************ */
 
@@ -28,7 +102,7 @@ module SetAPI {
 
     /*
         The workspace ID for a Reads data object.
-        @id ws KBaseFile.PairedEndLibrary KBaseFile.SingleEndLibrary 
+        @id ws KBaseFile.PairedEndLibrary KBaseFile.SingleEndLibrary
     */
     typedef string ws_reads_id;
 
@@ -74,7 +148,7 @@ module SetAPI {
         returns (GetReadsSetV1Result result) authentication optional;
 
     /*
-        workspace_name or workspace_id - alternative options defining 
+        workspace_name or workspace_id - alternative options defining
             target workspace,
         output_object_name - workspace object name (this parameter is
             used together with one of workspace params from above)
@@ -103,7 +177,7 @@ module SetAPI {
 
     /*
         The workspace ID for an Assembly object.
-        @id ws KBaseGenomeAnnotations.Assembly 
+        @id ws KBaseGenomeAnnotations.Assembly
     */
     typedef string ws_assembly_id;
 
@@ -148,7 +222,7 @@ module SetAPI {
         returns (GetAssemblySetV1Result result) authentication optional;
 
     /*
-        workspace_name or workspace_id - alternative options defining 
+        workspace_name or workspace_id - alternative options defining
             target workspace,
         output_object_name - workspace object name (this parameter is
             used together with one of workspace params from above)
@@ -176,7 +250,7 @@ module SetAPI {
 
     /*
         The workspace ID for a Genome object.
-        @id ws KBaseGenomes.Genome 
+        @id ws KBaseGenomes.Genome
     */
     typedef string ws_genome_id;
 
@@ -221,7 +295,7 @@ module SetAPI {
         returns (GetGenomeSetV1Result result) authentication optional;
 
     /*
-        workspace_name or workspace_id - alternative options defining 
+        workspace_name or workspace_id - alternative options defining
             target workspace,
         output_object_name - workspace object name (this parameter is
             used together with one of workspace params from above)
@@ -249,14 +323,14 @@ module SetAPI {
     /* ******* Generic SET METHODS ************ */
 
 
-    /* 
+    /*
         workspace - workspace name or ID (alternative to
             workspaces parameter),
         workspaces - list of workspace name ot ID (alternative to
             workspace parameter),
-        include_metadata - flag for including metadata into Set object info 
+        include_metadata - flag for including metadata into Set object info
             and into object info of items (it affects DP raw data as well),
-        include_raw_data_palettes - advanced option designed for 
+        include_raw_data_palettes - advanced option designed for
             optimization of listing methods in NarrativeService.
     */
     typedef structure {
@@ -300,13 +374,13 @@ module SetAPI {
     } ListSetResult;
 
     /* Use to get the top-level sets in a WS. Optionally can include
-    one level down members of those sets. 
+    one level down members of those sets.
     NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA */
     funcdef list_sets(ListSetParams params)
                 returns (ListSetResult result) authentication optional;
 
 
-    
+
     typedef structure {
         ws_obj_id ref;
         list <ws_obj_id> path_to_set;

@@ -162,6 +162,40 @@ public class SetAPIClient {
     }
 
     /**
+     * <p>Original spec-file function name: get_reads_alignment_set_v1</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.setapi.GetReadsAlignmentSetV1Params GetReadsAlignmentSetV1Params}
+     * @return   instance of type {@link us.kbase.setapi.GetReadsAlignmentSetV1Result GetReadsAlignmentSetV1Result}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public GetReadsAlignmentSetV1Result getReadsAlignmentSetV1(GetReadsAlignmentSetV1Params params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<GetReadsAlignmentSetV1Result>> retType = new TypeReference<List<GetReadsAlignmentSetV1Result>>() {};
+        List<GetReadsAlignmentSetV1Result> res = caller.jsonrpcCall("SetAPI.get_reads_alignment_set_v1", args, retType, true, false, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: save_reads_alignment_set_v1</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.setapi.SaveReadsAlignmentSetV1Params SaveReadsAlignmentSetV1Params}
+     * @return   parameter "result" of type {@link us.kbase.setapi.SaveReadsAlignmentSetV1Result SaveReadsAlignmentSetV1Result}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public SaveReadsAlignmentSetV1Result saveReadsAlignmentSetV1(SaveReadsAlignmentSetV1Params params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<SaveReadsAlignmentSetV1Result>> retType = new TypeReference<List<SaveReadsAlignmentSetV1Result>>() {};
+        List<SaveReadsAlignmentSetV1Result> res = caller.jsonrpcCall("SetAPI.save_reads_alignment_set_v1", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
      * <p>Original spec-file function name: get_reads_set_v1</p>
      * <pre>
      * </pre>
@@ -267,7 +301,7 @@ public class SetAPIClient {
      * <p>Original spec-file function name: list_sets</p>
      * <pre>
      * Use to get the top-level sets in a WS. Optionally can include
-     * one level down members of those sets. 
+     * one level down members of those sets.
      * NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA
      * </pre>
      * @param   params   instance of type {@link us.kbase.setapi.ListSetParams ListSetParams}

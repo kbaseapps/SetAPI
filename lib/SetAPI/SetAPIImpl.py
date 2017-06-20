@@ -6,6 +6,7 @@ from biokbase.workspace.client import Workspace
 from SetAPI.reads.ReadsSetInterfaceV1 import ReadsSetInterfaceV1
 from SetAPI.assembly.AssemblySetInterfaceV1 import AssemblySetInterfaceV1
 from SetAPI.genome.GenomeSetInterfaceV1 import GenomeSetInterfaceV1
+from SetAPI.readsalignment.ReadsAlignmentSetInterfaceV1 import ReadsAlignmentSetInterfaceV1
 from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
 from SetAPI.generic.DynamicServiceCache import DynamicServiceCache
 
@@ -19,7 +20,7 @@ class SetAPI:
     SetAPI
 
     Module Description:
-    
+
     '''
 
     ######## WARNING FOR GEVENT USERS ####### noqa
@@ -28,9 +29,9 @@ class SetAPI:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.1.1"
-    GIT_URL = "https://github.com/rsutormin/SetAPI"
-    GIT_COMMIT_HASH = "c0110961bfb3e14a33d70b630e0deb69d6b93373"
+    VERSION = "0.1.2"
+    GIT_URL = "https://github.com/kbaseapps/SetAPI"
+    GIT_COMMIT_HASH = "66c78fada08b8bd2ac3b1ecdb6c5dbd3a0fc9d9b"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -42,12 +43,263 @@ class SetAPI:
         self.workspaceURL = config['workspace-url']
         self.serviceWizardURL = config['service-wizard']
         self.dataPaletteServiceVersion = config['datapaletteservice-version']
-        self.dataPaletteCache = DynamicServiceCache(self.serviceWizardURL, 
-                                                      self.dataPaletteServiceVersion, 
+        self.dataPaletteCache = DynamicServiceCache(self.serviceWizardURL,
+                                                      self.dataPaletteServiceVersion,
                                                       'DataPaletteService')
         #END_CONSTRUCTOR
         pass
 
+
+    def get_reads_alignment_set_v1(self, ctx, params):
+        """
+        :param params: instance of type "GetReadsAlignmentSetV1Params" (ref -
+           workspace reference to ReadsAlignmentSet object. include_item_info
+           - 1 or 0, if 1 additionally provides workspace info (with
+           metadata) for each ReadsAlignment object in the Set) -> structure:
+           parameter "ref" of String, parameter "include_item_info" of type
+           "boolean" (A boolean. 0 = false, 1 = true.), parameter
+           "ref_path_to_set" of list of String
+        :returns: instance of type "GetReadsAlignmentSetV1Result" ->
+           structure: parameter "data" of type "ReadsAlignmentSet" (When
+           building a ReadsAlignmentSet, all ReadsAlignments must be aligned
+           against the same genome. This is not part of the object type, but
+           enforced during a call to save_reads_alignment_v1. @meta ws
+           description as description @meta ws length(items) as item_count)
+           -> structure: parameter "description" of String, parameter "items"
+           of list of type "ReadsAlignmentSetItem" (When saving a
+           ReadsAlignmentSet, only 'ref' is required. You should never set
+           'info'.  'info' is provided optionally when fetching the
+           ReadsAlignmentSet.) -> structure: parameter "ref" of type
+           "ws_reads_align_id" (The workspace id for a ReadsAlignment data
+           object. @id ws KBaseRNASeq.RNASeqAlignment), parameter "label" of
+           String, parameter "info" of type "object_info" (Information about
+           an object, including user provided metadata. obj_id objid - the
+           numerical id of the object. obj_name name - the name of the
+           object. type_string type - the type of the object. timestamp
+           save_date - the save date of the object. obj_ver ver - the version
+           of the object. username saved_by - the user that saved or copied
+           the object. ws_id wsid - the workspace containing the object.
+           ws_name workspace - the workspace containing the object. string
+           chsum - the md5 checksum of the object. int size - the size of the
+           object in bytes. usermeta meta - arbitrary user-supplied metadata
+           about the object.) -> tuple of size 11: parameter "objid" of type
+           "obj_id" (The unique, permanent numerical ID of an object.),
+           parameter "name" of type "obj_name" (A string used as a name for
+           an object. Any string consisting of alphanumeric characters and
+           the characters |._- that is not an integer is acceptable.),
+           parameter "type" of type "type_string" (A type string. Specifies
+           the type and its version in a single string in the format
+           [module].[typename]-[major].[minor]: module - a string. The module
+           name of the typespec containing the type. typename - a string. The
+           name of the type as assigned by the typedef statement. major - an
+           integer. The major version of the type. A change in the major
+           version implies the type has changed in a non-backwards compatible
+           way. minor - an integer. The minor version of the type. A change
+           in the minor version implies that the type has changed in a way
+           that is backwards compatible with previous type definitions. In
+           many cases, the major and minor versions are optional, and if not
+           provided the most recent version will be used. Example:
+           MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
+           time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
+           character Z (representing the UTC timezone) or the difference in
+           time to UTC in the format +/-HHMM, eg: 2012-12-17T23:24:06-0500
+           (EST time) 2013-04-03T08:56:32+0000 (UTC time)
+           2013-04-03T08:56:32Z (UTC time)), parameter "version" of Long,
+           parameter "saved_by" of type "username" (Login name of a KBase
+           user account.), parameter "wsid" of type "ws_id" (The unique,
+           permanent numerical ID of a workspace.), parameter "workspace" of
+           type "ws_name" (A string used as a name for a workspace. Any
+           string consisting of alphanumeric characters and "_", ".", or "-"
+           that is not an integer is acceptable. The name may optionally be
+           prefixed with the workspace owner's user name and a colon, e.g.
+           kbasetest:my_workspace.), parameter "chsum" of String, parameter
+           "size" of Long, parameter "meta" of type "usermeta" (User provided
+           metadata about an object. Arbitrary key-value pairs provided by
+           the user.) -> mapping from String to String, parameter "info" of
+           type "object_info" (Information about an object, including user
+           provided metadata. obj_id objid - the numerical id of the object.
+           obj_name name - the name of the object. type_string type - the
+           type of the object. timestamp save_date - the save date of the
+           object. obj_ver ver - the version of the object. username saved_by
+           - the user that saved or copied the object. ws_id wsid - the
+           workspace containing the object. ws_name workspace - the workspace
+           containing the object. string chsum - the md5 checksum of the
+           object. int size - the size of the object in bytes. usermeta meta
+           - arbitrary user-supplied metadata about the object.) -> tuple of
+           size 11: parameter "objid" of type "obj_id" (The unique, permanent
+           numerical ID of an object.), parameter "name" of type "obj_name"
+           (A string used as a name for an object. Any string consisting of
+           alphanumeric characters and the characters |._- that is not an
+           integer is acceptable.), parameter "type" of type "type_string" (A
+           type string. Specifies the type and its version in a single string
+           in the format [module].[typename]-[major].[minor]: module - a
+           string. The module name of the typespec containing the type.
+           typename - a string. The name of the type as assigned by the
+           typedef statement. major - an integer. The major version of the
+           type. A change in the major version implies the type has changed
+           in a non-backwards compatible way. minor - an integer. The minor
+           version of the type. A change in the minor version implies that
+           the type has changed in a way that is backwards compatible with
+           previous type definitions. In many cases, the major and minor
+           versions are optional, and if not provided the most recent version
+           will be used. Example: MyModule.MyType-3.1), parameter "save_date"
+           of type "timestamp" (A time in the format YYYY-MM-DDThh:mm:ssZ,
+           where Z is either the character Z (representing the UTC timezone)
+           or the difference in time to UTC in the format +/-HHMM, eg:
+           2012-12-17T23:24:06-0500 (EST time) 2013-04-03T08:56:32+0000 (UTC
+           time) 2013-04-03T08:56:32Z (UTC time)), parameter "version" of
+           Long, parameter "saved_by" of type "username" (Login name of a
+           KBase user account.), parameter "wsid" of type "ws_id" (The
+           unique, permanent numerical ID of a workspace.), parameter
+           "workspace" of type "ws_name" (A string used as a name for a
+           workspace. Any string consisting of alphanumeric characters and
+           "_", ".", or "-" that is not an integer is acceptable. The name
+           may optionally be prefixed with the workspace owner's user name
+           and a colon, e.g. kbasetest:my_workspace.), parameter "chsum" of
+           String, parameter "size" of Long, parameter "meta" of type
+           "usermeta" (User provided metadata about an object. Arbitrary
+           key-value pairs provided by the user.) -> mapping from String to
+           String
+        """
+        # ctx is the context object
+        # return variables are: returnVal
+        #BEGIN get_reads_alignment_set_v1
+
+        ws = Workspace(self.workspaceURL, token=ctx['token'])
+        rasi = ReadsAlignmentSetInterfaceV1(ws)
+        result = rasi.get_reads_alignment_set(ctx, params)
+
+        #END get_reads_alignment_set_v1
+
+        # At some point might do deeper type checking...
+        if not isinstance(returnVal, dict):
+            raise ValueError('Method get_reads_alignment_set_v1 return value ' +
+                             'returnVal is not type dict as required.')
+        # return the results
+        return [returnVal]
+
+    def save_reads_alignment_set_v1(self, ctx, params):
+        """
+        :param params: instance of type "SaveReadsAlignmentSetV1Params"
+           (workspace_name or workspace_id - alternative options defining
+           target workspace, output_object_name - workspace object name (this
+           parameter is used together with one of workspace params from
+           above)) -> structure: parameter "workspace" of String, parameter
+           "output_object_name" of String, parameter "data" of type
+           "ReadsAlignmentSet" (When building a ReadsAlignmentSet, all
+           ReadsAlignments must be aligned against the same genome. This is
+           not part of the object type, but enforced during a call to
+           save_reads_alignment_v1. @meta ws description as description @meta
+           ws length(items) as item_count) -> structure: parameter
+           "description" of String, parameter "items" of list of type
+           "ReadsAlignmentSetItem" (When saving a ReadsAlignmentSet, only
+           'ref' is required. You should never set 'info'.  'info' is
+           provided optionally when fetching the ReadsAlignmentSet.) ->
+           structure: parameter "ref" of type "ws_reads_align_id" (The
+           workspace id for a ReadsAlignment data object. @id ws
+           KBaseRNASeq.RNASeqAlignment), parameter "label" of String,
+           parameter "info" of type "object_info" (Information about an
+           object, including user provided metadata. obj_id objid - the
+           numerical id of the object. obj_name name - the name of the
+           object. type_string type - the type of the object. timestamp
+           save_date - the save date of the object. obj_ver ver - the version
+           of the object. username saved_by - the user that saved or copied
+           the object. ws_id wsid - the workspace containing the object.
+           ws_name workspace - the workspace containing the object. string
+           chsum - the md5 checksum of the object. int size - the size of the
+           object in bytes. usermeta meta - arbitrary user-supplied metadata
+           about the object.) -> tuple of size 11: parameter "objid" of type
+           "obj_id" (The unique, permanent numerical ID of an object.),
+           parameter "name" of type "obj_name" (A string used as a name for
+           an object. Any string consisting of alphanumeric characters and
+           the characters |._- that is not an integer is acceptable.),
+           parameter "type" of type "type_string" (A type string. Specifies
+           the type and its version in a single string in the format
+           [module].[typename]-[major].[minor]: module - a string. The module
+           name of the typespec containing the type. typename - a string. The
+           name of the type as assigned by the typedef statement. major - an
+           integer. The major version of the type. A change in the major
+           version implies the type has changed in a non-backwards compatible
+           way. minor - an integer. The minor version of the type. A change
+           in the minor version implies that the type has changed in a way
+           that is backwards compatible with previous type definitions. In
+           many cases, the major and minor versions are optional, and if not
+           provided the most recent version will be used. Example:
+           MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
+           time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
+           character Z (representing the UTC timezone) or the difference in
+           time to UTC in the format +/-HHMM, eg: 2012-12-17T23:24:06-0500
+           (EST time) 2013-04-03T08:56:32+0000 (UTC time)
+           2013-04-03T08:56:32Z (UTC time)), parameter "version" of Long,
+           parameter "saved_by" of type "username" (Login name of a KBase
+           user account.), parameter "wsid" of type "ws_id" (The unique,
+           permanent numerical ID of a workspace.), parameter "workspace" of
+           type "ws_name" (A string used as a name for a workspace. Any
+           string consisting of alphanumeric characters and "_", ".", or "-"
+           that is not an integer is acceptable. The name may optionally be
+           prefixed with the workspace owner's user name and a colon, e.g.
+           kbasetest:my_workspace.), parameter "chsum" of String, parameter
+           "size" of Long, parameter "meta" of type "usermeta" (User provided
+           metadata about an object. Arbitrary key-value pairs provided by
+           the user.) -> mapping from String to String
+        :returns: instance of type "SaveReadsAlignmentSetV1Result" ->
+           structure: parameter "set_ref" of String, parameter "set_info" of
+           type "object_info" (Information about an object, including user
+           provided metadata. obj_id objid - the numerical id of the object.
+           obj_name name - the name of the object. type_string type - the
+           type of the object. timestamp save_date - the save date of the
+           object. obj_ver ver - the version of the object. username saved_by
+           - the user that saved or copied the object. ws_id wsid - the
+           workspace containing the object. ws_name workspace - the workspace
+           containing the object. string chsum - the md5 checksum of the
+           object. int size - the size of the object in bytes. usermeta meta
+           - arbitrary user-supplied metadata about the object.) -> tuple of
+           size 11: parameter "objid" of type "obj_id" (The unique, permanent
+           numerical ID of an object.), parameter "name" of type "obj_name"
+           (A string used as a name for an object. Any string consisting of
+           alphanumeric characters and the characters |._- that is not an
+           integer is acceptable.), parameter "type" of type "type_string" (A
+           type string. Specifies the type and its version in a single string
+           in the format [module].[typename]-[major].[minor]: module - a
+           string. The module name of the typespec containing the type.
+           typename - a string. The name of the type as assigned by the
+           typedef statement. major - an integer. The major version of the
+           type. A change in the major version implies the type has changed
+           in a non-backwards compatible way. minor - an integer. The minor
+           version of the type. A change in the minor version implies that
+           the type has changed in a way that is backwards compatible with
+           previous type definitions. In many cases, the major and minor
+           versions are optional, and if not provided the most recent version
+           will be used. Example: MyModule.MyType-3.1), parameter "save_date"
+           of type "timestamp" (A time in the format YYYY-MM-DDThh:mm:ssZ,
+           where Z is either the character Z (representing the UTC timezone)
+           or the difference in time to UTC in the format +/-HHMM, eg:
+           2012-12-17T23:24:06-0500 (EST time) 2013-04-03T08:56:32+0000 (UTC
+           time) 2013-04-03T08:56:32Z (UTC time)), parameter "version" of
+           Long, parameter "saved_by" of type "username" (Login name of a
+           KBase user account.), parameter "wsid" of type "ws_id" (The
+           unique, permanent numerical ID of a workspace.), parameter
+           "workspace" of type "ws_name" (A string used as a name for a
+           workspace. Any string consisting of alphanumeric characters and
+           "_", ".", or "-" that is not an integer is acceptable. The name
+           may optionally be prefixed with the workspace owner's user name
+           and a colon, e.g. kbasetest:my_workspace.), parameter "chsum" of
+           String, parameter "size" of Long, parameter "meta" of type
+           "usermeta" (User provided metadata about an object. Arbitrary
+           key-value pairs provided by the user.) -> mapping from String to
+           String
+        """
+        # ctx is the context object
+        # return variables are: result
+        #BEGIN save_reads_alignment_set_v1
+        #END save_reads_alignment_set_v1
+
+        # At some point might do deeper type checking...
+        if not isinstance(result, dict):
+            raise ValueError('Method save_reads_alignment_set_v1 return value ' +
+                             'result is not type dict as required.')
+        # return the results
+        return [result]
 
     def get_reads_set_v1(self, ctx, params):
         """
@@ -799,7 +1051,7 @@ class SetAPI:
     def list_sets(self, ctx, params):
         """
         Use to get the top-level sets in a WS. Optionally can include
-        one level down members of those sets. 
+        one level down members of those sets.
         NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA
         :param params: instance of type "ListSetParams" (workspace -
            workspace name or ID (alternative to workspaces parameter),
@@ -969,7 +1221,7 @@ class SetAPI:
         #BEGIN list_sets
 
         ws = Workspace(self.workspaceURL, token=ctx['token'])
-        gsn = GenericSetNavigator(ws, data_palette_cache=self.dataPaletteCache, 
+        gsn = GenericSetNavigator(ws, data_palette_cache=self.dataPaletteCache,
                                   token=ctx['token'])
         result = gsn.list_sets(params)
 
@@ -1107,7 +1359,7 @@ class SetAPI:
         return [result]
     def status(self, ctx):
         #BEGIN_STATUS
-        returnVal = {'state': "OK", 'message': "", 'version': self.VERSION, 
+        returnVal = {'state': "OK", 'message': "", 'version': self.VERSION,
                      'git_url': self.GIT_URL, 'git_commit_hash': self.GIT_COMMIT_HASH}
         #END_STATUS
         return [returnVal]

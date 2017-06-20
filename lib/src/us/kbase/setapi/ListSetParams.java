@@ -18,9 +18,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  *     workspaces parameter),
  * workspaces - list of workspace name ot ID (alternative to
  *     workspace parameter),
- * include_metadata - flag for including metadata into Set object info 
+ * include_metadata - flag for including metadata into Set object info
  *     and into object info of items (it affects DP raw data as well),
- * include_raw_data_palettes - advanced option designed for 
+ * include_raw_data_palettes - advanced option designed for
  *     optimization of listing methods in NarrativeService.
  * </pre>
  * 

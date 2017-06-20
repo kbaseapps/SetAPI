@@ -15,13 +15,28 @@ module KBaseSets {
         ws_obj_id ref;
     } DataAttachment;
 
+    /****************************** */
+    /* READS ALIGNMENTS SET */
+
+    typedef string ws_reads_align_id;
+
+    typedef structure {
+        ws_reads_align_id ref;
+        string label;
+    } ReadsAlignmentSetItem;
+
+    typedef structure {
+        string description;
+        list<ReadsAlignmentSetItem> items;
+    } ReadsAlignmentSet;
+
 
     /****************************** */
     /* READS SET */
 
     /*
         The workspace ID for a Reads data object.
-        @id ws KBaseFile.PairedEndLibrary KBaseFile.SingleEndLibrary 
+        @id ws KBaseFile.PairedEndLibrary KBaseFile.SingleEndLibrary
     */
     typedef string ws_reads_id;
 
