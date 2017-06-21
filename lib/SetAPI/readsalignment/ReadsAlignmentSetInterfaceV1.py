@@ -32,7 +32,8 @@ class ReadsAlignmentSetInterfaceV1:
             data["description"] = ""
 
         if "items" not in data or len(data.get("items", [])) == 0:
-            raise ValueError("A ReadsAlignmentSet must contain at least one ReadsAlignment reference.")
+            raise ValueError("A ReadsAlignmentSet must contain at "
+                             "least one ReadsAlignment reference.")
 
         refs = list()
         for item in data["items"]:
@@ -49,8 +50,31 @@ class ReadsAlignmentSetInterfaceV1:
         info = self.workspace_client.get_object_info3({"objects": ref_list, "includeMetadata": 1})
         num_genomes = len(set([item[10]["genome_id"] for item in info["infos"]]))
         if num_genomes == 0 or num_genomes > 1:
-            raise ValueError("All ReadsAlignments in the set should be aligned against the same genome reference.")
-
+            raise ValueError("All ReadsAlignments in the set must be aligned "
+                             "against the same genome reference.")
 
     def get_reads_alignment_set(self, ctx, params):
-        pass
+        self._check_get_reads_alignment_set_params(params)
+
+        include_item_info = False
+        if 'include_item_info' in params:
+            if params['include_item_info'] == 1:
+                include_item_info = True
+
+        ref_path_to_set = []
+        if 'ref_path_to_set' in params:
+            ref_path_to_set = params['ref_path_to_set']
+
+        set_data = self.set_interface.get_set(
+                params['ref'],
+                include_item_info,
+                ref_path_to_set
+            )
+        return set_data
+
+    def _check_get_reads_alignment_set_params(self, params):
+        if 'ref' not in params:
+            raise ValueError('"ref" parameter field specifiying the reads set is required')
+        if 'include_item_info' in params:
+            if params['include_item_info'] not in [0, 1]:
+                raise ValueError('"include_item_info" parameter field can only be set to 0 or 1')

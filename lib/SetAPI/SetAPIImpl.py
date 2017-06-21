@@ -168,7 +168,7 @@ class SetAPI:
 
         ws = Workspace(self.workspaceURL, token=ctx['token'])
         rasi = ReadsAlignmentSetInterfaceV1(ws)
-        result = rasi.get_reads_alignment_set(ctx, params)
+        returnVal = rasi.get_reads_alignment_set(ctx, params)
 
         #END get_reads_alignment_set_v1
 

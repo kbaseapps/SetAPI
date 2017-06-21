@@ -62,11 +62,11 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
         foft = FakeObjectsForTests(os.environ['SDK_CALLBACK_URL'])
 
         # Make a fake genome
-        [fake_genome] = foft.create_fake_genomes({
+        [fake_genome, fake_genome2] = foft.create_fake_genomes({
             "ws_name": wsName,
-            "obj_names": ["fake_genome"]
+            "obj_names": ["fake_genome", "fake_genome2"]
         })
-        cls.genome_ref = info_to_ref(fake_genome)
+        cls.genome_refs = [info_to_ref(fake_genome), info_to_ref(fake_genome2)]
 
         # Make some fake reads objects
         fake_reads_list = foft.create_fake_reads({
@@ -87,7 +87,7 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
                 "library_type": "fake",
                 "read_sample_id": reads_ref,
                 "condition": "fake",
-                "genome_id": cls.genome_ref
+                "genome_id": cls.genome_refs[0]
             }
             cls.alignment_refs.append(
                 info_to_ref(
@@ -170,6 +170,26 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
         self.assertEqual(result["set_info"][1], alignment_set_name)
         self.assertIn("KBaseSets.ReadsAlignmentSet", result["set_info"][2])
 
+    def test_save_alignment_set_mismatched_genomes(self):
+        alignment_set_name = "alignment_set_bad_genomes"
+        alignment_set = {
+            "description": "this_better_fail",
+            "items": [{
+                "ref": self.make_fake_alignment("odd_alignment", self.reads_refs[0], self.genome_refs[1]),
+                "label": "odd_alignment"
+            }, {
+                "ref": self.alignment_refs[1],
+                "label": "wt"
+            }]
+        }
+        with self.assertRaises(ValueError) as err:
+            self.getImpl().save_reads_alignment_set_v1(self.getContext(), {
+                "workspace": self.getWsName(),
+                "output_object_name": alignment_set_name,
+                "data": alignment_set
+            })
+            self.assertIn("All ReadsAlignments in the set must be aligned against the same genome reference", str(err.exception))
+
     def test_get_alignment_set(self):
         alignment_set_name = "test_alignment_set"
         alignment_items = list()
@@ -194,4 +214,21 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
         })[0]
         self.assertIsNotNone(fetched_set)
         self.assertIn("data", fetched_set)
-        self.assertNotIn("info", fetched_set)
+        self.assertIn("info", fetched_set)
+        self.assertEquals(len(fetched_set["data"]["items"]), 3)
+        self.assertEquals(alignment_set_ref, info_to_ref(fetched_set["info"]))
+        for item in fetched_set["data"]["items"]:
+            self.assertNotIn("info", item)
+            self.assertIn("ref", item)
+            self.assertIn("label", item)
+
+        fetched_set_with_info = self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
+            "ref": alignment_set_ref,
+            "include_item_info": 1
+        })[0]
+        self.assertIsNotNone(fetched_set_with_info)
+        self.assertIn("data", fetched_set_with_info)
+        for item in fetched_set_with_info["data"]["items"]:
+            self.assertIn("info", item)
+            self.assertIn("ref", item)
+            self.assertIn("label", item)
