@@ -16,8 +16,10 @@ from SetAPI.SetAPIServer import MethodContext
 from FakeObjectsForTests.FakeObjectsForTestsClient import FakeObjectsForTests
 from SetAPI.authclient import KBaseAuth as _KBaseAuth
 
+
 def info_to_ref(info):
     return "{}/{}/{}".format(info[6], info[0], info[4])
+
 
 class ReadsAlignmentSetAPITest(unittest.TestCase):
 
@@ -30,8 +32,8 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
         config.read(config_file)
         for nameval in config.items('SetAPI'):
             cls.cfg[nameval[0]] = nameval[1]
-        authServiceUrl = cls.cfg.get('auth-service-url',
-                "https://kbase.us/services/authorization/Sessions/Login")
+        authServiceUrl = cls.cfg.get("auth-service-url",
+                                     "https://kbase.us/services/authorization/Sessions/Login")
         auth_client = _KBaseAuth(authServiceUrl)
         user_id = auth_client.get_user(token)
         # WARNING: don't call any logging methods on the context object,
@@ -54,33 +56,77 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
         # do that outside this function..)
         suffix = int(time.time() * 1000)
         wsName = "test_SetAPI_" + str(suffix)
-        ret = cls.wsClient.create_workspace({'workspace': wsName})
+        cls.wsClient.create_workspace({'workspace': wsName})
         cls.wsName = wsName
 
         foft = FakeObjectsForTests(os.environ['SDK_CALLBACK_URL'])
 
+        # Make a fake genome
         [fake_genome] = foft.create_fake_genomes({
             "ws_name": wsName,
             "obj_names": ["fake_genome"]
         })
         cls.genome_ref = info_to_ref(fake_genome)
+
+        # Make some fake reads objects
         fake_reads_list = foft.create_fake_reads({
             'ws_name': wsName,
             "obj_names": ["reads1", "reads2", "reads3"]
         })
         cls.alignment_refs = list()
         cls.reads_refs = list()
+
+        # Make some fake alignments referencing those reads and genome
         for idx, reads_info in enumerate(fake_reads_list):
             reads_ref = info_to_ref(reads_info)
             cls.reads_refs.append(reads_ref)
-            cls.alignment_refs.append(info_to_ref(foft.create_any_objects({
-                "ws_name": wsName,
-                "obj_names": ["reads_align_{}".format(idx)],
-                "metadata": {
-                    "genome_id": cls.genome_ref,
-                    "read_sample_id": reads_ref
-                }
-            })[0]))
+            fake_alignment = {
+                "file": {
+                    "id": "not_a_real_handle"
+                },
+                "library_type": "fake",
+                "read_sample_id": reads_ref,
+                "condition": "fake",
+                "genome_id": cls.genome_ref
+            }
+            cls.alignment_refs.append(
+                info_to_ref(
+                    cls.wsClient.save_objects({
+                        "workspace": wsName,
+                        "objects": [{
+                            "type": "KBaseRNASeq.RNASeqAlignment",
+                            "data": fake_alignment,
+                            "meta": dict(),
+                            "name": "fake_alignment_{}".format(idx)
+                        }]
+                    })[0]
+                )
+            )
+
+    def make_fake_alignment(self, name, reads_ref, genome_ref):
+        """
+        Makes a fake KBaseRNASeq.RNASeqAlignment object and returns a ref to it.
+        """
+        fake_alignment = {
+            "file": {
+                "id": "not_a_real_handle"
+            },
+            "library_type": "fake",
+            "read_sample_id": reads_ref,
+            "condition": "fake",
+            "genome_id": genome_ref
+        }
+        return info_to_ref(
+            self.wsClient.save_objects({
+                "workspace": self.getWsName(),
+                "objects": [{
+                    "type": "KBaseRNASeq.RNASeqAlignment",
+                    "data": fake_alignment,
+                    "meta": dict(),
+                    "name": name
+                }]
+            })[0]
+        )
 
     @classmethod
     def tearDownClass(cls):
@@ -92,13 +138,7 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
         return self.__class__.wsClient
 
     def getWsName(self):
-        if hasattr(self.__class__, 'wsName'):
-            return self.__class__.wsName
-        suffix = int(time.time() * 1000)
-        wsName = "test_SetAPI_" + str(suffix)
-        ret = self.getWsClient().create_workspace({'workspace': wsName})
-        self.__class__.wsName = wsName
-        return wsName
+        return self.__class__.wsName
 
     def getImpl(self):
         return self.__class__.serviceImpl
@@ -122,7 +162,36 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             "workspace": self.getWsName(),
             "output_object_name": alignment_set_name,
             "data": alignment_set
-        })
+        })[0]
         self.assertIsNotNone(result)
         self.assertIn("set_ref", result)
         self.assertIn("set_info", result)
+        self.assertEqual(result["set_ref"], info_to_ref(result["set_info"]))
+        self.assertEqual(result["set_info"][1], alignment_set_name)
+        self.assertIn("KBaseSets.ReadsAlignmentSet", result["set_info"][2])
+
+    def test_get_alignment_set(self):
+        alignment_set_name = "test_alignment_set"
+        alignment_items = list()
+        for ref in self.alignment_refs:
+            alignment_items.append({
+                "label": "wt",
+                "ref": ref
+            })
+        alignment_set = {
+            "description": "test_alignments",
+            "items": alignment_items
+        }
+        alignment_set_ref = self.getImpl().save_reads_alignment_set_v1(self.getContext(), {
+            "workspace": self.getWsName(),
+            "output_object_name": alignment_set_name,
+            "data": alignment_set
+        })[0]["set_ref"]
+
+        fetched_set = self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
+            "ref": alignment_set_ref,
+            "include_item_info": 0
+        })[0]
+        self.assertIsNotNone(fetched_set)
+        self.assertIn("data", fetched_set)
+        self.assertNotIn("info", fetched_set)
