@@ -2,6 +2,7 @@
 An interface for handling sets of ReadsAlignments.
 """
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
+from SetAPI.util import check_reference
 
 
 class ReadsAlignmentSetInterfaceV1:
@@ -10,7 +11,7 @@ class ReadsAlignmentSetInterfaceV1:
         self.set_interface = SetInterfaceV1(workspace_client)
 
     def save_reads_alignment_set(self, ctx, params):
-        if 'data' in params:
+        if 'data' in params and params['data'] is not None:
             self._validate_reads_alignment_set_data(params['data'])
         else:
             raise ValueError('"data" parameter field required to save a ReadsAlignmentSet')
@@ -73,8 +74,10 @@ class ReadsAlignmentSetInterfaceV1:
         return set_data
 
     def _check_get_reads_alignment_set_params(self, params):
-        if 'ref' not in params:
+        if 'ref' not in params or params['ref'] is None:
             raise ValueError('"ref" parameter field specifiying the reads set is required')
+        elif not check_reference(params['ref']):
+            raise ValueError('"ref" parameter must be a valid workspace reference')
         if 'include_item_info' in params:
             if params['include_item_info'] not in [0, 1]:
                 raise ValueError('"include_item_info" parameter field can only be set to 0 or 1')

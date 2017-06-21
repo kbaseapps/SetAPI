@@ -175,7 +175,9 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
         alignment_set = {
             "description": "this_better_fail",
             "items": [{
-                "ref": self.make_fake_alignment("odd_alignment", self.reads_refs[0], self.genome_refs[1]),
+                "ref": self.make_fake_alignment(
+                    "odd_alignment", self.reads_refs[0], self.genome_refs[1]
+                ),
                 "label": "odd_alignment"
             }, {
                 "ref": self.alignment_refs[1],
@@ -188,7 +190,30 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
                 "output_object_name": alignment_set_name,
                 "data": alignment_set
             })
-            self.assertIn("All ReadsAlignments in the set must be aligned against the same genome reference", str(err.exception))
+            self.assertIn("All ReadsAlignments in the set must be aligned against "
+                          "the same genome reference", str(err.exception))
+
+    def test_save_alignment_set_no_data(self):
+        with self.assertRaises(ValueError) as err:
+            self.getImpl().save_reads_alignment_set_v1(self.getContext(), {
+                "workspace": self.getWsName(),
+                "output_object_name": "foo",
+                "data": None
+            })
+        self.assertIn('"data" parameter field required to save a ReadsAlignmentSet',
+                      str(err.exception))
+
+    def test_save_alignment_set_no_alignments(self):
+        with self.assertRaises(ValueError) as err:
+            self.getImpl().save_reads_alignment_set_v1(self.getContext(), {
+                "workspace": self.getWsName(),
+                "output_object_name": "foo",
+                "data": {
+                    "items": []
+                }
+            })
+        self.assertIn("A ReadsAlignmentSet must contain at "
+                      "least one ReadsAlignment reference.", str(err.exception))
 
     def test_get_alignment_set(self):
         alignment_set_name = "test_alignment_set"
@@ -232,3 +257,25 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             self.assertIn("info", item)
             self.assertIn("ref", item)
             self.assertIn("label", item)
+
+    def test_get_alignment_set_bad_ref(self):
+        with self.assertRaises(ValueError) as err:
+            self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
+                "ref": "not_a_ref"
+            })
+        self.assertIn('"ref" parameter must be a valid workspace reference', str(err.exception))
+
+    def test_get_alignment_set_bad_path(self):
+        with self.assertRaises(Exception):
+            self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
+                "ref": "1/2/3",
+                "path_to_set": ["foo", "bar"]
+            })
+
+    def test_get_alignment_set_no_ref(self):
+        with self.assertRaises(ValueError) as err:
+            self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
+                "ref": None
+            })
+        self.assertIn('"ref" parameter field specifiying the reads set is required',
+                      str(err.exception))
