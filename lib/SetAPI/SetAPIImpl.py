@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #BEGIN_HEADER
 
-from biokbase.workspace.client import Workspace
+# from biokbase.workspace.client import Workspace
+from Workspace.WorkspaceClient import Workspace
 
 from SetAPI.reads.ReadsSetInterfaceV1 import ReadsSetInterfaceV1
 from SetAPI.assembly.AssemblySetInterfaceV1 import AssemblySetInterfaceV1
@@ -292,6 +293,9 @@ class SetAPI:
         # ctx is the context object
         # return variables are: result
         #BEGIN save_reads_alignment_set_v1
+        ws = Workspace(self.workspaceURL, token=ctx['token'])
+        rasi = ReadsAlignmentSetInterfaceV1(ws)
+        result = rasi.save_reads_alignment_set(ctx, params)
         #END save_reads_alignment_set_v1
 
         # At some point might do deeper type checking...

@@ -2,7 +2,6 @@
 An interface for handling sets of ReadsAlignments.
 """
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
-from biokbase.workspace.client import Workspace
 
 
 class ReadsAlignmentSetInterfaceV1:
@@ -12,11 +11,11 @@ class ReadsAlignmentSetInterfaceV1:
 
     def save_reads_alignment_set(self, ctx, params):
         if 'data' in params:
-            self._validate_reads_set_data(params['data'])
+            self._validate_reads_alignment_set_data(params['data'])
         else:
             raise ValueError('"data" parameter field required to save a ReadsAlignmentSet')
 
-        save_result = self.setInterface.save_set(
+        save_result = self.set_interface.save_set(
                 'KBaseSets.ReadsAlignmentSet',
                 ctx['provenance'],
                 params
