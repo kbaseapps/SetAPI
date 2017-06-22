@@ -16,6 +16,35 @@ module KBaseSets {
     } DataAttachment;
 
     /****************************** */
+    /* EXPRESSION SET */
+    /*
+        The workspace id for a ReadsAlignment data object.
+        @id ws KBaseRNASeq.RNASeqExpression
+    */
+    typedef string ws_expression_id;
+
+    /*
+        When saving a ExpressionSet, only 'ref' is required.
+        You should never set 'info'.  'info' is provided optionally when fetching
+        the ExpressionSet.
+    */
+    typedef structure {
+        ws_expression_id ref;
+        string label;
+        list <DataAttachment> data_attachments;
+    } ExpressionSetItem;
+
+    /*
+        @metadata ws description as description
+        @metadata ws length(items) as item_count
+    */
+    typedef structure {
+        string description;
+        list<ExpressionSetItem> items;
+    } ExpressionSet;
+
+
+    /****************************** */
     /* READS ALIGNMENTS SET */
 
     /*
@@ -24,11 +53,19 @@ module KBaseSets {
     */
     typedef string ws_reads_align_id;
 
+    /*
+        @optional label data_attachments
+    */
     typedef structure {
         ws_reads_align_id ref;
         string label;
+        list <DataAttachment> data_attachments;
     } ReadsAlignmentSetItem;
 
+    /*
+        @metadata ws description as description
+        @metadata ws length(items) as item_count
+    */
     typedef structure {
         string description;
         list<ReadsAlignmentSetItem> items;

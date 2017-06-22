@@ -333,6 +333,14 @@ class Application(object):
         self.serverlog.set_log_level(6)
         self.rpc_service = JSONRPCServiceCustom()
         self.method_authentication = dict()
+        self.rpc_service.add(impl_SetAPI.get_expression_set_v1,
+                             name='SetAPI.get_expression_set_v1',
+                             types=[dict])
+        self.method_authentication['SetAPI.get_expression_set_v1'] = 'optional'  # noqa
+        self.rpc_service.add(impl_SetAPI.save_expression_set_v1,
+                             name='SetAPI.save_expression_set_v1',
+                             types=[dict])
+        self.method_authentication['SetAPI.save_expression_set_v1'] = 'required'  # noqa
         self.rpc_service.add(impl_SetAPI.get_reads_alignment_set_v1,
                              name='SetAPI.get_reads_alignment_set_v1',
                              types=[dict])
