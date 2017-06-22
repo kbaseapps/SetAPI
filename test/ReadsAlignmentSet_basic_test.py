@@ -15,10 +15,10 @@ from SetAPI.SetAPIServer import MethodContext
 
 from FakeObjectsForTests.FakeObjectsForTestsClient import FakeObjectsForTests
 from SetAPI.authclient import KBaseAuth as _KBaseAuth
-
-
-def info_to_ref(info):
-    return "{}/{}/{}".format(info[6], info[0], info[4])
+from util import (
+    info_to_ref,
+    make_fake_alignment
+)
 
 
 class ReadsAlignmentSetAPITest(unittest.TestCase):
@@ -80,53 +80,12 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
         for idx, reads_info in enumerate(fake_reads_list):
             reads_ref = info_to_ref(reads_info)
             cls.reads_refs.append(reads_ref)
-            fake_alignment = {
-                "file": {
-                    "id": "not_a_real_handle"
-                },
-                "library_type": "fake",
-                "read_sample_id": reads_ref,
-                "condition": "fake",
-                "genome_id": cls.genome_refs[0]
-            }
             cls.alignment_refs.append(
-                info_to_ref(
-                    cls.wsClient.save_objects({
-                        "workspace": wsName,
-                        "objects": [{
-                            "type": "KBaseRNASeq.RNASeqAlignment",
-                            "data": fake_alignment,
-                            "meta": dict(),
-                            "name": "fake_alignment_{}".format(idx)
-                        }]
-                    })[0]
+                make_fake_alignment(
+                    "fake_alignment_{}".format(idx), reads_ref, cls.genome_refs[0],
+                    wsName, cls.wsClient
                 )
             )
-
-    def make_fake_alignment(self, name, reads_ref, genome_ref):
-        """
-        Makes a fake KBaseRNASeq.RNASeqAlignment object and returns a ref to it.
-        """
-        fake_alignment = {
-            "file": {
-                "id": "not_a_real_handle"
-            },
-            "library_type": "fake",
-            "read_sample_id": reads_ref,
-            "condition": "fake",
-            "genome_id": genome_ref
-        }
-        return info_to_ref(
-            self.wsClient.save_objects({
-                "workspace": self.getWsName(),
-                "objects": [{
-                    "type": "KBaseRNASeq.RNASeqAlignment",
-                    "data": fake_alignment,
-                    "meta": dict(),
-                    "name": name
-                }]
-            })[0]
-        )
 
     @classmethod
     def tearDownClass(cls):
@@ -175,8 +134,9 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
         alignment_set = {
             "description": "this_better_fail",
             "items": [{
-                "ref": self.make_fake_alignment(
-                    "odd_alignment", self.reads_refs[0], self.genome_refs[1]
+                "ref": make_fake_alignment(
+                    "odd_alignment", self.reads_refs[0], self.genome_refs[1],
+                    self.getWsName(), self.getWsClient()
                 ),
                 "label": "odd_alignment"
             }, {
@@ -277,5 +237,5 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
                 "ref": None
             })
-        self.assertIn('"ref" parameter field specifiying the reads set is required',
+        self.assertIn('"ref" parameter field specifiying the reads alignment set is required',
                       str(err.exception))

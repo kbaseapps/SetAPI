@@ -8,6 +8,7 @@ from SetAPI.reads.ReadsSetInterfaceV1 import ReadsSetInterfaceV1
 from SetAPI.assembly.AssemblySetInterfaceV1 import AssemblySetInterfaceV1
 from SetAPI.genome.GenomeSetInterfaceV1 import GenomeSetInterfaceV1
 from SetAPI.readsalignment.ReadsAlignmentSetInterfaceV1 import ReadsAlignmentSetInterfaceV1
+from SetAPI.expression.ExpressionSetInterfaceV1 import ExpressionSetInterfaceV1
 from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
 from SetAPI.generic.DynamicServiceCache import DynamicServiceCache
 
@@ -21,7 +22,7 @@ class SetAPI:
     SetAPI
 
     Module Description:
-    
+
     '''
 
     ######## WARNING FOR GEVENT USERS ####### noqa
@@ -32,7 +33,7 @@ class SetAPI:
     ######################################### noqa
     VERSION = "0.1.2"
     GIT_URL = "https://github.com/briehl/SetAPI"
-    GIT_COMMIT_HASH = "128eb2174281f940ecc82cedd71b1d771e65d8ed"
+    GIT_COMMIT_HASH = "5ea5831ed75e5c5659893e6534b5d1ca2de014a3"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -167,6 +168,11 @@ class SetAPI:
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN get_expression_set_v1
+
+        ws = Workspace(self.workspaceURL, token=ctx['token'])
+        esi = ExpressionSetInterfaceV1(ws)
+        returnVal = esi.get_reads_alignment_set(ctx, params)
+
         #END get_expression_set_v1
 
         # At some point might do deeper type checking...
@@ -292,6 +298,11 @@ class SetAPI:
         # ctx is the context object
         # return variables are: result
         #BEGIN save_expression_set_v1
+
+        ws = Workspace(self.workspaceURL, token=ctx['token'])
+        esi = ExpressionSetInterfaceV1(ws)
+        result = esi.save_expression_set(ctx, params)
+
         #END save_expression_set_v1
 
         # At some point might do deeper type checking...
