@@ -24,9 +24,7 @@ module KBaseSets {
     typedef string ws_expression_id;
 
     /*
-        When saving a ExpressionSet, only 'ref' is required.
-        You should never set 'info'.  'info' is provided optionally when fetching
-        the ExpressionSet.
+        @optional label data_attachments
     */
     typedef structure {
         ws_expression_id ref;
