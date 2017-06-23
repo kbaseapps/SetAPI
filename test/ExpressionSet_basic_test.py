@@ -144,112 +144,117 @@ class ExpressionSetAPITest(unittest.TestCase):
         self.assertEqual(result["set_info"][1], expression_set_name)
         self.assertIn("KBaseSets.ExpressionSet", result["set_info"][2])
 
-    # def test_save_expression_set_mismatched_genomes(self):
-    #     alignment_set_name = "alignment_set_bad_genomes"
-    #     alignment_set = {
-    #         "description": "this_better_fail",
-    #         "items": [{
-    #             "ref": self.make_fake_alignment(
-    #                 "odd_alignment", self.reads_refs[0], self.genome_refs[1]
-    #             ),
-    #             "label": "odd_alignment"
-    #         }, {
-    #             "ref": self.alignment_refs[1],
-    #             "label": "wt"
-    #         }]
-    #     }
-    #     with self.assertRaises(ValueError) as err:
-    #         self.getImpl().save_reads_alignment_set_v1(self.getContext(), {
-    #             "workspace": self.getWsName(),
-    #             "output_object_name": alignment_set_name,
-    #             "data": alignment_set
-    #         })
-    #         self.assertIn("All ReadsAlignments in the set must be aligned against "
-    #                       "the same genome reference", str(err.exception))
-    #
-    # def test_save_alignment_set_no_data(self):
-    #     with self.assertRaises(ValueError) as err:
-    #         self.getImpl().save_reads_alignment_set_v1(self.getContext(), {
-    #             "workspace": self.getWsName(),
-    #             "output_object_name": "foo",
-    #             "data": None
-    #         })
-    #     self.assertIn('"data" parameter field required to save a ReadsAlignmentSet',
-    #                   str(err.exception))
-    #
-    # def test_save_alignment_set_no_alignments(self):
-    #     with self.assertRaises(ValueError) as err:
-    #         self.getImpl().save_reads_alignment_set_v1(self.getContext(), {
-    #             "workspace": self.getWsName(),
-    #             "output_object_name": "foo",
-    #             "data": {
-    #                 "items": []
-    #             }
-    #         })
-    #     self.assertIn("A ReadsAlignmentSet must contain at "
-    #                   "least one ReadsAlignment reference.", str(err.exception))
-    #
-    # def test_get_alignment_set(self):
-    #     alignment_set_name = "test_alignment_set"
-    #     alignment_items = list()
-    #     for ref in self.alignment_refs:
-    #         alignment_items.append({
-    #             "label": "wt",
-    #             "ref": ref
-    #         })
-    #     alignment_set = {
-    #         "description": "test_alignments",
-    #         "items": alignment_items
-    #     }
-    #     alignment_set_ref = self.getImpl().save_reads_alignment_set_v1(self.getContext(), {
-    #         "workspace": self.getWsName(),
-    #         "output_object_name": alignment_set_name,
-    #         "data": alignment_set
-    #     })[0]["set_ref"]
-    #
-    #     fetched_set = self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
-    #         "ref": alignment_set_ref,
-    #         "include_item_info": 0
-    #     })[0]
-    #     self.assertIsNotNone(fetched_set)
-    #     self.assertIn("data", fetched_set)
-    #     self.assertIn("info", fetched_set)
-    #     self.assertEquals(len(fetched_set["data"]["items"]), 3)
-    #     self.assertEquals(alignment_set_ref, info_to_ref(fetched_set["info"]))
-    #     for item in fetched_set["data"]["items"]:
-    #         self.assertNotIn("info", item)
-    #         self.assertIn("ref", item)
-    #         self.assertIn("label", item)
-    #
-    #     fetched_set_with_info = self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
-    #         "ref": alignment_set_ref,
-    #         "include_item_info": 1
-    #     })[0]
-    #     self.assertIsNotNone(fetched_set_with_info)
-    #     self.assertIn("data", fetched_set_with_info)
-    #     for item in fetched_set_with_info["data"]["items"]:
-    #         self.assertIn("info", item)
-    #         self.assertIn("ref", item)
-    #         self.assertIn("label", item)
-    #
-    # def test_get_alignment_set_bad_ref(self):
-    #     with self.assertRaises(ValueError) as err:
-    #         self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
-    #             "ref": "not_a_ref"
-    #         })
-    #     self.assertIn('"ref" parameter must be a valid workspace reference', str(err.exception))
-    #
-    # def test_get_alignment_set_bad_path(self):
-    #     with self.assertRaises(Exception):
-    #         self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
-    #             "ref": "1/2/3",
-    #             "path_to_set": ["foo", "bar"]
-    #         })
-    #
-    # def test_get_alignment_set_no_ref(self):
-    #     with self.assertRaises(ValueError) as err:
-    #         self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
-    #             "ref": None
-    #         })
-    #     self.assertIn('"ref" parameter field specifiying the reads set is required',
-    #                   str(err.exception))
+    def test_save_expression_set_mismatched_genomes(self):
+        expression_set_name = "expression_set_bad_genomes"
+        expression_set = {
+            "description": "this_better_fail",
+            "items": [{
+                "ref": make_fake_expression(
+                    "odd_expression",
+                    self.genome_refs[1],
+                    self.annotation_ref,
+                    self.alignment_refs[0],
+                    self.getWsName(),
+                    self.getWsClient()
+                ),
+                "label": "odd_alignment"
+            }, {
+                "ref": self.alignment_refs[1],
+                "label": "not_so_odd"
+            }]
+        }
+        with self.assertRaises(ValueError) as err:
+            self.getImpl().save_expression_set_v1(self.getContext(), {
+                "workspace": self.getWsName(),
+                "output_object_name": expression_set_name,
+                "data": expression_set
+            })
+            self.assertIn("All Expression objects in the set must use "
+                          "the same genome reference.", str(err.exception))
+
+    def test_save_alignment_set_no_data(self):
+        with self.assertRaises(ValueError) as err:
+            self.getImpl().save_expression_set_v1(self.getContext(), {
+                "workspace": self.getWsName(),
+                "output_object_name": "foo",
+                "data": None
+            })
+        self.assertIn('"data" parameter field required to save an ExpressionSet',
+                      str(err.exception))
+
+    def test_save_alignment_set_no_expressions(self):
+        with self.assertRaises(ValueError) as err:
+            self.getImpl().save_expression_set_v1(self.getContext(), {
+                "workspace": self.getWsName(),
+                "output_object_name": "foo",
+                "data": {
+                    "items": []
+                }
+            })
+        self.assertIn("An ExpressionSet must contain at "
+                      "least one Expression object reference.", str(err.exception))
+
+    def test_get_expression_set(self):
+        expression_set_name = "test_expression_set"
+        expression_items = list()
+        for ref in self.expression_refs:
+            expression_items.append({
+                "label": "wt",
+                "ref": ref
+            })
+        expression_set = {
+            "description": "test_alignments",
+            "items": expression_items
+        }
+        expression_set_ref = self.getImpl().save_expression_set_v1(self.getContext(), {
+            "workspace": self.getWsName(),
+            "output_object_name": expression_set_name,
+            "data": expression_set
+        })[0]["set_ref"]
+
+        fetched_set = self.getImpl().get_expression_set_v1(self.getContext(), {
+            "ref": expression_set_ref,
+            "include_item_info": 0
+        })[0]
+        self.assertIsNotNone(fetched_set)
+        self.assertIn("data", fetched_set)
+        self.assertIn("info", fetched_set)
+        self.assertEquals(len(fetched_set["data"]["items"]), 3)
+        self.assertEquals(expression_set_ref, info_to_ref(fetched_set["info"]))
+        for item in fetched_set["data"]["items"]:
+            self.assertNotIn("info", item)
+            self.assertIn("ref", item)
+            self.assertIn("label", item)
+
+        fetched_set_with_info = self.getImpl().get_expression_set_v1(self.getContext(), {
+            "ref": expression_set_ref,
+            "include_item_info": 1
+        })[0]
+        self.assertIsNotNone(fetched_set_with_info)
+        self.assertIn("data", fetched_set_with_info)
+        for item in fetched_set_with_info["data"]["items"]:
+            self.assertIn("info", item)
+            self.assertIn("ref", item)
+            self.assertIn("label", item)
+
+    def test_get_expression_set_bad_ref(self):
+        with self.assertRaises(ValueError) as err:
+            self.getImpl().get_expression_set_v1(self.getContext(), {
+                "ref": "not_a_ref"
+            })
+        self.assertIn('"ref" parameter must be a valid workspace reference', str(err.exception))
+
+    def test_get_expression_set_bad_path(self):
+        with self.assertRaises(Exception):
+            self.getImpl().get_expression_set_v1(self.getContext(), {
+                "ref": "1/2/3",
+                "path_to_set": ["foo", "bar"]
+            })
+
+    def test_get_expression_set_no_ref(self):
+        with self.assertRaises(ValueError) as err:
+            self.getImpl().get_expression_set_v1(self.getContext(), {
+                "ref": None
+            })
+        self.assertIn('"ref" parameter field specifiying the expression set is required',
+                      str(err.exception))

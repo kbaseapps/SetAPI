@@ -171,7 +171,7 @@ class SetAPI:
 
         ws = Workspace(self.workspaceURL, token=ctx['token'])
         esi = ExpressionSetInterfaceV1(ws)
-        returnVal = esi.get_reads_alignment_set(ctx, params)
+        returnVal = esi.get_expression_set(ctx, params)
 
         #END get_expression_set_v1
 
