@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * <p>Original spec-file type: SaveReadsSetV1Params</p>
+ * <p>Original spec-file type: SaveReadsAlignmentSetV1Params</p>
  * <pre>
  * workspace_name or workspace_id - alternative options defining
  *     target workspace,
@@ -28,22 +28,25 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "output_object_name",
     "data"
 })
-public class SaveReadsSetV1Params {
+public class SaveReadsAlignmentSetV1Params {
 
     @JsonProperty("workspace")
     private String workspace;
     @JsonProperty("output_object_name")
     private String outputObjectName;
     /**
-     * <p>Original spec-file type: ReadsSet</p>
+     * <p>Original spec-file type: ReadsAlignmentSet</p>
      * <pre>
+     * When building a ReadsAlignmentSet, all ReadsAlignments must be aligned against the same
+     * genome. This is not part of the object type, but enforced during a call to
+     * save_reads_alignment_v1.
      * @meta ws description as description
      * @meta ws length(items) as item_count
      * </pre>
      * 
      */
     @JsonProperty("data")
-    private ReadsSet data;
+    private ReadsAlignmentSet data;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("workspace")
@@ -56,7 +59,7 @@ public class SaveReadsSetV1Params {
         this.workspace = workspace;
     }
 
-    public SaveReadsSetV1Params withWorkspace(String workspace) {
+    public SaveReadsAlignmentSetV1Params withWorkspace(String workspace) {
         this.workspace = workspace;
         return this;
     }
@@ -71,38 +74,44 @@ public class SaveReadsSetV1Params {
         this.outputObjectName = outputObjectName;
     }
 
-    public SaveReadsSetV1Params withOutputObjectName(String outputObjectName) {
+    public SaveReadsAlignmentSetV1Params withOutputObjectName(String outputObjectName) {
         this.outputObjectName = outputObjectName;
         return this;
     }
 
     /**
-     * <p>Original spec-file type: ReadsSet</p>
+     * <p>Original spec-file type: ReadsAlignmentSet</p>
      * <pre>
+     * When building a ReadsAlignmentSet, all ReadsAlignments must be aligned against the same
+     * genome. This is not part of the object type, but enforced during a call to
+     * save_reads_alignment_v1.
      * @meta ws description as description
      * @meta ws length(items) as item_count
      * </pre>
      * 
      */
     @JsonProperty("data")
-    public ReadsSet getData() {
+    public ReadsAlignmentSet getData() {
         return data;
     }
 
     /**
-     * <p>Original spec-file type: ReadsSet</p>
+     * <p>Original spec-file type: ReadsAlignmentSet</p>
      * <pre>
+     * When building a ReadsAlignmentSet, all ReadsAlignments must be aligned against the same
+     * genome. This is not part of the object type, but enforced during a call to
+     * save_reads_alignment_v1.
      * @meta ws description as description
      * @meta ws length(items) as item_count
      * </pre>
      * 
      */
     @JsonProperty("data")
-    public void setData(ReadsSet data) {
+    public void setData(ReadsAlignmentSet data) {
         this.data = data;
     }
 
-    public SaveReadsSetV1Params withData(ReadsSet data) {
+    public SaveReadsAlignmentSetV1Params withData(ReadsAlignmentSet data) {
         this.data = data;
         return this;
     }
@@ -119,7 +128,7 @@ public class SaveReadsSetV1Params {
 
     @Override
     public String toString() {
-        return ((((((((("SaveReadsSetV1Params"+" [workspace=")+ workspace)+", outputObjectName=")+ outputObjectName)+", data=")+ data)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((("SaveReadsAlignmentSetV1Params"+" [workspace=")+ workspace)+", outputObjectName=")+ outputObjectName)+", data=")+ data)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

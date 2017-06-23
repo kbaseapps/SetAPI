@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 /**
  * <p>Original spec-file type: SaveAssemblySetV1Params</p>
  * <pre>
- * workspace_name or workspace_id - alternative options defining 
+ * workspace_name or workspace_id - alternative options defining
  *     target workspace,
  * output_object_name - workspace object name (this parameter is
  *     used together with one of workspace params from above)
