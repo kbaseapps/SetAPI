@@ -108,6 +108,312 @@ sub new
 
 
 
+=head2 get_featureset_set_v1
+
+  $return = $obj->get_featureset_set_v1($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a SetAPI.GetFeatureSetSetV1Params
+$return is a SetAPI.GetFeatureSetSetV1Result
+GetFeatureSetSetV1Params is a reference to a hash where the following keys are defined:
+	ref has a value which is a string
+	include_item_info has a value which is a SetAPI.boolean
+	ref_path_to_set has a value which is a reference to a list where each element is a string
+boolean is an int
+GetFeatureSetSetV1Result is a reference to a hash where the following keys are defined:
+	data has a value which is a SetAPI.FeatureSetSet
+	info has a value which is a Workspace.object_info
+FeatureSetSet is a reference to a hash where the following keys are defined:
+	description has a value which is a string
+	items has a value which is a reference to a list where each element is a SetAPI.FeatureSetSetItem
+FeatureSetSetItem is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_featureset_id
+	label has a value which is a string
+	info has a value which is a Workspace.object_info
+ws_featureset_id is a string
+object_info is a reference to a list containing 11 items:
+	0: (objid) a Workspace.obj_id
+	1: (name) a Workspace.obj_name
+	2: (type) a Workspace.type_string
+	3: (save_date) a Workspace.timestamp
+	4: (version) an int
+	5: (saved_by) a Workspace.username
+	6: (wsid) a Workspace.ws_id
+	7: (workspace) a Workspace.ws_name
+	8: (chsum) a string
+	9: (size) an int
+	10: (meta) a Workspace.usermeta
+obj_id is an int
+obj_name is a string
+type_string is a string
+timestamp is a string
+username is a string
+ws_id is an int
+ws_name is a string
+usermeta is a reference to a hash where the key is a string and the value is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a SetAPI.GetFeatureSetSetV1Params
+$return is a SetAPI.GetFeatureSetSetV1Result
+GetFeatureSetSetV1Params is a reference to a hash where the following keys are defined:
+	ref has a value which is a string
+	include_item_info has a value which is a SetAPI.boolean
+	ref_path_to_set has a value which is a reference to a list where each element is a string
+boolean is an int
+GetFeatureSetSetV1Result is a reference to a hash where the following keys are defined:
+	data has a value which is a SetAPI.FeatureSetSet
+	info has a value which is a Workspace.object_info
+FeatureSetSet is a reference to a hash where the following keys are defined:
+	description has a value which is a string
+	items has a value which is a reference to a list where each element is a SetAPI.FeatureSetSetItem
+FeatureSetSetItem is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_featureset_id
+	label has a value which is a string
+	info has a value which is a Workspace.object_info
+ws_featureset_id is a string
+object_info is a reference to a list containing 11 items:
+	0: (objid) a Workspace.obj_id
+	1: (name) a Workspace.obj_name
+	2: (type) a Workspace.type_string
+	3: (save_date) a Workspace.timestamp
+	4: (version) an int
+	5: (saved_by) a Workspace.username
+	6: (wsid) a Workspace.ws_id
+	7: (workspace) a Workspace.ws_name
+	8: (chsum) a string
+	9: (size) an int
+	10: (meta) a Workspace.usermeta
+obj_id is an int
+obj_name is a string
+type_string is a string
+timestamp is a string
+username is a string
+ws_id is an int
+ws_name is a string
+usermeta is a reference to a hash where the key is a string and the value is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+ sub get_featureset_set_v1
+{
+    my($self, @args) = @_;
+
+# Authentication: optional
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function get_featureset_set_v1 (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to get_featureset_set_v1:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'get_featureset_set_v1');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "SetAPI.get_featureset_set_v1",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'get_featureset_set_v1',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method get_featureset_set_v1",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'get_featureset_set_v1',
+				       );
+    }
+}
+ 
+
+
+=head2 save_featureset_set_v1
+
+  $result = $obj->save_featureset_set_v1($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a SetAPI.SaveFeatureSetSetV1Params
+$result is a SetAPI.SaveFeatureSetSetV1Result
+SaveFeatureSetSetV1Params is a reference to a hash where the following keys are defined:
+	workspace has a value which is a string
+	output_object_name has a value which is a string
+	data has a value which is a SetAPI.FeatureSetSet
+FeatureSetSet is a reference to a hash where the following keys are defined:
+	description has a value which is a string
+	items has a value which is a reference to a list where each element is a SetAPI.FeatureSetSetItem
+FeatureSetSetItem is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_featureset_id
+	label has a value which is a string
+	info has a value which is a Workspace.object_info
+ws_featureset_id is a string
+object_info is a reference to a list containing 11 items:
+	0: (objid) a Workspace.obj_id
+	1: (name) a Workspace.obj_name
+	2: (type) a Workspace.type_string
+	3: (save_date) a Workspace.timestamp
+	4: (version) an int
+	5: (saved_by) a Workspace.username
+	6: (wsid) a Workspace.ws_id
+	7: (workspace) a Workspace.ws_name
+	8: (chsum) a string
+	9: (size) an int
+	10: (meta) a Workspace.usermeta
+obj_id is an int
+obj_name is a string
+type_string is a string
+timestamp is a string
+username is a string
+ws_id is an int
+ws_name is a string
+usermeta is a reference to a hash where the key is a string and the value is a string
+SaveFeatureSetSetV1Result is a reference to a hash where the following keys are defined:
+	set_ref has a value which is a string
+	set_info has a value which is a Workspace.object_info
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a SetAPI.SaveFeatureSetSetV1Params
+$result is a SetAPI.SaveFeatureSetSetV1Result
+SaveFeatureSetSetV1Params is a reference to a hash where the following keys are defined:
+	workspace has a value which is a string
+	output_object_name has a value which is a string
+	data has a value which is a SetAPI.FeatureSetSet
+FeatureSetSet is a reference to a hash where the following keys are defined:
+	description has a value which is a string
+	items has a value which is a reference to a list where each element is a SetAPI.FeatureSetSetItem
+FeatureSetSetItem is a reference to a hash where the following keys are defined:
+	ref has a value which is a SetAPI.ws_featureset_id
+	label has a value which is a string
+	info has a value which is a Workspace.object_info
+ws_featureset_id is a string
+object_info is a reference to a list containing 11 items:
+	0: (objid) a Workspace.obj_id
+	1: (name) a Workspace.obj_name
+	2: (type) a Workspace.type_string
+	3: (save_date) a Workspace.timestamp
+	4: (version) an int
+	5: (saved_by) a Workspace.username
+	6: (wsid) a Workspace.ws_id
+	7: (workspace) a Workspace.ws_name
+	8: (chsum) a string
+	9: (size) an int
+	10: (meta) a Workspace.usermeta
+obj_id is an int
+obj_name is a string
+type_string is a string
+timestamp is a string
+username is a string
+ws_id is an int
+ws_name is a string
+usermeta is a reference to a hash where the key is a string and the value is a string
+SaveFeatureSetSetV1Result is a reference to a hash where the following keys are defined:
+	set_ref has a value which is a string
+	set_info has a value which is a Workspace.object_info
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+ sub save_featureset_set_v1
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function save_featureset_set_v1 (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to save_featureset_set_v1:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'save_featureset_set_v1');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "SetAPI.save_featureset_set_v1",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'save_featureset_set_v1',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method save_featureset_set_v1",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'save_featureset_set_v1',
+				       );
+    }
+}
+ 
+
+
 =head2 get_reads_alignment_set_v1
 
   $return = $obj->get_reads_alignment_set_v1($params)
@@ -1791,6 +2097,267 @@ an int
 =begin text
 
 an int
+
+=end text
+
+=back
+
+
+
+=head2 ws_featureset_id
+
+=over 4
+
+
+
+=item Description
+
+The workspace id for a ReadsAlignment data object.
+@id ws KBaseCollections.FeatureSet
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a string
+</pre>
+
+=end html
+
+=begin text
+
+a string
+
+=end text
+
+=back
+
+
+
+=head2 FeatureSetSetItem
+
+=over 4
+
+
+
+=item Description
+
+When saving a FeatureSetSet, only 'ref' is required.
+You should never set 'info'.  'info' is provided optionally when fetching
+the FeatureSetSet.
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+ref has a value which is a SetAPI.ws_featureset_id
+label has a value which is a string
+info has a value which is a Workspace.object_info
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+ref has a value which is a SetAPI.ws_featureset_id
+label has a value which is a string
+info has a value which is a Workspace.object_info
+
+
+=end text
+
+=back
+
+
+
+=head2 FeatureSetSet
+
+=over 4
+
+
+
+=item Description
+
+When building a FeatureSetSet, all FeatureSets must be aligned against the same
+genome. This is not part of the object type, but enforced during a call to
+save_featureset_set_v1.
+@meta ws description as description
+@meta ws length(items) as item_count
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+description has a value which is a string
+items has a value which is a reference to a list where each element is a SetAPI.FeatureSetSetItem
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+description has a value which is a string
+items has a value which is a reference to a list where each element is a SetAPI.FeatureSetSetItem
+
+
+=end text
+
+=back
+
+
+
+=head2 GetFeatureSetSetV1Params
+
+=over 4
+
+
+
+=item Description
+
+ref - workspace reference to FeatureSetSet object.
+include_item_info - 1 or 0, if 1 additionally provides workspace info (with
+                    metadata) for each FeatureSet object in the Set
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+ref has a value which is a string
+include_item_info has a value which is a SetAPI.boolean
+ref_path_to_set has a value which is a reference to a list where each element is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+ref has a value which is a string
+include_item_info has a value which is a SetAPI.boolean
+ref_path_to_set has a value which is a reference to a list where each element is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 GetFeatureSetSetV1Result
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+data has a value which is a SetAPI.FeatureSetSet
+info has a value which is a Workspace.object_info
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+data has a value which is a SetAPI.FeatureSetSet
+info has a value which is a Workspace.object_info
+
+
+=end text
+
+=back
+
+
+
+=head2 SaveFeatureSetSetV1Params
+
+=over 4
+
+
+
+=item Description
+
+workspace_name or workspace_id - alternative options defining
+    target workspace,
+output_object_name - workspace object name (this parameter is
+    used together with one of workspace params from above)
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+workspace has a value which is a string
+output_object_name has a value which is a string
+data has a value which is a SetAPI.FeatureSetSet
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+workspace has a value which is a string
+output_object_name has a value which is a string
+data has a value which is a SetAPI.FeatureSetSet
+
+
+=end text
+
+=back
+
+
+
+=head2 SaveFeatureSetSetV1Result
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+set_ref has a value which is a string
+set_info has a value which is a Workspace.object_info
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+set_ref has a value which is a string
+set_info has a value which is a Workspace.object_info
+
 
 =end text
 

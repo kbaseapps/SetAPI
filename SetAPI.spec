@@ -9,6 +9,81 @@ module SetAPI {
     /* A boolean. 0 = false, 1 = true. */
     typedef int boolean;
 
+
+    /* ******* FEATURESET SET METHODS ******** */
+
+    /* NOTE: data type explicitly copied from KBaseSets so type and
+    API can evolve independently */
+
+    /*
+        The workspace id for a ReadsAlignment data object.
+        @id ws KBaseCollections.FeatureSet
+    */
+    typedef string ws_featureset_id;
+
+    /*
+        When saving a FeatureSetSet, only 'ref' is required.
+        You should never set 'info'.  'info' is provided optionally when fetching
+        the FeatureSetSet.
+    */
+    typedef structure {
+        ws_featureset_id ref;
+        string label;
+        Workspace.object_info info;
+    } FeatureSetSetItem;
+
+    /*
+        When building a FeatureSetSet, all FeatureSets must be aligned against the same
+        genome. This is not part of the object type, but enforced during a call to
+        save_featureset_set_v1.
+        @meta ws description as description
+        @meta ws length(items) as item_count
+    */
+    typedef structure {
+        string description;
+        list<FeatureSetSetItem> items;
+    } FeatureSetSet;
+
+    /*
+        ref - workspace reference to FeatureSetSet object.
+        include_item_info - 1 or 0, if 1 additionally provides workspace info (with
+                            metadata) for each FeatureSet object in the Set
+    */
+    typedef structure {
+        string ref;
+        boolean include_item_info;
+        list <string> ref_path_to_set;
+    } GetFeatureSetSetV1Params;
+
+    typedef structure {
+        FeatureSetSet data;
+        Workspace.object_info info;
+    } GetFeatureSetSetV1Result;
+
+    funcdef get_featureset_set_v1(GetFeatureSetSetV1Params params)
+        returns (GetFeatureSetSetV1Result) authentication optional;
+
+    /*
+        workspace_name or workspace_id - alternative options defining
+            target workspace,
+        output_object_name - workspace object name (this parameter is
+            used together with one of workspace params from above)
+    */
+    typedef structure {
+        string workspace;
+        string output_object_name;
+        FeatureSetSet data;
+    } SaveFeatureSetSetV1Params;
+
+    typedef structure {
+        string set_ref;
+        Workspace.object_info set_info;
+    } SaveFeatureSetSetV1Result;
+
+    funcdef save_featureset_set_v1(SaveFeatureSetSetV1Params params)
+        returns (SaveFeatureSetSetV1Result result) authentication required;
+
+
     /* ******* READS ALIGNMENT SET METHODS ******** */
 
     /* NOTE: data type explicitly copied from KBaseSets so type and
