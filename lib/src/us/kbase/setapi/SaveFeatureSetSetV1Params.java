@@ -39,7 +39,7 @@ public class SaveFeatureSetSetV1Params {
      * <pre>
      * When building a FeatureSetSet, all FeatureSets must be aligned against the same
      * genome. This is not part of the object type, but enforced during a call to
-     * save_featureset_set_v1.
+     * save_feature_set_set_v1.
      * @meta ws description as description
      * @meta ws length(items) as item_count
      * </pre>
@@ -84,7 +84,7 @@ public class SaveFeatureSetSetV1Params {
      * <pre>
      * When building a FeatureSetSet, all FeatureSets must be aligned against the same
      * genome. This is not part of the object type, but enforced during a call to
-     * save_featureset_set_v1.
+     * save_feature_set_set_v1.
      * @meta ws description as description
      * @meta ws length(items) as item_count
      * </pre>
@@ -100,7 +100,7 @@ public class SaveFeatureSetSetV1Params {
      * <pre>
      * When building a FeatureSetSet, all FeatureSets must be aligned against the same
      * genome. This is not part of the object type, but enforced during a call to
-     * save_featureset_set_v1.
+     * save_feature_set_set_v1.
      * @meta ws description as description
      * @meta ws length(items) as item_count
      * </pre>

@@ -33,7 +33,7 @@ class SetAPI:
     ######################################### noqa
     VERSION = "0.1.3"
     GIT_URL = "https://github.com/briehl/SetAPI"
-    GIT_COMMIT_HASH = "aba4ebe2ff67a1c087ad7b534e4162bbc6e5eb19"
+    GIT_COMMIT_HASH = "6dbda8c4188a63c15e6ae9c605b7703e71168e5c"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -52,7 +52,7 @@ class SetAPI:
         pass
 
 
-    def get_featureset_set_v1(self, ctx, params):
+    def get_feature_set_set_v1(self, ctx, params):
         """
         :param params: instance of type "GetFeatureSetSetV1Params" (ref -
            workspace reference to FeatureSetSet object. include_item_info - 1
@@ -65,14 +65,14 @@ class SetAPI:
            parameter "data" of type "FeatureSetSet" (When building a
            FeatureSetSet, all FeatureSets must be aligned against the same
            genome. This is not part of the object type, but enforced during a
-           call to save_featureset_set_v1. @meta ws description as
+           call to save_feature_set_set_v1. @meta ws description as
            description @meta ws length(items) as item_count) -> structure:
            parameter "description" of String, parameter "items" of list of
            type "FeatureSetSetItem" (When saving a FeatureSetSet, only 'ref'
            is required. You should never set 'info'.  'info' is provided
            optionally when fetching the FeatureSetSet.) -> structure:
-           parameter "ref" of type "ws_featureset_id" (The workspace id for a
-           ReadsAlignment data object. @id ws KBaseCollections.FeatureSet),
+           parameter "ref" of type "ws_feature_set_id" (The workspace id for
+           a ReadsAlignment data object. @id ws KBaseCollections.FeatureSet),
            parameter "label" of String, parameter "info" of type
            "object_info" (Information about an object, including user
            provided metadata. obj_id objid - the numerical id of the object.
@@ -164,20 +164,20 @@ class SetAPI:
         """
         # ctx is the context object
         # return variables are: returnVal
-        #BEGIN get_featureset_set_v1
+        #BEGIN get_feature_set_set_v1
         ws = Workspace(self.workspaceURL, token=ctx['token'])
         fssi = FeatureSetSetInterfaceV1(ws)
-        result = fssi.get_featureset_set(ctx, params)
-        #END get_featureset_set_v1
+        returnVal = fssi.get_feature_set_set(ctx, params)
+        #END get_feature_set_set_v1
 
         # At some point might do deeper type checking...
-        if not isinstance(result, dict):
-            raise ValueError('Method get_featureset_set_v1 return value ' +
+        if not isinstance(returnVal, dict):
+            raise ValueError('Method get_feature_set_set_v1 return value ' +
                              'returnVal is not type dict as required.')
         # return the results
-        return [result]
+        return [returnVal]
 
-    def save_featureset_set_v1(self, ctx, params):
+    def save_feature_set_set_v1(self, ctx, params):
         """
         :param params: instance of type "SaveFeatureSetSetV1Params"
            (workspace_name or workspace_id - alternative options defining
@@ -187,59 +187,60 @@ class SetAPI:
            "output_object_name" of String, parameter "data" of type
            "FeatureSetSet" (When building a FeatureSetSet, all FeatureSets
            must be aligned against the same genome. This is not part of the
-           object type, but enforced during a call to save_featureset_set_v1.
-           @meta ws description as description @meta ws length(items) as
-           item_count) -> structure: parameter "description" of String,
-           parameter "items" of list of type "FeatureSetSetItem" (When saving
-           a FeatureSetSet, only 'ref' is required. You should never set
-           'info'.  'info' is provided optionally when fetching the
-           FeatureSetSet.) -> structure: parameter "ref" of type
-           "ws_featureset_id" (The workspace id for a ReadsAlignment data
-           object. @id ws KBaseCollections.FeatureSet), parameter "label" of
-           String, parameter "info" of type "object_info" (Information about
-           an object, including user provided metadata. obj_id objid - the
-           numerical id of the object. obj_name name - the name of the
-           object. type_string type - the type of the object. timestamp
-           save_date - the save date of the object. obj_ver ver - the version
-           of the object. username saved_by - the user that saved or copied
-           the object. ws_id wsid - the workspace containing the object.
-           ws_name workspace - the workspace containing the object. string
-           chsum - the md5 checksum of the object. int size - the size of the
-           object in bytes. usermeta meta - arbitrary user-supplied metadata
-           about the object.) -> tuple of size 11: parameter "objid" of type
-           "obj_id" (The unique, permanent numerical ID of an object.),
-           parameter "name" of type "obj_name" (A string used as a name for
-           an object. Any string consisting of alphanumeric characters and
-           the characters |._- that is not an integer is acceptable.),
-           parameter "type" of type "type_string" (A type string. Specifies
-           the type and its version in a single string in the format
-           [module].[typename]-[major].[minor]: module - a string. The module
-           name of the typespec containing the type. typename - a string. The
-           name of the type as assigned by the typedef statement. major - an
-           integer. The major version of the type. A change in the major
-           version implies the type has changed in a non-backwards compatible
-           way. minor - an integer. The minor version of the type. A change
-           in the minor version implies that the type has changed in a way
-           that is backwards compatible with previous type definitions. In
-           many cases, the major and minor versions are optional, and if not
-           provided the most recent version will be used. Example:
-           MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
-           time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
-           character Z (representing the UTC timezone) or the difference in
-           time to UTC in the format +/-HHMM, eg: 2012-12-17T23:24:06-0500
-           (EST time) 2013-04-03T08:56:32+0000 (UTC time)
-           2013-04-03T08:56:32Z (UTC time)), parameter "version" of Long,
-           parameter "saved_by" of type "username" (Login name of a KBase
-           user account.), parameter "wsid" of type "ws_id" (The unique,
-           permanent numerical ID of a workspace.), parameter "workspace" of
-           type "ws_name" (A string used as a name for a workspace. Any
-           string consisting of alphanumeric characters and "_", ".", or "-"
-           that is not an integer is acceptable. The name may optionally be
-           prefixed with the workspace owner's user name and a colon, e.g.
-           kbasetest:my_workspace.), parameter "chsum" of String, parameter
-           "size" of Long, parameter "meta" of type "usermeta" (User provided
-           metadata about an object. Arbitrary key-value pairs provided by
-           the user.) -> mapping from String to String
+           object type, but enforced during a call to
+           save_feature_set_set_v1. @meta ws description as description @meta
+           ws length(items) as item_count) -> structure: parameter
+           "description" of String, parameter "items" of list of type
+           "FeatureSetSetItem" (When saving a FeatureSetSet, only 'ref' is
+           required. You should never set 'info'.  'info' is provided
+           optionally when fetching the FeatureSetSet.) -> structure:
+           parameter "ref" of type "ws_feature_set_id" (The workspace id for
+           a ReadsAlignment data object. @id ws KBaseCollections.FeatureSet),
+           parameter "label" of String, parameter "info" of type
+           "object_info" (Information about an object, including user
+           provided metadata. obj_id objid - the numerical id of the object.
+           obj_name name - the name of the object. type_string type - the
+           type of the object. timestamp save_date - the save date of the
+           object. obj_ver ver - the version of the object. username saved_by
+           - the user that saved or copied the object. ws_id wsid - the
+           workspace containing the object. ws_name workspace - the workspace
+           containing the object. string chsum - the md5 checksum of the
+           object. int size - the size of the object in bytes. usermeta meta
+           - arbitrary user-supplied metadata about the object.) -> tuple of
+           size 11: parameter "objid" of type "obj_id" (The unique, permanent
+           numerical ID of an object.), parameter "name" of type "obj_name"
+           (A string used as a name for an object. Any string consisting of
+           alphanumeric characters and the characters |._- that is not an
+           integer is acceptable.), parameter "type" of type "type_string" (A
+           type string. Specifies the type and its version in a single string
+           in the format [module].[typename]-[major].[minor]: module - a
+           string. The module name of the typespec containing the type.
+           typename - a string. The name of the type as assigned by the
+           typedef statement. major - an integer. The major version of the
+           type. A change in the major version implies the type has changed
+           in a non-backwards compatible way. minor - an integer. The minor
+           version of the type. A change in the minor version implies that
+           the type has changed in a way that is backwards compatible with
+           previous type definitions. In many cases, the major and minor
+           versions are optional, and if not provided the most recent version
+           will be used. Example: MyModule.MyType-3.1), parameter "save_date"
+           of type "timestamp" (A time in the format YYYY-MM-DDThh:mm:ssZ,
+           where Z is either the character Z (representing the UTC timezone)
+           or the difference in time to UTC in the format +/-HHMM, eg:
+           2012-12-17T23:24:06-0500 (EST time) 2013-04-03T08:56:32+0000 (UTC
+           time) 2013-04-03T08:56:32Z (UTC time)), parameter "version" of
+           Long, parameter "saved_by" of type "username" (Login name of a
+           KBase user account.), parameter "wsid" of type "ws_id" (The
+           unique, permanent numerical ID of a workspace.), parameter
+           "workspace" of type "ws_name" (A string used as a name for a
+           workspace. Any string consisting of alphanumeric characters and
+           "_", ".", or "-" that is not an integer is acceptable. The name
+           may optionally be prefixed with the workspace owner's user name
+           and a colon, e.g. kbasetest:my_workspace.), parameter "chsum" of
+           String, parameter "size" of Long, parameter "meta" of type
+           "usermeta" (User provided metadata about an object. Arbitrary
+           key-value pairs provided by the user.) -> mapping from String to
+           String
         :returns: instance of type "SaveFeatureSetSetV1Result" -> structure:
            parameter "set_ref" of String, parameter "set_info" of type
            "object_info" (Information about an object, including user
@@ -289,15 +290,15 @@ class SetAPI:
         """
         # ctx is the context object
         # return variables are: result
-        #BEGIN save_featureset_set_v1
+        #BEGIN save_feature_set_set_v1
         ws = Workspace(self.workspaceURL, token=ctx['token'])
         fssi = FeatureSetSetInterfaceV1(ws)
-        result = fssi.save_featureset_set(ctx, params)
-        #END save_featureset_set_v1
+        result = fssi.save_feature_set_set(ctx, params)
+        #END save_feature_set_set_v1
 
         # At some point might do deeper type checking...
         if not isinstance(result, dict):
-            raise ValueError('Method save_featureset_set_v1 return value ' +
+            raise ValueError('Method save_feature_set_set_v1 return value ' +
                              'result is not type dict as required.')
         # return the results
         return [result]

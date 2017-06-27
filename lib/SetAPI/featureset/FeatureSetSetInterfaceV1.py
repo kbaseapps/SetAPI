@@ -9,9 +9,9 @@ class FeatureSetSetInterfaceV1:
         self.ws = workspace_client
         self.set_interface = SetInterfaceV1(workspace_client)
 
-    def save_reads_set(self, ctx, params):
+    def save_feature_set_set(self, ctx, params):
         if 'data' in params:
-            self._validate_featureset_set_data(params['data'])
+            self._validate_feature_set_set_data(params['data'])
         else:
             raise ValueError('"data" parameter field required to save a ReadsSet')
 
@@ -26,7 +26,7 @@ class FeatureSetSetInterfaceV1:
             'set_info': info
         }
 
-    def _validate_featureset_set_data(self, data):
+    def _validate_feature_set_set_data(self, data):
         # TODO: add checks that only one copy of each reads data is in the set
         # TODO?: add checks that reads data list is homogenous (no mixed single/paired-end libs)
 
@@ -40,8 +40,8 @@ class FeatureSetSetInterfaceV1:
         if 'description' not in data:
             data['description'] = ''
 
-    def get_featureset_set(self, ctx, params):
-        self._check_get_featureset_set_params(params)
+    def get_feature_set_set(self, ctx, params):
+        self._check_get_feature_set_set_params(params)
 
         include_item_info = False
         if 'include_item_info' in params:
@@ -57,18 +57,18 @@ class FeatureSetSetInterfaceV1:
                 include_item_info,
                 ref_path_to_set
             )
-        set_data = self._normalize_featureset_set_data(set_data)
+        set_data = self._normalize_feature_set_set_data(set_data)
 
         return set_data
 
-    def _check_get_featureset_set_params(self, params):
+    def _check_get_feature_set_set_params(self, params):
         if 'ref' not in params:
             raise ValueError('"ref" parameter field specifiying the FeatureSet set is required')
         if 'include_item_info' in params:
             if params['include_item_info'] not in [0, 1]:
                 raise ValueError('"include_item_info" parameter field can only be set to 0 or 1')
 
-    def _normalize_read_set_data(self, set_data):
+    def _normalize_feature_set_set_data(self, set_data):
         # make sure that optional/missing fields are filled in or are defined
         # TODO: populate empty description field
         # TODO?: populate empty label fields

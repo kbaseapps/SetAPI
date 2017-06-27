@@ -10,7 +10,7 @@ module SetAPI {
     typedef int boolean;
 
 
-    /* ******* FEATURESET SET METHODS ******** */
+    /* ******* FEATURE SET SET METHODS ******** */
 
     /* NOTE: data type explicitly copied from KBaseSets so type and
     API can evolve independently */
@@ -19,7 +19,7 @@ module SetAPI {
         The workspace id for a ReadsAlignment data object.
         @id ws KBaseCollections.FeatureSet
     */
-    typedef string ws_featureset_id;
+    typedef string ws_feature_set_id;
 
     /*
         When saving a FeatureSetSet, only 'ref' is required.
@@ -27,7 +27,7 @@ module SetAPI {
         the FeatureSetSet.
     */
     typedef structure {
-        ws_featureset_id ref;
+        ws_feature_set_id ref;
         string label;
         Workspace.object_info info;
     } FeatureSetSetItem;
@@ -35,7 +35,7 @@ module SetAPI {
     /*
         When building a FeatureSetSet, all FeatureSets must be aligned against the same
         genome. This is not part of the object type, but enforced during a call to
-        save_featureset_set_v1.
+        save_feature_set_set_v1.
         @meta ws description as description
         @meta ws length(items) as item_count
     */
@@ -60,7 +60,7 @@ module SetAPI {
         Workspace.object_info info;
     } GetFeatureSetSetV1Result;
 
-    funcdef get_featureset_set_v1(GetFeatureSetSetV1Params params)
+    funcdef get_feature_set_set_v1(GetFeatureSetSetV1Params params)
         returns (GetFeatureSetSetV1Result) authentication optional;
 
     /*
@@ -80,7 +80,7 @@ module SetAPI {
         Workspace.object_info set_info;
     } SaveFeatureSetSetV1Result;
 
-    funcdef save_featureset_set_v1(SaveFeatureSetSetV1Params params)
+    funcdef save_feature_set_set_v1(SaveFeatureSetSetV1Params params)
         returns (SaveFeatureSetSetV1Result result) authentication required;
 
 

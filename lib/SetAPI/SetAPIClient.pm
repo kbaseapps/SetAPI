@@ -108,9 +108,9 @@ sub new
 
 
 
-=head2 get_featureset_set_v1
+=head2 get_feature_set_set_v1
 
-  $return = $obj->get_featureset_set_v1($params)
+  $return = $obj->get_feature_set_set_v1($params)
 
 =over 4
 
@@ -133,10 +133,10 @@ FeatureSetSet is a reference to a hash where the following keys are defined:
 	description has a value which is a string
 	items has a value which is a reference to a list where each element is a SetAPI.FeatureSetSetItem
 FeatureSetSetItem is a reference to a hash where the following keys are defined:
-	ref has a value which is a SetAPI.ws_featureset_id
+	ref has a value which is a SetAPI.ws_feature_set_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
-ws_featureset_id is a string
+ws_feature_set_id is a string
 object_info is a reference to a list containing 11 items:
 	0: (objid) a Workspace.obj_id
 	1: (name) a Workspace.obj_name
@@ -178,10 +178,10 @@ FeatureSetSet is a reference to a hash where the following keys are defined:
 	description has a value which is a string
 	items has a value which is a reference to a list where each element is a SetAPI.FeatureSetSetItem
 FeatureSetSetItem is a reference to a hash where the following keys are defined:
-	ref has a value which is a SetAPI.ws_featureset_id
+	ref has a value which is a SetAPI.ws_feature_set_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
-ws_featureset_id is a string
+ws_feature_set_id is a string
 object_info is a reference to a list containing 11 items:
 	0: (objid) a Workspace.obj_id
 	1: (name) a Workspace.obj_name
@@ -214,7 +214,7 @@ usermeta is a reference to a hash where the key is a string and the value is a s
 
 =cut
 
- sub get_featureset_set_v1
+ sub get_feature_set_set_v1
 {
     my($self, @args) = @_;
 
@@ -223,7 +223,7 @@ usermeta is a reference to a hash where the key is a string and the value is a s
     if ((my $n = @args) != 1)
     {
 	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
-							       "Invalid argument count for function get_featureset_set_v1 (received $n, expecting 1)");
+							       "Invalid argument count for function get_feature_set_set_v1 (received $n, expecting 1)");
     }
     {
 	my($params) = @args;
@@ -231,40 +231,40 @@ usermeta is a reference to a hash where the key is a string and the value is a s
 	my @_bad_arguments;
         (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
         if (@_bad_arguments) {
-	    my $msg = "Invalid arguments passed to get_featureset_set_v1:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    my $msg = "Invalid arguments passed to get_feature_set_set_v1:\n" . join("", map { "\t$_\n" } @_bad_arguments);
 	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
-								   method_name => 'get_featureset_set_v1');
+								   method_name => 'get_feature_set_set_v1');
 	}
     }
 
     my $url = $self->{url};
     my $result = $self->{client}->call($url, $self->{headers}, {
-	    method => "SetAPI.get_featureset_set_v1",
+	    method => "SetAPI.get_feature_set_set_v1",
 	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
 	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
 					       code => $result->content->{error}->{code},
-					       method_name => 'get_featureset_set_v1',
+					       method_name => 'get_feature_set_set_v1',
 					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
 					      );
 	} else {
 	    return wantarray ? @{$result->result} : $result->result->[0];
 	}
     } else {
-        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method get_featureset_set_v1",
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method get_feature_set_set_v1",
 					    status_line => $self->{client}->status_line,
-					    method_name => 'get_featureset_set_v1',
+					    method_name => 'get_feature_set_set_v1',
 				       );
     }
 }
  
 
 
-=head2 save_featureset_set_v1
+=head2 save_feature_set_set_v1
 
-  $result = $obj->save_featureset_set_v1($params)
+  $result = $obj->save_feature_set_set_v1($params)
 
 =over 4
 
@@ -283,10 +283,10 @@ FeatureSetSet is a reference to a hash where the following keys are defined:
 	description has a value which is a string
 	items has a value which is a reference to a list where each element is a SetAPI.FeatureSetSetItem
 FeatureSetSetItem is a reference to a hash where the following keys are defined:
-	ref has a value which is a SetAPI.ws_featureset_id
+	ref has a value which is a SetAPI.ws_feature_set_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
-ws_featureset_id is a string
+ws_feature_set_id is a string
 object_info is a reference to a list containing 11 items:
 	0: (objid) a Workspace.obj_id
 	1: (name) a Workspace.obj_name
@@ -327,10 +327,10 @@ FeatureSetSet is a reference to a hash where the following keys are defined:
 	description has a value which is a string
 	items has a value which is a reference to a list where each element is a SetAPI.FeatureSetSetItem
 FeatureSetSetItem is a reference to a hash where the following keys are defined:
-	ref has a value which is a SetAPI.ws_featureset_id
+	ref has a value which is a SetAPI.ws_feature_set_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
-ws_featureset_id is a string
+ws_feature_set_id is a string
 object_info is a reference to a list containing 11 items:
 	0: (objid) a Workspace.obj_id
 	1: (name) a Workspace.obj_name
@@ -366,7 +366,7 @@ SaveFeatureSetSetV1Result is a reference to a hash where the following keys are 
 
 =cut
 
- sub save_featureset_set_v1
+ sub save_feature_set_set_v1
 {
     my($self, @args) = @_;
 
@@ -375,7 +375,7 @@ SaveFeatureSetSetV1Result is a reference to a hash where the following keys are 
     if ((my $n = @args) != 1)
     {
 	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
-							       "Invalid argument count for function save_featureset_set_v1 (received $n, expecting 1)");
+							       "Invalid argument count for function save_feature_set_set_v1 (received $n, expecting 1)");
     }
     {
 	my($params) = @args;
@@ -383,31 +383,31 @@ SaveFeatureSetSetV1Result is a reference to a hash where the following keys are 
 	my @_bad_arguments;
         (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
         if (@_bad_arguments) {
-	    my $msg = "Invalid arguments passed to save_featureset_set_v1:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    my $msg = "Invalid arguments passed to save_feature_set_set_v1:\n" . join("", map { "\t$_\n" } @_bad_arguments);
 	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
-								   method_name => 'save_featureset_set_v1');
+								   method_name => 'save_feature_set_set_v1');
 	}
     }
 
     my $url = $self->{url};
     my $result = $self->{client}->call($url, $self->{headers}, {
-	    method => "SetAPI.save_featureset_set_v1",
+	    method => "SetAPI.save_feature_set_set_v1",
 	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
 	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
 					       code => $result->content->{error}->{code},
-					       method_name => 'save_featureset_set_v1',
+					       method_name => 'save_feature_set_set_v1',
 					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
 					      );
 	} else {
 	    return wantarray ? @{$result->result} : $result->result->[0];
 	}
     } else {
-        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method save_featureset_set_v1",
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method save_feature_set_set_v1",
 					    status_line => $self->{client}->status_line,
-					    method_name => 'save_featureset_set_v1',
+					    method_name => 'save_feature_set_set_v1',
 				       );
     }
 }
@@ -2104,7 +2104,7 @@ an int
 
 
 
-=head2 ws_featureset_id
+=head2 ws_feature_set_id
 
 =over 4
 
@@ -2155,7 +2155,7 @@ the FeatureSetSet.
 
 <pre>
 a reference to a hash where the following keys are defined:
-ref has a value which is a SetAPI.ws_featureset_id
+ref has a value which is a SetAPI.ws_feature_set_id
 label has a value which is a string
 info has a value which is a Workspace.object_info
 
@@ -2166,7 +2166,7 @@ info has a value which is a Workspace.object_info
 =begin text
 
 a reference to a hash where the following keys are defined:
-ref has a value which is a SetAPI.ws_featureset_id
+ref has a value which is a SetAPI.ws_feature_set_id
 label has a value which is a string
 info has a value which is a Workspace.object_info
 
@@ -2187,7 +2187,7 @@ info has a value which is a Workspace.object_info
 
 When building a FeatureSetSet, all FeatureSets must be aligned against the same
 genome. This is not part of the object type, but enforced during a call to
-save_featureset_set_v1.
+save_feature_set_set_v1.
 @meta ws description as description
 @meta ws length(items) as item_count
 
