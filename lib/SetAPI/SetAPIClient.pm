@@ -2711,7 +2711,6 @@ set_info has a value which is a Workspace.object_info
 
 
 
-=head2 ws_reads_align_id
 =head2 ws_obj_id
 
 =over 4

@@ -14,6 +14,7 @@ RUN pip install ndg-httpsclient --upgrade
 RUN pip install pyasn1 --upgrade
 RUN pip install requests --upgrade && \
     pip install 'requests[security]' --upgrade
+RUN pip install coverage
 # -----------------------------------------
 
 # update installed WS client (will now include get_objects2)

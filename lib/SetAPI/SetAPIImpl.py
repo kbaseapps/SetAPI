@@ -23,7 +23,7 @@ class SetAPI:
     SetAPI
 
     Module Description:
-
+    
     '''
 
     ######## WARNING FOR GEVENT USERS ####### noqa
@@ -34,7 +34,7 @@ class SetAPI:
     ######################################### noqa
     VERSION = "0.1.3"
     GIT_URL = "https://github.com/briehl/SetAPI"
-    GIT_COMMIT_HASH = "6dbda8c4188a63c15e6ae9c605b7703e71168e5c"
+    GIT_COMMIT_HASH = "1f370391c9bf9ef616bb3bde968b37b571d325aa"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
