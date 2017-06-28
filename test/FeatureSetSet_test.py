@@ -95,16 +95,82 @@ class FeatureSetSetAPITest(unittest.TestCase):
         return self.__class__.ctx
 
     def test_save_feature_set_set(self):
-        pass
-
-    def test_save_feature_set_set_mismatched_genomes(self):
+        set_name = "test_feature_set_set"
+        set_items = list()
+        for ref in self.featureset_refs:
+            set_items.append({
+                "label": "foo",
+                "ref": ref
+            })
+        expression_set = {
+            "description": "test_expressions",
+            "items": set_items
+        }
+        result = self.getImpl().save_feature_set_set_v1(self.getContext(), {
+            "workspace": self.getWsName(),
+            "output_object_name": set_name,
+            "data": expression_set
+        })[0]
+        self.assertIsNotNone(result)
+        self.assertIn("set_ref", result)
+        self.assertIn("set_info", result)
+        self.assertEqual(result["set_ref"], info_to_ref(result["set_info"]))
+        self.assertEqual(result["set_info"][1], set_name)
+        self.assertIn("KBaseSets.FeatureSetSet", result["set_info"][2])
         pass
 
     def test_save_feature_set_set_no_data(self):
-        pass
+        with self.assertRaises(ValueError) as err:
+            self.getImpl().save_feature_set_set_v1(self.getContext(), {
+                "workspace": self.getWsName(),
+                "output_object_name": "foo",
+                "data": None
+            })
+        self.assertIn('"data" parameter field required to save a FeatureSetSet',
+                      str(err.exception))
 
     def test_get_feature_set_set(self):
-        pass
+        set_name = "test_featureset_set2"
+        set_items = list()
+        for ref in self.featureset_refs:
+            set_items.append({
+                "label": "wt",
+                "ref": ref
+            })
+        featureset_set = {
+            "description": "test_alignments",
+            "items": set_items
+        }
+        featureset_set_ref = self.getImpl().save_feature_set_set_v1(self.getContext(), {
+            "workspace": self.getWsName(),
+            "output_object_name": set_name,
+            "data": featureset_set
+        })[0]["set_ref"]
+
+        fetched_set = self.getImpl().get_feature_set_set_v1(self.getContext(), {
+            "ref": featureset_set_ref,
+            "include_item_info": 0
+        })[0]
+        self.assertIsNotNone(fetched_set)
+        self.assertIn("data", fetched_set)
+        self.assertIn("info", fetched_set)
+        self.assertEquals(len(fetched_set["data"]["items"]), 3)
+        self.assertEquals(featureset_set_ref, info_to_ref(fetched_set["info"]))
+        for item in fetched_set["data"]["items"]:
+            self.assertNotIn("info", item)
+            self.assertIn("ref", item)
+            self.assertIn("label", item)
+
+        fetched_set_with_info = self.getImpl().get_feature_set_set_v1(self.getContext(), {
+            "ref": featureset_set_ref,
+            "include_item_info": 1
+        })[0]
+        self.assertIsNotNone(fetched_set_with_info)
+        self.assertIn("data", fetched_set_with_info)
+        for item in fetched_set_with_info["data"]["items"]:
+            self.assertIn("info", item)
+            self.assertIn("ref", item)
+            self.assertIn("label", item)
 
     def test_get_feature_set_set_bad_ref(self):
         with self.assertRaises(ValueError) as err:

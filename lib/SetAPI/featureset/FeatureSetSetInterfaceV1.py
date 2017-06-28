@@ -13,10 +13,10 @@ class FeatureSetSetInterfaceV1:
         self.set_interface = SetInterfaceV1(workspace_client)
 
     def save_feature_set_set(self, ctx, params):
-        if 'data' in params:
+        if 'data' in params and params['data'] is not None:
             self._validate_feature_set_set_data(params['data'])
         else:
-            raise ValueError('"data" parameter field required to save a ReadsSet')
+            raise ValueError('"data" parameter field required to save a FeatureSetSet')
 
         save_result = self.set_interface.save_set(
                 'KBaseSets.FeatureSetSet',
@@ -30,9 +30,6 @@ class FeatureSetSetInterfaceV1:
         }
 
     def _validate_feature_set_set_data(self, data):
-        # TODO: add checks that only one copy of each reads data is in the set
-        # TODO?: add checks that reads data list is homogenous (no mixed single/paired-end libs)
-
         if 'items' not in data:
             raise ValueError('"items" list must be defined in data to save a FeatureSetSet')
 
