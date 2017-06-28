@@ -13,7 +13,7 @@ import us.kbase.common.service.Tuple11;
 
 
 /**
- * <p>Original spec-file type: GetReadsAlignmentSetV1Result</p>
+ * <p>Original spec-file type: GetExpressionSetV1Result</p>
  * 
  * 
  */
@@ -23,58 +23,58 @@ import us.kbase.common.service.Tuple11;
     "data",
     "info"
 })
-public class GetReadsAlignmentSetV1Result {
+public class GetExpressionSetV1Result {
 
     /**
-     * <p>Original spec-file type: ReadsAlignmentSet</p>
+     * <p>Original spec-file type: ExpressionSet</p>
      * <pre>
-     * When building a ReadsAlignmentSet, all ReadsAlignments must be aligned against the same
+     * When building a ExpressionSet, all Expression objects must be aligned against the same
      * genome. This is not part of the object type, but enforced during a call to
-     * save_reads_alignment_set_v1.
+     * save_expression_set_v1.
      * @meta ws description as description
      * @meta ws length(items) as item_count
      * </pre>
      * 
      */
     @JsonProperty("data")
-    private ReadsAlignmentSet data;
+    private ExpressionSet data;
     @JsonProperty("info")
     private Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> info;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     /**
-     * <p>Original spec-file type: ReadsAlignmentSet</p>
+     * <p>Original spec-file type: ExpressionSet</p>
      * <pre>
-     * When building a ReadsAlignmentSet, all ReadsAlignments must be aligned against the same
+     * When building a ExpressionSet, all Expression objects must be aligned against the same
      * genome. This is not part of the object type, but enforced during a call to
-     * save_reads_alignment_set_v1.
+     * save_expression_set_v1.
      * @meta ws description as description
      * @meta ws length(items) as item_count
      * </pre>
      * 
      */
     @JsonProperty("data")
-    public ReadsAlignmentSet getData() {
+    public ExpressionSet getData() {
         return data;
     }
 
     /**
-     * <p>Original spec-file type: ReadsAlignmentSet</p>
+     * <p>Original spec-file type: ExpressionSet</p>
      * <pre>
-     * When building a ReadsAlignmentSet, all ReadsAlignments must be aligned against the same
+     * When building a ExpressionSet, all Expression objects must be aligned against the same
      * genome. This is not part of the object type, but enforced during a call to
-     * save_reads_alignment_set_v1.
+     * save_expression_set_v1.
      * @meta ws description as description
      * @meta ws length(items) as item_count
      * </pre>
      * 
      */
     @JsonProperty("data")
-    public void setData(ReadsAlignmentSet data) {
+    public void setData(ExpressionSet data) {
         this.data = data;
     }
 
-    public GetReadsAlignmentSetV1Result withData(ReadsAlignmentSet data) {
+    public GetExpressionSetV1Result withData(ExpressionSet data) {
         this.data = data;
         return this;
     }
@@ -89,7 +89,7 @@ public class GetReadsAlignmentSetV1Result {
         this.info = info;
     }
 
-    public GetReadsAlignmentSetV1Result withInfo(Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> info) {
+    public GetExpressionSetV1Result withInfo(Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> info) {
         this.info = info;
         return this;
     }
@@ -106,7 +106,7 @@ public class GetReadsAlignmentSetV1Result {
 
     @Override
     public java.lang.String toString() {
-        return ((((((("GetReadsAlignmentSetV1Result"+" [data=")+ data)+", info=")+ info)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((("GetExpressionSetV1Result"+" [data=")+ data)+", info=")+ info)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

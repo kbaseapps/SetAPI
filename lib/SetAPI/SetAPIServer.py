@@ -341,6 +341,14 @@ class Application(object):
                              name='SetAPI.save_feature_set_set_v1',
                              types=[dict])
         self.method_authentication['SetAPI.save_feature_set_set_v1'] = 'required'  # noqa
+        self.rpc_service.add(impl_SetAPI.get_expression_set_v1,
+                             name='SetAPI.get_expression_set_v1',
+                             types=[dict])
+        self.method_authentication['SetAPI.get_expression_set_v1'] = 'optional'  # noqa
+        self.rpc_service.add(impl_SetAPI.save_expression_set_v1,
+                             name='SetAPI.save_expression_set_v1',
+                             types=[dict])
+        self.method_authentication['SetAPI.save_expression_set_v1'] = 'required'  # noqa
         self.rpc_service.add(impl_SetAPI.get_reads_alignment_set_v1,
                              name='SetAPI.get_reads_alignment_set_v1',
                              types=[dict])

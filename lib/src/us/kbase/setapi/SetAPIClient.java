@@ -196,6 +196,40 @@ public class SetAPIClient {
     }
 
     /**
+     * <p>Original spec-file function name: get_expression_set_v1</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.setapi.GetExpressionSetV1Params GetExpressionSetV1Params}
+     * @return   instance of type {@link us.kbase.setapi.GetExpressionSetV1Result GetExpressionSetV1Result}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public GetExpressionSetV1Result getExpressionSetV1(GetExpressionSetV1Params params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<GetExpressionSetV1Result>> retType = new TypeReference<List<GetExpressionSetV1Result>>() {};
+        List<GetExpressionSetV1Result> res = caller.jsonrpcCall("SetAPI.get_expression_set_v1", args, retType, true, false, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: save_expression_set_v1</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.setapi.SaveExpressionSetV1Params SaveExpressionSetV1Params}
+     * @return   parameter "result" of type {@link us.kbase.setapi.SaveExpressionSetV1Result SaveExpressionSetV1Result}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public SaveExpressionSetV1Result saveExpressionSetV1(SaveExpressionSetV1Params params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<SaveExpressionSetV1Result>> retType = new TypeReference<List<SaveExpressionSetV1Result>>() {};
+        List<SaveExpressionSetV1Result> res = caller.jsonrpcCall("SetAPI.save_expression_set_v1", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
      * <p>Original spec-file function name: get_reads_alignment_set_v1</p>
      * <pre>
      * </pre>
