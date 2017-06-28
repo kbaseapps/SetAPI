@@ -117,7 +117,6 @@ class FeatureSetSetAPITest(unittest.TestCase):
         self.assertEqual(result["set_ref"], info_to_ref(result["set_info"]))
         self.assertEqual(result["set_info"][1], set_name)
         self.assertIn("KBaseSets.FeatureSetSet", result["set_info"][2])
-        pass
 
     def test_save_feature_set_set_no_data(self):
         with self.assertRaises(ValueError) as err:
@@ -127,6 +126,20 @@ class FeatureSetSetAPITest(unittest.TestCase):
                 "data": None
             })
         self.assertIn('"data" parameter field required to save a FeatureSetSet',
+                      str(err.exception))
+
+    @unittest.skip("Currently allow empty FeatureSetSets")
+    def test_save_feature_set_set_empty(self):
+        with self.assertRaises(ValueError) as err:
+            self.getImpl().save_feature_set_set_v1(self.getContext(), {
+                "workspace": self.getWsName(),
+                "output_object_name": "foo",
+                "data": {
+                    "description": "empty_set",
+                    "items": []
+                }
+            })
+        self.assertIn("At least one FeatureSet is required to save a FeatureSetSet.",
                       str(err.exception))
 
     def test_get_feature_set_set(self):
