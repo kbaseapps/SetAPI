@@ -162,6 +162,40 @@ public class SetAPIClient {
     }
 
     /**
+     * <p>Original spec-file function name: get_feature_set_set_v1</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.setapi.GetFeatureSetSetV1Params GetFeatureSetSetV1Params}
+     * @return   instance of type {@link us.kbase.setapi.GetFeatureSetSetV1Result GetFeatureSetSetV1Result}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public GetFeatureSetSetV1Result getFeatureSetSetV1(GetFeatureSetSetV1Params params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<GetFeatureSetSetV1Result>> retType = new TypeReference<List<GetFeatureSetSetV1Result>>() {};
+        List<GetFeatureSetSetV1Result> res = caller.jsonrpcCall("SetAPI.get_feature_set_set_v1", args, retType, true, false, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: save_feature_set_set_v1</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.setapi.SaveFeatureSetSetV1Params SaveFeatureSetSetV1Params}
+     * @return   parameter "result" of type {@link us.kbase.setapi.SaveFeatureSetSetV1Result SaveFeatureSetSetV1Result}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public SaveFeatureSetSetV1Result saveFeatureSetSetV1(SaveFeatureSetSetV1Params params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<SaveFeatureSetSetV1Result>> retType = new TypeReference<List<SaveFeatureSetSetV1Result>>() {};
+        List<SaveFeatureSetSetV1Result> res = caller.jsonrpcCall("SetAPI.save_feature_set_set_v1", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
      * <p>Original spec-file function name: get_expression_set_v1</p>
      * <pre>
      * </pre>

@@ -16,6 +16,26 @@ module KBaseSets {
     } DataAttachment;
 
     /****************************** */
+    /* FEATURESET SET */
+
+    /*
+        The workspace id for a FeatureSet data object.
+        @id ws KBaseCollections.FeatureSet
+    */
+    typedef string ws_featureset_id;
+
+    typedef structure {
+        ws_featureset_id ref;
+        string label;
+    } FeatureSetSetItem;
+
+    typedef structure {
+        string description;
+        list<FeatureSetSetItem> items;
+    } FeatureSetSet;
+
+
+    /****************************** */
     /* EXPRESSION SET */
     /*
         The workspace id for a ReadsAlignment data object.

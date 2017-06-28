@@ -67,6 +67,28 @@ def make_fake_expression(name, genome_ref, annotation_ref, alignment_ref, ws_nam
     return make_fake_object(exp, "KBaseRNASeq.RNASeqExpression", name, ws_name, ws_client)
 
 
+def make_fake_feature_set(name, genome_ref, ws_name, ws_client):
+    """
+    Makes a fake KBaseCollections.FeatureSet object and returns a ref to it.
+    KBaseCollections.FeatureSet type:
+    typedef structure {
+        string description;
+        list<feature_id> element_ordering;
+        mapping<feature_id, list<genome_ref>> elements;
+    } FeatureSet;
+    """
+    feature_set = {
+        "description": "some features",
+        "element_ordering": ["feature1", "feature2", "feature3"],
+        "elements": {
+            "feature1": [genome_ref],
+            "feature2": [genome_ref],
+            "feature3": [genome_ref]
+        }
+    }
+    return make_fake_object(feature_set, "KBaseCollections.FeatureSet", name, ws_name, ws_client)
+
+
 def make_fake_object(obj, obj_type, name, workspace_name, workspace_client):
     """
     Saves a dummy object (obj) of given type obj_type and name to the given workspace_name using the
