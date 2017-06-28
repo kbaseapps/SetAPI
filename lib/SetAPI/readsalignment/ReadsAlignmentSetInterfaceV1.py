@@ -75,7 +75,7 @@ class ReadsAlignmentSetInterfaceV1:
 
     def _check_get_reads_alignment_set_params(self, params):
         if 'ref' not in params or params['ref'] is None:
-            raise ValueError('"ref" parameter field specifiying the reads set is required')
+            raise ValueError('"ref" parameter field specifiying the reads alignment set is required')
         elif not check_reference(params['ref']):
             raise ValueError('"ref" parameter must be a valid workspace reference')
         if 'include_item_info' in params:

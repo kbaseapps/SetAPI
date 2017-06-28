@@ -14,11 +14,11 @@ import us.kbase.common.service.Tuple11;
 
 
 /**
- * <p>Original spec-file type: ReadsAlignmentSetItem</p>
+ * <p>Original spec-file type: ExpressionSetItem</p>
  * <pre>
- * When saving a ReadsAlignmentSet, only 'ref' is required.
+ * When saving a ExpressionSet, only 'ref' is required.
  * You should never set 'info'.  'info' is provided optionally when fetching
- * the ReadsAlignmentSet.
+ * the ExpressionSet.
  * </pre>
  * 
  */
@@ -27,19 +27,19 @@ import us.kbase.common.service.Tuple11;
 @JsonPropertyOrder({
     "ref",
     "label",
-    "info",
-    "data_attachments"
+    "data_attachments",
+    "info"
 })
-public class ReadsAlignmentSetItem {
+public class ExpressionSetItem {
 
     @JsonProperty("ref")
     private java.lang.String ref;
     @JsonProperty("label")
     private java.lang.String label;
-    @JsonProperty("info")
-    private Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> info;
     @JsonProperty("data_attachments")
     private List<DataAttachment> dataAttachments;
+    @JsonProperty("info")
+    private Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> info;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("ref")
@@ -52,7 +52,7 @@ public class ReadsAlignmentSetItem {
         this.ref = ref;
     }
 
-    public ReadsAlignmentSetItem withRef(java.lang.String ref) {
+    public ExpressionSetItem withRef(java.lang.String ref) {
         this.ref = ref;
         return this;
     }
@@ -67,23 +67,8 @@ public class ReadsAlignmentSetItem {
         this.label = label;
     }
 
-    public ReadsAlignmentSetItem withLabel(java.lang.String label) {
+    public ExpressionSetItem withLabel(java.lang.String label) {
         this.label = label;
-        return this;
-    }
-
-    @JsonProperty("info")
-    public Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> getInfo() {
-        return info;
-    }
-
-    @JsonProperty("info")
-    public void setInfo(Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> info) {
-        this.info = info;
-    }
-
-    public ReadsAlignmentSetItem withInfo(Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> info) {
-        this.info = info;
         return this;
     }
 
@@ -97,8 +82,23 @@ public class ReadsAlignmentSetItem {
         this.dataAttachments = dataAttachments;
     }
 
-    public ReadsAlignmentSetItem withDataAttachments(List<DataAttachment> dataAttachments) {
+    public ExpressionSetItem withDataAttachments(List<DataAttachment> dataAttachments) {
         this.dataAttachments = dataAttachments;
+        return this;
+    }
+
+    @JsonProperty("info")
+    public Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> getInfo() {
+        return info;
+    }
+
+    @JsonProperty("info")
+    public void setInfo(Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> info) {
+        this.info = info;
+    }
+
+    public ExpressionSetItem withInfo(Tuple11 <Long, String, String, String, Long, String, Long, String, String, Long, Map<String, String>> info) {
+        this.info = info;
         return this;
     }
 
@@ -114,7 +114,7 @@ public class ReadsAlignmentSetItem {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((("ReadsAlignmentSetItem"+" [ref=")+ ref)+", label=")+ label)+", info=")+ info)+", dataAttachments=")+ dataAttachments)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((("ExpressionSetItem"+" [ref=")+ ref)+", label=")+ label)+", dataAttachments=")+ dataAttachments)+", info=")+ info)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

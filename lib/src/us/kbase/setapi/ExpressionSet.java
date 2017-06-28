@@ -13,11 +13,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * <p>Original spec-file type: ReadsAlignmentSet</p>
+ * <p>Original spec-file type: ExpressionSet</p>
  * <pre>
- * When building a ReadsAlignmentSet, all ReadsAlignments must be aligned against the same
+ * When building a ExpressionSet, all Expression objects must be aligned against the same
  * genome. This is not part of the object type, but enforced during a call to
- * save_reads_alignment_set_v1.
+ * save_expression_set_v1.
  * @meta ws description as description
  * @meta ws length(items) as item_count
  * </pre>
@@ -29,12 +29,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "description",
     "items"
 })
-public class ReadsAlignmentSet {
+public class ExpressionSet {
 
     @JsonProperty("description")
     private String description;
     @JsonProperty("items")
-    private List<ReadsAlignmentSetItem> items;
+    private List<ExpressionSetItem> items;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("description")
@@ -47,22 +47,22 @@ public class ReadsAlignmentSet {
         this.description = description;
     }
 
-    public ReadsAlignmentSet withDescription(String description) {
+    public ExpressionSet withDescription(String description) {
         this.description = description;
         return this;
     }
 
     @JsonProperty("items")
-    public List<ReadsAlignmentSetItem> getItems() {
+    public List<ExpressionSetItem> getItems() {
         return items;
     }
 
     @JsonProperty("items")
-    public void setItems(List<ReadsAlignmentSetItem> items) {
+    public void setItems(List<ExpressionSetItem> items) {
         this.items = items;
     }
 
-    public ReadsAlignmentSet withItems(List<ReadsAlignmentSetItem> items) {
+    public ExpressionSet withItems(List<ExpressionSetItem> items) {
         this.items = items;
         return this;
     }
@@ -79,7 +79,7 @@ public class ReadsAlignmentSet {
 
     @Override
     public String toString() {
-        return ((((((("ReadsAlignmentSet"+" [description=")+ description)+", items=")+ items)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((("ExpressionSet"+" [description=")+ description)+", items=")+ items)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
