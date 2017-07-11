@@ -10,10 +10,34 @@ module KBaseSets {
     */
     typedef string ws_obj_id;
 
+    /*
+        A representation for any Workspace object that should be associated with a Set item.
+    */
     typedef structure {
         string name;
         ws_obj_id ref;
     } DataAttachment;
+
+
+    /****************************** */
+    /* DIFFERENTIALEXPRESSIONMATRIX SET */
+
+    /*
+        The workspace id for a FeatureSet data object.
+        @id ws KBaseFeatureValues.DifferentialExpressionMatrix;
+    */
+    typedef string ws_diffexpmatrix_id;
+
+    typedef structure {
+        ws_diffexpmatrix_id ref;
+        string label;
+    } DifferentialExpressionMatrixSetItem;
+
+    typedef structure {
+        string description;
+        list<DifferentialExpressionMatrixSetItem> items;
+    } DifferentialExpressionMatrixSet;
+
 
     /****************************** */
     /* FEATURESET SET */
@@ -38,7 +62,7 @@ module KBaseSets {
     /****************************** */
     /* EXPRESSION SET */
     /*
-        The workspace id for a ReadsAlignment data object.
+        The workspace id for a RNASeqExpression data object.
         @id ws KBaseRNASeq.RNASeqExpression
     */
     typedef string ws_expression_id;
