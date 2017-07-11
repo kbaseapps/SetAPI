@@ -10,9 +10,9 @@ from SetAPI.genome.GenomeSetInterfaceV1 import GenomeSetInterfaceV1
 from SetAPI.readsalignment.ReadsAlignmentSetInterfaceV1 import ReadsAlignmentSetInterfaceV1
 from SetAPI.featureset.FeatureSetSetInterfaceV1 import FeatureSetSetInterfaceV1
 from SetAPI.expression.ExpressionSetInterfaceV1 import ExpressionSetInterfaceV1
+from SetAPI.differentialexpressionmatrix.DifferentialExpressionMatrixSetInterfaceV1 import DifferentialExpressionMatrixSetInterfaceV1
 from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
 from SetAPI.generic.DynamicServiceCache import DynamicServiceCache
-
 
 #END_HEADER
 
@@ -23,7 +23,7 @@ class SetAPI:
     SetAPI
 
     Module Description:
-    
+
     '''
 
     ######## WARNING FOR GEVENT USERS ####### noqa
@@ -171,6 +171,9 @@ class SetAPI:
         # ctx is the context object
         # return variables are: result
         #BEGIN get_differential_expression_matrix_set_v1
+        ws = Workspace(self.workspaceURL, token=ctx['token'])
+        demsi = DifferentialExpressionMatrixSetInterfaceV1(ws)
+        result = demsi.get_differential_expression_matrix_set(ctx, params)
         #END get_differential_expression_matrix_set_v1
 
         # At some point might do deeper type checking...
@@ -297,6 +300,9 @@ class SetAPI:
         # ctx is the context object
         # return variables are: result
         #BEGIN save_differential_expression_matrix_set_v1
+        ws = Workspace(self.workspaceURL, token=ctx['token'])
+        demsi = DifferentialExpressionMatrixSetInterfaceV1(ws)
+        result = demsi.save_differential_expression_matrix_set(ctx, params)
         #END save_differential_expression_matrix_set_v1
 
         # At some point might do deeper type checking...

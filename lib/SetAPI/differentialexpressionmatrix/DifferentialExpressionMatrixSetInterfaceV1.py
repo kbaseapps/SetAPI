@@ -46,7 +46,7 @@ class DifferentialExpressionMatrixSetInterfaceV1:
 
         # Get all the genome ids from our DifferentialExpressionMatrix references (it's the
         # Genome key in the object metadata). Make a set out of them.
-        # If there's 0 or more than 1 item in the set, then either those items are bad, or they're
+        # If there's more than 1 item in the set, then either those items are bad, or they're
         # aligned against different genomes.
         info = self.workspace_client.get_object_info3({"objects": ref_list, "includeMetadata": 1})
         num_genomes = len(set([item[10].get("Genome", None) for item in info["infos"]]))
@@ -55,7 +55,7 @@ class DifferentialExpressionMatrixSetInterfaceV1:
                              "the same genome reference.")
 
     def get_differential_expression_matrix_set(self, ctx, params):
-        self._check_get_expression_set_params(params)
+        self._check_get_differential_expression_matrix_set_params(params)
 
         include_item_info = False
         if 'include_item_info' in params:
@@ -73,9 +73,9 @@ class DifferentialExpressionMatrixSetInterfaceV1:
             )
         return set_data
 
-    def _check_get_expression_set_params(self, params):
+    def _check_get_differential_expression_set_params(self, params):
         if 'ref' not in params or params['ref'] is None:
-            raise ValueError('"ref" parameter field specifiying the expression set is required')
+            raise ValueError('"ref" parameter field specifiying the DifferentialExpressionMatrix set is required')
         elif not check_reference(params['ref']):
             raise ValueError('"ref" parameter must be a valid workspace reference')
         if 'include_item_info' in params:
