@@ -172,7 +172,7 @@ class ExpressionSetAPITest(unittest.TestCase):
             self.assertIn("All Expression objects in the set must use "
                           "the same genome reference.", str(err.exception))
 
-    def test_save_alignment_set_no_data(self):
+    def test_save_expression_set_no_data(self):
         with self.assertRaises(ValueError) as err:
             self.getImpl().save_expression_set_v1(self.getContext(), {
                 "workspace": self.getWsName(),
@@ -182,7 +182,7 @@ class ExpressionSetAPITest(unittest.TestCase):
         self.assertIn('"data" parameter field required to save an ExpressionSet',
                       str(err.exception))
 
-    def test_save_alignment_set_no_expressions(self):
+    def test_save_expression_set_no_expressions(self):
         with self.assertRaises(ValueError) as err:
             self.getImpl().save_expression_set_v1(self.getContext(), {
                 "workspace": self.getWsName(),
