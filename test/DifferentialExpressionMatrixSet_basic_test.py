@@ -186,7 +186,7 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
                 "output_object_name": "foo",
                 "data": None
             })
-        self.assertIn('"data" parameter field required to save an ExpressionSet',
+        self.assertIn('"data" parameter field required to save a DifferentialExpressionMatrixSet',
                       str(err.exception))
 
     def test_save_dem_set_no_dem(self):
@@ -267,5 +267,5 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
             self.getImpl().get_differential_expression_matrix_set_v1(self.getContext(), {
                 "ref": None
             })
-        self.assertIn('"ref" parameter field specifiying the expression set is required',
+        self.assertIn('"ref" parameter field specifiying the differential expression matrix set is required',
                       str(err.exception))

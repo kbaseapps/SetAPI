@@ -33,7 +33,7 @@ class DifferentialExpressionMatrixSetInterfaceV1:
             data["description"] = ""
 
         if "items" not in data or len(data.get("items", [])) == 0:
-            raise ValueError("An DifferentialExpressionMatrixSet must contain at "
+            raise ValueError("A DifferentialExpressionMatrixSet must contain at "
                              "least one DifferentialExpressionMatrix object reference.")
 
         refs = list()
