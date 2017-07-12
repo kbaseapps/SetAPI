@@ -73,7 +73,7 @@ class DifferentialExpressionMatrixSetInterfaceV1:
             )
         return set_data
 
-    def _check_get_differential_expression_set_params(self, params):
+    def _check_get_differential_expression_matrix_set_params(self, params):
         if 'ref' not in params or params['ref'] is None:
             raise ValueError('"ref" parameter field specifiying the DifferentialExpressionMatrix set is required')
         elif not check_reference(params['ref']):

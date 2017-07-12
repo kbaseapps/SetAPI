@@ -267,5 +267,5 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
             self.getImpl().get_differential_expression_matrix_set_v1(self.getContext(), {
                 "ref": None
             })
-        self.assertIn('"ref" parameter field specifiying the differential expression matrix set is required',
+        self.assertIn('"ref" parameter field specifiying the DifferentialExpressionMatrix set is required',
                       str(err.exception))
