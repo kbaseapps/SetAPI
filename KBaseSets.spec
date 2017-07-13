@@ -33,6 +33,10 @@ module KBaseSets {
         string label;
     } DifferentialExpressionMatrixSetItem;
 
+    /*
+        @metadata ws description as description
+        @metadata ws length(items) as item_count
+    */
     typedef structure {
         string description;
         list<DifferentialExpressionMatrixSetItem> items;
@@ -53,6 +57,10 @@ module KBaseSets {
         string label;
     } FeatureSetSetItem;
 
+    /*
+        @metadata ws description as description
+        @metadata ws length(items) as item_count
+    */
     typedef structure {
         string description;
         list<FeatureSetSetItem> items;
