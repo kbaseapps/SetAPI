@@ -9,6 +9,93 @@ module SetAPI {
     /* A boolean. 0 = false, 1 = true. */
     typedef int boolean;
 
+    /*
+        The workspace ID for a any data object.
+        @id ws
+    */
+    typedef string ws_obj_id;
+
+    typedef structure {
+        string name;
+        ws_obj_id ref;
+    } DataAttachment;
+
+
+    /* ******* DIFFERENTIAL EXPRESSION MATRIX SET METHODS ******* */
+
+    /* NOTE: data type explicitly copied from KBaseSets so type and
+    API can evolve independently */
+
+    /*
+        The workspace id for a FeatureSet data object.
+        @id ws KBaseFeatureValues.DifferentialExpressionMatrix;
+    */
+    typedef string ws_diffexpmatrix_id;
+
+    /*
+        When saving a DifferentialExpressionMatrixSet, only 'ref' is required.
+        You should never set 'info'.  'info' is provided optionally when fetching
+        the DifferentialExpressionMatrixSet.
+    */
+    typedef structure {
+        ws_diffexpmatrix_id ref;
+        string label;
+        Workspace.object_info info;
+    } DifferentialExpressionMatrixSetItem;
+
+    /*
+        When building a DifferentialExpressionMatrixSet, all DifferentialExpressionMatrices must be
+        built against the same genome. This is not part of the object type, but enforced during a
+        call to save_differential_expression_matrix_set_v1.
+        @meta ws description as description
+        @meta ws length(items) as item_count
+    */
+    typedef structure {
+        string description;
+        list<DifferentialExpressionMatrixSetItem> items;
+    } DifferentialExpressionMatrixSet;
+
+    /*
+        ref - workspace reference to DifferentialExpressionMatrixSet object.
+        include_item_info - 1 or 0, if 1 additionally provides workspace info (with
+                            metadata) for each DifferentialExpressionMatrix object in the Set
+    */
+    typedef structure {
+        string ref;
+        boolean include_item_info;
+        list <string> ref_path_to_set;
+    } GetDifferentialExpressionMatrixSetV1Params;
+
+    typedef structure {
+        DifferentialExpressionMatrixSet data;
+        Workspace.object_info info;
+    } GetDifferentialExpressionMatrixSetV1Result;
+
+    funcdef get_differential_expression_matrix_set_v1(GetDifferentialExpressionMatrixSetV1Params params)
+        returns (GetDifferentialExpressionMatrixSetV1Result result) authentication optional;
+
+    /*
+        workspace_name or workspace_id - alternative options defining
+            target workspace,
+        output_object_name - workspace object name (this parameter is
+            used together with one of workspace params from above)
+    */
+    typedef structure {
+        string workspace;
+        string output_object_name;
+        DifferentialExpressionMatrixSet data;
+    } SaveDifferentialExpressionMatrixSetV1Params;
+
+    typedef structure {
+        string set_ref;
+        Workspace.object_info set_info;
+    } SaveDifferentialExpressionMatrixSetV1Result;
+
+    funcdef save_differential_expression_matrix_set_v1(SaveDifferentialExpressionMatrixSetV1Params params)
+        returns (SaveDifferentialExpressionMatrixSetV1Result result) authentication required;
+
+
+
 
     /* ******* FEATURE SET SET METHODS ******** */
 
@@ -16,7 +103,7 @@ module SetAPI {
     API can evolve independently */
 
     /*
-        The workspace id for a ReadsAlignment data object.
+        The workspace id for a FeatureSet data object.
         @id ws KBaseCollections.FeatureSet
     */
     typedef string ws_feature_set_id;
@@ -82,18 +169,6 @@ module SetAPI {
 
     funcdef save_feature_set_set_v1(SaveFeatureSetSetV1Params params)
         returns (SaveFeatureSetSetV1Result result) authentication required;
-
-
-    /*
-        The workspace ID for a any data object.
-        @id ws
-    */
-    typedef string ws_obj_id;
-
-    typedef structure {
-        string name;
-        ws_obj_id ref;
-    } DataAttachment;
 
 
     /* ******* EXPRESSION SET METHODS ******** */

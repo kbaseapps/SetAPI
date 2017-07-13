@@ -162,6 +162,40 @@ public class SetAPIClient {
     }
 
     /**
+     * <p>Original spec-file function name: get_differential_expression_matrix_set_v1</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.setapi.GetDifferentialExpressionMatrixSetV1Params GetDifferentialExpressionMatrixSetV1Params}
+     * @return   parameter "result" of type {@link us.kbase.setapi.GetDifferentialExpressionMatrixSetV1Result GetDifferentialExpressionMatrixSetV1Result}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public GetDifferentialExpressionMatrixSetV1Result getDifferentialExpressionMatrixSetV1(GetDifferentialExpressionMatrixSetV1Params params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<GetDifferentialExpressionMatrixSetV1Result>> retType = new TypeReference<List<GetDifferentialExpressionMatrixSetV1Result>>() {};
+        List<GetDifferentialExpressionMatrixSetV1Result> res = caller.jsonrpcCall("SetAPI.get_differential_expression_matrix_set_v1", args, retType, true, false, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: save_differential_expression_matrix_set_v1</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.setapi.SaveDifferentialExpressionMatrixSetV1Params SaveDifferentialExpressionMatrixSetV1Params}
+     * @return   parameter "result" of type {@link us.kbase.setapi.SaveDifferentialExpressionMatrixSetV1Result SaveDifferentialExpressionMatrixSetV1Result}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public SaveDifferentialExpressionMatrixSetV1Result saveDifferentialExpressionMatrixSetV1(SaveDifferentialExpressionMatrixSetV1Params params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<SaveDifferentialExpressionMatrixSetV1Result>> retType = new TypeReference<List<SaveDifferentialExpressionMatrixSetV1Result>>() {};
+        List<SaveDifferentialExpressionMatrixSetV1Result> res = caller.jsonrpcCall("SetAPI.save_differential_expression_matrix_set_v1", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
      * <p>Original spec-file function name: get_feature_set_set_v1</p>
      * <pre>
      * </pre>

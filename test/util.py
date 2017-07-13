@@ -89,6 +89,52 @@ def make_fake_feature_set(name, genome_ref, ws_name, ws_client):
     return make_fake_object(feature_set, "KBaseCollections.FeatureSet", name, ws_name, ws_client)
 
 
+def make_fake_diff_exp_matrix(name, ws_name, ws_client, genome_ref=None):
+    """
+    Makes a fake KBaseFeatureValues.DifferentialExpressionMatrix object and returns a ref ot it.
+    * = optional (so, left out of this fake stuff)
+
+    typedef structure {
+        list<string> row_ids;
+        list<string> col_ids;
+        list<list<float>> values;
+    } FloatMatrix2D;
+
+    typedef structure {
+        * string description;
+        string type;
+        string scale;
+        * string row_normalization;
+        * string col_normalization;
+
+        * ws_genome_id genome_ref;
+        * mapping<string, string> feature_mapping;
+
+        * ws_conditionset_id conditionset_ref;
+        * mapping<string, string> condition_mapping;
+
+        FloatMatrix2D data;
+        * AnalysisReport report;
+    } DifferentialExpressionMatrix;
+
+    Makes the dumbest matrix ever - just a single row, a single column, a single 0 value.
+    """
+    matrix_data = {
+        "row_ids": ["row1"],
+        "col_ids": ["col1"],
+        "values": [[0.0]]
+    }
+    diff_exp_matrix = {
+        "type": "level",
+        "scale": "raw",
+        "data": matrix_data
+    }
+    if genome_ref is not None:
+        diff_exp_matrix['genome_ref'] = genome_ref
+    return make_fake_object(diff_exp_matrix, "KBaseFeatureValues.DifferentialExpressionMatrix",
+                            name, ws_name, ws_client)
+
+
 def make_fake_object(obj, obj_type, name, workspace_name, workspace_client):
     """
     Saves a dummy object (obj) of given type obj_type and name to the given workspace_name using the
