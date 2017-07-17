@@ -55,7 +55,14 @@ class ReadsAlignmentSetInterfaceV1:
                              "against the same genome reference.")
 
     def get_reads_alignment_set(self, ctx, params):
-        self._check_get_reads_alignment_set_params(params)
+        """
+        If the set is a KBaseSets.ReadsAlignmentSet, it gets returned as-is.
+        If it's a KBaseRNASeq.RNASeqAlignmentSet, a few things get juggled.
+        1. We try to figure out the object references for the alignments (which are optional)
+        2. From each ref, we try to figure out the condition, and apply those as labels (also
+           might be optional)
+        """
+        set_type = self._check_get_reads_alignment_set_params(params)
 
         include_item_info = False
         if 'include_item_info' in params:
@@ -66,12 +73,43 @@ class ReadsAlignmentSetInterfaceV1:
         if 'ref_path_to_set' in params:
             ref_path_to_set = params['ref_path_to_set']
 
-        set_data = self.set_interface.get_set(
-                params['ref'],
-                include_item_info,
-                ref_path_to_set
-            )
-        return set_data
+        if "KBaseSets" in set_type:
+            # If it's a KBaseSets type, then we know the usual interface will work...
+            return self.set_interface.get_set(
+                    params['ref'],
+                    include_item_info,
+                    ref_path_to_set
+                )
+        else:
+            # ...otherwise, we need to fetch it directly from the workspace and tweak it into the
+            # expected return object
+            obj_spec = {"ref": params["ref"]}
+            if len(ref_path_to_set):
+                obj_spec = {"obj_ref_path": params["ref_path_to_set"]}
+            obj = self.workspace_client.get_objects2({"objects": [obj_spec]})["data"][0]
+            alignment_ref_list = list()
+            if "sample_alignments" in obj:
+                alignment_ref_list = obj["sample_alignments"]
+            else:
+                # this is a list of dicts of random strings -> alignment refs
+                # need them all as a set, then emit as a list.
+                reads_to_alignments = obj["mapped_alignments_ids"]
+                refs = set()
+                for mapping in reads_to_alignments:
+                    refs.update(mapping.values())
+                alignment_ref_list = list(refs)
+            alignment_ref_list = obj["sample_alignments"]  # ...probably
+            alignment_items = [{"ref": i} for i in alignment_ref_list]
+            item_infos = self.workspace_client.get_object_info3(
+                {"objects": alignment_items, "includeMetadata": 1})["infos"]
+            for idx, ref in enumerate(alignment_items):
+                alignment_items[idx]["label"] = item_infos[idx][10].get("condition", None)
+                if include_item_info:
+                    alignment_items[idx]["info"] = item_infos[idx]
+            return {
+                "items": alignment_items,
+                "description": ""
+            }
 
     def _check_get_reads_alignment_set_params(self, params):
         if 'ref' not in params or params['ref'] is None:
@@ -81,3 +119,8 @@ class ReadsAlignmentSetInterfaceV1:
         if 'include_item_info' in params:
             if params['include_item_info'] not in [0, 1]:
                 raise ValueError('"include_item_info" parameter field can only be set to 0 or 1')
+        obj_spec = {"ref": params["ref"]}
+        if "ref_path_to_set" in params:
+            obj_spec = {"obj_ref_path": params["ref_path_to_set"]}
+        info = self.workspace_client.get_object_info3({"objects": [obj_spec]})
+        return info["infos"][0][2]
