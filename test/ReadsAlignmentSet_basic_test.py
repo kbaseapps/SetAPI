@@ -205,7 +205,7 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             fetched_set = self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
                 "ref": ref,
                 "include_item_info": 0
-            })
+            })[0]
             self.assertIsNotNone(fetched_set)
             self.assertIn("data", fetched_set)
             self.assertIn("info", fetched_set)

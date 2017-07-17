@@ -86,7 +86,9 @@ class ReadsAlignmentSetInterfaceV1:
             obj_spec = {"ref": params["ref"]}
             if len(ref_path_to_set):
                 obj_spec = {"obj_ref_path": params["ref_path_to_set"]}
-            obj = self.workspace_client.get_objects2({"objects": [obj_spec]})["data"][0]
+            obj_data = self.workspace_client.get_objects2({"objects": [obj_spec]})["data"][0]
+            obj = obj_data["data"]
+            obj_info = obj_data["info"]
             alignment_ref_list = list()
             if "sample_alignments" in obj:
                 alignment_ref_list = obj["sample_alignments"]
@@ -98,7 +100,6 @@ class ReadsAlignmentSetInterfaceV1:
                 for mapping in reads_to_alignments:
                     refs.update(mapping.values())
                 alignment_ref_list = list(refs)
-            alignment_ref_list = obj["sample_alignments"]  # ...probably
             alignment_items = [{"ref": i} for i in alignment_ref_list]
             item_infos = self.workspace_client.get_object_info3(
                 {"objects": alignment_items, "includeMetadata": 1})["infos"]
@@ -107,8 +108,11 @@ class ReadsAlignmentSetInterfaceV1:
                 if include_item_info:
                     alignment_items[idx]["info"] = item_infos[idx]
             return {
-                "items": alignment_items,
-                "description": ""
+                "data": {
+                    "items": alignment_items,
+                    "description": ""
+                },
+                "info": obj_info
             }
 
     def _check_get_reads_alignment_set_params(self, params):
