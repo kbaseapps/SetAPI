@@ -33,6 +33,48 @@ def make_fake_alignment(name, reads_ref, genome_ref, ws_name, ws_client):
     return make_fake_object(fake_alignment, "KBaseRNASeq.RNASeqAlignment", name, ws_name, ws_client)
 
 
+def make_fake_sampleset(name, ws_name, ws_client):
+    fake_sampleset = {
+        "sampleset_id": "fake",
+        "sampleset_desc": "fake",
+        "domain": "fake",
+        "num_samples": 0,
+        "condition": [],
+        "Library_type": "fake",
+    }
+    return make_fake_object(fake_sampleset, "KBaseRNASeq.RNASeqSampleSet", name, ws_name, ws_client)
+
+
+def make_fake_old_alignment_set(name, reads_refs, genome_ref, sampleset_ref, alignments_refs,
+                                ws_name, ws_client, include_sample_alignments=False):
+    """
+    Make a fake set object for KBaseRNASeq.RNASeqAlignmentSet objects
+    Needs a whole bunch of stuff:
+        list of reads_refs
+        list of alignments_refs
+        genome_ref
+        sampleset_ref (can be dummied up with make_fake_sampleset)
+    Setting include_sample_alignments to True will include the optional "sample_alignments"
+    attribute of the object.
+    """
+
+    mapped_alignments_ids = list()
+    for idx, ref in enumerate(reads_refs):
+        mapped_alignments_ids.append({ref: alignments_refs[idx]})
+
+    fake_rnaseq_alignment_set = {
+        "sampleset_id": sampleset_ref,
+        "genome_id": genome_ref,
+        "read_sample_ids": reads_refs,
+        "mapped_rnaseq_alignments": mapped_alignments_ids,
+        "mapped_alignments_ids": mapped_alignments_ids
+    }
+    if include_sample_alignments:
+        fake_rnaseq_alignment_set["sample_alignments"] = alignments_refs
+    return make_fake_object(fake_rnaseq_alignment_set, "KBaseRNASeq.RNASeqAlignmentSet",
+                            name, ws_name, ws_client)
+
+
 def make_fake_annotation(name, ws_name, ws_client):
     annotation = {
         "handle": {

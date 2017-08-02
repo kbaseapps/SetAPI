@@ -17,7 +17,9 @@ from FakeObjectsForTests.FakeObjectsForTestsClient import FakeObjectsForTests
 from SetAPI.authclient import KBaseAuth as _KBaseAuth
 from util import (
     info_to_ref,
-    make_fake_alignment
+    make_fake_alignment,
+    make_fake_sampleset,
+    make_fake_old_alignment_set
 )
 
 
@@ -86,6 +88,29 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
                     wsName, cls.wsClient
                 )
             )
+
+        # Make a fake RNASeqSampleSet
+        cls.sampleset_ref = make_fake_sampleset("fake_sampleset", wsName, cls.wsClient)
+
+        # Finally, make a couple fake RNASeqAlignmentSts objects from those alignments
+        cls.fake_rnaseq_alignment_set1 = make_fake_old_alignment_set(
+            "fake_rnaseq_alignment_set1",
+            cls.reads_refs,
+            cls.genome_refs[0],
+            cls.sampleset_ref,
+            cls.alignment_refs,
+            wsName,
+            cls.wsClient)
+        cls.fake_rnaseq_alignment_set2 = make_fake_old_alignment_set(
+            "fake_rnaseq_alignment_set2",
+            cls.reads_refs,
+            cls.genome_refs[0],
+            cls.sampleset_ref,
+            cls.alignment_refs,
+            wsName,
+            cls.wsClient,
+            include_sample_alignments=True
+        )
 
     @classmethod
     def tearDownClass(cls):
@@ -174,6 +199,33 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             })
         self.assertIn("A ReadsAlignmentSet must contain at "
                       "least one ReadsAlignment reference.", str(err.exception))
+
+    def test_get_old_alignment_set(self):
+        for ref in [self.fake_rnaseq_alignment_set1, self.fake_rnaseq_alignment_set2]:
+            fetched_set = self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
+                "ref": ref,
+                "include_item_info": 0
+            })[0]
+            self.assertIsNotNone(fetched_set)
+            self.assertIn("data", fetched_set)
+            self.assertIn("info", fetched_set)
+            self.assertEquals(len(fetched_set["data"]["items"]), 3)
+            self.assertEquals(ref, info_to_ref(fetched_set["info"]))
+            for item in fetched_set["data"]["items"]:
+                self.assertNotIn("info", item)
+                self.assertIn("ref", item)
+                self.assertIn("label", item)
+
+            fetched_set_with_info = self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
+                "ref": ref,
+                "include_item_info": 1
+            })[0]
+            self.assertIsNotNone(fetched_set_with_info)
+            self.assertIn("data", fetched_set_with_info)
+            for item in fetched_set_with_info["data"]["items"]:
+                self.assertIn("info", item)
+                self.assertIn("ref", item)
+                self.assertIn("label", item)
 
     def test_get_alignment_set(self):
         alignment_set_name = "test_alignment_set"
