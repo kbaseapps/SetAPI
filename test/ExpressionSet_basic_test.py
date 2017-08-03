@@ -21,6 +21,7 @@ from util import (
     make_fake_annotation,
     make_fake_expression
 )
+import shutil
 
 
 class ExpressionSetAPITest(unittest.TestCase):
@@ -78,22 +79,39 @@ class ExpressionSetAPITest(unittest.TestCase):
         cls.reads_refs = list()
 
         # Make some fake alignments referencing those reads and genome
+        dummy_filename = "dummy.txt"
+        cls.dummy_path = os.path.join(cls.cfg['scratch'], dummy_filename)
+        shutil.copy(os.path.join("data", dummy_filename), cls.dummy_path)
+
         for idx, reads_info in enumerate(fake_reads_list):
             reads_ref = info_to_ref(reads_info)
             cls.reads_refs.append(reads_ref)
             cls.alignment_refs.append(
-                make_fake_alignment("fake_alignment_{}".format(idx), reads_ref, cls.genome_refs[0],
-                                    wsName, cls.wsClient)
+                make_fake_alignment(
+                    os.environ['SDK_CALLBACK_URL'],
+                    cls.dummy_path,
+                    "fake_alignment_{}".format(idx),
+                    reads_ref,
+                    cls.genome_refs[0],
+                    wsName,
+                    cls.wsClient)
             )
 
         # Need a fake annotation to get the expression objects
-        cls.annotation_ref = make_fake_annotation("fake_annotation", wsName, cls.wsClient)
+        cls.annotation_ref = make_fake_annotation(
+            os.environ['SDK_CALLBACK_URL'],
+            cls.dummy_path,
+            "fake_annotation",
+            wsName,
+            cls.wsClient)
 
         # Now we can phony up some expression objects to build sets out of.
         # name, genome_ref, annotation_ref, alignment_ref, ws_name, ws_client
         cls.expression_refs = list()
         for idx, alignment_ref in enumerate(cls.alignment_refs):
             cls.expression_refs.append(make_fake_expression(
+                os.environ['SDK_CALLBACK_URL'],
+                cls.dummy_path,
                 "fake_expression_{}".format(idx),
                 cls.genome_refs[0],
                 cls.annotation_ref,
@@ -150,6 +168,8 @@ class ExpressionSetAPITest(unittest.TestCase):
             "description": "this_better_fail",
             "items": [{
                 "ref": make_fake_expression(
+                    os.environ['SDK_CALLBACK_URL'],
+                    self.dummy_path,
                     "odd_expression",
                     self.genome_refs[1],
                     self.annotation_ref,
