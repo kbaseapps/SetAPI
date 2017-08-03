@@ -1,5 +1,5 @@
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
-from util import check_reference
+from SetAPI.util import check_reference
 
 class ReadsSetInterfaceV1:
     def __init__(self, workspace_client):
@@ -81,7 +81,7 @@ class ReadsSetInterfaceV1:
             if len(obj.get('sample_ids', [])) == 0:
                 return set_data
             for idx, ref in enumerate(obj['sample_ids']):
-                reads_items.push({
+                reads_items.append({
                     "ref": obj['sample_ids'][idx],
                     "label": obj['condition'][idx]
                 })

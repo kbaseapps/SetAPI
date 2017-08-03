@@ -21,6 +21,7 @@ from util import (
     make_fake_sampleset,
     make_fake_old_alignment_set
 )
+import shutil
 
 
 class ReadsAlignmentSetAPITest(unittest.TestCase):
@@ -78,13 +79,21 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
         cls.alignment_refs = list()
         cls.reads_refs = list()
 
+        dummy_filename = "dummy.txt"
+        cls.dummy_path = os.path.join(cls.cfg['scratch'], dummy_filename)
+        shutil.copy(os.path.join("data", dummy_filename), cls.dummy_path)
+
         # Make some fake alignments referencing those reads and genome
         for idx, reads_info in enumerate(fake_reads_list):
             reads_ref = info_to_ref(reads_info)
             cls.reads_refs.append(reads_ref)
             cls.alignment_refs.append(
                 make_fake_alignment(
-                    "fake_alignment_{}".format(idx), reads_ref, cls.genome_refs[0],
+                    os.environ['SDK_CALLBACK_URL'],
+                    cls.dummy_path,
+                    "fake_alignment_{}".format(idx),
+                    reads_ref,
+                    cls.genome_refs[0],
                     wsName, cls.wsClient
                 )
             )
@@ -160,7 +169,10 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             "description": "this_better_fail",
             "items": [{
                 "ref": make_fake_alignment(
-                    "odd_alignment", self.reads_refs[0], self.genome_refs[1],
+                    os.environ['SDK_CALLBACK_URL'],
+                    self.dummy_path,
+                    "odd_alignment",
+                    self.reads_refs[0], self.genome_refs[1],
                     self.getWsName(), self.getWsClient()
                 ),
                 "label": "odd_alignment"

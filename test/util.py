@@ -1,6 +1,7 @@
 """
 Some utility functions to help with testing. These mainly add fake objects to use in making sets.
 """
+from DataFileUtil.DataFileUtilClient import DataFileUtil
 
 
 def info_to_ref(info):
@@ -12,19 +13,28 @@ def info_to_ref(info):
     return "{}/{}/{}".format(info[6], info[0], info[4])
 
 
-def make_fake_alignment(name, reads_ref, genome_ref, ws_name, ws_client):
+def get_fake_file_handle(file_path):
+    pass
+
+
+def make_fake_alignment(callback_url, dummy_file, name, reads_ref, genome_ref, ws_name, ws_client):
     """
     Makes a Fake KBaseRNASeq.RNASeqAlignment object and returns a ref to it.
+    callback_url: needed for DataFileUtil,
+    dummy_file: path to some dummy "alignment" file (make it small - needs to be uploaded to shock)
     name: the name of the object
     reads_ref: a reference to a valid (probably fake) reads library
     genome_ref: a reference to a valid (also probably fake) genome
     workspace_name: the name of the workspace to save this object
     workspace_client: a Workspace client tuned to the server of your choice
     """
+    dfu = DataFileUtil(callback_url)
+    dummy_shock_info = dfu.file_to_shock({
+        "file_path": dummy_file,
+        "make_handle": 1
+    })
     fake_alignment = {
-        "file": {
-            "id": "not_a_real_handle"
-        },
+        "file": dummy_shock_info['handle'],
         "library_type": "fake",
         "read_sample_id": reads_ref,
         "condition": "fake",
@@ -82,11 +92,14 @@ def make_fake_old_alignment_set(name, reads_refs, genome_ref, sampleset_ref, ali
                             name, ws_name, ws_client)
 
 
-def make_fake_annotation(name, ws_name, ws_client):
+def make_fake_annotation(callback_url, dummy_file, name, ws_name, ws_client):
+    dfu = DataFileUtil(callback_url)
+    dummy_shock_info = dfu.file_to_shock({
+        "file_path": dummy_file,
+        "make_handle": 1
+    })
     annotation = {
-        "handle": {
-            "id": "not_a_real_handle"
-        },
+        "handle": dummy_shock_info['handle'],
         "size": 0,
         "genome_id": "not_a_real_genome",
         "genome_scientific_name": "Genomus falsus"
@@ -94,13 +107,18 @@ def make_fake_annotation(name, ws_name, ws_client):
     return make_fake_object(annotation, "KBaseRNASeq.GFFAnnotation", name, ws_name, ws_client)
 
 
-def make_fake_expression(name, genome_ref, annotation_ref, alignment_ref, ws_name, ws_client):
+def make_fake_expression(callback_url, dummy_file, name, genome_ref, annotation_ref, alignment_ref, ws_name, ws_client):
     """
     Makes a Fake KBaseRNASeq.RNASeqExpression object and returns a ref to it.
     genome_ref: reference to a genome object
     annotation_ref: reference to a KBaseRNASeq.GFFAnnotation
     alignment_ref: reference to a KBaseRNASeq.RNASeqAlignment
     """
+    dfu = DataFileUtil(callback_url)
+    dummy_shock_info = dfu.file_to_shock({
+        "file_path": dummy_file,
+        "make_handle": 1
+    })
     exp = {
         "id": "fake",
         "type": "fake",
@@ -111,7 +129,8 @@ def make_fake_expression(name, genome_ref, annotation_ref, alignment_ref, ws_nam
         "mapped_rnaseq_alignment": {"id1": alignment_ref},
         "condition": "",
         "tool_used": "none",
-        "tool_version": "0.0.0"
+        "tool_version": "0.0.0",
+        "file": dummy_shock_info['handle']
     }
     return make_fake_object(exp, "KBaseRNASeq.RNASeqExpression", name, ws_name, ws_client)
 

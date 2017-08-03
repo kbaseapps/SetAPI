@@ -260,12 +260,12 @@ class SetAPITest(unittest.TestCase):
             self.assertIn('info', res)
             self.assertEqual(len(res['info']), 11)
             self.assertIn('item_count', res['info'][10])
-            self.assertEqual(res['info'][10]['item_count'], '3')
+            self.assertEqual(res['info'][10]['item_count'], 3)
             for item in res['data']['items']:
                 self.assertIn('ref', item)
                 if params.get("include_item_info", 0) == 1:
                     self.assertIn('info', item)
-                    self.assertEqual(len(item['info']) == 11)
+                    self.assertEqual(len(item['info']), 11)
                 else:
                     self.assertNotIn('info', item)
 
