@@ -20,6 +20,7 @@ from SetAPI.SetAPIServer import MethodContext
 
 from FakeObjectsForTests.FakeObjectsForTestsClient import FakeObjectsForTests
 from SetAPI.authclient import KBaseAuth as _KBaseAuth
+from util import make_fake_sampleset
 
 
 class SetAPITest(unittest.TestCase):
@@ -61,12 +62,20 @@ class SetAPITest(unittest.TestCase):
         cls.wsName = wsName
 
         foft = FakeObjectsForTests(os.environ['SDK_CALLBACK_URL'])
-        [info1, info2, info3] = foft.create_fake_reads({'ws_name': wsName, 
-                                                        'obj_names': ['reads1', 'reads2', 
+        [info1, info2, info3] = foft.create_fake_reads({'ws_name': wsName,
+                                                        'obj_names': ['reads1', 'reads2',
                                                                       'reads3']})
         cls.read1ref = str(info1[6]) + '/' + str(info1[0]) + '/' + str(info1[4])
         cls.read2ref = str(info2[6]) + '/' + str(info2[0]) + '/' + str(info2[4])
         cls.read3ref = str(info3[6]) + '/' + str(info3[0]) + '/' + str(info3[4])
+
+        cls.fake_sampleset_ref = make_fake_sampleset(
+            "test_sampleset",
+            [cls.read1ref, cls.read2ref, cls.read3ref],
+            ['wt', 'cond1', 'cond2'],
+            cls.wsName,
+            cls.wsClient
+        )
 
     @classmethod
     def tearDownClass(cls):
@@ -179,7 +188,7 @@ class SetAPITest(unittest.TestCase):
 
 
         # NOTE: According to Python unittest naming rules test method names should start from 'test'.
-    def skip_test_save_and_get_of_emtpy_set(self):
+    def skip_test_save_and_get_of_empty_set(self):
 
         workspace = self.getWsName()
         setObjName = 'nada_set'
@@ -187,7 +196,7 @@ class SetAPITest(unittest.TestCase):
         # create the set object
         set_data = {
             'description':'nothing to see here',
-            'items': [ 
+            'items': [
             ]
         }
 
@@ -234,3 +243,38 @@ class SetAPITest(unittest.TestCase):
         self.assertEqual(d2['data']['description'], 'nothing to see here')
         self.assertEqual(len(d2['data']['items']), 0)
 
+    def test_get_sampleset_as_readsset(self):
+        param_set = [{
+            "ref": self.fake_sampleset_ref
+        }, {
+            "ref": self.fake_sampleset_ref,
+            "include_item_info": 0
+        }, {
+            "ref": self.fake_sampleset_ref,
+            "include_item_info": 1
+        }]
+        for params in param_set:
+            res = self.getImpl().get_reads_set_v1(self.getContext(), params)[0]
+            self.assertIn('data', res)
+            self.assertIn('items', res['data'])
+            self.assertIn('info', res)
+            self.assertEqual(len(res['info']), 11)
+            self.assertIn('item_count', res['info'][10])
+            self.assertEqual(res['info'][10]['item_count'], '3')
+            for item in res['data']['items']:
+                self.assertIn('ref', item)
+                if params.get("include_item_info", 0) == 1:
+                    self.assertIn('info', item)
+                    self.assertEqual(len(item['info']) == 11)
+                else:
+                    self.assertNotIn('info', item)
+
+    def test_get_reads_set_bad_ref(self):
+        with self.assertRaises(ValueError) as err:
+            self.getImpl().get_reads_set_v1(self.getContext(), {'ref': 'not_a_ref'})
+        self.assertEqual('"ref" parameter must be a valid workspace reference', str(err.exception))
+
+    def test_get_reads_set_bad_type(self):
+        with self.assertRaises(ValueError) as err:
+            self.getImpl().get_reads_set_v1(self.getContext(), {'ref': self.read1ref})
+        self.assertIn('is invalid for get_reads_set_v1', str(err.exception))

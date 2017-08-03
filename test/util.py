@@ -33,13 +33,20 @@ def make_fake_alignment(name, reads_ref, genome_ref, ws_name, ws_client):
     return make_fake_object(fake_alignment, "KBaseRNASeq.RNASeqAlignment", name, ws_name, ws_client)
 
 
-def make_fake_sampleset(name, ws_name, ws_client):
+def make_fake_sampleset(name, reads_refs, conditions, ws_name, ws_client):
+    """
+    Make a fake KBaseRNASeq.RNASeqSampleSet object.
+    reads_refs and conditions are expected to be the same length, and that length can be 0.
+    """
+    if len(reads_refs) != len(conditions):
+        raise ValueError("reads_refs and conditions must be the same length!")
     fake_sampleset = {
         "sampleset_id": "fake",
         "sampleset_desc": "fake",
         "domain": "fake",
-        "num_samples": 0,
-        "condition": [],
+        "num_samples": len(reads_refs),
+        "condition": conditions,
+        "sample_ids": reads_refs,
         "Library_type": "fake",
     }
     return make_fake_object(fake_sampleset, "KBaseRNASeq.RNASeqSampleSet", name, ws_name, ws_client)

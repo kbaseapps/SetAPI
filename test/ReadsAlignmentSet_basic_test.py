@@ -90,7 +90,7 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             )
 
         # Make a fake RNASeqSampleSet
-        cls.sampleset_ref = make_fake_sampleset("fake_sampleset", wsName, cls.wsClient)
+        cls.sampleset_ref = make_fake_sampleset("fake_sampleset", [], [], wsName, cls.wsClient)
 
         # Finally, make a couple fake RNASeqAlignmentSts objects from those alignments
         cls.fake_rnaseq_alignment_set1 = make_fake_old_alignment_set(
