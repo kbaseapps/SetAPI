@@ -2,8 +2,7 @@
 An interface for handling sets of Expression objects.
 """
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
-from SetAPI.util import check_reference
-
+from SetAPI import util
 
 class ExpressionSetInterfaceV1:
     def __init__(self, workspace_client):
@@ -62,6 +61,11 @@ class ExpressionSetInterfaceV1:
             if params['include_item_info'] == 1:
                 include_item_info = True
 
+        include_set_item_ref_paths = False
+        if 'include_set_item_ref_paths' in params:
+            if params['include_set_item_ref_paths'] == 1:
+                include_set_item_ref_paths = True
+
         ref_path_to_set = []
         if 'ref_path_to_set' in params:
             ref_path_to_set = params['ref_path_to_set']
@@ -69,14 +73,15 @@ class ExpressionSetInterfaceV1:
         set_data = self.set_interface.get_set(
                 params['ref'],
                 include_item_info,
-                ref_path_to_set
+                ref_path_to_set,
+                include_set_item_ref_paths
             )
         return set_data
 
     def _check_get_expression_set_params(self, params):
         if 'ref' not in params or params['ref'] is None:
             raise ValueError('"ref" parameter field specifiying the expression set is required')
-        elif not check_reference(params['ref']):
+        elif not util.check_reference(params['ref']):
             raise ValueError('"ref" parameter must be a valid workspace reference')
         if 'include_item_info' in params:
             if params['include_item_info'] not in [0, 1]:

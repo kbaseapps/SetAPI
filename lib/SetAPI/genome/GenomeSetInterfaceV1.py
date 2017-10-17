@@ -57,6 +57,11 @@ class GenomeSetInterfaceV1:
             if params['include_item_info'] == 1:
                 include_item_info = True
 
+        include_set_item_ref_paths = False
+        if 'include_set_item_ref_paths' in params:
+            if params['include_set_item_ref_paths'] == 1:
+                include_set_item_ref_paths = True
+
         ref_path_to_set = []
         if 'ref_path_to_set' in params:
             ref_path_to_set = params['ref_path_to_set']
@@ -64,7 +69,8 @@ class GenomeSetInterfaceV1:
         set_data = self.setInterface.get_set(
                 params['ref'],
                 include_item_info,
-                ref_path_to_set
+                ref_path_to_set,
+                include_set_item_ref_paths
             )
         set_data = self._normalize_genome_set_data(set_data)
 

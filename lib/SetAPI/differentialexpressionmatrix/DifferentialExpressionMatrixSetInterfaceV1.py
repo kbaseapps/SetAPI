@@ -62,6 +62,11 @@ class DifferentialExpressionMatrixSetInterfaceV1:
             if params['include_item_info'] == 1:
                 include_item_info = True
 
+        include_set_item_ref_paths = False
+        if 'include_set_item_ref_paths' in params:
+            if params['include_set_item_ref_paths'] == 1:
+                include_set_item_ref_paths = True
+
         ref_path_to_set = []
         if 'ref_path_to_set' in params:
             ref_path_to_set = params['ref_path_to_set']
@@ -69,7 +74,8 @@ class DifferentialExpressionMatrixSetInterfaceV1:
         set_data = self.set_interface.get_set(
                 params['ref'],
                 include_item_info,
-                ref_path_to_set
+                ref_path_to_set,
+                include_set_item_ref_paths
             )
         return set_data
 

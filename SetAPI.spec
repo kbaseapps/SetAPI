@@ -36,9 +36,12 @@ module SetAPI {
         When saving a DifferentialExpressionMatrixSet, only 'ref' is required.
         You should never set 'info'.  'info' is provided optionally when fetching
         the DifferentialExpressionMatrixSet.
+        ref_path is optionally returned by get_differential_expression_matrix_set_v1()
+        when its input parameter 'include_set_item_ref_paths' is set to 1.
     */
     typedef structure {
         ws_diffexpmatrix_id ref;
+        ws_diffexpmatrix_id ref_path;
         string label;
         Workspace.object_info info;
     } DifferentialExpressionMatrixSetItem;
@@ -59,10 +62,15 @@ module SetAPI {
         ref - workspace reference to DifferentialExpressionMatrixSet object.
         include_item_info - 1 or 0, if 1 additionally provides workspace info (with
                             metadata) for each DifferentialExpressionMatrix object in the Set
+        include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                                     in the set. The ref_path returned for each item is either
+                                         ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                                         set_ref;item_ref  (if ref_path_to_set is not given)
     */
     typedef structure {
         string ref;
         boolean include_item_info;
+        boolean include_set_item_ref_paths;
         list <string> ref_path_to_set;
     } GetDifferentialExpressionMatrixSetV1Params;
 
@@ -112,9 +120,12 @@ module SetAPI {
         When saving a FeatureSetSet, only 'ref' is required.
         You should never set 'info'.  'info' is provided optionally when fetching
         the FeatureSetSet.
+        ref_path is optionally returned by get_feature_set_set_v1()
+        when its input parameter 'include_set_item_ref_paths' is set to 1.
     */
     typedef structure {
         ws_feature_set_id ref;
+        ws_feature_set_id ref_path;
         string label;
         Workspace.object_info info;
     } FeatureSetSetItem;
@@ -135,10 +146,15 @@ module SetAPI {
         ref - workspace reference to FeatureSetSet object.
         include_item_info - 1 or 0, if 1 additionally provides workspace info (with
                             metadata) for each FeatureSet object in the Set
+        include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                                     in the set. The ref_path returned for each item is either
+                                         ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                                         set_ref;item_ref  (if ref_path_to_set is not given)
     */
     typedef structure {
         string ref;
         boolean include_item_info;
+        boolean include_set_item_ref_paths;
         list <string> ref_path_to_set;
     } GetFeatureSetSetV1Params;
 
@@ -186,9 +202,12 @@ module SetAPI {
         When saving a ExpressionSet, only 'ref' is required.
         You should never set 'info'.  'info' is provided optionally when fetching
         the ExpressionSet.
+        ref_path is optionally returned by get_expression_set_v1()
+        when its input parameter 'include_set_item_ref_paths' is set to 1.
     */
     typedef structure {
         ws_expression_id ref;
+        ws_expression_id ref_path;
         string label;
         list<DataAttachment> data_attachments;
         Workspace.object_info info;
@@ -210,10 +229,15 @@ module SetAPI {
         ref - workspace reference to ExpressionSet object.
         include_item_info - 1 or 0, if 1 additionally provides workspace info (with
                             metadata) for each Expression object in the Set
+        include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                                     in the set. The ref_path returned for each item is either
+                                         ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                                         set_ref;item_ref  (if ref_path_to_set is not given)
     */
     typedef structure {
         string ref;
         boolean include_item_info;
+        boolean include_set_item_ref_paths;
         list <string> ref_path_to_set;
     } GetExpressionSetV1Params;
 
@@ -261,9 +285,12 @@ module SetAPI {
         When saving a ReadsAlignmentSet, only 'ref' is required.
         You should never set 'info'.  'info' is provided optionally when fetching
         the ReadsAlignmentSet.
+        ref_path is optionally returned by get_reads_alignment_set_v1()
+        when its input parameter 'include_set_item_ref_paths' is set to 1.
     */
     typedef structure {
         ws_reads_align_id ref;
+        ws_reads_align_id ref_path;
         string label;
         Workspace.object_info info;
         list<DataAttachment> data_attachments;
@@ -285,10 +312,15 @@ module SetAPI {
         ref - workspace reference to ReadsAlignmentSet object.
         include_item_info - 1 or 0, if 1 additionally provides workspace info (with
                             metadata) for each ReadsAlignment object in the Set
+        include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                                     in the set. The ref_path returned for each item is either
+                                         ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                                         set_ref;item_ref  (if ref_path_to_set is not given)
     */
     typedef structure {
         string ref;
         boolean include_item_info;
+        boolean include_set_item_ref_paths;
         list <string> ref_path_to_set;
     } GetReadsAlignmentSetV1Params;
 
@@ -337,9 +369,12 @@ module SetAPI {
         When saving a ReadsSet, only 'ref' is required.  You should
         never set 'info'.  'info' is provided optionally when fetching
         the ReadsSet.
+        ref_path is optionally returned by get_reads_set_v1()
+        when its input parameter 'include_set_item_ref_paths' is set to 1.
     */
     typedef structure {
         ws_reads_id ref;
+        ws_reads_id ref_path;
         string label;
         list <DataAttachment> data_attachments;
         Workspace.object_info info;
@@ -359,10 +394,15 @@ module SetAPI {
         ref - workspace reference to ReadsGroup object.
         include_item_info - 1 or 0, if 1 additionally provides workspace info (with
                             metadata) for each Reads object in the Set
+        include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                                     in the set. The ref_path returned for each item is either
+                                         ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                                         set_ref;item_ref  (if ref_path_to_set is not given)
     */
     typedef structure {
         string ref;
         boolean include_item_info;
+        boolean include_set_item_ref_paths;
         list <string> ref_path_to_set;
     } GetReadsSetV1Params;
 
@@ -412,9 +452,12 @@ module SetAPI {
         When saving an AssemblySet, only 'ref' is required.
         You should never set 'info'.  'info' is provided optionally when fetching
         the AssemblySet.
+        ref_path is optionally returned by get_assembly_set_v1()
+        when its input parameter 'include_set_item_ref_paths' is set to 1.
     */
     typedef structure {
         ws_assembly_id ref;
+        ws_assembly_id ref_path;
         string label;
         Workspace.object_info info;
     } AssemblySetItem;
@@ -437,6 +480,7 @@ module SetAPI {
     typedef structure {
         string ref;
         boolean include_item_info;
+        boolean include_set_item_ref_paths;
         list <string> ref_path_to_set;
     } GetAssemblySetV1Params;
 
@@ -485,9 +529,12 @@ module SetAPI {
         When saving an GenomeSet, only 'ref' is required.
         You should never set 'info'.  'info' is provided optionally when fetching
         the GenomeSet.
+        ref_path is optionally returned by get_genome_set_v1()
+        when its input parameter 'include_set_item_ref_paths' is set to 1.
     */
     typedef structure {
         ws_genome_id ref;
+        ws_genome_id ref_path;
         string label;
         Workspace.object_info info;
     } GenomeSetItem;
@@ -506,10 +553,15 @@ module SetAPI {
         ref - workspace reference to GenomeGroup object.
         include_item_info - 1 or 0, if 1 additionally provides workspace info (with
                             metadata) for each Genome object in the Set
+        include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                            in the set. The ref_path for each item is either
+                                ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                                set_ref;item_ref
     */
     typedef structure {
         string ref;
         boolean include_item_info;
+        boolean include_set_item_ref_paths;
         list <string> ref_path_to_set;
     } GetGenomeSetV1Params;
 
@@ -540,9 +592,6 @@ module SetAPI {
 
     funcdef save_genome_set_v1(SaveGenomeSetV1Params params)
         returns (SaveGenomeSetV1Result result) authentication required;
-
-
-
 
 
 

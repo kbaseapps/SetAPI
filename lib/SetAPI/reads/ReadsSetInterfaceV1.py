@@ -1,5 +1,5 @@
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
-from SetAPI.util import check_reference
+from SetAPI import util
 
 class ReadsSetInterfaceV1:
     def __init__(self, workspace_client):
@@ -13,10 +13,10 @@ class ReadsSetInterfaceV1:
             raise ValueError('"data" parameter field required to save a ReadsSet')
 
         save_result = self.setInterface.save_set(
-                'KBaseSets.ReadsSet',
-                ctx['provenance'],
-                params
-            )
+                                                'KBaseSets.ReadsSet',
+                                                ctx['provenance'],
+                                                params
+                                                )
         info = save_result[0]
         return {
             'set_ref': str(info[6]) + '/' + str(info[0]) + '/' + str(info[4]),
@@ -38,24 +38,29 @@ class ReadsSetInterfaceV1:
             data['description'] = ''
 
     def get_reads_set(self, ctx, params):
-        self._check_get_reads_set_params(params)
+
+        set_type, obj_spec = self._check_get_reads_set_params(params)
+
         include_item_info = False
         if params.get("include_item_info", 0) == 1:
             include_item_info = True
 
-        ref_path_to_set = params.get("ref_path_to_set", [])
-        obj_spec = {"ref": params["ref"]}
-        if len(ref_path_to_set):
-            obj_spec = {"obj_ref_path": ref_path_to_set}
+        include_set_item_ref_paths = False
+        if 'include_set_item_ref_paths' in params:
+            if params['include_set_item_ref_paths'] == 1:
+                include_set_item_ref_paths = True
 
-        set_type = self.ws.get_object_info3({"objects": [obj_spec]})["infos"][0][2]
+        ref_path_to_set = []
+        if 'ref_path_to_set' in params and len(params['ref_path_to_set']) > 0:
+            ref_path_to_set = params['ref_path_to_set']
 
         # If this is a KBaseSets.ReadsSet, do as normal.
         if "KBaseSets" in set_type:
             set_data = self.setInterface.get_set(
                     params['ref'],
                     include_item_info,
-                    ref_path_to_set
+                    ref_path_to_set,
+                    include_set_item_ref_paths
                 )
             return self._normalize_read_set_data(set_data)
 
@@ -90,6 +95,12 @@ class ReadsSetInterfaceV1:
                 infos = self.ws.get_object_info3({"objects": reads_obj_specs, "includeMetadata": 1})["infos"]
                 for idx, info in enumerate(infos):
                     reads_items[idx]["info"] = info
+            """
+            If include_set_item_ref_paths is set, then add a field ref_path in alignment items
+            """
+            if include_set_item_ref_paths:
+                util.populate_item_object_ref_paths(reads_items, obj_spec)
+
             set_data["data"]["items"] = reads_items
             return set_data
         # Otherwise-otherwise, it's not the right type for this getter.
@@ -99,12 +110,18 @@ class ReadsSetInterfaceV1:
     def _check_get_reads_set_params(self, params):
         if 'ref' not in params:
             raise ValueError('"ref" parameter field specifiying the reads set is required')
-        elif not check_reference(params['ref']):
+        elif not util.check_reference(params['ref']):
             raise ValueError('"ref" parameter must be a valid workspace reference')
         if 'include_item_info' in params:
             if params['include_item_info'] not in [0,1]:
                 raise ValueError('"include_item_info" parameter field can only be set to 0 or 1')
 
+        obj_spec = util.build_ws_obj_selector(params.get('ref'),
+                                              params.get('ref_path_to_set', []))
+
+        info = self.ws.get_object_info3({"objects": [obj_spec]})
+
+        return info["infos"][0][2], obj_spec
 
     def _normalize_read_set_data(self, set_data):
         # make sure that optional/missing fields are filled in or are defined

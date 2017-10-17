@@ -2,6 +2,7 @@
 import unittest
 import os
 import time
+from pprint import pprint
 
 from os import environ
 try:
@@ -243,6 +244,7 @@ class ExpressionSetAPITest(unittest.TestCase):
         self.assertEquals(expression_set_ref, info_to_ref(fetched_set["info"]))
         for item in fetched_set["data"]["items"]:
             self.assertNotIn("info", item)
+            self.assertNotIn("ref_path", item)
             self.assertIn("ref", item)
             self.assertIn("label", item)
 
@@ -256,6 +258,42 @@ class ExpressionSetAPITest(unittest.TestCase):
             self.assertIn("info", item)
             self.assertIn("ref", item)
             self.assertIn("label", item)
+            self.assertNotIn("ref_path", item)
+
+    def test_get_expression_set_ref_path(self):
+        expression_set_name = "test_expression_set_ref_path"
+        expression_items = list()
+        for ref in self.expression_refs:
+            expression_items.append({
+                "label": "wt",
+                "ref": ref
+            })
+        expression_set = {
+            "description": "test_alignments",
+            "items": expression_items
+        }
+        expression_set_ref = self.getImpl().save_expression_set_v1(self.getContext(), {
+            "workspace": self.getWsName(),
+            "output_object_name": expression_set_name,
+            "data": expression_set
+        })[0]["set_ref"]
+
+        fetched_set_with_info = self.getImpl().get_expression_set_v1(self.getContext(), {
+            "ref": expression_set_ref,
+            "include_item_info": 1,
+            "include_set_item_ref_paths": 1
+        })[0]
+        self.assertIsNotNone(fetched_set_with_info)
+        self.assertIn("data", fetched_set_with_info)
+
+        for item in fetched_set_with_info["data"]["items"]:
+            self.assertIn("info", item)
+            self.assertIn("ref", item)
+            self.assertIn("label", item)
+            self.assertIn("ref_path", item)
+            self.assertEquals(item["ref_path"], expression_set_ref + ";" + item["ref"])
+
+        pprint(fetched_set_with_info)
 
     def test_get_expression_set_bad_ref(self):
         with self.assertRaises(ValueError) as err:
@@ -278,3 +316,4 @@ class ExpressionSetAPITest(unittest.TestCase):
             })
         self.assertIn('"ref" parameter field specifiying the expression set is required',
                       str(err.exception))
+

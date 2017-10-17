@@ -171,12 +171,14 @@ class FeatureSetSetAPITest(unittest.TestCase):
         self.assertEquals(featureset_set_ref, info_to_ref(fetched_set["info"]))
         for item in fetched_set["data"]["items"]:
             self.assertNotIn("info", item)
+            self.assertNotIn("ref_path", item)
             self.assertIn("ref", item)
             self.assertIn("label", item)
 
         fetched_set_with_info = self.getImpl().get_feature_set_set_v1(self.getContext(), {
             "ref": featureset_set_ref,
-            "include_item_info": 1
+            "include_item_info": 1,
+            "include_set_item_ref_paths": 1
         })[0]
         self.assertIsNotNone(fetched_set_with_info)
         self.assertIn("data", fetched_set_with_info)
@@ -184,6 +186,8 @@ class FeatureSetSetAPITest(unittest.TestCase):
             self.assertIn("info", item)
             self.assertIn("ref", item)
             self.assertIn("label", item)
+            self.assertIn("ref_path", item)
+            self.assertEquals(item["ref_path"], featureset_set_ref + ";" + item["ref"])
 
     def test_get_feature_set_set_bad_ref(self):
         with self.assertRaises(ValueError) as err:

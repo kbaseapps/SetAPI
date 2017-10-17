@@ -2,6 +2,7 @@
 import unittest
 import os
 import time
+from pprint import pprint
 
 from os import environ
 try:
@@ -282,6 +283,92 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             self.assertIn("ref", item)
             self.assertIn("label", item)
 
+    def test_get_alignment_set_ref_path_to_set(self):
+        alignment_set_name = "test_alignment_set_ref_path"
+        alignment_items = list()
+        for ref in self.alignment_refs:
+            alignment_items.append({
+                "label": "wt",
+                "ref": ref
+            })
+        alignment_set = {
+            "description": "test_alignments",
+            "items": alignment_items
+        }
+        alignment_set_ref = self.getImpl().save_reads_alignment_set_v1(self.getContext(), {
+            "workspace": self.getWsName(),
+            "output_object_name": alignment_set_name,
+            "data": alignment_set
+        })[0]["set_ref"]
+
+        fetched_set = self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
+            "ref": alignment_set_ref,
+            "include_item_info": 0,
+            "include_set_item_ref_paths": 1
+        })[0]
+        self.assertIsNotNone(fetched_set)
+        self.assertIn("data", fetched_set)
+        self.assertIn("info", fetched_set)
+        self.assertEquals(len(fetched_set["data"]["items"]), 3)
+        self.assertEquals(alignment_set_ref, info_to_ref(fetched_set["info"]))
+        for item in fetched_set["data"]["items"]:
+            self.assertNotIn("info", item)
+            self.assertIn("ref", item)
+            self.assertIn("label", item)
+            self.assertIn("ref_path", item)
+            self.assertEquals(item["ref_path"], alignment_set_ref + ";" + item["ref"])
+
+    # Following test uses object refs from a narrative. Comment the next line to run the test
+    @unittest.skip("skipped test_get_rnaseq_alignment_set_ref_path")
+    def test_get_rnaseq_alignment_set_ref_path(self):
+        """
+        appdev RNASeqAlignmentSet ref
+        """
+        alignment_set_ref = '4389/40/1'
+        ref_path_to_set = ['4389/45/1', '4389/40/1']
+        fetched_set_with_ref_path = self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
+            "ref": alignment_set_ref,
+            "include_item_info": 0,
+            "ref_path_to_set": ref_path_to_set,
+            "include_set_item_ref_paths": 1
+        })[0]
+
+        for item in fetched_set_with_ref_path["data"]["items"]:
+            self.assertNotIn("info", item)
+            self.assertIn("ref", item)
+            self.assertIn("label", item)
+            self.assertIn("ref_path", item)
+            self.assertEquals(item["ref_path"], ";".join(ref_path_to_set) + ";" + item["ref"])
+
+        print("INPUT: Appdev RNASeqAlignmentSet: " + alignment_set_ref)
+        pprint(fetched_set_with_ref_path)
+        print("==========================")
+
+    # Following test uses object refs from a narrative. Comment the next line to run the test
+    @unittest.skip("skipped test_get_kbasesets_alignment_set_ref_path")
+    def test_get_kbasesets_alignment_set_ref_path(self):
+        """
+        appdev KBasesets.AlignmentSet ref
+        """
+        alignment_set_ref = '5264/36/10'
+        fetched_set_with_ref_path = self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
+            "ref": alignment_set_ref,
+            "include_item_info": 0,
+            "ref_path_to_set": [],
+            "include_set_item_ref_paths": 1
+        })[0]
+
+        for item in fetched_set_with_ref_path["data"]["items"]:
+            self.assertNotIn("info", item)
+            self.assertIn("ref", item)
+            self.assertIn("label", item)
+            self.assertIn("ref_path", item)
+            self.assertEquals(item["ref_path"], alignment_set_ref + ";" + item["ref"])
+
+        print("INPUT: Appdev KBasesets.AlignmentSet: " + alignment_set_ref)
+        pprint(fetched_set_with_ref_path)
+        print("==========================")
+
     def test_get_alignment_set_bad_ref(self):
         with self.assertRaises(ValueError) as err:
             self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
@@ -303,3 +390,4 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             })
         self.assertIn('"ref" parameter field specifiying the reads alignment set is required',
                       str(err.exception))
+

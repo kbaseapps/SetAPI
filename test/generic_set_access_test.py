@@ -23,7 +23,6 @@ from DataPaletteService.DataPaletteServiceClient import DataPaletteService
 from FakeObjectsForTests.FakeObjectsForTestsClient import FakeObjectsForTests
 from SetAPI.authclient import KBaseAuth as _KBaseAuth
 
-
 class SetAPITest(unittest.TestCase):
 
     @classmethod
@@ -95,7 +94,6 @@ class SetAPITest(unittest.TestCase):
     def getContext(self):
         return self.__class__.ctx
 
-
     def create_sets(self):
         if hasattr(self.__class__, 'setNames'):
             return
@@ -118,7 +116,6 @@ class SetAPITest(unittest.TestCase):
                     }
                 ]
             }
-
             # test a save
             res = setAPI.save_reads_set_v1(self.getContext(), {
                     'data':set_data,
@@ -126,7 +123,6 @@ class SetAPITest(unittest.TestCase):
                     'workspace': workspace
                 })[0]
             self.setRefs.append(res['set_ref'])
-
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'.
     def test_list_sets(self):
@@ -139,7 +135,6 @@ class SetAPITest(unittest.TestCase):
                 'workspace':workspace,
                 'include_set_item_info':1
             })[0]
-
 
         # create the test sets
         self.create_sets()
@@ -159,7 +154,7 @@ class SetAPITest(unittest.TestCase):
             for item in s['items']:
                 self.assertTrue('ref' in item)
                 self.assertTrue('info' in item)
-                self.assertEqual(len(item['info']),11)
+                self.assertEqual(len(item['info']), 11)
 
         res2 = setAPI.list_sets(self.getContext(), {
                 'workspace':workspace
@@ -176,7 +171,6 @@ class SetAPITest(unittest.TestCase):
                 self.assertTrue('ref' in item)
                 self.assertTrue('info' not in item)
 
-
         res = setAPI.get_set_items(self.getContext(), {
                 'set_refs': [{'ref':self.setRefs[0]}]
             })[0]
@@ -190,7 +184,7 @@ class SetAPITest(unittest.TestCase):
             for item in s['items']:
                 self.assertTrue('ref' in item)
                 self.assertTrue('info' in item)
-                self.assertEqual(len(item['info']),11)
+                self.assertEqual(len(item['info']), 11)
 
         set_obj_name = self.setNames[0]
         wsName2 = "test_SetAPI_" + str(int(time.time() * 1000)) + "_two"
@@ -231,7 +225,6 @@ class SetAPITest(unittest.TestCase):
                     self.assertIsNotNone(item['info'][10])
         finally:
             self.getWsClient().delete_workspace({'workspace': wsName2})
-
 
     def test_bulk_list_sets(self):
         try:
