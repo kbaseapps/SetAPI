@@ -476,6 +476,10 @@ module SetAPI {
         ref - workspace reference to AssemblyGroup object.
         include_item_info - 1 or 0, if 1 additionally provides workspace info (with
                             metadata) for each Assembly object in the Set
+        include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                                     in the set. The ref_path returned for each item is either
+                                         ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                                         set_ref;item_ref  (if ref_path_to_set is not given)
     */
     typedef structure {
         string ref;
