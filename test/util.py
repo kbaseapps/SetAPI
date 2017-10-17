@@ -3,7 +3,6 @@ Some utility functions to help with testing. These mainly add fake objects to us
 """
 from DataFileUtil.DataFileUtilClient import DataFileUtil
 
-
 def info_to_ref(info):
     """
     Just a one liner that converts the usual Workspace ObjectInfo list into an object reference
@@ -84,6 +83,36 @@ def make_fake_old_alignment_set(name, reads_refs, genome_ref, sampleset_ref, ali
     if include_sample_alignments:
         fake_rnaseq_alignment_set["sample_alignments"] = alignments_refs
     return make_fake_object(fake_rnaseq_alignment_set, "KBaseRNASeq.RNASeqAlignmentSet",
+                            name, ws_name, ws_client)
+
+def make_fake_old_expression_set(name, genome_ref, sampleset_ref,
+                                 alignments_refs, alignmentset_ref,
+                                 expressions_refs, ws_name, ws_client,
+                                 include_sample_expressions=False):
+    """
+    Make a fake set object for KBaseRNASeq.RNASeqAlignmentSet objects
+    Needs a whole bunch of stuff:
+        list of reads_refs
+        list of alignments_refs
+        genome_ref
+        sampleset_ref (can be dummied up with make_fake_sampleset)
+    Setting include_sample_alignments to True will include the optional "sample_alignments"
+    attribute of the object.
+    """
+    mapped_expression_ids = list()
+    for idx, ref in enumerate(alignments_refs):
+        mapped_expression_ids.append({ref: expressions_refs[idx]})
+
+    fake_rnaseq_expression_set = {
+        "sampleset_id": sampleset_ref,
+        "genome_id": genome_ref,
+        "mapped_expression_ids": mapped_expression_ids,
+        "mapped_expression_objects": [],
+        "alignmentSet_id": alignmentset_ref
+    }
+    if include_sample_expressions:
+        fake_rnaseq_expression_set["sample_expression_ids"] = expressions_refs
+    return make_fake_object(fake_rnaseq_expression_set, "KBaseRNASeq.RNASeqExpressionSet",
                             name, ws_name, ws_client)
 
 def make_fake_annotation(callback_url, dummy_file, name, ws_name, ws_client):
