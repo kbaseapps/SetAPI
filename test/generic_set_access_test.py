@@ -55,7 +55,6 @@ class SetAPITest(unittest.TestCase):
         cls.serviceWizardURL = cls.cfg['service-wizard']
         cls.dataPaletteServiceVersion = cls.cfg['datapaletteservice-version']
 
-
         # setup data at the class level for now (so that the code is run
         # once for all tests, not before each test case.  Not sure how to
         # do that outside this function..)
@@ -106,7 +105,7 @@ class SetAPITest(unittest.TestCase):
         for s in self.setNames:
 
             set_data = {
-                'description':'my first reads',
+                'description': 'my first reads',
                 'items': [ {
                         'ref': self.read1ref,
                         'label':'reads1'
@@ -118,8 +117,8 @@ class SetAPITest(unittest.TestCase):
             }
             # test a save
             res = setAPI.save_reads_set_v1(self.getContext(), {
-                    'data':set_data,
-                    'output_object_name':s,
+                    'data': set_data,
+                    'output_object_name': s,
                     'workspace': workspace
                 })[0]
             self.setRefs.append(res['set_ref'])
@@ -132,16 +131,17 @@ class SetAPITest(unittest.TestCase):
 
         # make sure we can see an empty list of sets before WS has any
         res = setAPI.list_sets(self.getContext(), {
-                'workspace':workspace,
-                'include_set_item_info':1
+                'workspace': workspace,
+                'include_set_item_info': 1
             })[0]
+        self.assertEqual(len(res['sets']), 0)
 
         # create the test sets
         self.create_sets()
 
         res = setAPI.list_sets(self.getContext(), {
-                'workspace':workspace,
-                'include_set_item_info':1
+                'workspace': workspace,
+                'include_set_item_info': 1
             })[0]
         self.assertTrue('sets' in res)
         self.assertEqual(len(res['sets']), len(self.setNames))
@@ -149,8 +149,8 @@ class SetAPITest(unittest.TestCase):
             self.assertTrue('ref' in s)
             self.assertTrue('info' in s)
             self.assertTrue('items' in s)
-            self.assertEqual(len(s['info']),11)
-            self.assertEqual(len(s['items']),2)
+            self.assertEqual(len(s['info']), 11)
+            self.assertEqual(len(s['items']), 2)
             for item in s['items']:
                 self.assertTrue('ref' in item)
                 self.assertTrue('info' in item)
@@ -165,26 +165,36 @@ class SetAPITest(unittest.TestCase):
             self.assertTrue('ref' in s)
             self.assertTrue('info' in s)
             self.assertTrue('items' in s)
-            self.assertEqual(len(s['info']),11)
-            self.assertEqual(len(s['items']),2)
+            self.assertEqual(len(s['info']), 11)
+            self.assertEqual(len(s['items']), 2)
             for item in s['items']:
                 self.assertTrue('ref' in item)
                 self.assertTrue('info' not in item)
 
-        res = setAPI.get_set_items(self.getContext(), {
-                'set_refs': [{'ref':self.setRefs[0]}]
-            })[0]
-        self.assertEqual(len(res['sets']), 1)
-        for s in res['sets']:
+        res3 = setAPI.list_sets(self.getContext(), {
+                    'workspace': workspace,
+                    'include_set_item_ref_paths': 1
+                })[0]
+        '''
+        print('Result from list_items with ref_paths')
+        pprint(res3)
+        print('=====================================')
+        '''
+        self.assertTrue('sets' in res3)
+        self.assertEqual(len(res3['sets']), len(self.setNames))
+        for s in res3['sets']:
             self.assertTrue('ref' in s)
             self.assertTrue('info' in s)
             self.assertTrue('items' in s)
-            self.assertEqual(len(s['info']),11)
-            self.assertEqual(len(s['items']),2)
+            self.assertEqual(len(s['info']), 11)
+            self.assertEqual(len(s['items']), 2)
             for item in s['items']:
                 self.assertTrue('ref' in item)
-                self.assertTrue('info' in item)
-                self.assertEqual(len(item['info']), 11)
+                self.assertTrue('info' not in item)
+                self.assertTrue('ref_path' in item)
+                self.assertEquals(item['ref_path'], s['ref'] + ';' + item['ref'])
+
+        self.unit_test_get_set_items()
 
         set_obj_name = self.setNames[0]
         wsName2 = "test_SetAPI_" + str(int(time.time() * 1000)) + "_two"
@@ -249,3 +259,30 @@ class SetAPITest(unittest.TestCase):
             print("Objects found: " + str(len(ret['sets'])) + ", time=" + str(time.time() - t1))
         finally:
             GenericSetNavigator.DEBUG = False
+
+    def unit_test_get_set_items(self):
+
+        res = self.getImpl().get_set_items(self.getContext(), {
+                                            'set_refs': [{'ref': self.setRefs[0]},
+                                                         {'ref': self.setRefs[1]},
+                                                         {'ref': self.setRefs[2]}],
+                                            'include_set_item_ref_paths': 1
+                                            })[0]
+        '''
+        print('Result from get_set_items with ref_paths')
+        pprint(res)
+        print('========================================')
+        '''
+        self.assertEqual(len(res['sets']), 3)
+        for s in res['sets']:
+            self.assertTrue('ref' in s)
+            self.assertTrue('info' in s)
+            self.assertTrue('items' in s)
+            self.assertEqual(len(s['info']), 11)
+            self.assertEqual(len(s['items']), 2)
+            for item in s['items']:
+                self.assertTrue('ref' in item)
+                self.assertTrue('info' in item)
+                self.assertEqual(len(item['info']), 11)
+                self.assertTrue('ref_path' in item)
+                self.assertEquals(item["ref_path"], s["ref"] + ";" + item["ref"])

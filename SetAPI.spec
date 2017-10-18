@@ -600,6 +600,7 @@ module SetAPI {
 
 
 
+
     /* ******* Generic SET METHODS ************ */
 
 
@@ -612,6 +613,10 @@ module SetAPI {
             and into object info of items (it affects DP raw data as well),
         include_raw_data_palettes - advanced option designed for
             optimization of listing methods in NarrativeService.
+        include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                            in the set. The ref_path for each item is either
+                                ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                                set_ref;item_ref
     */
     typedef structure {
         string workspace;
@@ -619,11 +624,17 @@ module SetAPI {
         boolean include_set_item_info;
         boolean include_metadata;
         boolean include_raw_data_palettes;
+        boolean include_set_item_ref_paths;
     } ListSetParams;
 
+    /*
+        ref_path is optionally returned by list_sets() and get_set_items(),
+        when the input parameter 'include_set_item_ref_paths' is set to 1.
+    */
 
     typedef structure {
         ws_obj_id ref;
+        ws_obj_id ref_path;
         Workspace.object_info info;
     } SetItemInfo;
 
@@ -657,17 +668,23 @@ module SetAPI {
     one level down members of those sets.
     NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA */
     funcdef list_sets(ListSetParams params)
-                returns (ListSetResult result) authentication optional;
+              returns(ListSetResult result) authentication optional;
 
-
+    /*
+        include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                            in the set. The ref_path for each item is either
+                                ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                                set_ref;item_ref
+     */
 
     typedef structure {
         ws_obj_id ref;
-        list <ws_obj_id> path_to_set;
+        list <ws_obj_id> ref_path_to_set;
     } SetReference;
 
     typedef structure {
         list <SetReference> set_refs;
+        boolean include_set_item_ref_paths;
     } GetSetItemsParams;
 
     typedef structure {
@@ -678,6 +695,6 @@ module SetAPI {
     return 'sets' list will match the position in the input ref list.
     NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA */
     funcdef get_set_items(GetSetItemsParams params)
-                returns (GetSetItemsResult result) authentication optional;
+                  returns(GetSetItemsResult result) authentication optional;
 
 };

@@ -42,6 +42,9 @@ class GenericSetNavigator:
         if 'include_set_item_info' in params and params['include_set_item_info'] == 1:
             top_level_sets = self._populate_set_item_info(top_level_sets)
 
+        if 'include_set_item_ref_paths' in params and params['include_set_item_ref_paths'] == 1:
+            top_level_sets = self._populate_set_item_ref_path(top_level_sets)
+
         if self.DEBUG:
             print("Time of populate_sets: " + str(time.time() - t2))
             print("Total time of list_sets: " + str(time.time() - t1))
@@ -209,6 +212,15 @@ class GenericSetNavigator:
 
         return set_list
 
+    def _populate_set_item_ref_path(self, set_list):
+
+        for s in set_list:
+            obj_spec = util.build_ws_obj_selector(s['ref'],
+                                                  s.get('ref_path_to_set', []))
+            util.populate_item_object_ref_paths(s['items'], obj_spec)
+
+        return set_list
+
     def _build_obj_ref(self, obj_info):
         return str(obj_info[6]) + '/' + str(obj_info[0]) + '/' + str(obj_info[4])
 
@@ -238,6 +250,9 @@ class GenericSetNavigator:
 
         set_list = self._populate_set_refs(set_list)
         set_list = self._populate_set_item_info(set_list)
+
+        if 'include_set_item_ref_paths' in params and params['include_set_item_ref_paths'] == 1:
+            set_list = self._populate_set_item_ref_path(set_list)
 
         return {'sets': set_list}
 
