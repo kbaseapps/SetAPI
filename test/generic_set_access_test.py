@@ -24,6 +24,7 @@ from FakeObjectsForTests.FakeObjectsForTestsClient import FakeObjectsForTests
 from SetAPI.authclient import KBaseAuth as _KBaseAuth
 
 class SetAPITest(unittest.TestCase):
+    DEBUG = False
 
     @classmethod
     def setUpClass(cls):
@@ -175,11 +176,12 @@ class SetAPITest(unittest.TestCase):
                     'workspace': workspace,
                     'include_set_item_ref_paths': 1
                 })[0]
-        '''
-        print('Result from list_items with ref_paths')
-        pprint(res3)
-        print('=====================================')
-        '''
+
+        if self.DEBUG:
+            print('Result from list_items with ref_paths')
+            pprint(res3)
+            print('=====================================')
+
         self.assertTrue('sets' in res3)
         self.assertEqual(len(res3['sets']), len(self.setNames))
         for s in res3['sets']:
@@ -268,11 +270,11 @@ class SetAPITest(unittest.TestCase):
                                                          {'ref': self.setRefs[2]}],
                                             'include_set_item_ref_paths': 1
                                             })[0]
-        '''
-        print('Result from get_set_items with ref_paths')
-        pprint(res)
-        print('========================================')
-        '''
+        if self.DEBUG:
+            print('Result from get_set_items with ref_paths')
+            pprint(res)
+            print('========================================')
+
         self.assertEqual(len(res['sets']), 3)
         for s in res['sets']:
             self.assertTrue('ref' in s)
