@@ -28,6 +28,9 @@ from util import (
 import shutil
 
 class ExpressionSetAPITest(unittest.TestCase):
+
+    DEBUG =False
+
     @classmethod
     def setUpClass(cls):
         token = environ.get('KB_AUTH_TOKEN', None)
@@ -321,41 +324,6 @@ class ExpressionSetAPITest(unittest.TestCase):
             self.assertIn("ref_path", item)
             self.assertEquals(item["ref_path"], expression_set_ref + ";" + item["ref"])
 
-    # NOTE: Comment the following line to run the test
-    @unittest.skip("skipped test_get_expression_set_ref_path")
-    def test_get_narrative_expression_set_ref_path(self):
-
-        appdev_kbasesets_expression_set_ref = '5264/38/2'
-
-        fetched_set_with_ref_path = self.getImpl().get_expression_set_v1(self.getContext(), {
-            "ref": appdev_kbasesets_expression_set_ref,
-            "include_item_info": 0,
-            "include_set_item_ref_paths": 1
-        })[0]
-
-        for item in fetched_set_with_ref_path["data"]["items"]:
-            self.assertIn("ref", item)
-            self.assertIn("label", item)
-            self.assertIn("ref_path", item)
-            self.assertEquals(item["ref_path"],
-                              appdev_kbasesets_expression_set_ref + ";" + item["ref"])
-
-        print("INPUT: Appdev KBasesets.ExpressionSet: " + appdev_kbasesets_expression_set_ref)
-        pprint(fetched_set_with_ref_path)
-        print("==========================")
-
-        appdev_rnaseq_expression_set_ref = '4389/45/1'
-
-        fetched_set_with_ref_path = self.getImpl().get_expression_set_v1(self.getContext(), {
-            "ref": appdev_rnaseq_expression_set_ref,
-            "include_item_info": 0,
-            "include_set_item_ref_paths": 1
-        })[0]
-
-        print("=============  FETCHED SET RNASEQ  ===============")
-        pprint(fetched_set_with_ref_path)
-        print("============  END FETCHED SET RNASEQ  ============")
-
     def test_get_created_rnaseq_expression_set_ref_path(self):
 
         created_expression_set_ref = self.fake_rnaseq_expression_set
@@ -372,10 +340,10 @@ class ExpressionSetAPITest(unittest.TestCase):
             self.assertIn("ref_path", item)
             self.assertEquals(item["ref_path"],
                               created_expression_set_ref + ";" + item["ref"])
-
-        print("INPUT: CREATED KBasesets.ExpressionSet: " + created_expression_set_ref)
-        pprint(fetched_set_with_ref_path)
-        print("==========================")
+        if self.DEBUG:
+            print("INPUT: CREATED KBasesets.ExpressionSet: " + created_expression_set_ref)
+            pprint(fetched_set_with_ref_path)
+            print("==========================")
 
     def test_get_expression_set_bad_ref(self):
         with self.assertRaises(ValueError) as err:
