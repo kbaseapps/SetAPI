@@ -82,7 +82,8 @@ class ReadsSetInterfaceV1:
 
             reads_items = list()
             if len(obj.get('sample_ids')) != len(obj.get('condition')):
-                raise RuntimeError("Invalid RNASeqSampleSet! The number of conditions doesn't match the number of reads objects.")
+                raise RuntimeError("Invalid RNASeqSampleSet! The number of conditions \
+                                    doesn't match the number of reads objects.")
             if len(obj.get('sample_ids', [])) == 0:
                 return set_data
             for idx, ref in enumerate(obj['sample_ids']):
@@ -92,7 +93,9 @@ class ReadsSetInterfaceV1:
                 })
             if include_item_info:
                 reads_obj_specs = [{"ref": i["ref"]} for i in reads_items]
-                infos = self.ws.get_object_info3({"objects": reads_obj_specs, "includeMetadata": 1})["infos"]
+                infos = self.ws.get_object_info3({"objects": reads_obj_specs,
+                                                  "includeMetadata": 1}
+                                                )["infos"]
                 for idx, info in enumerate(infos):
                     reads_items[idx]["info"] = info
             """
