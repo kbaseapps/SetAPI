@@ -2,6 +2,7 @@
 import unittest
 import os
 import time
+from pprint import pprint
 
 from os import environ
 try:
@@ -211,7 +212,7 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
                 "ref": ref
             })
         dem_set = {
-            "description": "test_alignments",
+            "description": "test_test_diffExprMatrixSet",
             "items": set_items
         }
         dem_set_ref = self.getImpl().save_differential_expression_matrix_set_v1(self.getContext(), {
@@ -232,6 +233,7 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
         for item in fetched_set["data"]["items"]:
             self.assertNotIn("info", item)
             self.assertIn("ref", item)
+            self.assertNotIn("ref_path", item)
             self.assertIn("label", item)
 
         fetched_set_with_info = self.getImpl().get_differential_expression_matrix_set_v1(
@@ -247,6 +249,42 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
             self.assertIn("info", item)
             self.assertIn("ref", item)
             self.assertIn("label", item)
+
+    def test_get_dem_set_ref_path(self):
+        set_name = "test_diff_expression_set_ref_path"
+        set_items = list()
+        for ref in self.diff_exps_no_genome:
+            set_items.append({
+                "label": "wt",
+                "ref": ref
+            })
+        dem_set = {
+            "description": "test_diffExprMatrixSet_ref_path",
+            "items": set_items
+        }
+        dem_set_ref = self.getImpl().save_differential_expression_matrix_set_v1(self.getContext(), {
+            "workspace": self.getWsName(),
+            "output_object_name": set_name,
+            "data": dem_set
+        })[0]["set_ref"]
+
+        fetched_set_with_ref_path = self.getImpl().get_differential_expression_matrix_set_v1(self.getContext(), {
+            "ref": dem_set_ref,
+            "include_item_info": 0,
+            "include_set_item_ref_paths": 1
+        })[0]
+        self.assertIsNotNone(fetched_set_with_ref_path)
+        self.assertIn("data", fetched_set_with_ref_path)
+        self.assertIn("info", fetched_set_with_ref_path)
+        self.assertEquals(len(fetched_set_with_ref_path["data"]["items"]), 3)
+        self.assertEquals(dem_set_ref, info_to_ref(fetched_set_with_ref_path["info"]))
+        for item in fetched_set_with_ref_path["data"]["items"]:
+            self.assertNotIn("info", item)
+            self.assertIn("ref", item)
+            self.assertIn("label", item)
+            self.assertIn("ref_path", item)
+            self.assertEqual(item["ref_path"], dem_set_ref + ';' + item["ref"])
+        #pprint(fetched_set_with_ref_path)
 
     def test_get_dem_set_bad_ref(self):
         with self.assertRaises(ValueError) as err:

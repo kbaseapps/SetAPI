@@ -165,11 +165,11 @@ class SetAPITest(unittest.TestCase):
         self.assertEqual(item3['label'],'')
         self.assertEqual(item3['ref'],self.read3ref)
 
-
         # test the call to make sure we get info for each item
         d2 = setAPI.get_reads_set_v1(self.getContext(), {
                 'ref':res['set_ref'],
-                'include_item_info':1
+                'include_item_info':1,
+                'include_set_item_ref_paths': 1
             })[0]
         self.assertTrue('data' in d2)
         self.assertTrue('info' in d2)
@@ -186,9 +186,13 @@ class SetAPITest(unittest.TestCase):
         self.assertTrue('ref' in item2)
         self.assertEqual(item2['ref'],self.read2ref)
 
+        self.assertTrue('ref_path' in item2)
+        self.assertEqual(item2['ref_path'], res['set_ref'] + ';' + item2['ref'])
+        pprint(d2)
 
-        # NOTE: According to Python unittest naming rules test method names should start from 'test'.
-    def skip_test_save_and_get_of_empty_set(self):
+    # NOTE: Comment the following line to run the test
+    @unittest.skip("skipped test_save_and_get_of_emtpy_set")
+    def test_save_and_get_of_empty_set(self):
 
         workspace = self.getWsName()
         setObjName = 'nada_set'

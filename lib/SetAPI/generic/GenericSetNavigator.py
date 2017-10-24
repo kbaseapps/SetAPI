@@ -1,21 +1,16 @@
 # -*- coding: utf-8 -*-
 
 import time
-
-
-from Workspace.WorkspaceClient import Workspace
-
 from pprint import pprint
 
+from Workspace.WorkspaceClient import Workspace
 from SetAPI.generic.WorkspaceListObjectsIterator import WorkspaceListObjectsIterator
-
+from SetAPI import util
 
 class GenericSetNavigator:
 
-
     SET_TYPES = ['KBaseSets.ReadsSet']
     DEBUG = False
-
 
     def __init__(self, workspace_client, data_palette_cache=None, token=None):
         self.ws = workspace_client
@@ -44,8 +39,11 @@ class GenericSetNavigator:
         # the list of obj refs contained in each of those sets
         top_level_sets = self._get_top_level_sets(all_sets)
 
-        if 'include_set_item_info' in params and params['include_set_item_info']==1:
+        if 'include_set_item_info' in params and params['include_set_item_info'] == 1:
             top_level_sets = self._populate_set_item_info(top_level_sets)
+
+        if 'include_set_item_ref_paths' in params and params['include_set_item_ref_paths'] == 1:
+            top_level_sets = self._populate_set_item_ref_path(top_level_sets)
 
         if self.DEBUG:
             print("Time of populate_sets: " + str(time.time() - t2))
@@ -58,7 +56,6 @@ class GenericSetNavigator:
             ret['raw_data_palette_refs'] = raw_dp_refs
         return ret
 
-
     def _validate_list_params(self, params):
         if ('workspace' not in params) and ('workspaces' not in params):
             raise ValueError('One of "workspace" or "workspaces" field required to list sets')
@@ -66,7 +63,6 @@ class GenericSetNavigator:
         if 'include_set_item_info' in params and params['include_set_item_info'] is not None:
             if params['include_set_item_info'] not in [0,1]:
                 raise ValueError('"include_set_item_info" field must be set to 0 or 1')
-
 
     def _list_all_sets(self, workspaces, include_metadata):
         ws_info_list = []
@@ -116,7 +112,6 @@ class GenericSetNavigator:
 
         return [sets, raw_dp, raw_dp_refs]
 
-
     def _get_workspace_info(self, workspace):
         # typedef tuple<ws_id 0:id, ws_name 1:workspace, username 2:owner, timestamp 3:moddate,
         # int 4max_objid, permission 5user_permission, permission 6globalread,
@@ -127,8 +122,6 @@ class GenericSetNavigator:
         else:
             ws_identity['workspace'] = workspace
         return self.ws.get_workspace_info(ws_identity)
-
-
 
     def _get_top_level_sets(self, set_list):
         '''
@@ -157,9 +150,6 @@ class GenericSetNavigator:
 
         return top_level_sets
 
-
-
-
     def _populate_set_refs(self, set_list):
 
         objects = []
@@ -169,21 +159,20 @@ class GenericSetNavigator:
                 set_ref = s['dp_ref'] + ';' + set_ref
             objects.append({'ref': set_ref})
 
-        if len(objects)>0:
+        if len(objects) > 0:
             obj_data = self.ws.get_objects2({
-                    'objects':objects,
-                    'no_data':1
+                    'objects': objects,
+                    'no_data': 1
                 })['data']
 
             # if ws call worked, then len(obj_data)==len(set_list)
-            for k in range(0,len(obj_data)):
+            for k in range(0, len(obj_data)):
                 items = []
                 for item_ref in obj_data[k]['refs']:
-                    items.append({'ref':item_ref})
+                    items.append({'ref': item_ref})
                 set_list[k]['items'] = items
 
         return set_list
-
 
     def _populate_set_item_info(self, set_list):
 
@@ -206,12 +195,11 @@ class GenericSetNavigator:
                     'ref': item_refs[ref] + ';' + ref
                 })
 
-        if len(objects)>0:
+        if len(objects) > 0:
             obj_info_list = self.ws.get_object_info_new({
-                                        'objects':objects,
-                                        'includeMetadata':1
+                                        'objects': objects,
+                                        'includeMetadata': 1
                                     })
-
             # build info lookup
             item_info = {}
             for o in obj_info_list:
@@ -224,14 +212,19 @@ class GenericSetNavigator:
 
         return set_list
 
+    def _populate_set_item_ref_path(self, set_list):
 
+        for s in set_list:
+            obj_spec = util.build_ws_obj_selector(s['ref'],
+                                                  s.get('ref_path_to_set', []))
+            util.populate_item_object_ref_paths(s['items'], obj_spec)
+
+        return set_list
 
     def _build_obj_ref(self, obj_info):
         return str(obj_info[6]) + '/' + str(obj_info[0]) + '/' + str(obj_info[4])
 
 
-
-    
     # typedef structure {
     #     ws_obj_id ref;
     #     list <ws_obj_id> path_to_set;
@@ -246,7 +239,6 @@ class GenericSetNavigator:
     # } GetSetItemsResult;
 
 
-
     def get_set_items(self, params):
         '''
         Given a list of reference to set objects, get the list of items for each set
@@ -259,8 +251,10 @@ class GenericSetNavigator:
         set_list = self._populate_set_refs(set_list)
         set_list = self._populate_set_item_info(set_list)
 
-        return { 'sets': set_list }
+        if 'include_set_item_ref_paths' in params and params['include_set_item_ref_paths'] == 1:
+            set_list = self._populate_set_item_ref_path(set_list)
 
+        return {'sets': set_list}
 
     def _validate_get_set_items_params(self, params):
         if 'set_refs' not in params:
@@ -269,26 +263,16 @@ class GenericSetNavigator:
             if 'ref' not in s:
                 raise ValueError('"ref" field in each object of "set_refs" list is required')
 
-
-
     def _get_set_info(self, set_refs):
 
         objects = []
         for s in set_refs:
-            if 'path_to_set' in s and s['path_to_set'] is not None and len(s['path_to_set'])>0:
-                obj_ref_path = s['path_to_set'][1:]
-                obj_ref_path.append(s['ref'])
-                objects.append({
-                        'ref': s['path_to_set'][0],
-                        'obj_ref_path': obj_ref_path
-                    })
-            else:
-                objects.append({'ref':s['ref']})
+            objects.append(util.build_ws_obj_selector(s['ref'], s.get('path_to_set', [])))
 
-        if len(objects)>0:
+        if len(objects) > 0:
             obj_info_list = self.ws.get_object_info_new({
-                                        'objects':objects,
-                                        'includeMetadata':1
+                                        'objects': objects,
+                                        'includeMetadata': 1
                                     })
             set_list = []
             for o in obj_info_list:
@@ -297,7 +281,6 @@ class GenericSetNavigator:
                         'info': o
                     })
         return set_list
-
 
     def _list_from_data_palette(self, workspaces, type_list, include_metadata):
         if not self.dpc:
@@ -312,7 +295,6 @@ class GenericSetNavigator:
             if obj_type in type_map:
                 dp_info_list.append({'info': info, 'dp_ref': item['dp_ref']})
         return [dp_info_list, dp_ret['data'], dp_ret['data_palette_refs']]
-
 
     # def _populate_set_item_info(self, set_list):
 

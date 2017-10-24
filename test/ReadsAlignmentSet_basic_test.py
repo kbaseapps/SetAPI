@@ -2,6 +2,7 @@
 import unittest
 import os
 import time
+from pprint import pprint
 
 from os import environ
 try:
@@ -19,12 +20,16 @@ from util import (
     info_to_ref,
     make_fake_alignment,
     make_fake_sampleset,
-    make_fake_old_alignment_set
+    make_fake_annotation,
+    make_fake_expression,
+    make_fake_old_alignment_set,
+    make_fake_old_expression_set
 )
 import shutil
 
 
 class ReadsAlignmentSetAPITest(unittest.TestCase):
+    DEBUG = False
 
     @classmethod
     def setUpClass(cls):
@@ -120,6 +125,41 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             cls.wsClient,
             include_sample_alignments=True
         )
+
+        # Need a fake annotation to get the expression objects
+        cls.annotation_ref = make_fake_annotation(
+            os.environ['SDK_CALLBACK_URL'],
+            cls.dummy_path,
+            "fake_annotation",
+            wsName,
+            cls.wsClient)
+
+        # Now we can phony up some expression objects to build sets out of.
+        # name, genome_ref, annotation_ref, alignment_ref, ws_name, ws_client
+        cls.expression_refs = list()
+        for idx, alignment_ref in enumerate(cls.alignment_refs):
+            cls.expression_refs.append(make_fake_expression(
+                os.environ['SDK_CALLBACK_URL'],
+                cls.dummy_path,
+                "fake_expression_{}".format(idx),
+                cls.genome_refs[0],
+                cls.annotation_ref,
+                alignment_ref,
+                wsName,
+                cls.wsClient
+            ))
+
+        # Make a fake RNASeq Expression Set object
+        cls.fake_rnaseq_expression_set = make_fake_old_expression_set(
+            "fake_rnaseq_expression_set",
+            cls.genome_refs[0],
+            cls.sampleset_ref,
+            cls.alignment_refs,
+            cls.fake_rnaseq_alignment_set1,
+            cls.expression_refs,
+            wsName,
+            cls.wsClient,
+            True)
 
     @classmethod
     def tearDownClass(cls):
@@ -230,7 +270,8 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
 
             fetched_set_with_info = self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
                 "ref": ref,
-                "include_item_info": 1
+                "include_item_info": 1,
+                "include_set_item_ref_paths": 1
             })[0]
             self.assertIsNotNone(fetched_set_with_info)
             self.assertIn("data", fetched_set_with_info)
@@ -238,6 +279,35 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
                 self.assertIn("info", item)
                 self.assertIn("ref", item)
                 self.assertIn("label", item)
+                self.assertIn("ref_path", item)
+                self.assertEquals(item["ref_path"], ref + ";" + item["ref"])
+
+    def test_get_old_alignment_set_ref_path_to_set(self):
+        alignment_ref = self.fake_rnaseq_alignment_set1
+        ref_path_to_set = [self.fake_rnaseq_expression_set, alignment_ref]
+
+        fetched_set = self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
+            "ref": alignment_ref,
+            "ref_path_to_set": ref_path_to_set,
+            "include_item_info": 0,
+            "include_set_item_ref_paths": 1
+        })[0]
+        self.assertIsNotNone(fetched_set)
+        self.assertIn("data", fetched_set)
+        self.assertIn("info", fetched_set)
+        self.assertEquals(len(fetched_set["data"]["items"]), 3)
+        self.assertEquals(alignment_ref, info_to_ref(fetched_set["info"]))
+        for item in fetched_set["data"]["items"]:
+            self.assertNotIn("info", item)
+            self.assertIn("ref", item)
+            self.assertIn("label", item)
+            self.assertIn("ref_path", item)
+            self.assertEquals(item["ref_path"], ";".join(ref_path_to_set) + ";" + item["ref"])
+
+        if self.DEBUG:
+            print('======  RNASeq Alignment with ref_path_to_set ========')
+            pprint(fetched_set)
+            print('======================================================')
 
     def test_get_alignment_set(self):
         alignment_set_name = "test_alignment_set"
@@ -282,6 +352,41 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             self.assertIn("ref", item)
             self.assertIn("label", item)
 
+    def test_get_alignment_set_ref_path(self):
+        alignment_set_name = "test_alignment_set_ref_path"
+        alignment_items = list()
+        for ref in self.alignment_refs:
+            alignment_items.append({
+                "label": "wt",
+                "ref": ref
+            })
+        alignment_set = {
+            "description": "test_alignments",
+            "items": alignment_items
+        }
+        alignment_set_ref = self.getImpl().save_reads_alignment_set_v1(self.getContext(), {
+            "workspace": self.getWsName(),
+            "output_object_name": alignment_set_name,
+            "data": alignment_set
+        })[0]["set_ref"]
+
+        fetched_set = self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
+            "ref": alignment_set_ref,
+            "include_item_info": 0,
+            "include_set_item_ref_paths": 1
+        })[0]
+        self.assertIsNotNone(fetched_set)
+        self.assertIn("data", fetched_set)
+        self.assertIn("info", fetched_set)
+        self.assertEquals(len(fetched_set["data"]["items"]), 3)
+        self.assertEquals(alignment_set_ref, info_to_ref(fetched_set["info"]))
+        for item in fetched_set["data"]["items"]:
+            self.assertNotIn("info", item)
+            self.assertIn("ref", item)
+            self.assertIn("label", item)
+            self.assertIn("ref_path", item)
+            self.assertEquals(item["ref_path"], alignment_set_ref + ";" + item["ref"])
+
     def test_get_alignment_set_bad_ref(self):
         with self.assertRaises(ValueError) as err:
             self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
@@ -303,3 +408,4 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             })
         self.assertIn('"ref" parameter field specifiying the reads alignment set is required',
                       str(err.exception))
+

@@ -2,6 +2,7 @@
 import unittest
 import os
 import time
+from pprint import pprint
 
 from os import environ
 try:
@@ -19,12 +20,17 @@ from util import (
     info_to_ref,
     make_fake_alignment,
     make_fake_annotation,
-    make_fake_expression
+    make_fake_expression,
+    make_fake_sampleset,
+    make_fake_old_alignment_set,
+    make_fake_old_expression_set
 )
 import shutil
 
-
 class ExpressionSetAPITest(unittest.TestCase):
+
+    DEBUG =False
+
     @classmethod
     def setUpClass(cls):
         token = environ.get('KB_AUTH_TOKEN', None)
@@ -119,6 +125,32 @@ class ExpressionSetAPITest(unittest.TestCase):
                 wsName,
                 cls.wsClient
             ))
+
+        # Make a fake RNASeq Alignment Set object
+        # Make a fake RNASeqSampleSet
+        cls.sampleset_ref = make_fake_sampleset("fake_sampleset", [], [], wsName, cls.wsClient)
+
+        # Finally, make a couple fake RNASeqAlignmentSts objects from those alignments
+        cls.fake_rnaseq_alignment_set = make_fake_old_alignment_set(
+            "fake_rnaseq_alignment_set",
+            cls.reads_refs,
+            cls.genome_refs[0],
+            cls.sampleset_ref,
+            cls.alignment_refs,
+            wsName,
+            cls.wsClient)
+
+        # Make a fake RNASeq Expression Set object
+        cls.fake_rnaseq_expression_set = make_fake_old_expression_set(
+                                                    "fake_rnaseq_expression_set",
+                                                    cls.genome_refs[0],
+                                                    cls.sampleset_ref,
+                                                    cls.alignment_refs,
+                                                    cls.fake_rnaseq_alignment_set,
+                                                    cls.expression_refs,
+                                                    wsName,
+                                                    cls.wsClient,
+                                                    True)
 
     @classmethod
     def tearDownClass(cls):
@@ -243,6 +275,7 @@ class ExpressionSetAPITest(unittest.TestCase):
         self.assertEquals(expression_set_ref, info_to_ref(fetched_set["info"]))
         for item in fetched_set["data"]["items"]:
             self.assertNotIn("info", item)
+            self.assertNotIn("ref_path", item)
             self.assertIn("ref", item)
             self.assertIn("label", item)
 
@@ -256,6 +289,61 @@ class ExpressionSetAPITest(unittest.TestCase):
             self.assertIn("info", item)
             self.assertIn("ref", item)
             self.assertIn("label", item)
+            self.assertNotIn("ref_path", item)
+
+    def test_get_expression_set_ref_path(self):
+        expression_set_name = "test_expression_set_ref_path"
+        expression_items = list()
+        for ref in self.expression_refs:
+            expression_items.append({
+                "label": "wt",
+                "ref": ref
+            })
+        expression_set = {
+            "description": "test_alignments",
+            "items": expression_items
+        }
+        expression_set_ref = self.getImpl().save_expression_set_v1(self.getContext(), {
+            "workspace": self.getWsName(),
+            "output_object_name": expression_set_name,
+            "data": expression_set
+        })[0]["set_ref"]
+
+        fetched_set_with_info = self.getImpl().get_expression_set_v1(self.getContext(), {
+            "ref": expression_set_ref,
+            "include_item_info": 1,
+            "include_set_item_ref_paths": 1
+        })[0]
+        self.assertIsNotNone(fetched_set_with_info)
+        self.assertIn("data", fetched_set_with_info)
+
+        for item in fetched_set_with_info["data"]["items"]:
+            self.assertIn("info", item)
+            self.assertIn("ref", item)
+            self.assertIn("label", item)
+            self.assertIn("ref_path", item)
+            self.assertEquals(item["ref_path"], expression_set_ref + ";" + item["ref"])
+
+    def test_get_created_rnaseq_expression_set_ref_path(self):
+
+        created_expression_set_ref = self.fake_rnaseq_expression_set
+
+        fetched_set_with_ref_path = self.getImpl().get_expression_set_v1(self.getContext(), {
+            "ref": created_expression_set_ref,
+            "include_item_info": 0,
+            "include_set_item_ref_paths": 1
+        })[0]
+
+        for item in fetched_set_with_ref_path["data"]["items"]:
+            self.assertIn("ref", item)
+            self.assertIn("label", item)
+            self.assertIn("ref_path", item)
+            self.assertEquals(item["ref_path"],
+                              created_expression_set_ref + ";" + item["ref"])
+        if self.DEBUG:
+            print("INPUT: CREATED KBasesets.ExpressionSet: " + created_expression_set_ref)
+            pprint(fetched_set_with_ref_path)
+            print("==========================")
 
     def test_get_expression_set_bad_ref(self):
         with self.assertRaises(ValueError) as err:
@@ -278,3 +366,4 @@ class ExpressionSetAPITest(unittest.TestCase):
             })
         self.assertIn('"ref" parameter field specifiying the expression set is required',
                       str(err.exception))
+

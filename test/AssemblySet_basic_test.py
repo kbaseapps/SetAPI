@@ -153,6 +153,7 @@ class SetAPITest(unittest.TestCase):
 
         item2 = d1['data']['items'][1]
         self.assertTrue('info' not in item2)
+        self.assertTrue('ref_path' not in item2)
         self.assertTrue('ref' in item2)
         self.assertTrue('label' in item2)
         self.assertEqual(item2['label'],'assembly2')
@@ -161,7 +162,8 @@ class SetAPITest(unittest.TestCase):
         # test the call to make sure we get info for each item
         d2 = setAPI.get_reads_set_v1(self.getContext(), {
                 'ref':res['set_ref'],
-                'include_item_info':1
+                'include_item_info':1,
+                'include_set_item_ref_paths': 1
             })[0]
         self.assertTrue('data' in d2)
         self.assertTrue('info' in d2)
@@ -176,10 +178,13 @@ class SetAPITest(unittest.TestCase):
         self.assertTrue('info' in item2)
         self.assertTrue(len(item2['info']), 11)
         self.assertTrue('ref' in item2)
-        self.assertEqual(item2['ref'],self.assembly2ref)
+        self.assertEqual(item2['ref'], self.assembly2ref)
 
+        self.assertTrue('ref_path' in item2)
+        self.assertEqual(item2['ref_path'], res['set_ref'] + ';' + item2['ref'])
+        pprint(d2)
 
-        # NOTE: According to Python unittest naming rules test method names should start from 'test'.
+    # NOTE: According to Python unittest naming rules test method names should start from 'test'.
     def skip_test_save_and_get_of_emtpy_set(self):
 
         workspace = self.getWsName()

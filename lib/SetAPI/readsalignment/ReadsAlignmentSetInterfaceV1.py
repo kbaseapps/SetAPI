@@ -1,9 +1,11 @@
 """
 An interface for handling sets of ReadsAlignments.
 """
-from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
-from SetAPI.util import check_reference
 
+from pprint import pprint
+
+from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
+from SetAPI import util
 
 class ReadsAlignmentSetInterfaceV1:
     def __init__(self, workspace_client):
@@ -62,15 +64,20 @@ class ReadsAlignmentSetInterfaceV1:
         2. From each ref, we try to figure out the condition, and apply those as labels (also
            might be optional)
         """
-        set_type = self._check_get_reads_alignment_set_params(params)
+        set_type, obj_spec = self._check_get_reads_alignment_set_params(params)
 
         include_item_info = False
         if 'include_item_info' in params:
             if params['include_item_info'] == 1:
                 include_item_info = True
 
+        include_set_item_ref_paths = False
+        if 'include_set_item_ref_paths' in params:
+            if params['include_set_item_ref_paths'] == 1:
+                include_set_item_ref_paths = True
+
         ref_path_to_set = []
-        if 'ref_path_to_set' in params:
+        if 'ref_path_to_set' in params and len(params['ref_path_to_set']) > 0:
             ref_path_to_set = params['ref_path_to_set']
 
         if "KBaseSets" in set_type:
@@ -78,15 +85,15 @@ class ReadsAlignmentSetInterfaceV1:
             return self.set_interface.get_set(
                     params['ref'],
                     include_item_info,
-                    ref_path_to_set
+                    ref_path_to_set,
+                    include_set_item_ref_paths
                 )
         else:
             # ...otherwise, we need to fetch it directly from the workspace and tweak it into the
             # expected return object
-            obj_spec = {"ref": params["ref"]}
-            if len(ref_path_to_set):
-                obj_spec = {"obj_ref_path": params["ref_path_to_set"]}
+
             obj_data = self.workspace_client.get_objects2({"objects": [obj_spec]})["data"][0]
+
             obj = obj_data["data"]
             obj_info = obj_data["info"]
             alignment_ref_list = list()
@@ -101,12 +108,19 @@ class ReadsAlignmentSetInterfaceV1:
                     refs.update(mapping.values())
                 alignment_ref_list = list(refs)
             alignment_items = [{"ref": i} for i in alignment_ref_list]
+
             item_infos = self.workspace_client.get_object_info3(
                 {"objects": alignment_items, "includeMetadata": 1})["infos"]
             for idx, ref in enumerate(alignment_items):
                 alignment_items[idx]["label"] = item_infos[idx][10].get("condition", None)
                 if include_item_info:
                     alignment_items[idx]["info"] = item_infos[idx]
+            """
+            If include_set_item_ref_paths is set, then add a field ref_path in alignment items
+            """
+            if include_set_item_ref_paths:
+                util.populate_item_object_ref_paths(alignment_items, obj_spec)
+
             return {
                 "data": {
                     "items": alignment_items,
@@ -118,13 +132,14 @@ class ReadsAlignmentSetInterfaceV1:
     def _check_get_reads_alignment_set_params(self, params):
         if 'ref' not in params or params['ref'] is None:
             raise ValueError('"ref" parameter field specifiying the reads alignment set is required')
-        elif not check_reference(params['ref']):
+        elif not util.check_reference(params['ref']):
             raise ValueError('"ref" parameter must be a valid workspace reference')
         if 'include_item_info' in params:
             if params['include_item_info'] not in [0, 1]:
                 raise ValueError('"include_item_info" parameter field can only be set to 0 or 1')
-        obj_spec = {"ref": params["ref"]}
-        if "ref_path_to_set" in params:
-            obj_spec = {"obj_ref_path": params["ref_path_to_set"]}
+
+        obj_spec = util.build_ws_obj_selector(params.get('ref'), params.get('ref_path_to_set', []))
+
         info = self.workspace_client.get_object_info3({"objects": [obj_spec]})
-        return info["infos"][0][2]
+
+        return info["infos"][0][2], obj_spec
