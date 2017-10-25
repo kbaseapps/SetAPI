@@ -9,6 +9,7 @@ MAINTAINER KBase Developer
 
 RUN sudo apt-get install python-dev libffi-dev libssl-dev
 RUN pip install cffi --upgrade
+RUN pip install setuptools --upgrade
 RUN pip install pyopenssl --upgrade
 RUN pip install ndg-httpsclient --upgrade
 RUN pip install pyasn1 --upgrade
