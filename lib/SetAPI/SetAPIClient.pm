@@ -124,6 +124,7 @@ $result is a SetAPI.GetDifferentialExpressionMatrixSetV1Result
 GetDifferentialExpressionMatrixSetV1Params is a reference to a hash where the following keys are defined:
 	ref has a value which is a string
 	include_item_info has a value which is a SetAPI.boolean
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 	ref_path_to_set has a value which is a reference to a list where each element is a string
 boolean is an int
 GetDifferentialExpressionMatrixSetV1Result is a reference to a hash where the following keys are defined:
@@ -134,6 +135,7 @@ DifferentialExpressionMatrixSet is a reference to a hash where the following key
 	items has a value which is a reference to a list where each element is a SetAPI.DifferentialExpressionMatrixSetItem
 DifferentialExpressionMatrixSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_diffexpmatrix_id
+	ref_path has a value which is a SetAPI.ws_diffexpmatrix_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 ws_diffexpmatrix_id is a string
@@ -169,6 +171,7 @@ $result is a SetAPI.GetDifferentialExpressionMatrixSetV1Result
 GetDifferentialExpressionMatrixSetV1Params is a reference to a hash where the following keys are defined:
 	ref has a value which is a string
 	include_item_info has a value which is a SetAPI.boolean
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 	ref_path_to_set has a value which is a reference to a list where each element is a string
 boolean is an int
 GetDifferentialExpressionMatrixSetV1Result is a reference to a hash where the following keys are defined:
@@ -179,6 +182,7 @@ DifferentialExpressionMatrixSet is a reference to a hash where the following key
 	items has a value which is a reference to a list where each element is a SetAPI.DifferentialExpressionMatrixSetItem
 DifferentialExpressionMatrixSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_diffexpmatrix_id
+	ref_path has a value which is a SetAPI.ws_diffexpmatrix_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 ws_diffexpmatrix_id is a string
@@ -284,6 +288,7 @@ DifferentialExpressionMatrixSet is a reference to a hash where the following key
 	items has a value which is a reference to a list where each element is a SetAPI.DifferentialExpressionMatrixSetItem
 DifferentialExpressionMatrixSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_diffexpmatrix_id
+	ref_path has a value which is a SetAPI.ws_diffexpmatrix_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 ws_diffexpmatrix_id is a string
@@ -328,6 +333,7 @@ DifferentialExpressionMatrixSet is a reference to a hash where the following key
 	items has a value which is a reference to a list where each element is a SetAPI.DifferentialExpressionMatrixSetItem
 DifferentialExpressionMatrixSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_diffexpmatrix_id
+	ref_path has a value which is a SetAPI.ws_diffexpmatrix_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 ws_diffexpmatrix_id is a string
@@ -430,6 +436,7 @@ $return is a SetAPI.GetFeatureSetSetV1Result
 GetFeatureSetSetV1Params is a reference to a hash where the following keys are defined:
 	ref has a value which is a string
 	include_item_info has a value which is a SetAPI.boolean
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 	ref_path_to_set has a value which is a reference to a list where each element is a string
 boolean is an int
 GetFeatureSetSetV1Result is a reference to a hash where the following keys are defined:
@@ -440,6 +447,7 @@ FeatureSetSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.FeatureSetSetItem
 FeatureSetSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_feature_set_id
+	ref_path has a value which is a SetAPI.ws_feature_set_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 ws_feature_set_id is a string
@@ -475,6 +483,7 @@ $return is a SetAPI.GetFeatureSetSetV1Result
 GetFeatureSetSetV1Params is a reference to a hash where the following keys are defined:
 	ref has a value which is a string
 	include_item_info has a value which is a SetAPI.boolean
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 	ref_path_to_set has a value which is a reference to a list where each element is a string
 boolean is an int
 GetFeatureSetSetV1Result is a reference to a hash where the following keys are defined:
@@ -485,6 +494,7 @@ FeatureSetSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.FeatureSetSetItem
 FeatureSetSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_feature_set_id
+	ref_path has a value which is a SetAPI.ws_feature_set_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 ws_feature_set_id is a string
@@ -590,6 +600,7 @@ FeatureSetSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.FeatureSetSetItem
 FeatureSetSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_feature_set_id
+	ref_path has a value which is a SetAPI.ws_feature_set_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 ws_feature_set_id is a string
@@ -634,6 +645,7 @@ FeatureSetSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.FeatureSetSetItem
 FeatureSetSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_feature_set_id
+	ref_path has a value which is a SetAPI.ws_feature_set_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 ws_feature_set_id is a string
@@ -736,6 +748,7 @@ $return is a SetAPI.GetExpressionSetV1Result
 GetExpressionSetV1Params is a reference to a hash where the following keys are defined:
 	ref has a value which is a string
 	include_item_info has a value which is a SetAPI.boolean
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 	ref_path_to_set has a value which is a reference to a list where each element is a string
 boolean is an int
 GetExpressionSetV1Result is a reference to a hash where the following keys are defined:
@@ -746,6 +759,7 @@ ExpressionSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.ExpressionSetItem
 ExpressionSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_expression_id
+	ref_path has a value which is a SetAPI.ws_expression_id
 	label has a value which is a string
 	data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
 	info has a value which is a Workspace.object_info
@@ -786,6 +800,7 @@ $return is a SetAPI.GetExpressionSetV1Result
 GetExpressionSetV1Params is a reference to a hash where the following keys are defined:
 	ref has a value which is a string
 	include_item_info has a value which is a SetAPI.boolean
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 	ref_path_to_set has a value which is a reference to a list where each element is a string
 boolean is an int
 GetExpressionSetV1Result is a reference to a hash where the following keys are defined:
@@ -796,6 +811,7 @@ ExpressionSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.ExpressionSetItem
 ExpressionSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_expression_id
+	ref_path has a value which is a SetAPI.ws_expression_id
 	label has a value which is a string
 	data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
 	info has a value which is a Workspace.object_info
@@ -906,6 +922,7 @@ ExpressionSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.ExpressionSetItem
 ExpressionSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_expression_id
+	ref_path has a value which is a SetAPI.ws_expression_id
 	label has a value which is a string
 	data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
 	info has a value which is a Workspace.object_info
@@ -955,6 +972,7 @@ ExpressionSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.ExpressionSetItem
 ExpressionSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_expression_id
+	ref_path has a value which is a SetAPI.ws_expression_id
 	label has a value which is a string
 	data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
 	info has a value which is a Workspace.object_info
@@ -1062,6 +1080,7 @@ $return is a SetAPI.GetReadsAlignmentSetV1Result
 GetReadsAlignmentSetV1Params is a reference to a hash where the following keys are defined:
 	ref has a value which is a string
 	include_item_info has a value which is a SetAPI.boolean
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 	ref_path_to_set has a value which is a reference to a list where each element is a string
 boolean is an int
 GetReadsAlignmentSetV1Result is a reference to a hash where the following keys are defined:
@@ -1072,6 +1091,7 @@ ReadsAlignmentSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.ReadsAlignmentSetItem
 ReadsAlignmentSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_reads_align_id
+	ref_path has a value which is a SetAPI.ws_reads_align_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 	data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
@@ -1112,6 +1132,7 @@ $return is a SetAPI.GetReadsAlignmentSetV1Result
 GetReadsAlignmentSetV1Params is a reference to a hash where the following keys are defined:
 	ref has a value which is a string
 	include_item_info has a value which is a SetAPI.boolean
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 	ref_path_to_set has a value which is a reference to a list where each element is a string
 boolean is an int
 GetReadsAlignmentSetV1Result is a reference to a hash where the following keys are defined:
@@ -1122,6 +1143,7 @@ ReadsAlignmentSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.ReadsAlignmentSetItem
 ReadsAlignmentSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_reads_align_id
+	ref_path has a value which is a SetAPI.ws_reads_align_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 	data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
@@ -1232,6 +1254,7 @@ ReadsAlignmentSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.ReadsAlignmentSetItem
 ReadsAlignmentSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_reads_align_id
+	ref_path has a value which is a SetAPI.ws_reads_align_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 	data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
@@ -1281,6 +1304,7 @@ ReadsAlignmentSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.ReadsAlignmentSetItem
 ReadsAlignmentSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_reads_align_id
+	ref_path has a value which is a SetAPI.ws_reads_align_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 	data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
@@ -1388,6 +1412,7 @@ $result is a SetAPI.GetReadsSetV1Result
 GetReadsSetV1Params is a reference to a hash where the following keys are defined:
 	ref has a value which is a string
 	include_item_info has a value which is a SetAPI.boolean
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 	ref_path_to_set has a value which is a reference to a list where each element is a string
 boolean is an int
 GetReadsSetV1Result is a reference to a hash where the following keys are defined:
@@ -1398,6 +1423,7 @@ ReadsSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.ReadsSetItem
 ReadsSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_reads_id
+	ref_path has a value which is a SetAPI.ws_reads_id
 	label has a value which is a string
 	data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
 	info has a value which is a Workspace.object_info
@@ -1438,6 +1464,7 @@ $result is a SetAPI.GetReadsSetV1Result
 GetReadsSetV1Params is a reference to a hash where the following keys are defined:
 	ref has a value which is a string
 	include_item_info has a value which is a SetAPI.boolean
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 	ref_path_to_set has a value which is a reference to a list where each element is a string
 boolean is an int
 GetReadsSetV1Result is a reference to a hash where the following keys are defined:
@@ -1448,6 +1475,7 @@ ReadsSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.ReadsSetItem
 ReadsSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_reads_id
+	ref_path has a value which is a SetAPI.ws_reads_id
 	label has a value which is a string
 	data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
 	info has a value which is a Workspace.object_info
@@ -1558,6 +1586,7 @@ ReadsSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.ReadsSetItem
 ReadsSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_reads_id
+	ref_path has a value which is a SetAPI.ws_reads_id
 	label has a value which is a string
 	data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
 	info has a value which is a Workspace.object_info
@@ -1607,6 +1636,7 @@ ReadsSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.ReadsSetItem
 ReadsSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_reads_id
+	ref_path has a value which is a SetAPI.ws_reads_id
 	label has a value which is a string
 	data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
 	info has a value which is a Workspace.object_info
@@ -1714,6 +1744,7 @@ $result is a SetAPI.GetAssemblySetV1Result
 GetAssemblySetV1Params is a reference to a hash where the following keys are defined:
 	ref has a value which is a string
 	include_item_info has a value which is a SetAPI.boolean
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 	ref_path_to_set has a value which is a reference to a list where each element is a string
 boolean is an int
 GetAssemblySetV1Result is a reference to a hash where the following keys are defined:
@@ -1724,6 +1755,7 @@ AssemblySet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.AssemblySetItem
 AssemblySetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_assembly_id
+	ref_path has a value which is a SetAPI.ws_assembly_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 ws_assembly_id is a string
@@ -1759,6 +1791,7 @@ $result is a SetAPI.GetAssemblySetV1Result
 GetAssemblySetV1Params is a reference to a hash where the following keys are defined:
 	ref has a value which is a string
 	include_item_info has a value which is a SetAPI.boolean
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 	ref_path_to_set has a value which is a reference to a list where each element is a string
 boolean is an int
 GetAssemblySetV1Result is a reference to a hash where the following keys are defined:
@@ -1769,6 +1802,7 @@ AssemblySet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.AssemblySetItem
 AssemblySetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_assembly_id
+	ref_path has a value which is a SetAPI.ws_assembly_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 ws_assembly_id is a string
@@ -1874,6 +1908,7 @@ AssemblySet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.AssemblySetItem
 AssemblySetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_assembly_id
+	ref_path has a value which is a SetAPI.ws_assembly_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 ws_assembly_id is a string
@@ -1918,6 +1953,7 @@ AssemblySet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.AssemblySetItem
 AssemblySetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_assembly_id
+	ref_path has a value which is a SetAPI.ws_assembly_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 ws_assembly_id is a string
@@ -2020,6 +2056,7 @@ $result is a SetAPI.GetGenomeSetV1Result
 GetGenomeSetV1Params is a reference to a hash where the following keys are defined:
 	ref has a value which is a string
 	include_item_info has a value which is a SetAPI.boolean
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 	ref_path_to_set has a value which is a reference to a list where each element is a string
 boolean is an int
 GetGenomeSetV1Result is a reference to a hash where the following keys are defined:
@@ -2030,6 +2067,7 @@ GenomeSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.GenomeSetItem
 GenomeSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_genome_id
+	ref_path has a value which is a SetAPI.ws_genome_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 ws_genome_id is a string
@@ -2065,6 +2103,7 @@ $result is a SetAPI.GetGenomeSetV1Result
 GetGenomeSetV1Params is a reference to a hash where the following keys are defined:
 	ref has a value which is a string
 	include_item_info has a value which is a SetAPI.boolean
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 	ref_path_to_set has a value which is a reference to a list where each element is a string
 boolean is an int
 GetGenomeSetV1Result is a reference to a hash where the following keys are defined:
@@ -2075,6 +2114,7 @@ GenomeSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.GenomeSetItem
 GenomeSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_genome_id
+	ref_path has a value which is a SetAPI.ws_genome_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 ws_genome_id is a string
@@ -2180,6 +2220,7 @@ GenomeSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.GenomeSetItem
 GenomeSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_genome_id
+	ref_path has a value which is a SetAPI.ws_genome_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 ws_genome_id is a string
@@ -2224,6 +2265,7 @@ GenomeSet is a reference to a hash where the following keys are defined:
 	items has a value which is a reference to a list where each element is a SetAPI.GenomeSetItem
 GenomeSetItem is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_genome_id
+	ref_path has a value which is a SetAPI.ws_genome_id
 	label has a value which is a string
 	info has a value which is a Workspace.object_info
 ws_genome_id is a string
@@ -2329,6 +2371,7 @@ ListSetParams is a reference to a hash where the following keys are defined:
 	include_set_item_info has a value which is a SetAPI.boolean
 	include_metadata has a value which is a SetAPI.boolean
 	include_raw_data_palettes has a value which is a SetAPI.boolean
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 boolean is an int
 ListSetResult is a reference to a hash where the following keys are defined:
 	sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
@@ -2362,6 +2405,7 @@ ws_name is a string
 usermeta is a reference to a hash where the key is a string and the value is a string
 SetItemInfo is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_obj_id
+	ref_path has a value which is a SetAPI.ws_obj_id
 	info has a value which is a Workspace.object_info
 DataInfo is a reference to a hash where the following keys are defined:
 	ref has a value which is a DataPaletteService.ws_ref
@@ -2382,6 +2426,7 @@ ListSetParams is a reference to a hash where the following keys are defined:
 	include_set_item_info has a value which is a SetAPI.boolean
 	include_metadata has a value which is a SetAPI.boolean
 	include_raw_data_palettes has a value which is a SetAPI.boolean
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 boolean is an int
 ListSetResult is a reference to a hash where the following keys are defined:
 	sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
@@ -2415,6 +2460,7 @@ ws_name is a string
 usermeta is a reference to a hash where the key is a string and the value is a string
 SetItemInfo is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_obj_id
+	ref_path has a value which is a SetAPI.ws_obj_id
 	info has a value which is a Workspace.object_info
 DataInfo is a reference to a hash where the following keys are defined:
 	ref has a value which is a DataPaletteService.ws_ref
@@ -2497,10 +2543,12 @@ $params is a SetAPI.GetSetItemsParams
 $result is a SetAPI.GetSetItemsResult
 GetSetItemsParams is a reference to a hash where the following keys are defined:
 	set_refs has a value which is a reference to a list where each element is a SetAPI.SetReference
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 SetReference is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_obj_id
-	path_to_set has a value which is a reference to a list where each element is a SetAPI.ws_obj_id
+	ref_path_to_set has a value which is a reference to a list where each element is a SetAPI.ws_obj_id
 ws_obj_id is a string
+boolean is an int
 GetSetItemsResult is a reference to a hash where the following keys are defined:
 	sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
 SetInfo is a reference to a hash where the following keys are defined:
@@ -2530,6 +2578,7 @@ ws_name is a string
 usermeta is a reference to a hash where the key is a string and the value is a string
 SetItemInfo is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_obj_id
+	ref_path has a value which is a SetAPI.ws_obj_id
 	info has a value which is a Workspace.object_info
 
 </pre>
@@ -2542,10 +2591,12 @@ $params is a SetAPI.GetSetItemsParams
 $result is a SetAPI.GetSetItemsResult
 GetSetItemsParams is a reference to a hash where the following keys are defined:
 	set_refs has a value which is a reference to a list where each element is a SetAPI.SetReference
+	include_set_item_ref_paths has a value which is a SetAPI.boolean
 SetReference is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_obj_id
-	path_to_set has a value which is a reference to a list where each element is a SetAPI.ws_obj_id
+	ref_path_to_set has a value which is a reference to a list where each element is a SetAPI.ws_obj_id
 ws_obj_id is a string
+boolean is an int
 GetSetItemsResult is a reference to a hash where the following keys are defined:
 	sets has a value which is a reference to a list where each element is a SetAPI.SetInfo
 SetInfo is a reference to a hash where the following keys are defined:
@@ -2575,6 +2626,7 @@ ws_name is a string
 usermeta is a reference to a hash where the key is a string and the value is a string
 SetItemInfo is a reference to a hash where the following keys are defined:
 	ref has a value which is a SetAPI.ws_obj_id
+	ref_path has a value which is a SetAPI.ws_obj_id
 	info has a value which is a Workspace.object_info
 
 
@@ -2863,6 +2915,8 @@ a string
 When saving a DifferentialExpressionMatrixSet, only 'ref' is required.
 You should never set 'info'.  'info' is provided optionally when fetching
 the DifferentialExpressionMatrixSet.
+ref_path is optionally returned by get_differential_expression_matrix_set_v1()
+when its input parameter 'include_set_item_ref_paths' is set to 1.
 
 
 =item Definition
@@ -2872,6 +2926,7 @@ the DifferentialExpressionMatrixSet.
 <pre>
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_diffexpmatrix_id
+ref_path has a value which is a SetAPI.ws_diffexpmatrix_id
 label has a value which is a string
 info has a value which is a Workspace.object_info
 
@@ -2883,6 +2938,7 @@ info has a value which is a Workspace.object_info
 
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_diffexpmatrix_id
+ref_path has a value which is a SetAPI.ws_diffexpmatrix_id
 label has a value which is a string
 info has a value which is a Workspace.object_info
 
@@ -2945,6 +3001,10 @@ items has a value which is a reference to a list where each element is a SetAPI.
 ref - workspace reference to DifferentialExpressionMatrixSet object.
 include_item_info - 1 or 0, if 1 additionally provides workspace info (with
                     metadata) for each DifferentialExpressionMatrix object in the Set
+include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                             in the set. The ref_path returned for each item is either
+                                 ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                                 set_ref;item_ref  (if ref_path_to_set is not given)
 
 
 =item Definition
@@ -2955,6 +3015,7 @@ include_item_info - 1 or 0, if 1 additionally provides workspace info (with
 a reference to a hash where the following keys are defined:
 ref has a value which is a string
 include_item_info has a value which is a SetAPI.boolean
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 ref_path_to_set has a value which is a reference to a list where each element is a string
 
 </pre>
@@ -2966,6 +3027,7 @@ ref_path_to_set has a value which is a reference to a list where each element is
 a reference to a hash where the following keys are defined:
 ref has a value which is a string
 include_item_info has a value which is a SetAPI.boolean
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 ref_path_to_set has a value which is a reference to a list where each element is a string
 
 
@@ -3124,6 +3186,8 @@ a string
 When saving a FeatureSetSet, only 'ref' is required.
 You should never set 'info'.  'info' is provided optionally when fetching
 the FeatureSetSet.
+ref_path is optionally returned by get_feature_set_set_v1()
+when its input parameter 'include_set_item_ref_paths' is set to 1.
 
 
 =item Definition
@@ -3133,6 +3197,7 @@ the FeatureSetSet.
 <pre>
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_feature_set_id
+ref_path has a value which is a SetAPI.ws_feature_set_id
 label has a value which is a string
 info has a value which is a Workspace.object_info
 
@@ -3144,6 +3209,7 @@ info has a value which is a Workspace.object_info
 
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_feature_set_id
+ref_path has a value which is a SetAPI.ws_feature_set_id
 label has a value which is a string
 info has a value which is a Workspace.object_info
 
@@ -3206,6 +3272,10 @@ items has a value which is a reference to a list where each element is a SetAPI.
 ref - workspace reference to FeatureSetSet object.
 include_item_info - 1 or 0, if 1 additionally provides workspace info (with
                     metadata) for each FeatureSet object in the Set
+include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                             in the set. The ref_path returned for each item is either
+                                 ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                                 set_ref;item_ref  (if ref_path_to_set is not given)
 
 
 =item Definition
@@ -3216,6 +3286,7 @@ include_item_info - 1 or 0, if 1 additionally provides workspace info (with
 a reference to a hash where the following keys are defined:
 ref has a value which is a string
 include_item_info has a value which is a SetAPI.boolean
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 ref_path_to_set has a value which is a reference to a list where each element is a string
 
 </pre>
@@ -3227,6 +3298,7 @@ ref_path_to_set has a value which is a reference to a list where each element is
 a reference to a hash where the following keys are defined:
 ref has a value which is a string
 include_item_info has a value which is a SetAPI.boolean
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 ref_path_to_set has a value which is a reference to a list where each element is a string
 
 
@@ -3385,6 +3457,8 @@ a string
 When saving a ExpressionSet, only 'ref' is required.
 You should never set 'info'.  'info' is provided optionally when fetching
 the ExpressionSet.
+ref_path is optionally returned by get_expression_set_v1()
+when its input parameter 'include_set_item_ref_paths' is set to 1.
 
 
 =item Definition
@@ -3394,6 +3468,7 @@ the ExpressionSet.
 <pre>
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_expression_id
+ref_path has a value which is a SetAPI.ws_expression_id
 label has a value which is a string
 data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
 info has a value which is a Workspace.object_info
@@ -3406,6 +3481,7 @@ info has a value which is a Workspace.object_info
 
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_expression_id
+ref_path has a value which is a SetAPI.ws_expression_id
 label has a value which is a string
 data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
 info has a value which is a Workspace.object_info
@@ -3469,6 +3545,10 @@ items has a value which is a reference to a list where each element is a SetAPI.
 ref - workspace reference to ExpressionSet object.
 include_item_info - 1 or 0, if 1 additionally provides workspace info (with
                     metadata) for each Expression object in the Set
+include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                             in the set. The ref_path returned for each item is either
+                                 ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                                 set_ref;item_ref  (if ref_path_to_set is not given)
 
 
 =item Definition
@@ -3479,6 +3559,7 @@ include_item_info - 1 or 0, if 1 additionally provides workspace info (with
 a reference to a hash where the following keys are defined:
 ref has a value which is a string
 include_item_info has a value which is a SetAPI.boolean
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 ref_path_to_set has a value which is a reference to a list where each element is a string
 
 </pre>
@@ -3490,6 +3571,7 @@ ref_path_to_set has a value which is a reference to a list where each element is
 a reference to a hash where the following keys are defined:
 ref has a value which is a string
 include_item_info has a value which is a SetAPI.boolean
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 ref_path_to_set has a value which is a reference to a list where each element is a string
 
 
@@ -3648,6 +3730,8 @@ a string
 When saving a ReadsAlignmentSet, only 'ref' is required.
 You should never set 'info'.  'info' is provided optionally when fetching
 the ReadsAlignmentSet.
+ref_path is optionally returned by get_reads_alignment_set_v1()
+when its input parameter 'include_set_item_ref_paths' is set to 1.
 
 
 =item Definition
@@ -3657,6 +3741,7 @@ the ReadsAlignmentSet.
 <pre>
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_reads_align_id
+ref_path has a value which is a SetAPI.ws_reads_align_id
 label has a value which is a string
 info has a value which is a Workspace.object_info
 data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
@@ -3669,6 +3754,7 @@ data_attachments has a value which is a reference to a list where each element i
 
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_reads_align_id
+ref_path has a value which is a SetAPI.ws_reads_align_id
 label has a value which is a string
 info has a value which is a Workspace.object_info
 data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
@@ -3732,6 +3818,10 @@ items has a value which is a reference to a list where each element is a SetAPI.
 ref - workspace reference to ReadsAlignmentSet object.
 include_item_info - 1 or 0, if 1 additionally provides workspace info (with
                     metadata) for each ReadsAlignment object in the Set
+include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                             in the set. The ref_path returned for each item is either
+                                 ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                                 set_ref;item_ref  (if ref_path_to_set is not given)
 
 
 =item Definition
@@ -3742,6 +3832,7 @@ include_item_info - 1 or 0, if 1 additionally provides workspace info (with
 a reference to a hash where the following keys are defined:
 ref has a value which is a string
 include_item_info has a value which is a SetAPI.boolean
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 ref_path_to_set has a value which is a reference to a list where each element is a string
 
 </pre>
@@ -3753,6 +3844,7 @@ ref_path_to_set has a value which is a reference to a list where each element is
 a reference to a hash where the following keys are defined:
 ref has a value which is a string
 include_item_info has a value which is a SetAPI.boolean
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 ref_path_to_set has a value which is a reference to a list where each element is a string
 
 
@@ -3911,6 +4003,8 @@ a string
 When saving a ReadsSet, only 'ref' is required.  You should
 never set 'info'.  'info' is provided optionally when fetching
 the ReadsSet.
+ref_path is optionally returned by get_reads_set_v1()
+when its input parameter 'include_set_item_ref_paths' is set to 1.
 
 
 =item Definition
@@ -3920,6 +4014,7 @@ the ReadsSet.
 <pre>
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_reads_id
+ref_path has a value which is a SetAPI.ws_reads_id
 label has a value which is a string
 data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
 info has a value which is a Workspace.object_info
@@ -3932,6 +4027,7 @@ info has a value which is a Workspace.object_info
 
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_reads_id
+ref_path has a value which is a SetAPI.ws_reads_id
 label has a value which is a string
 data_attachments has a value which is a reference to a list where each element is a SetAPI.DataAttachment
 info has a value which is a Workspace.object_info
@@ -3992,6 +4088,10 @@ items has a value which is a reference to a list where each element is a SetAPI.
 ref - workspace reference to ReadsGroup object.
 include_item_info - 1 or 0, if 1 additionally provides workspace info (with
                     metadata) for each Reads object in the Set
+include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                             in the set. The ref_path returned for each item is either
+                                 ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                                 set_ref;item_ref  (if ref_path_to_set is not given)
 
 
 =item Definition
@@ -4002,6 +4102,7 @@ include_item_info - 1 or 0, if 1 additionally provides workspace info (with
 a reference to a hash where the following keys are defined:
 ref has a value which is a string
 include_item_info has a value which is a SetAPI.boolean
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 ref_path_to_set has a value which is a reference to a list where each element is a string
 
 </pre>
@@ -4013,6 +4114,7 @@ ref_path_to_set has a value which is a reference to a list where each element is
 a reference to a hash where the following keys are defined:
 ref has a value which is a string
 include_item_info has a value which is a SetAPI.boolean
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 ref_path_to_set has a value which is a reference to a list where each element is a string
 
 
@@ -4171,6 +4273,8 @@ a string
 When saving an AssemblySet, only 'ref' is required.
 You should never set 'info'.  'info' is provided optionally when fetching
 the AssemblySet.
+ref_path is optionally returned by get_assembly_set_v1()
+when its input parameter 'include_set_item_ref_paths' is set to 1.
 
 
 =item Definition
@@ -4180,6 +4284,7 @@ the AssemblySet.
 <pre>
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_assembly_id
+ref_path has a value which is a SetAPI.ws_assembly_id
 label has a value which is a string
 info has a value which is a Workspace.object_info
 
@@ -4191,6 +4296,7 @@ info has a value which is a Workspace.object_info
 
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_assembly_id
+ref_path has a value which is a SetAPI.ws_assembly_id
 label has a value which is a string
 info has a value which is a Workspace.object_info
 
@@ -4250,6 +4356,10 @@ items has a value which is a reference to a list where each element is a SetAPI.
 ref - workspace reference to AssemblyGroup object.
 include_item_info - 1 or 0, if 1 additionally provides workspace info (with
                     metadata) for each Assembly object in the Set
+include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                             in the set. The ref_path returned for each item is either
+                                 ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                                 set_ref;item_ref  (if ref_path_to_set is not given)
 
 
 =item Definition
@@ -4260,6 +4370,7 @@ include_item_info - 1 or 0, if 1 additionally provides workspace info (with
 a reference to a hash where the following keys are defined:
 ref has a value which is a string
 include_item_info has a value which is a SetAPI.boolean
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 ref_path_to_set has a value which is a reference to a list where each element is a string
 
 </pre>
@@ -4271,6 +4382,7 @@ ref_path_to_set has a value which is a reference to a list where each element is
 a reference to a hash where the following keys are defined:
 ref has a value which is a string
 include_item_info has a value which is a SetAPI.boolean
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 ref_path_to_set has a value which is a reference to a list where each element is a string
 
 
@@ -4429,6 +4541,8 @@ a string
 When saving an GenomeSet, only 'ref' is required.
 You should never set 'info'.  'info' is provided optionally when fetching
 the GenomeSet.
+ref_path is optionally returned by get_genome_set_v1()
+when its input parameter 'include_set_item_ref_paths' is set to 1.
 
 
 =item Definition
@@ -4438,6 +4552,7 @@ the GenomeSet.
 <pre>
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_genome_id
+ref_path has a value which is a SetAPI.ws_genome_id
 label has a value which is a string
 info has a value which is a Workspace.object_info
 
@@ -4449,6 +4564,7 @@ info has a value which is a Workspace.object_info
 
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_genome_id
+ref_path has a value which is a SetAPI.ws_genome_id
 label has a value which is a string
 info has a value which is a Workspace.object_info
 
@@ -4508,6 +4624,10 @@ items has a value which is a reference to a list where each element is a SetAPI.
 ref - workspace reference to GenomeGroup object.
 include_item_info - 1 or 0, if 1 additionally provides workspace info (with
                     metadata) for each Genome object in the Set
+include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                    in the set. The ref_path for each item is either
+                        ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                        set_ref;item_ref
 
 
 =item Definition
@@ -4518,6 +4638,7 @@ include_item_info - 1 or 0, if 1 additionally provides workspace info (with
 a reference to a hash where the following keys are defined:
 ref has a value which is a string
 include_item_info has a value which is a SetAPI.boolean
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 ref_path_to_set has a value which is a reference to a list where each element is a string
 
 </pre>
@@ -4529,6 +4650,7 @@ ref_path_to_set has a value which is a reference to a list where each element is
 a reference to a hash where the following keys are defined:
 ref has a value which is a string
 include_item_info has a value which is a SetAPI.boolean
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 ref_path_to_set has a value which is a reference to a list where each element is a string
 
 
@@ -4660,6 +4782,10 @@ include_metadata - flag for including metadata into Set object info
     and into object info of items (it affects DP raw data as well),
 include_raw_data_palettes - advanced option designed for
     optimization of listing methods in NarrativeService.
+include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                    in the set. The ref_path for each item is either
+                        ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                        set_ref;item_ref
 
 
 =item Definition
@@ -4673,6 +4799,7 @@ workspaces has a value which is a string
 include_set_item_info has a value which is a SetAPI.boolean
 include_metadata has a value which is a SetAPI.boolean
 include_raw_data_palettes has a value which is a SetAPI.boolean
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 
 </pre>
 
@@ -4686,6 +4813,7 @@ workspaces has a value which is a string
 include_set_item_info has a value which is a SetAPI.boolean
 include_metadata has a value which is a SetAPI.boolean
 include_raw_data_palettes has a value which is a SetAPI.boolean
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 
 
 =end text
@@ -4700,6 +4828,12 @@ include_raw_data_palettes has a value which is a SetAPI.boolean
 
 
 
+=item Description
+
+ref_path is optionally returned by list_sets() and get_set_items(),
+when the input parameter 'include_set_item_ref_paths' is set to 1.
+
+
 =item Definition
 
 =begin html
@@ -4707,6 +4841,7 @@ include_raw_data_palettes has a value which is a SetAPI.boolean
 <pre>
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_obj_id
+ref_path has a value which is a SetAPI.ws_obj_id
 info has a value which is a Workspace.object_info
 
 </pre>
@@ -4717,6 +4852,7 @@ info has a value which is a Workspace.object_info
 
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_obj_id
+ref_path has a value which is a SetAPI.ws_obj_id
 info has a value which is a Workspace.object_info
 
 
@@ -4817,6 +4953,14 @@ raw_data_palette_refs has a value which is a reference to a hash where the key i
 
 
 
+=item Description
+
+include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+                    in the set. The ref_path for each item is either
+                        ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+                        set_ref;item_ref
+
+
 =item Definition
 
 =begin html
@@ -4824,7 +4968,7 @@ raw_data_palette_refs has a value which is a reference to a hash where the key i
 <pre>
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_obj_id
-path_to_set has a value which is a reference to a list where each element is a SetAPI.ws_obj_id
+ref_path_to_set has a value which is a reference to a list where each element is a SetAPI.ws_obj_id
 
 </pre>
 
@@ -4834,7 +4978,7 @@ path_to_set has a value which is a reference to a list where each element is a S
 
 a reference to a hash where the following keys are defined:
 ref has a value which is a SetAPI.ws_obj_id
-path_to_set has a value which is a reference to a list where each element is a SetAPI.ws_obj_id
+ref_path_to_set has a value which is a reference to a list where each element is a SetAPI.ws_obj_id
 
 
 =end text
@@ -4856,6 +5000,7 @@ path_to_set has a value which is a reference to a list where each element is a S
 <pre>
 a reference to a hash where the following keys are defined:
 set_refs has a value which is a reference to a list where each element is a SetAPI.SetReference
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 
 </pre>
 
@@ -4865,6 +5010,7 @@ set_refs has a value which is a reference to a list where each element is a SetA
 
 a reference to a hash where the following keys are defined:
 set_refs has a value which is a reference to a list where each element is a SetAPI.SetReference
+include_set_item_ref_paths has a value which is a SetAPI.boolean
 
 
 =end text

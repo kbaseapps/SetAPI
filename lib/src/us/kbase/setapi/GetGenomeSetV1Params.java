@@ -18,6 +18,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * ref - workspace reference to GenomeGroup object.
  * include_item_info - 1 or 0, if 1 additionally provides workspace info (with
  *                     metadata) for each Genome object in the Set
+ * include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+ *                     in the set. The ref_path for each item is either
+ *                         ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+ *                         set_ref;item_ref
  * </pre>
  * 
  */
@@ -26,6 +30,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
     "ref",
     "include_item_info",
+    "include_set_item_ref_paths",
     "ref_path_to_set"
 })
 public class GetGenomeSetV1Params {
@@ -34,6 +39,8 @@ public class GetGenomeSetV1Params {
     private java.lang.String ref;
     @JsonProperty("include_item_info")
     private Long includeItemInfo;
+    @JsonProperty("include_set_item_ref_paths")
+    private Long includeSetItemRefPaths;
     @JsonProperty("ref_path_to_set")
     private List<String> refPathToSet;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
@@ -68,6 +75,21 @@ public class GetGenomeSetV1Params {
         return this;
     }
 
+    @JsonProperty("include_set_item_ref_paths")
+    public Long getIncludeSetItemRefPaths() {
+        return includeSetItemRefPaths;
+    }
+
+    @JsonProperty("include_set_item_ref_paths")
+    public void setIncludeSetItemRefPaths(Long includeSetItemRefPaths) {
+        this.includeSetItemRefPaths = includeSetItemRefPaths;
+    }
+
+    public GetGenomeSetV1Params withIncludeSetItemRefPaths(Long includeSetItemRefPaths) {
+        this.includeSetItemRefPaths = includeSetItemRefPaths;
+        return this;
+    }
+
     @JsonProperty("ref_path_to_set")
     public List<String> getRefPathToSet() {
         return refPathToSet;
@@ -95,7 +117,7 @@ public class GetGenomeSetV1Params {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((("GetGenomeSetV1Params"+" [ref=")+ ref)+", includeItemInfo=")+ includeItemInfo)+", refPathToSet=")+ refPathToSet)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((("GetGenomeSetV1Params"+" [ref=")+ ref)+", includeItemInfo=")+ includeItemInfo)+", includeSetItemRefPaths=")+ includeSetItemRefPaths)+", refPathToSet=")+ refPathToSet)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

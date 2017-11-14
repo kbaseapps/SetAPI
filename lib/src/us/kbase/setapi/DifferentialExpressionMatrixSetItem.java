@@ -18,6 +18,8 @@ import us.kbase.common.service.Tuple11;
  * When saving a DifferentialExpressionMatrixSet, only 'ref' is required.
  * You should never set 'info'.  'info' is provided optionally when fetching
  * the DifferentialExpressionMatrixSet.
+ * ref_path is optionally returned by get_differential_expression_matrix_set_v1()
+ * when its input parameter 'include_set_item_ref_paths' is set to 1.
  * </pre>
  * 
  */
@@ -25,6 +27,7 @@ import us.kbase.common.service.Tuple11;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "ref",
+    "ref_path",
     "label",
     "info"
 })
@@ -32,6 +35,8 @@ public class DifferentialExpressionMatrixSetItem {
 
     @JsonProperty("ref")
     private java.lang.String ref;
+    @JsonProperty("ref_path")
+    private java.lang.String refPath;
     @JsonProperty("label")
     private java.lang.String label;
     @JsonProperty("info")
@@ -50,6 +55,21 @@ public class DifferentialExpressionMatrixSetItem {
 
     public DifferentialExpressionMatrixSetItem withRef(java.lang.String ref) {
         this.ref = ref;
+        return this;
+    }
+
+    @JsonProperty("ref_path")
+    public java.lang.String getRefPath() {
+        return refPath;
+    }
+
+    @JsonProperty("ref_path")
+    public void setRefPath(java.lang.String refPath) {
+        this.refPath = refPath;
+    }
+
+    public DifferentialExpressionMatrixSetItem withRefPath(java.lang.String refPath) {
+        this.refPath = refPath;
         return this;
     }
 
@@ -95,7 +115,7 @@ public class DifferentialExpressionMatrixSetItem {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((("DifferentialExpressionMatrixSetItem"+" [ref=")+ ref)+", label=")+ label)+", info=")+ info)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((("DifferentialExpressionMatrixSetItem"+" [ref=")+ ref)+", refPath=")+ refPath)+", label=")+ label)+", info=")+ info)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

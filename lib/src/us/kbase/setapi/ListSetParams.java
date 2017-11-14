@@ -22,6 +22,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  *     and into object info of items (it affects DP raw data as well),
  * include_raw_data_palettes - advanced option designed for
  *     optimization of listing methods in NarrativeService.
+ * include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+ *                     in the set. The ref_path for each item is either
+ *                         ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+ *                         set_ref;item_ref
  * </pre>
  * 
  */
@@ -32,7 +36,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "workspaces",
     "include_set_item_info",
     "include_metadata",
-    "include_raw_data_palettes"
+    "include_raw_data_palettes",
+    "include_set_item_ref_paths"
 })
 public class ListSetParams {
 
@@ -46,6 +51,8 @@ public class ListSetParams {
     private Long includeMetadata;
     @JsonProperty("include_raw_data_palettes")
     private Long includeRawDataPalettes;
+    @JsonProperty("include_set_item_ref_paths")
+    private Long includeSetItemRefPaths;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("workspace")
@@ -123,6 +130,21 @@ public class ListSetParams {
         return this;
     }
 
+    @JsonProperty("include_set_item_ref_paths")
+    public Long getIncludeSetItemRefPaths() {
+        return includeSetItemRefPaths;
+    }
+
+    @JsonProperty("include_set_item_ref_paths")
+    public void setIncludeSetItemRefPaths(Long includeSetItemRefPaths) {
+        this.includeSetItemRefPaths = includeSetItemRefPaths;
+    }
+
+    public ListSetParams withIncludeSetItemRefPaths(Long includeSetItemRefPaths) {
+        this.includeSetItemRefPaths = includeSetItemRefPaths;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -135,7 +157,7 @@ public class ListSetParams {
 
     @Override
     public String toString() {
-        return ((((((((((((("ListSetParams"+" [workspace=")+ workspace)+", workspaces=")+ workspaces)+", includeSetItemInfo=")+ includeSetItemInfo)+", includeMetadata=")+ includeMetadata)+", includeRawDataPalettes=")+ includeRawDataPalettes)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((("ListSetParams"+" [workspace=")+ workspace)+", workspaces=")+ workspaces)+", includeSetItemInfo=")+ includeSetItemInfo)+", includeMetadata=")+ includeMetadata)+", includeRawDataPalettes=")+ includeRawDataPalettes)+", includeSetItemRefPaths=")+ includeSetItemRefPaths)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
