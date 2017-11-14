@@ -13,6 +13,7 @@ from SetAPI.expression.ExpressionSetInterfaceV1 import ExpressionSetInterfaceV1
 from SetAPI.differentialexpressionmatrix.DifferentialExpressionMatrixSetInterfaceV1 import DifferentialExpressionMatrixSetInterfaceV1
 from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
 from SetAPI.generic.DynamicServiceCache import DynamicServiceCache
+from SetAPI.sampleset.SampleSetInterface import SampleSetInterface
 
 #END_HEADER
 
@@ -34,7 +35,7 @@ class SetAPI:
     ######################################### noqa
     VERSION = "0.2.0"
     GIT_URL = "https://github.com/ugswork/SetAPI.git"
-    GIT_COMMIT_HASH = "d3d87921f724ac78dc1ec0a235dbb4e338f3cf15"
+    GIT_COMMIT_HASH = "b53442292ff35663c7a3c9b3de669120db1aa8a0"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -1926,6 +1927,79 @@ class SetAPI:
                              'result is not type dict as required.')
         # return the results
         return [result]
+
+    def create_sample_set(self, ctx, params):
+        """
+        :param params: instance of type "CreateRNASeqSampleSetParams"
+           (******* Sample SET METHODS ************) -> structure: parameter
+           "ws_id" of String, parameter "sampleset_id" of String, parameter
+           "sampleset_desc" of String, parameter "domain" of String,
+           parameter "platform" of String, parameter "sample_ids" of list of
+           String, parameter "condition" of list of String, parameter
+           "source" of String, parameter "Library_type" of String, parameter
+           "publication_id" of String, parameter "external_source_date" of
+           String
+        :returns: instance of type "CreateRNASeqSampleSetResult" ->
+           structure: parameter "set_ref" of String, parameter "set_info" of
+           type "object_info" (Information about an object, including user
+           provided metadata. obj_id objid - the numerical id of the object.
+           obj_name name - the name of the object. type_string type - the
+           type of the object. timestamp save_date - the save date of the
+           object. obj_ver ver - the version of the object. username saved_by
+           - the user that saved or copied the object. ws_id wsid - the
+           workspace containing the object. ws_name workspace - the workspace
+           containing the object. string chsum - the md5 checksum of the
+           object. int size - the size of the object in bytes. usermeta meta
+           - arbitrary user-supplied metadata about the object.) -> tuple of
+           size 11: parameter "objid" of type "obj_id" (The unique, permanent
+           numerical ID of an object.), parameter "name" of type "obj_name"
+           (A string used as a name for an object. Any string consisting of
+           alphanumeric characters and the characters |._- that is not an
+           integer is acceptable.), parameter "type" of type "type_string" (A
+           type string. Specifies the type and its version in a single string
+           in the format [module].[typename]-[major].[minor]: module - a
+           string. The module name of the typespec containing the type.
+           typename - a string. The name of the type as assigned by the
+           typedef statement. major - an integer. The major version of the
+           type. A change in the major version implies the type has changed
+           in a non-backwards compatible way. minor - an integer. The minor
+           version of the type. A change in the minor version implies that
+           the type has changed in a way that is backwards compatible with
+           previous type definitions. In many cases, the major and minor
+           versions are optional, and if not provided the most recent version
+           will be used. Example: MyModule.MyType-3.1), parameter "save_date"
+           of type "timestamp" (A time in the format YYYY-MM-DDThh:mm:ssZ,
+           where Z is either the character Z (representing the UTC timezone)
+           or the difference in time to UTC in the format +/-HHMM, eg:
+           2012-12-17T23:24:06-0500 (EST time) 2013-04-03T08:56:32+0000 (UTC
+           time) 2013-04-03T08:56:32Z (UTC time)), parameter "version" of
+           Long, parameter "saved_by" of type "username" (Login name of a
+           KBase user account.), parameter "wsid" of type "ws_id" (The
+           unique, permanent numerical ID of a workspace.), parameter
+           "workspace" of type "ws_name" (A string used as a name for a
+           workspace. Any string consisting of alphanumeric characters and
+           "_", ".", or "-" that is not an integer is acceptable. The name
+           may optionally be prefixed with the workspace owner's user name
+           and a colon, e.g. kbasetest:my_workspace.), parameter "chsum" of
+           String, parameter "size" of Long, parameter "meta" of type
+           "usermeta" (User provided metadata about an object. Arbitrary
+           key-value pairs provided by the user.) -> mapping from String to
+           String
+        """
+        # ctx is the context object
+        # return variables are: returnVal
+        #BEGIN create_sample_set
+        ws = Workspace(self.workspaceURL, token=ctx['token'])
+        ssi = SampleSetInterface(ws)
+        returnVal = ssi.create_sample_set(ctx, params)
+        #END create_sample_set
+
+        # At some point might do deeper type checking...
+        if not isinstance(returnVal, dict):
+            raise ValueError('Method create_sample_set return value ' +
+                             'returnVal is not type dict as required.')
+        # return the results
+        return [returnVal]
 
     def list_sets(self, ctx, params):
         """
