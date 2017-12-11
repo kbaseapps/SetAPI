@@ -389,6 +389,10 @@ class Application(object):
                              name='SetAPI.save_genome_set_v1',
                              types=[dict])
         self.method_authentication['SetAPI.save_genome_set_v1'] = 'required'  # noqa
+        self.rpc_service.add(impl_SetAPI.create_sample_set,
+                             name='SetAPI.create_sample_set',
+                             types=[dict])
+        self.method_authentication['SetAPI.create_sample_set'] = 'required'  # noqa
         self.rpc_service.add(impl_SetAPI.list_sets,
                              name='SetAPI.list_sets',
                              types=[dict])

@@ -400,6 +400,23 @@ public class SetAPIClient {
     }
 
     /**
+     * <p>Original spec-file function name: create_sample_set</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.setapi.CreateRNASeqSampleSetParams CreateRNASeqSampleSetParams}
+     * @return   instance of type {@link us.kbase.setapi.CreateRNASeqSampleSetResult CreateRNASeqSampleSetResult}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public CreateRNASeqSampleSetResult createSampleSet(CreateRNASeqSampleSetParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<CreateRNASeqSampleSetResult>> retType = new TypeReference<List<CreateRNASeqSampleSetResult>>() {};
+        List<CreateRNASeqSampleSetResult> res = caller.jsonrpcCall("SetAPI.create_sample_set", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
      * <p>Original spec-file function name: list_sets</p>
      * <pre>
      * Use to get the top-level sets in a WS. Optionally can include

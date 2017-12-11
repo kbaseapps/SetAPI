@@ -598,6 +598,31 @@ module SetAPI {
         returns (SaveGenomeSetV1Result result) authentication required;
 
 
+    /* ******* Sample SET METHODS ************ */
+
+    typedef structure{
+        string ws_id;
+        string sampleset_id;
+        string sampleset_desc;
+        string domain;
+        string platform;
+        list<string> sample_ids;
+        list<string> condition;
+        string source;
+        string Library_type;
+        string publication_id;
+        string external_source_date;
+    } CreateRNASeqSampleSetParams;
+
+    typedef structure{
+        string set_ref;
+        Workspace.object_info set_info;
+    } CreateRNASeqSampleSetResult;
+
+    funcdef create_sample_set(CreateRNASeqSampleSetParams params)
+                      returns(CreateRNASeqSampleSetResult) authentication required;
+
+
 
 
 

@@ -13,6 +13,7 @@ from SetAPI.expression.ExpressionSetInterfaceV1 import ExpressionSetInterfaceV1
 from SetAPI.differentialexpressionmatrix.DifferentialExpressionMatrixSetInterfaceV1 import DifferentialExpressionMatrixSetInterfaceV1
 from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
 from SetAPI.generic.DynamicServiceCache import DynamicServiceCache
+from SetAPI.sampleset.SampleSetInterface import SampleSetInterface
 
 #END_HEADER
 
@@ -23,7 +24,7 @@ class SetAPI:
     SetAPI
 
     Module Description:
-
+    
     '''
 
     ######## WARNING FOR GEVENT USERS ####### noqa
@@ -32,9 +33,9 @@ class SetAPI:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.1.3"
-    GIT_URL = "https://github.com/briehl/SetAPI"
-    GIT_COMMIT_HASH = "62fbdbc2d69beca6a61cbd9a959540655a8ed7ab"
+    VERSION = "0.2.0"
+    GIT_URL = "https://github.com/ugswork/SetAPI.git"
+    GIT_COMMIT_HASH = "b53442292ff35663c7a3c9b3de669120db1aa8a0"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -60,9 +61,15 @@ class SetAPI:
            reference to DifferentialExpressionMatrixSet object.
            include_item_info - 1 or 0, if 1 additionally provides workspace
            info (with metadata) for each DifferentialExpressionMatrix object
-           in the Set) -> structure: parameter "ref" of String, parameter
+           in the Set include_set_item_ref_paths - 1 or 0, if 1, additionally
+           provides ref_path for each item in the set. The ref_path returned
+           for each item is either ref_path_to_set;item_ref  (if
+           ref_path_to_set is given) or set_ref;item_ref  (if ref_path_to_set
+           is not given)) -> structure: parameter "ref" of String, parameter
            "include_item_info" of type "boolean" (A boolean. 0 = false, 1 =
-           true.), parameter "ref_path_to_set" of list of String
+           true.), parameter "include_set_item_ref_paths" of type "boolean"
+           (A boolean. 0 = false, 1 = true.), parameter "ref_path_to_set" of
+           list of String
         :returns: instance of type
            "GetDifferentialExpressionMatrixSetV1Result" -> structure:
            parameter "data" of type "DifferentialExpressionMatrixSet" (When
@@ -75,9 +82,14 @@ class SetAPI:
            of list of type "DifferentialExpressionMatrixSetItem" (When saving
            a DifferentialExpressionMatrixSet, only 'ref' is required. You
            should never set 'info'.  'info' is provided optionally when
-           fetching the DifferentialExpressionMatrixSet.) -> structure:
-           parameter "ref" of type "ws_diffexpmatrix_id" (The workspace id
-           for a FeatureSet data object. @id ws
+           fetching the DifferentialExpressionMatrixSet. ref_path is
+           optionally returned by get_differential_expression_matrix_set_v1()
+           when its input parameter 'include_set_item_ref_paths' is set to
+           1.) -> structure: parameter "ref" of type "ws_diffexpmatrix_id"
+           (The workspace id for a FeatureSet data object. @id ws
+           KBaseFeatureValues.DifferentialExpressionMatrix;), parameter
+           "ref_path" of type "ws_diffexpmatrix_id" (The workspace id for a
+           FeatureSet data object. @id ws
            KBaseFeatureValues.DifferentialExpressionMatrix;), parameter
            "label" of String, parameter "info" of type "object_info"
            (Information about an object, including user provided metadata.
@@ -201,9 +213,14 @@ class SetAPI:
            of list of type "DifferentialExpressionMatrixSetItem" (When saving
            a DifferentialExpressionMatrixSet, only 'ref' is required. You
            should never set 'info'.  'info' is provided optionally when
-           fetching the DifferentialExpressionMatrixSet.) -> structure:
-           parameter "ref" of type "ws_diffexpmatrix_id" (The workspace id
-           for a FeatureSet data object. @id ws
+           fetching the DifferentialExpressionMatrixSet. ref_path is
+           optionally returned by get_differential_expression_matrix_set_v1()
+           when its input parameter 'include_set_item_ref_paths' is set to
+           1.) -> structure: parameter "ref" of type "ws_diffexpmatrix_id"
+           (The workspace id for a FeatureSet data object. @id ws
+           KBaseFeatureValues.DifferentialExpressionMatrix;), parameter
+           "ref_path" of type "ws_diffexpmatrix_id" (The workspace id for a
+           FeatureSet data object. @id ws
            KBaseFeatureValues.DifferentialExpressionMatrix;), parameter
            "label" of String, parameter "info" of type "object_info"
            (Information about an object, including user provided metadata.
@@ -317,10 +334,15 @@ class SetAPI:
         :param params: instance of type "GetFeatureSetSetV1Params" (ref -
            workspace reference to FeatureSetSet object. include_item_info - 1
            or 0, if 1 additionally provides workspace info (with metadata)
-           for each FeatureSet object in the Set) -> structure: parameter
-           "ref" of String, parameter "include_item_info" of type "boolean"
-           (A boolean. 0 = false, 1 = true.), parameter "ref_path_to_set" of
-           list of String
+           for each FeatureSet object in the Set include_set_item_ref_paths -
+           1 or 0, if 1, additionally provides ref_path for each item in the
+           set. The ref_path returned for each item is either
+           ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+           set_ref;item_ref  (if ref_path_to_set is not given)) -> structure:
+           parameter "ref" of String, parameter "include_item_info" of type
+           "boolean" (A boolean. 0 = false, 1 = true.), parameter
+           "include_set_item_ref_paths" of type "boolean" (A boolean. 0 =
+           false, 1 = true.), parameter "ref_path_to_set" of list of String
         :returns: instance of type "GetFeatureSetSetV1Result" -> structure:
            parameter "data" of type "FeatureSetSet" (When building a
            FeatureSetSet, all FeatureSets must be aligned against the same
@@ -330,9 +352,13 @@ class SetAPI:
            parameter "description" of String, parameter "items" of list of
            type "FeatureSetSetItem" (When saving a FeatureSetSet, only 'ref'
            is required. You should never set 'info'.  'info' is provided
-           optionally when fetching the FeatureSetSet.) -> structure:
-           parameter "ref" of type "ws_feature_set_id" (The workspace id for
-           a FeatureSet data object. @id ws KBaseCollections.FeatureSet),
+           optionally when fetching the FeatureSetSet. ref_path is optionally
+           returned by get_feature_set_set_v1() when its input parameter
+           'include_set_item_ref_paths' is set to 1.) -> structure: parameter
+           "ref" of type "ws_feature_set_id" (The workspace id for a
+           FeatureSet data object. @id ws KBaseCollections.FeatureSet),
+           parameter "ref_path" of type "ws_feature_set_id" (The workspace id
+           for a FeatureSet data object. @id ws KBaseCollections.FeatureSet),
            parameter "label" of String, parameter "info" of type
            "object_info" (Information about an object, including user
            provided metadata. obj_id objid - the numerical id of the object.
@@ -453,9 +479,13 @@ class SetAPI:
            "description" of String, parameter "items" of list of type
            "FeatureSetSetItem" (When saving a FeatureSetSet, only 'ref' is
            required. You should never set 'info'.  'info' is provided
-           optionally when fetching the FeatureSetSet.) -> structure:
-           parameter "ref" of type "ws_feature_set_id" (The workspace id for
-           a FeatureSet data object. @id ws KBaseCollections.FeatureSet),
+           optionally when fetching the FeatureSetSet. ref_path is optionally
+           returned by get_feature_set_set_v1() when its input parameter
+           'include_set_item_ref_paths' is set to 1.) -> structure: parameter
+           "ref" of type "ws_feature_set_id" (The workspace id for a
+           FeatureSet data object. @id ws KBaseCollections.FeatureSet),
+           parameter "ref_path" of type "ws_feature_set_id" (The workspace id
+           for a FeatureSet data object. @id ws KBaseCollections.FeatureSet),
            parameter "label" of String, parameter "info" of type
            "object_info" (Information about an object, including user
            provided metadata. obj_id objid - the numerical id of the object.
@@ -568,10 +598,15 @@ class SetAPI:
         :param params: instance of type "GetExpressionSetV1Params" (ref -
            workspace reference to ExpressionSet object. include_item_info - 1
            or 0, if 1 additionally provides workspace info (with metadata)
-           for each Expression object in the Set) -> structure: parameter
-           "ref" of String, parameter "include_item_info" of type "boolean"
-           (A boolean. 0 = false, 1 = true.), parameter "ref_path_to_set" of
-           list of String
+           for each Expression object in the Set include_set_item_ref_paths -
+           1 or 0, if 1, additionally provides ref_path for each item in the
+           set. The ref_path returned for each item is either
+           ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+           set_ref;item_ref  (if ref_path_to_set is not given)) -> structure:
+           parameter "ref" of String, parameter "include_item_info" of type
+           "boolean" (A boolean. 0 = false, 1 = true.), parameter
+           "include_set_item_ref_paths" of type "boolean" (A boolean. 0 =
+           false, 1 = true.), parameter "ref_path_to_set" of list of String
         :returns: instance of type "GetExpressionSetV1Result" -> structure:
            parameter "data" of type "ExpressionSet" (When building a
            ExpressionSet, all Expression objects must be aligned against the
@@ -581,39 +616,44 @@ class SetAPI:
            parameter "description" of String, parameter "items" of list of
            type "ExpressionSetItem" (When saving a ExpressionSet, only 'ref'
            is required. You should never set 'info'.  'info' is provided
-           optionally when fetching the ExpressionSet.) -> structure:
-           parameter "ref" of type "ws_expression_id" (The workspace id for a
+           optionally when fetching the ExpressionSet. ref_path is optionally
+           returned by get_expression_set_v1() when its input parameter
+           'include_set_item_ref_paths' is set to 1.) -> structure: parameter
+           "ref" of type "ws_expression_id" (The workspace id for a
            ReadsAlignment data object. @id ws KBaseRNASeq.RNASeqExpression),
-           parameter "label" of String, parameter "data_attachments" of list
-           of type "DataAttachment" -> structure: parameter "name" of String,
-           parameter "ref" of type "ws_obj_id" (The workspace ID for a any
-           data object. @id ws), parameter "info" of type "object_info"
-           (Information about an object, including user provided metadata.
-           obj_id objid - the numerical id of the object. obj_name name - the
-           name of the object. type_string type - the type of the object.
-           timestamp save_date - the save date of the object. obj_ver ver -
-           the version of the object. username saved_by - the user that saved
-           or copied the object. ws_id wsid - the workspace containing the
-           object. ws_name workspace - the workspace containing the object.
-           string chsum - the md5 checksum of the object. int size - the size
-           of the object in bytes. usermeta meta - arbitrary user-supplied
-           metadata about the object.) -> tuple of size 11: parameter "objid"
-           of type "obj_id" (The unique, permanent numerical ID of an
-           object.), parameter "name" of type "obj_name" (A string used as a
-           name for an object. Any string consisting of alphanumeric
-           characters and the characters |._- that is not an integer is
-           acceptable.), parameter "type" of type "type_string" (A type
-           string. Specifies the type and its version in a single string in
-           the format [module].[typename]-[major].[minor]: module - a string.
-           The module name of the typespec containing the type. typename - a
-           string. The name of the type as assigned by the typedef statement.
-           major - an integer. The major version of the type. A change in the
-           major version implies the type has changed in a non-backwards
-           compatible way. minor - an integer. The minor version of the type.
-           A change in the minor version implies that the type has changed in
-           a way that is backwards compatible with previous type definitions.
-           In many cases, the major and minor versions are optional, and if
-           not provided the most recent version will be used. Example:
+           parameter "ref_path" of type "ws_expression_id" (The workspace id
+           for a ReadsAlignment data object. @id ws
+           KBaseRNASeq.RNASeqExpression), parameter "label" of String,
+           parameter "data_attachments" of list of type "DataAttachment" ->
+           structure: parameter "name" of String, parameter "ref" of type
+           "ws_obj_id" (The workspace ID for a any data object. @id ws),
+           parameter "info" of type "object_info" (Information about an
+           object, including user provided metadata. obj_id objid - the
+           numerical id of the object. obj_name name - the name of the
+           object. type_string type - the type of the object. timestamp
+           save_date - the save date of the object. obj_ver ver - the version
+           of the object. username saved_by - the user that saved or copied
+           the object. ws_id wsid - the workspace containing the object.
+           ws_name workspace - the workspace containing the object. string
+           chsum - the md5 checksum of the object. int size - the size of the
+           object in bytes. usermeta meta - arbitrary user-supplied metadata
+           about the object.) -> tuple of size 11: parameter "objid" of type
+           "obj_id" (The unique, permanent numerical ID of an object.),
+           parameter "name" of type "obj_name" (A string used as a name for
+           an object. Any string consisting of alphanumeric characters and
+           the characters |._- that is not an integer is acceptable.),
+           parameter "type" of type "type_string" (A type string. Specifies
+           the type and its version in a single string in the format
+           [module].[typename]-[major].[minor]: module - a string. The module
+           name of the typespec containing the type. typename - a string. The
+           name of the type as assigned by the typedef statement. major - an
+           integer. The major version of the type. A change in the major
+           version implies the type has changed in a non-backwards compatible
+           way. minor - an integer. The minor version of the type. A change
+           in the minor version implies that the type has changed in a way
+           that is backwards compatible with previous type definitions. In
+           many cases, the major and minor versions are optional, and if not
+           provided the most recent version will be used. Example:
            MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
            time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
            character Z (representing the UTC timezone) or the difference in
@@ -709,39 +749,44 @@ class SetAPI:
            "description" of String, parameter "items" of list of type
            "ExpressionSetItem" (When saving a ExpressionSet, only 'ref' is
            required. You should never set 'info'.  'info' is provided
-           optionally when fetching the ExpressionSet.) -> structure:
-           parameter "ref" of type "ws_expression_id" (The workspace id for a
+           optionally when fetching the ExpressionSet. ref_path is optionally
+           returned by get_expression_set_v1() when its input parameter
+           'include_set_item_ref_paths' is set to 1.) -> structure: parameter
+           "ref" of type "ws_expression_id" (The workspace id for a
            ReadsAlignment data object. @id ws KBaseRNASeq.RNASeqExpression),
-           parameter "label" of String, parameter "data_attachments" of list
-           of type "DataAttachment" -> structure: parameter "name" of String,
-           parameter "ref" of type "ws_obj_id" (The workspace ID for a any
-           data object. @id ws), parameter "info" of type "object_info"
-           (Information about an object, including user provided metadata.
-           obj_id objid - the numerical id of the object. obj_name name - the
-           name of the object. type_string type - the type of the object.
-           timestamp save_date - the save date of the object. obj_ver ver -
-           the version of the object. username saved_by - the user that saved
-           or copied the object. ws_id wsid - the workspace containing the
-           object. ws_name workspace - the workspace containing the object.
-           string chsum - the md5 checksum of the object. int size - the size
-           of the object in bytes. usermeta meta - arbitrary user-supplied
-           metadata about the object.) -> tuple of size 11: parameter "objid"
-           of type "obj_id" (The unique, permanent numerical ID of an
-           object.), parameter "name" of type "obj_name" (A string used as a
-           name for an object. Any string consisting of alphanumeric
-           characters and the characters |._- that is not an integer is
-           acceptable.), parameter "type" of type "type_string" (A type
-           string. Specifies the type and its version in a single string in
-           the format [module].[typename]-[major].[minor]: module - a string.
-           The module name of the typespec containing the type. typename - a
-           string. The name of the type as assigned by the typedef statement.
-           major - an integer. The major version of the type. A change in the
-           major version implies the type has changed in a non-backwards
-           compatible way. minor - an integer. The minor version of the type.
-           A change in the minor version implies that the type has changed in
-           a way that is backwards compatible with previous type definitions.
-           In many cases, the major and minor versions are optional, and if
-           not provided the most recent version will be used. Example:
+           parameter "ref_path" of type "ws_expression_id" (The workspace id
+           for a ReadsAlignment data object. @id ws
+           KBaseRNASeq.RNASeqExpression), parameter "label" of String,
+           parameter "data_attachments" of list of type "DataAttachment" ->
+           structure: parameter "name" of String, parameter "ref" of type
+           "ws_obj_id" (The workspace ID for a any data object. @id ws),
+           parameter "info" of type "object_info" (Information about an
+           object, including user provided metadata. obj_id objid - the
+           numerical id of the object. obj_name name - the name of the
+           object. type_string type - the type of the object. timestamp
+           save_date - the save date of the object. obj_ver ver - the version
+           of the object. username saved_by - the user that saved or copied
+           the object. ws_id wsid - the workspace containing the object.
+           ws_name workspace - the workspace containing the object. string
+           chsum - the md5 checksum of the object. int size - the size of the
+           object in bytes. usermeta meta - arbitrary user-supplied metadata
+           about the object.) -> tuple of size 11: parameter "objid" of type
+           "obj_id" (The unique, permanent numerical ID of an object.),
+           parameter "name" of type "obj_name" (A string used as a name for
+           an object. Any string consisting of alphanumeric characters and
+           the characters |._- that is not an integer is acceptable.),
+           parameter "type" of type "type_string" (A type string. Specifies
+           the type and its version in a single string in the format
+           [module].[typename]-[major].[minor]: module - a string. The module
+           name of the typespec containing the type. typename - a string. The
+           name of the type as assigned by the typedef statement. major - an
+           integer. The major version of the type. A change in the major
+           version implies the type has changed in a non-backwards compatible
+           way. minor - an integer. The minor version of the type. A change
+           in the minor version implies that the type has changed in a way
+           that is backwards compatible with previous type definitions. In
+           many cases, the major and minor versions are optional, and if not
+           provided the most recent version will be used. Example:
            MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
            time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
            character Z (representing the UTC timezone) or the difference in
@@ -828,10 +873,16 @@ class SetAPI:
         :param params: instance of type "GetReadsAlignmentSetV1Params" (ref -
            workspace reference to ReadsAlignmentSet object. include_item_info
            - 1 or 0, if 1 additionally provides workspace info (with
-           metadata) for each ReadsAlignment object in the Set) -> structure:
-           parameter "ref" of String, parameter "include_item_info" of type
-           "boolean" (A boolean. 0 = false, 1 = true.), parameter
-           "ref_path_to_set" of list of String
+           metadata) for each ReadsAlignment object in the Set
+           include_set_item_ref_paths - 1 or 0, if 1, additionally provides
+           ref_path for each item in the set. The ref_path returned for each
+           item is either ref_path_to_set;item_ref  (if ref_path_to_set is
+           given) or set_ref;item_ref  (if ref_path_to_set is not given)) ->
+           structure: parameter "ref" of String, parameter
+           "include_item_info" of type "boolean" (A boolean. 0 = false, 1 =
+           true.), parameter "include_set_item_ref_paths" of type "boolean"
+           (A boolean. 0 = false, 1 = true.), parameter "ref_path_to_set" of
+           list of String
         :returns: instance of type "GetReadsAlignmentSetV1Result" ->
            structure: parameter "data" of type "ReadsAlignmentSet" (When
            building a ReadsAlignmentSet, all ReadsAlignments must be aligned
@@ -842,11 +893,16 @@ class SetAPI:
            of list of type "ReadsAlignmentSetItem" (When saving a
            ReadsAlignmentSet, only 'ref' is required. You should never set
            'info'.  'info' is provided optionally when fetching the
-           ReadsAlignmentSet.) -> structure: parameter "ref" of type
-           "ws_reads_align_id" (The workspace id for a ReadsAlignment data
-           object. @id ws KBaseRNASeq.RNASeqAlignment), parameter "label" of
-           String, parameter "info" of type "object_info" (Information about
-           an object, including user provided metadata. obj_id objid - the
+           ReadsAlignmentSet. ref_path is optionally returned by
+           get_reads_alignment_set_v1() when its input parameter
+           'include_set_item_ref_paths' is set to 1.) -> structure: parameter
+           "ref" of type "ws_reads_align_id" (The workspace id for a
+           ReadsAlignment data object. @id ws KBaseRNASeq.RNASeqAlignment),
+           parameter "ref_path" of type "ws_reads_align_id" (The workspace id
+           for a ReadsAlignment data object. @id ws
+           KBaseRNASeq.RNASeqAlignment), parameter "label" of String,
+           parameter "info" of type "object_info" (Information about an
+           object, including user provided metadata. obj_id objid - the
            numerical id of the object. obj_name name - the name of the
            object. type_string type - the type of the object. timestamp
            save_date - the save date of the object. obj_ver ver - the version
@@ -970,12 +1026,16 @@ class SetAPI:
            "description" of String, parameter "items" of list of type
            "ReadsAlignmentSetItem" (When saving a ReadsAlignmentSet, only
            'ref' is required. You should never set 'info'.  'info' is
-           provided optionally when fetching the ReadsAlignmentSet.) ->
+           provided optionally when fetching the ReadsAlignmentSet. ref_path
+           is optionally returned by get_reads_alignment_set_v1() when its
+           input parameter 'include_set_item_ref_paths' is set to 1.) ->
            structure: parameter "ref" of type "ws_reads_align_id" (The
            workspace id for a ReadsAlignment data object. @id ws
-           KBaseRNASeq.RNASeqAlignment), parameter "label" of String,
-           parameter "info" of type "object_info" (Information about an
-           object, including user provided metadata. obj_id objid - the
+           KBaseRNASeq.RNASeqAlignment), parameter "ref_path" of type
+           "ws_reads_align_id" (The workspace id for a ReadsAlignment data
+           object. @id ws KBaseRNASeq.RNASeqAlignment), parameter "label" of
+           String, parameter "info" of type "object_info" (Information about
+           an object, including user provided metadata. obj_id objid - the
            numerical id of the object. obj_name name - the name of the
            object. type_string type - the type of the object. timestamp
            save_date - the save date of the object. obj_ver ver - the version
@@ -1088,50 +1148,59 @@ class SetAPI:
         :param params: instance of type "GetReadsSetV1Params" (ref -
            workspace reference to ReadsGroup object. include_item_info - 1 or
            0, if 1 additionally provides workspace info (with metadata) for
-           each Reads object in the Set) -> structure: parameter "ref" of
+           each Reads object in the Set include_set_item_ref_paths - 1 or 0,
+           if 1, additionally provides ref_path for each item in the set. The
+           ref_path returned for each item is either ref_path_to_set;item_ref
+           (if ref_path_to_set is given) or set_ref;item_ref  (if
+           ref_path_to_set is not given)) -> structure: parameter "ref" of
            String, parameter "include_item_info" of type "boolean" (A
-           boolean. 0 = false, 1 = true.), parameter "ref_path_to_set" of
-           list of String
+           boolean. 0 = false, 1 = true.), parameter
+           "include_set_item_ref_paths" of type "boolean" (A boolean. 0 =
+           false, 1 = true.), parameter "ref_path_to_set" of list of String
         :returns: instance of type "GetReadsSetV1Result" -> structure:
            parameter "data" of type "ReadsSet" (@meta ws description as
            description @meta ws length(items) as item_count) -> structure:
            parameter "description" of String, parameter "items" of list of
            type "ReadsSetItem" (When saving a ReadsSet, only 'ref' is
            required.  You should never set 'info'.  'info' is provided
-           optionally when fetching the ReadsSet.) -> structure: parameter
+           optionally when fetching the ReadsSet. ref_path is optionally
+           returned by get_reads_set_v1() when its input parameter
+           'include_set_item_ref_paths' is set to 1.) -> structure: parameter
            "ref" of type "ws_reads_id" (The workspace ID for a Reads data
            object. @id ws KBaseFile.PairedEndLibrary
-           KBaseFile.SingleEndLibrary), parameter "label" of String,
-           parameter "data_attachments" of list of type "DataAttachment" ->
-           structure: parameter "name" of String, parameter "ref" of type
-           "ws_obj_id" (The workspace ID for a any data object. @id ws),
-           parameter "info" of type "object_info" (Information about an
-           object, including user provided metadata. obj_id objid - the
-           numerical id of the object. obj_name name - the name of the
-           object. type_string type - the type of the object. timestamp
-           save_date - the save date of the object. obj_ver ver - the version
-           of the object. username saved_by - the user that saved or copied
-           the object. ws_id wsid - the workspace containing the object.
-           ws_name workspace - the workspace containing the object. string
-           chsum - the md5 checksum of the object. int size - the size of the
-           object in bytes. usermeta meta - arbitrary user-supplied metadata
-           about the object.) -> tuple of size 11: parameter "objid" of type
-           "obj_id" (The unique, permanent numerical ID of an object.),
-           parameter "name" of type "obj_name" (A string used as a name for
-           an object. Any string consisting of alphanumeric characters and
-           the characters |._- that is not an integer is acceptable.),
-           parameter "type" of type "type_string" (A type string. Specifies
-           the type and its version in a single string in the format
-           [module].[typename]-[major].[minor]: module - a string. The module
-           name of the typespec containing the type. typename - a string. The
-           name of the type as assigned by the typedef statement. major - an
-           integer. The major version of the type. A change in the major
-           version implies the type has changed in a non-backwards compatible
-           way. minor - an integer. The minor version of the type. A change
-           in the minor version implies that the type has changed in a way
-           that is backwards compatible with previous type definitions. In
-           many cases, the major and minor versions are optional, and if not
-           provided the most recent version will be used. Example:
+           KBaseFile.SingleEndLibrary), parameter "ref_path" of type
+           "ws_reads_id" (The workspace ID for a Reads data object. @id ws
+           KBaseFile.PairedEndLibrary KBaseFile.SingleEndLibrary), parameter
+           "label" of String, parameter "data_attachments" of list of type
+           "DataAttachment" -> structure: parameter "name" of String,
+           parameter "ref" of type "ws_obj_id" (The workspace ID for a any
+           data object. @id ws), parameter "info" of type "object_info"
+           (Information about an object, including user provided metadata.
+           obj_id objid - the numerical id of the object. obj_name name - the
+           name of the object. type_string type - the type of the object.
+           timestamp save_date - the save date of the object. obj_ver ver -
+           the version of the object. username saved_by - the user that saved
+           or copied the object. ws_id wsid - the workspace containing the
+           object. ws_name workspace - the workspace containing the object.
+           string chsum - the md5 checksum of the object. int size - the size
+           of the object in bytes. usermeta meta - arbitrary user-supplied
+           metadata about the object.) -> tuple of size 11: parameter "objid"
+           of type "obj_id" (The unique, permanent numerical ID of an
+           object.), parameter "name" of type "obj_name" (A string used as a
+           name for an object. Any string consisting of alphanumeric
+           characters and the characters |._- that is not an integer is
+           acceptable.), parameter "type" of type "type_string" (A type
+           string. Specifies the type and its version in a single string in
+           the format [module].[typename]-[major].[minor]: module - a string.
+           The module name of the typespec containing the type. typename - a
+           string. The name of the type as assigned by the typedef statement.
+           major - an integer. The major version of the type. A change in the
+           major version implies the type has changed in a non-backwards
+           compatible way. minor - an integer. The minor version of the type.
+           A change in the minor version implies that the type has changed in
+           a way that is backwards compatible with previous type definitions.
+           In many cases, the major and minor versions are optional, and if
+           not provided the most recent version will be used. Example:
            MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
            time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
            character Z (representing the UTC timezone) or the difference in
@@ -1223,9 +1292,13 @@ class SetAPI:
            length(items) as item_count) -> structure: parameter "description"
            of String, parameter "items" of list of type "ReadsSetItem" (When
            saving a ReadsSet, only 'ref' is required.  You should never set
-           'info'.  'info' is provided optionally when fetching the
-           ReadsSet.) -> structure: parameter "ref" of type "ws_reads_id"
-           (The workspace ID for a Reads data object. @id ws
+           'info'.  'info' is provided optionally when fetching the ReadsSet.
+           ref_path is optionally returned by get_reads_set_v1() when its
+           input parameter 'include_set_item_ref_paths' is set to 1.) ->
+           structure: parameter "ref" of type "ws_reads_id" (The workspace ID
+           for a Reads data object. @id ws KBaseFile.PairedEndLibrary
+           KBaseFile.SingleEndLibrary), parameter "ref_path" of type
+           "ws_reads_id" (The workspace ID for a Reads data object. @id ws
            KBaseFile.PairedEndLibrary KBaseFile.SingleEndLibrary), parameter
            "label" of String, parameter "data_attachments" of list of type
            "DataAttachment" -> structure: parameter "name" of String,
@@ -1343,22 +1416,75 @@ class SetAPI:
         :param params: instance of type "GetAssemblySetV1Params" (ref -
            workspace reference to AssemblyGroup object. include_item_info - 1
            or 0, if 1 additionally provides workspace info (with metadata)
-           for each Assembly object in the Set) -> structure: parameter "ref"
-           of String, parameter "include_item_info" of type "boolean" (A
-           boolean. 0 = false, 1 = true.), parameter "ref_path_to_set" of
-           list of String
+           for each Assembly object in the Set include_set_item_ref_paths - 1
+           or 0, if 1, additionally provides ref_path for each item in the
+           set. The ref_path returned for each item is either
+           ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+           set_ref;item_ref  (if ref_path_to_set is not given)) -> structure:
+           parameter "ref" of String, parameter "include_item_info" of type
+           "boolean" (A boolean. 0 = false, 1 = true.), parameter
+           "include_set_item_ref_paths" of type "boolean" (A boolean. 0 =
+           false, 1 = true.), parameter "ref_path_to_set" of list of String
         :returns: instance of type "GetAssemblySetV1Result" -> structure:
            parameter "data" of type "AssemblySet" (@meta ws description as
            description @meta ws length(items) as item_count) -> structure:
            parameter "description" of String, parameter "items" of list of
            type "AssemblySetItem" (When saving an AssemblySet, only 'ref' is
            required. You should never set 'info'.  'info' is provided
-           optionally when fetching the AssemblySet.) -> structure: parameter
+           optionally when fetching the AssemblySet. ref_path is optionally
+           returned by get_assembly_set_v1() when its input parameter
+           'include_set_item_ref_paths' is set to 1.) -> structure: parameter
            "ref" of type "ws_assembly_id" (The workspace ID for an Assembly
-           object. @id ws KBaseGenomeAnnotations.Assembly), parameter "label"
-           of String, parameter "info" of type "object_info" (Information
-           about an object, including user provided metadata. obj_id objid -
-           the numerical id of the object. obj_name name - the name of the
+           object. @id ws KBaseGenomeAnnotations.Assembly), parameter
+           "ref_path" of type "ws_assembly_id" (The workspace ID for an
+           Assembly object. @id ws KBaseGenomeAnnotations.Assembly),
+           parameter "label" of String, parameter "info" of type
+           "object_info" (Information about an object, including user
+           provided metadata. obj_id objid - the numerical id of the object.
+           obj_name name - the name of the object. type_string type - the
+           type of the object. timestamp save_date - the save date of the
+           object. obj_ver ver - the version of the object. username saved_by
+           - the user that saved or copied the object. ws_id wsid - the
+           workspace containing the object. ws_name workspace - the workspace
+           containing the object. string chsum - the md5 checksum of the
+           object. int size - the size of the object in bytes. usermeta meta
+           - arbitrary user-supplied metadata about the object.) -> tuple of
+           size 11: parameter "objid" of type "obj_id" (The unique, permanent
+           numerical ID of an object.), parameter "name" of type "obj_name"
+           (A string used as a name for an object. Any string consisting of
+           alphanumeric characters and the characters |._- that is not an
+           integer is acceptable.), parameter "type" of type "type_string" (A
+           type string. Specifies the type and its version in a single string
+           in the format [module].[typename]-[major].[minor]: module - a
+           string. The module name of the typespec containing the type.
+           typename - a string. The name of the type as assigned by the
+           typedef statement. major - an integer. The major version of the
+           type. A change in the major version implies the type has changed
+           in a non-backwards compatible way. minor - an integer. The minor
+           version of the type. A change in the minor version implies that
+           the type has changed in a way that is backwards compatible with
+           previous type definitions. In many cases, the major and minor
+           versions are optional, and if not provided the most recent version
+           will be used. Example: MyModule.MyType-3.1), parameter "save_date"
+           of type "timestamp" (A time in the format YYYY-MM-DDThh:mm:ssZ,
+           where Z is either the character Z (representing the UTC timezone)
+           or the difference in time to UTC in the format +/-HHMM, eg:
+           2012-12-17T23:24:06-0500 (EST time) 2013-04-03T08:56:32+0000 (UTC
+           time) 2013-04-03T08:56:32Z (UTC time)), parameter "version" of
+           Long, parameter "saved_by" of type "username" (Login name of a
+           KBase user account.), parameter "wsid" of type "ws_id" (The
+           unique, permanent numerical ID of a workspace.), parameter
+           "workspace" of type "ws_name" (A string used as a name for a
+           workspace. Any string consisting of alphanumeric characters and
+           "_", ".", or "-" that is not an integer is acceptable. The name
+           may optionally be prefixed with the workspace owner's user name
+           and a colon, e.g. kbasetest:my_workspace.), parameter "chsum" of
+           String, parameter "size" of Long, parameter "meta" of type
+           "usermeta" (User provided metadata about an object. Arbitrary
+           key-value pairs provided by the user.) -> mapping from String to
+           String, parameter "info" of type "object_info" (Information about
+           an object, including user provided metadata. obj_id objid - the
+           numerical id of the object. obj_name name - the name of the
            object. type_string type - the type of the object. timestamp
            save_date - the save date of the object. obj_ver ver - the version
            of the object. username saved_by - the user that saved or copied
@@ -1399,8 +1525,47 @@ class SetAPI:
            kbasetest:my_workspace.), parameter "chsum" of String, parameter
            "size" of Long, parameter "meta" of type "usermeta" (User provided
            metadata about an object. Arbitrary key-value pairs provided by
-           the user.) -> mapping from String to String, parameter "info" of
-           type "object_info" (Information about an object, including user
+           the user.) -> mapping from String to String
+        """
+        # ctx is the context object
+        # return variables are: result
+        #BEGIN get_assembly_set_v1
+
+        ws = Workspace(self.workspaceURL, token=ctx['token'])
+        rsi = AssemblySetInterfaceV1(ws)
+        result = rsi.get_assembly_set(ctx, params)
+
+        #END get_assembly_set_v1
+
+        # At some point might do deeper type checking...
+        if not isinstance(result, dict):
+            raise ValueError('Method get_assembly_set_v1 return value ' +
+                             'result is not type dict as required.')
+        # return the results
+        return [result]
+
+    def save_assembly_set_v1(self, ctx, params):
+        """
+        :param params: instance of type "SaveAssemblySetV1Params"
+           (workspace_name or workspace_id - alternative options defining
+           target workspace, output_object_name - workspace object name (this
+           parameter is used together with one of workspace params from
+           above)) -> structure: parameter "workspace" of String, parameter
+           "output_object_name" of String, parameter "data" of type
+           "AssemblySet" (@meta ws description as description @meta ws
+           length(items) as item_count) -> structure: parameter "description"
+           of String, parameter "items" of list of type "AssemblySetItem"
+           (When saving an AssemblySet, only 'ref' is required. You should
+           never set 'info'.  'info' is provided optionally when fetching the
+           AssemblySet. ref_path is optionally returned by
+           get_assembly_set_v1() when its input parameter
+           'include_set_item_ref_paths' is set to 1.) -> structure: parameter
+           "ref" of type "ws_assembly_id" (The workspace ID for an Assembly
+           object. @id ws KBaseGenomeAnnotations.Assembly), parameter
+           "ref_path" of type "ws_assembly_id" (The workspace ID for an
+           Assembly object. @id ws KBaseGenomeAnnotations.Assembly),
+           parameter "label" of String, parameter "info" of type
+           "object_info" (Information about an object, including user
            provided metadata. obj_id objid - the numerical id of the object.
            obj_name name - the name of the object. type_string type - the
            type of the object. timestamp save_date - the save date of the
@@ -1444,84 +1609,6 @@ class SetAPI:
            "usermeta" (User provided metadata about an object. Arbitrary
            key-value pairs provided by the user.) -> mapping from String to
            String
-        """
-        # ctx is the context object
-        # return variables are: result
-        #BEGIN get_assembly_set_v1
-
-        ws = Workspace(self.workspaceURL, token=ctx['token'])
-        rsi = AssemblySetInterfaceV1(ws)
-        result = rsi.get_assembly_set(ctx, params)
-
-        #END get_assembly_set_v1
-
-        # At some point might do deeper type checking...
-        if not isinstance(result, dict):
-            raise ValueError('Method get_assembly_set_v1 return value ' +
-                             'result is not type dict as required.')
-        # return the results
-        return [result]
-
-    def save_assembly_set_v1(self, ctx, params):
-        """
-        :param params: instance of type "SaveAssemblySetV1Params"
-           (workspace_name or workspace_id - alternative options defining
-           target workspace, output_object_name - workspace object name (this
-           parameter is used together with one of workspace params from
-           above)) -> structure: parameter "workspace" of String, parameter
-           "output_object_name" of String, parameter "data" of type
-           "AssemblySet" (@meta ws description as description @meta ws
-           length(items) as item_count) -> structure: parameter "description"
-           of String, parameter "items" of list of type "AssemblySetItem"
-           (When saving an AssemblySet, only 'ref' is required. You should
-           never set 'info'.  'info' is provided optionally when fetching the
-           AssemblySet.) -> structure: parameter "ref" of type
-           "ws_assembly_id" (The workspace ID for an Assembly object. @id ws
-           KBaseGenomeAnnotations.Assembly), parameter "label" of String,
-           parameter "info" of type "object_info" (Information about an
-           object, including user provided metadata. obj_id objid - the
-           numerical id of the object. obj_name name - the name of the
-           object. type_string type - the type of the object. timestamp
-           save_date - the save date of the object. obj_ver ver - the version
-           of the object. username saved_by - the user that saved or copied
-           the object. ws_id wsid - the workspace containing the object.
-           ws_name workspace - the workspace containing the object. string
-           chsum - the md5 checksum of the object. int size - the size of the
-           object in bytes. usermeta meta - arbitrary user-supplied metadata
-           about the object.) -> tuple of size 11: parameter "objid" of type
-           "obj_id" (The unique, permanent numerical ID of an object.),
-           parameter "name" of type "obj_name" (A string used as a name for
-           an object. Any string consisting of alphanumeric characters and
-           the characters |._- that is not an integer is acceptable.),
-           parameter "type" of type "type_string" (A type string. Specifies
-           the type and its version in a single string in the format
-           [module].[typename]-[major].[minor]: module - a string. The module
-           name of the typespec containing the type. typename - a string. The
-           name of the type as assigned by the typedef statement. major - an
-           integer. The major version of the type. A change in the major
-           version implies the type has changed in a non-backwards compatible
-           way. minor - an integer. The minor version of the type. A change
-           in the minor version implies that the type has changed in a way
-           that is backwards compatible with previous type definitions. In
-           many cases, the major and minor versions are optional, and if not
-           provided the most recent version will be used. Example:
-           MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
-           time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
-           character Z (representing the UTC timezone) or the difference in
-           time to UTC in the format +/-HHMM, eg: 2012-12-17T23:24:06-0500
-           (EST time) 2013-04-03T08:56:32+0000 (UTC time)
-           2013-04-03T08:56:32Z (UTC time)), parameter "version" of Long,
-           parameter "saved_by" of type "username" (Login name of a KBase
-           user account.), parameter "wsid" of type "ws_id" (The unique,
-           permanent numerical ID of a workspace.), parameter "workspace" of
-           type "ws_name" (A string used as a name for a workspace. Any
-           string consisting of alphanumeric characters and "_", ".", or "-"
-           that is not an integer is acceptable. The name may optionally be
-           prefixed with the workspace owner's user name and a colon, e.g.
-           kbasetest:my_workspace.), parameter "chsum" of String, parameter
-           "size" of Long, parameter "meta" of type "usermeta" (User provided
-           metadata about an object. Arbitrary key-value pairs provided by
-           the user.) -> mapping from String to String
         :returns: instance of type "SaveAssemblySetV1Result" -> structure:
            parameter "set_ref" of String, parameter "set_info" of type
            "object_info" (Information about an object, including user
@@ -1591,36 +1678,44 @@ class SetAPI:
         :param params: instance of type "GetGenomeSetV1Params" (ref -
            workspace reference to GenomeGroup object. include_item_info - 1
            or 0, if 1 additionally provides workspace info (with metadata)
-           for each Genome object in the Set) -> structure: parameter "ref"
-           of String, parameter "include_item_info" of type "boolean" (A
-           boolean. 0 = false, 1 = true.), parameter "ref_path_to_set" of
-           list of String
+           for each Genome object in the Set include_set_item_ref_paths - 1
+           or 0, if 1, additionally provides ref_path for each item in the
+           set. The ref_path for each item is either ref_path_to_set;item_ref
+           (if ref_path_to_set is given) or set_ref;item_ref) -> structure:
+           parameter "ref" of String, parameter "include_item_info" of type
+           "boolean" (A boolean. 0 = false, 1 = true.), parameter
+           "include_set_item_ref_paths" of type "boolean" (A boolean. 0 =
+           false, 1 = true.), parameter "ref_path_to_set" of list of String
         :returns: instance of type "GetGenomeSetV1Result" -> structure:
            parameter "data" of type "GenomeSet" (@meta ws description as
            description @meta ws length(items) as item_count) -> structure:
            parameter "description" of String, parameter "items" of list of
            type "GenomeSetItem" (When saving an GenomeSet, only 'ref' is
            required. You should never set 'info'.  'info' is provided
-           optionally when fetching the GenomeSet.) -> structure: parameter
+           optionally when fetching the GenomeSet. ref_path is optionally
+           returned by get_genome_set_v1() when its input parameter
+           'include_set_item_ref_paths' is set to 1.) -> structure: parameter
            "ref" of type "ws_genome_id" (The workspace ID for a Genome
-           object. @id ws KBaseGenomes.Genome), parameter "label" of String,
-           parameter "info" of type "object_info" (Information about an
-           object, including user provided metadata. obj_id objid - the
-           numerical id of the object. obj_name name - the name of the
-           object. type_string type - the type of the object. timestamp
-           save_date - the save date of the object. obj_ver ver - the version
-           of the object. username saved_by - the user that saved or copied
-           the object. ws_id wsid - the workspace containing the object.
-           ws_name workspace - the workspace containing the object. string
-           chsum - the md5 checksum of the object. int size - the size of the
-           object in bytes. usermeta meta - arbitrary user-supplied metadata
-           about the object.) -> tuple of size 11: parameter "objid" of type
-           "obj_id" (The unique, permanent numerical ID of an object.),
-           parameter "name" of type "obj_name" (A string used as a name for
-           an object. Any string consisting of alphanumeric characters and
-           the characters |._- that is not an integer is acceptable.),
-           parameter "type" of type "type_string" (A type string. Specifies
-           the type and its version in a single string in the format
+           object. @id ws KBaseGenomes.Genome), parameter "ref_path" of type
+           "ws_genome_id" (The workspace ID for a Genome object. @id ws
+           KBaseGenomes.Genome), parameter "label" of String, parameter
+           "info" of type "object_info" (Information about an object,
+           including user provided metadata. obj_id objid - the numerical id
+           of the object. obj_name name - the name of the object. type_string
+           type - the type of the object. timestamp save_date - the save date
+           of the object. obj_ver ver - the version of the object. username
+           saved_by - the user that saved or copied the object. ws_id wsid -
+           the workspace containing the object. ws_name workspace - the
+           workspace containing the object. string chsum - the md5 checksum
+           of the object. int size - the size of the object in bytes.
+           usermeta meta - arbitrary user-supplied metadata about the
+           object.) -> tuple of size 11: parameter "objid" of type "obj_id"
+           (The unique, permanent numerical ID of an object.), parameter
+           "name" of type "obj_name" (A string used as a name for an object.
+           Any string consisting of alphanumeric characters and the
+           characters |._- that is not an integer is acceptable.), parameter
+           "type" of type "type_string" (A type string. Specifies the type
+           and its version in a single string in the format
            [module].[typename]-[major].[minor]: module - a string. The module
            name of the typespec containing the type. typename - a string. The
            name of the type as assigned by the typedef statement. major - an
@@ -1721,26 +1816,29 @@ class SetAPI:
            of String, parameter "items" of list of type "GenomeSetItem" (When
            saving an GenomeSet, only 'ref' is required. You should never set
            'info'.  'info' is provided optionally when fetching the
-           GenomeSet.) -> structure: parameter "ref" of type "ws_genome_id"
-           (The workspace ID for a Genome object. @id ws
-           KBaseGenomes.Genome), parameter "label" of String, parameter
-           "info" of type "object_info" (Information about an object,
-           including user provided metadata. obj_id objid - the numerical id
-           of the object. obj_name name - the name of the object. type_string
-           type - the type of the object. timestamp save_date - the save date
-           of the object. obj_ver ver - the version of the object. username
-           saved_by - the user that saved or copied the object. ws_id wsid -
-           the workspace containing the object. ws_name workspace - the
-           workspace containing the object. string chsum - the md5 checksum
-           of the object. int size - the size of the object in bytes.
-           usermeta meta - arbitrary user-supplied metadata about the
-           object.) -> tuple of size 11: parameter "objid" of type "obj_id"
-           (The unique, permanent numerical ID of an object.), parameter
-           "name" of type "obj_name" (A string used as a name for an object.
-           Any string consisting of alphanumeric characters and the
-           characters |._- that is not an integer is acceptable.), parameter
-           "type" of type "type_string" (A type string. Specifies the type
-           and its version in a single string in the format
+           GenomeSet. ref_path is optionally returned by get_genome_set_v1()
+           when its input parameter 'include_set_item_ref_paths' is set to
+           1.) -> structure: parameter "ref" of type "ws_genome_id" (The
+           workspace ID for a Genome object. @id ws KBaseGenomes.Genome),
+           parameter "ref_path" of type "ws_genome_id" (The workspace ID for
+           a Genome object. @id ws KBaseGenomes.Genome), parameter "label" of
+           String, parameter "info" of type "object_info" (Information about
+           an object, including user provided metadata. obj_id objid - the
+           numerical id of the object. obj_name name - the name of the
+           object. type_string type - the type of the object. timestamp
+           save_date - the save date of the object. obj_ver ver - the version
+           of the object. username saved_by - the user that saved or copied
+           the object. ws_id wsid - the workspace containing the object.
+           ws_name workspace - the workspace containing the object. string
+           chsum - the md5 checksum of the object. int size - the size of the
+           object in bytes. usermeta meta - arbitrary user-supplied metadata
+           about the object.) -> tuple of size 11: parameter "objid" of type
+           "obj_id" (The unique, permanent numerical ID of an object.),
+           parameter "name" of type "obj_name" (A string used as a name for
+           an object. Any string consisting of alphanumeric characters and
+           the characters |._- that is not an integer is acceptable.),
+           parameter "type" of type "type_string" (A type string. Specifies
+           the type and its version in a single string in the format
            [module].[typename]-[major].[minor]: module - a string. The module
            name of the typespec containing the type. typename - a string. The
            name of the type as assigned by the typedef statement. major - an
@@ -1830,6 +1928,79 @@ class SetAPI:
         # return the results
         return [result]
 
+    def create_sample_set(self, ctx, params):
+        """
+        :param params: instance of type "CreateRNASeqSampleSetParams"
+           (******* Sample SET METHODS ************) -> structure: parameter
+           "ws_id" of String, parameter "sampleset_id" of String, parameter
+           "sampleset_desc" of String, parameter "domain" of String,
+           parameter "platform" of String, parameter "sample_ids" of list of
+           String, parameter "condition" of list of String, parameter
+           "source" of String, parameter "Library_type" of String, parameter
+           "publication_id" of String, parameter "external_source_date" of
+           String
+        :returns: instance of type "CreateRNASeqSampleSetResult" ->
+           structure: parameter "set_ref" of String, parameter "set_info" of
+           type "object_info" (Information about an object, including user
+           provided metadata. obj_id objid - the numerical id of the object.
+           obj_name name - the name of the object. type_string type - the
+           type of the object. timestamp save_date - the save date of the
+           object. obj_ver ver - the version of the object. username saved_by
+           - the user that saved or copied the object. ws_id wsid - the
+           workspace containing the object. ws_name workspace - the workspace
+           containing the object. string chsum - the md5 checksum of the
+           object. int size - the size of the object in bytes. usermeta meta
+           - arbitrary user-supplied metadata about the object.) -> tuple of
+           size 11: parameter "objid" of type "obj_id" (The unique, permanent
+           numerical ID of an object.), parameter "name" of type "obj_name"
+           (A string used as a name for an object. Any string consisting of
+           alphanumeric characters and the characters |._- that is not an
+           integer is acceptable.), parameter "type" of type "type_string" (A
+           type string. Specifies the type and its version in a single string
+           in the format [module].[typename]-[major].[minor]: module - a
+           string. The module name of the typespec containing the type.
+           typename - a string. The name of the type as assigned by the
+           typedef statement. major - an integer. The major version of the
+           type. A change in the major version implies the type has changed
+           in a non-backwards compatible way. minor - an integer. The minor
+           version of the type. A change in the minor version implies that
+           the type has changed in a way that is backwards compatible with
+           previous type definitions. In many cases, the major and minor
+           versions are optional, and if not provided the most recent version
+           will be used. Example: MyModule.MyType-3.1), parameter "save_date"
+           of type "timestamp" (A time in the format YYYY-MM-DDThh:mm:ssZ,
+           where Z is either the character Z (representing the UTC timezone)
+           or the difference in time to UTC in the format +/-HHMM, eg:
+           2012-12-17T23:24:06-0500 (EST time) 2013-04-03T08:56:32+0000 (UTC
+           time) 2013-04-03T08:56:32Z (UTC time)), parameter "version" of
+           Long, parameter "saved_by" of type "username" (Login name of a
+           KBase user account.), parameter "wsid" of type "ws_id" (The
+           unique, permanent numerical ID of a workspace.), parameter
+           "workspace" of type "ws_name" (A string used as a name for a
+           workspace. Any string consisting of alphanumeric characters and
+           "_", ".", or "-" that is not an integer is acceptable. The name
+           may optionally be prefixed with the workspace owner's user name
+           and a colon, e.g. kbasetest:my_workspace.), parameter "chsum" of
+           String, parameter "size" of Long, parameter "meta" of type
+           "usermeta" (User provided metadata about an object. Arbitrary
+           key-value pairs provided by the user.) -> mapping from String to
+           String
+        """
+        # ctx is the context object
+        # return variables are: returnVal
+        #BEGIN create_sample_set
+        ws = Workspace(self.workspaceURL, token=ctx['token'])
+        ssi = SampleSetInterface(ws)
+        returnVal = ssi.create_sample_set(ctx, params)
+        #END create_sample_set
+
+        # At some point might do deeper type checking...
+        if not isinstance(returnVal, dict):
+            raise ValueError('Method create_sample_set return value ' +
+                             'returnVal is not type dict as required.')
+        # return the results
+        return [returnVal]
+
     def list_sets(self, ctx, params):
         """
         Use to get the top-level sets in a WS. Optionally can include
@@ -1842,13 +2013,17 @@ class SetAPI:
            metadata into Set object info and into object info of items (it
            affects DP raw data as well), include_raw_data_palettes - advanced
            option designed for optimization of listing methods in
-           NarrativeService.) -> structure: parameter "workspace" of String,
-           parameter "workspaces" of String, parameter
-           "include_set_item_info" of type "boolean" (A boolean. 0 = false, 1
-           = true.), parameter "include_metadata" of type "boolean" (A
-           boolean. 0 = false, 1 = true.), parameter
+           NarrativeService. include_set_item_ref_paths - 1 or 0, if 1,
+           additionally provides ref_path for each item in the set. The
+           ref_path for each item is either ref_path_to_set;item_ref  (if
+           ref_path_to_set is given) or set_ref;item_ref) -> structure:
+           parameter "workspace" of String, parameter "workspaces" of String,
+           parameter "include_set_item_info" of type "boolean" (A boolean. 0
+           = false, 1 = true.), parameter "include_metadata" of type
+           "boolean" (A boolean. 0 = false, 1 = true.), parameter
            "include_raw_data_palettes" of type "boolean" (A boolean. 0 =
-           false, 1 = true.)
+           false, 1 = true.), parameter "include_set_item_ref_paths" of type
+           "boolean" (A boolean. 0 = false, 1 = true.)
         :returns: instance of type "ListSetResult" (raw_data_palettes -
            optional DP output turned on by 'include_raw_data_palettes' in
            input parameters, raw_data_palette_refs - optional DP output
@@ -1903,82 +2078,85 @@ class SetAPI:
            "size" of Long, parameter "meta" of type "usermeta" (User provided
            metadata about an object. Arbitrary key-value pairs provided by
            the user.) -> mapping from String to String, parameter "items" of
-           list of type "SetItemInfo" -> structure: parameter "ref" of type
-           "ws_obj_id" (The workspace ID for a any data object. @id ws),
-           parameter "info" of type "object_info" (Information about an
-           object, including user provided metadata. obj_id objid - the
-           numerical id of the object. obj_name name - the name of the
-           object. type_string type - the type of the object. timestamp
-           save_date - the save date of the object. obj_ver ver - the version
-           of the object. username saved_by - the user that saved or copied
-           the object. ws_id wsid - the workspace containing the object.
-           ws_name workspace - the workspace containing the object. string
-           chsum - the md5 checksum of the object. int size - the size of the
-           object in bytes. usermeta meta - arbitrary user-supplied metadata
-           about the object.) -> tuple of size 11: parameter "objid" of type
-           "obj_id" (The unique, permanent numerical ID of an object.),
-           parameter "name" of type "obj_name" (A string used as a name for
-           an object. Any string consisting of alphanumeric characters and
-           the characters |._- that is not an integer is acceptable.),
-           parameter "type" of type "type_string" (A type string. Specifies
-           the type and its version in a single string in the format
-           [module].[typename]-[major].[minor]: module - a string. The module
-           name of the typespec containing the type. typename - a string. The
-           name of the type as assigned by the typedef statement. major - an
-           integer. The major version of the type. A change in the major
-           version implies the type has changed in a non-backwards compatible
-           way. minor - an integer. The minor version of the type. A change
-           in the minor version implies that the type has changed in a way
-           that is backwards compatible with previous type definitions. In
-           many cases, the major and minor versions are optional, and if not
-           provided the most recent version will be used. Example:
-           MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
-           time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
-           character Z (representing the UTC timezone) or the difference in
-           time to UTC in the format +/-HHMM, eg: 2012-12-17T23:24:06-0500
-           (EST time) 2013-04-03T08:56:32+0000 (UTC time)
-           2013-04-03T08:56:32Z (UTC time)), parameter "version" of Long,
-           parameter "saved_by" of type "username" (Login name of a KBase
-           user account.), parameter "wsid" of type "ws_id" (The unique,
-           permanent numerical ID of a workspace.), parameter "workspace" of
-           type "ws_name" (A string used as a name for a workspace. Any
-           string consisting of alphanumeric characters and "_", ".", or "-"
-           that is not an integer is acceptable. The name may optionally be
-           prefixed with the workspace owner's user name and a colon, e.g.
-           kbasetest:my_workspace.), parameter "chsum" of String, parameter
-           "size" of Long, parameter "meta" of type "usermeta" (User provided
-           metadata about an object. Arbitrary key-value pairs provided by
-           the user.) -> mapping from String to String, parameter "dp_ref" of
-           type "ws_obj_id" (The workspace ID for a any data object. @id ws),
-           parameter "raw_data_palettes" of list of type "DataInfo" ->
-           structure: parameter "ref" of type "ws_ref" (@id ws), parameter
-           "info" of type "object_info" (Information about an object,
-           including user provided metadata. obj_id objid - the numerical id
-           of the object. obj_name name - the name of the object. type_string
-           type - the type of the object. timestamp save_date - the save date
-           of the object. obj_ver ver - the version of the object. username
-           saved_by - the user that saved or copied the object. ws_id wsid -
-           the workspace containing the object. ws_name workspace - the
-           workspace containing the object. string chsum - the md5 checksum
-           of the object. int size - the size of the object in bytes.
-           usermeta meta - arbitrary user-supplied metadata about the
-           object.) -> tuple of size 11: parameter "objid" of type "obj_id"
-           (The unique, permanent numerical ID of an object.), parameter
-           "name" of type "obj_name" (A string used as a name for an object.
-           Any string consisting of alphanumeric characters and the
-           characters |._- that is not an integer is acceptable.), parameter
-           "type" of type "type_string" (A type string. Specifies the type
-           and its version in a single string in the format
-           [module].[typename]-[major].[minor]: module - a string. The module
-           name of the typespec containing the type. typename - a string. The
-           name of the type as assigned by the typedef statement. major - an
-           integer. The major version of the type. A change in the major
-           version implies the type has changed in a non-backwards compatible
-           way. minor - an integer. The minor version of the type. A change
-           in the minor version implies that the type has changed in a way
-           that is backwards compatible with previous type definitions. In
-           many cases, the major and minor versions are optional, and if not
-           provided the most recent version will be used. Example:
+           list of type "SetItemInfo" (ref_path is optionally returned by
+           list_sets() and get_set_items(), when the input parameter
+           'include_set_item_ref_paths' is set to 1.) -> structure: parameter
+           "ref" of type "ws_obj_id" (The workspace ID for a any data object.
+           @id ws), parameter "ref_path" of type "ws_obj_id" (The workspace
+           ID for a any data object. @id ws), parameter "info" of type
+           "object_info" (Information about an object, including user
+           provided metadata. obj_id objid - the numerical id of the object.
+           obj_name name - the name of the object. type_string type - the
+           type of the object. timestamp save_date - the save date of the
+           object. obj_ver ver - the version of the object. username saved_by
+           - the user that saved or copied the object. ws_id wsid - the
+           workspace containing the object. ws_name workspace - the workspace
+           containing the object. string chsum - the md5 checksum of the
+           object. int size - the size of the object in bytes. usermeta meta
+           - arbitrary user-supplied metadata about the object.) -> tuple of
+           size 11: parameter "objid" of type "obj_id" (The unique, permanent
+           numerical ID of an object.), parameter "name" of type "obj_name"
+           (A string used as a name for an object. Any string consisting of
+           alphanumeric characters and the characters |._- that is not an
+           integer is acceptable.), parameter "type" of type "type_string" (A
+           type string. Specifies the type and its version in a single string
+           in the format [module].[typename]-[major].[minor]: module - a
+           string. The module name of the typespec containing the type.
+           typename - a string. The name of the type as assigned by the
+           typedef statement. major - an integer. The major version of the
+           type. A change in the major version implies the type has changed
+           in a non-backwards compatible way. minor - an integer. The minor
+           version of the type. A change in the minor version implies that
+           the type has changed in a way that is backwards compatible with
+           previous type definitions. In many cases, the major and minor
+           versions are optional, and if not provided the most recent version
+           will be used. Example: MyModule.MyType-3.1), parameter "save_date"
+           of type "timestamp" (A time in the format YYYY-MM-DDThh:mm:ssZ,
+           where Z is either the character Z (representing the UTC timezone)
+           or the difference in time to UTC in the format +/-HHMM, eg:
+           2012-12-17T23:24:06-0500 (EST time) 2013-04-03T08:56:32+0000 (UTC
+           time) 2013-04-03T08:56:32Z (UTC time)), parameter "version" of
+           Long, parameter "saved_by" of type "username" (Login name of a
+           KBase user account.), parameter "wsid" of type "ws_id" (The
+           unique, permanent numerical ID of a workspace.), parameter
+           "workspace" of type "ws_name" (A string used as a name for a
+           workspace. Any string consisting of alphanumeric characters and
+           "_", ".", or "-" that is not an integer is acceptable. The name
+           may optionally be prefixed with the workspace owner's user name
+           and a colon, e.g. kbasetest:my_workspace.), parameter "chsum" of
+           String, parameter "size" of Long, parameter "meta" of type
+           "usermeta" (User provided metadata about an object. Arbitrary
+           key-value pairs provided by the user.) -> mapping from String to
+           String, parameter "dp_ref" of type "ws_obj_id" (The workspace ID
+           for a any data object. @id ws), parameter "raw_data_palettes" of
+           list of type "DataInfo" -> structure: parameter "ref" of type
+           "ws_ref" (@id ws), parameter "info" of type "object_info"
+           (Information about an object, including user provided metadata.
+           obj_id objid - the numerical id of the object. obj_name name - the
+           name of the object. type_string type - the type of the object.
+           timestamp save_date - the save date of the object. obj_ver ver -
+           the version of the object. username saved_by - the user that saved
+           or copied the object. ws_id wsid - the workspace containing the
+           object. ws_name workspace - the workspace containing the object.
+           string chsum - the md5 checksum of the object. int size - the size
+           of the object in bytes. usermeta meta - arbitrary user-supplied
+           metadata about the object.) -> tuple of size 11: parameter "objid"
+           of type "obj_id" (The unique, permanent numerical ID of an
+           object.), parameter "name" of type "obj_name" (A string used as a
+           name for an object. Any string consisting of alphanumeric
+           characters and the characters |._- that is not an integer is
+           acceptable.), parameter "type" of type "type_string" (A type
+           string. Specifies the type and its version in a single string in
+           the format [module].[typename]-[major].[minor]: module - a string.
+           The module name of the typespec containing the type. typename - a
+           string. The name of the type as assigned by the typedef statement.
+           major - an integer. The major version of the type. A change in the
+           major version implies the type has changed in a non-backwards
+           compatible way. minor - an integer. The minor version of the type.
+           A change in the minor version implies that the type has changed in
+           a way that is backwards compatible with previous type definitions.
+           In many cases, the major and minor versions are optional, and if
+           not provided the most recent version will be used. Example:
            MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
            time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
            character Z (representing the UTC timezone) or the difference in
@@ -2022,10 +2200,16 @@ class SetAPI:
         return 'sets' list will match the position in the input ref list.
         NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA
         :param params: instance of type "GetSetItemsParams" -> structure:
-           parameter "set_refs" of list of type "SetReference" -> structure:
-           parameter "ref" of type "ws_obj_id" (The workspace ID for a any
-           data object. @id ws), parameter "path_to_set" of list of type
-           "ws_obj_id" (The workspace ID for a any data object. @id ws)
+           parameter "set_refs" of list of type "SetReference"
+           (include_set_item_ref_paths - 1 or 0, if 1, additionally provides
+           ref_path for each item in the set. The ref_path for each item is
+           either ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+           set_ref;item_ref) -> structure: parameter "ref" of type
+           "ws_obj_id" (The workspace ID for a any data object. @id ws),
+           parameter "ref_path_to_set" of list of type "ws_obj_id" (The
+           workspace ID for a any data object. @id ws), parameter
+           "include_set_item_ref_paths" of type "boolean" (A boolean. 0 =
+           false, 1 = true.)
         :returns: instance of type "GetSetItemsResult" -> structure:
            parameter "sets" of list of type "SetInfo" (dp_ref - optional
            reference to DataPalette container in case given set object is
@@ -2075,53 +2259,57 @@ class SetAPI:
            "size" of Long, parameter "meta" of type "usermeta" (User provided
            metadata about an object. Arbitrary key-value pairs provided by
            the user.) -> mapping from String to String, parameter "items" of
-           list of type "SetItemInfo" -> structure: parameter "ref" of type
-           "ws_obj_id" (The workspace ID for a any data object. @id ws),
-           parameter "info" of type "object_info" (Information about an
-           object, including user provided metadata. obj_id objid - the
-           numerical id of the object. obj_name name - the name of the
-           object. type_string type - the type of the object. timestamp
-           save_date - the save date of the object. obj_ver ver - the version
-           of the object. username saved_by - the user that saved or copied
-           the object. ws_id wsid - the workspace containing the object.
-           ws_name workspace - the workspace containing the object. string
-           chsum - the md5 checksum of the object. int size - the size of the
-           object in bytes. usermeta meta - arbitrary user-supplied metadata
-           about the object.) -> tuple of size 11: parameter "objid" of type
-           "obj_id" (The unique, permanent numerical ID of an object.),
-           parameter "name" of type "obj_name" (A string used as a name for
-           an object. Any string consisting of alphanumeric characters and
-           the characters |._- that is not an integer is acceptable.),
-           parameter "type" of type "type_string" (A type string. Specifies
-           the type and its version in a single string in the format
-           [module].[typename]-[major].[minor]: module - a string. The module
-           name of the typespec containing the type. typename - a string. The
-           name of the type as assigned by the typedef statement. major - an
-           integer. The major version of the type. A change in the major
-           version implies the type has changed in a non-backwards compatible
-           way. minor - an integer. The minor version of the type. A change
-           in the minor version implies that the type has changed in a way
-           that is backwards compatible with previous type definitions. In
-           many cases, the major and minor versions are optional, and if not
-           provided the most recent version will be used. Example:
-           MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
-           time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
-           character Z (representing the UTC timezone) or the difference in
-           time to UTC in the format +/-HHMM, eg: 2012-12-17T23:24:06-0500
-           (EST time) 2013-04-03T08:56:32+0000 (UTC time)
-           2013-04-03T08:56:32Z (UTC time)), parameter "version" of Long,
-           parameter "saved_by" of type "username" (Login name of a KBase
-           user account.), parameter "wsid" of type "ws_id" (The unique,
-           permanent numerical ID of a workspace.), parameter "workspace" of
-           type "ws_name" (A string used as a name for a workspace. Any
-           string consisting of alphanumeric characters and "_", ".", or "-"
-           that is not an integer is acceptable. The name may optionally be
-           prefixed with the workspace owner's user name and a colon, e.g.
-           kbasetest:my_workspace.), parameter "chsum" of String, parameter
-           "size" of Long, parameter "meta" of type "usermeta" (User provided
-           metadata about an object. Arbitrary key-value pairs provided by
-           the user.) -> mapping from String to String, parameter "dp_ref" of
-           type "ws_obj_id" (The workspace ID for a any data object. @id ws)
+           list of type "SetItemInfo" (ref_path is optionally returned by
+           list_sets() and get_set_items(), when the input parameter
+           'include_set_item_ref_paths' is set to 1.) -> structure: parameter
+           "ref" of type "ws_obj_id" (The workspace ID for a any data object.
+           @id ws), parameter "ref_path" of type "ws_obj_id" (The workspace
+           ID for a any data object. @id ws), parameter "info" of type
+           "object_info" (Information about an object, including user
+           provided metadata. obj_id objid - the numerical id of the object.
+           obj_name name - the name of the object. type_string type - the
+           type of the object. timestamp save_date - the save date of the
+           object. obj_ver ver - the version of the object. username saved_by
+           - the user that saved or copied the object. ws_id wsid - the
+           workspace containing the object. ws_name workspace - the workspace
+           containing the object. string chsum - the md5 checksum of the
+           object. int size - the size of the object in bytes. usermeta meta
+           - arbitrary user-supplied metadata about the object.) -> tuple of
+           size 11: parameter "objid" of type "obj_id" (The unique, permanent
+           numerical ID of an object.), parameter "name" of type "obj_name"
+           (A string used as a name for an object. Any string consisting of
+           alphanumeric characters and the characters |._- that is not an
+           integer is acceptable.), parameter "type" of type "type_string" (A
+           type string. Specifies the type and its version in a single string
+           in the format [module].[typename]-[major].[minor]: module - a
+           string. The module name of the typespec containing the type.
+           typename - a string. The name of the type as assigned by the
+           typedef statement. major - an integer. The major version of the
+           type. A change in the major version implies the type has changed
+           in a non-backwards compatible way. minor - an integer. The minor
+           version of the type. A change in the minor version implies that
+           the type has changed in a way that is backwards compatible with
+           previous type definitions. In many cases, the major and minor
+           versions are optional, and if not provided the most recent version
+           will be used. Example: MyModule.MyType-3.1), parameter "save_date"
+           of type "timestamp" (A time in the format YYYY-MM-DDThh:mm:ssZ,
+           where Z is either the character Z (representing the UTC timezone)
+           or the difference in time to UTC in the format +/-HHMM, eg:
+           2012-12-17T23:24:06-0500 (EST time) 2013-04-03T08:56:32+0000 (UTC
+           time) 2013-04-03T08:56:32Z (UTC time)), parameter "version" of
+           Long, parameter "saved_by" of type "username" (Login name of a
+           KBase user account.), parameter "wsid" of type "ws_id" (The
+           unique, permanent numerical ID of a workspace.), parameter
+           "workspace" of type "ws_name" (A string used as a name for a
+           workspace. Any string consisting of alphanumeric characters and
+           "_", ".", or "-" that is not an integer is acceptable. The name
+           may optionally be prefixed with the workspace owner's user name
+           and a colon, e.g. kbasetest:my_workspace.), parameter "chsum" of
+           String, parameter "size" of Long, parameter "meta" of type
+           "usermeta" (User provided metadata about an object. Arbitrary
+           key-value pairs provided by the user.) -> mapping from String to
+           String, parameter "dp_ref" of type "ws_obj_id" (The workspace ID
+           for a any data object. @id ws)
         """
         # ctx is the context object
         # return variables are: result

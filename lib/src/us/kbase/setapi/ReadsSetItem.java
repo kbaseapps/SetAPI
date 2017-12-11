@@ -19,6 +19,8 @@ import us.kbase.common.service.Tuple11;
  * When saving a ReadsSet, only 'ref' is required.  You should
  * never set 'info'.  'info' is provided optionally when fetching
  * the ReadsSet.
+ * ref_path is optionally returned by get_reads_set_v1()
+ * when its input parameter 'include_set_item_ref_paths' is set to 1.
  * </pre>
  * 
  */
@@ -26,6 +28,7 @@ import us.kbase.common.service.Tuple11;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "ref",
+    "ref_path",
     "label",
     "data_attachments",
     "info"
@@ -34,6 +37,8 @@ public class ReadsSetItem {
 
     @JsonProperty("ref")
     private java.lang.String ref;
+    @JsonProperty("ref_path")
+    private java.lang.String refPath;
     @JsonProperty("label")
     private java.lang.String label;
     @JsonProperty("data_attachments")
@@ -54,6 +59,21 @@ public class ReadsSetItem {
 
     public ReadsSetItem withRef(java.lang.String ref) {
         this.ref = ref;
+        return this;
+    }
+
+    @JsonProperty("ref_path")
+    public java.lang.String getRefPath() {
+        return refPath;
+    }
+
+    @JsonProperty("ref_path")
+    public void setRefPath(java.lang.String refPath) {
+        this.refPath = refPath;
+    }
+
+    public ReadsSetItem withRefPath(java.lang.String refPath) {
+        this.refPath = refPath;
         return this;
     }
 
@@ -114,7 +134,7 @@ public class ReadsSetItem {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((("ReadsSetItem"+" [ref=")+ ref)+", label=")+ label)+", dataAttachments=")+ dataAttachments)+", info=")+ info)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((("ReadsSetItem"+" [ref=")+ ref)+", refPath=")+ refPath)+", label=")+ label)+", dataAttachments=")+ dataAttachments)+", info=")+ info)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

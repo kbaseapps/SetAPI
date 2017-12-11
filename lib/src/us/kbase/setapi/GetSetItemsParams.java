@@ -20,12 +20,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "set_refs"
+    "set_refs",
+    "include_set_item_ref_paths"
 })
 public class GetSetItemsParams {
 
     @JsonProperty("set_refs")
     private List<SetReference> setRefs;
+    @JsonProperty("include_set_item_ref_paths")
+    private Long includeSetItemRefPaths;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("set_refs")
@@ -43,6 +46,21 @@ public class GetSetItemsParams {
         return this;
     }
 
+    @JsonProperty("include_set_item_ref_paths")
+    public Long getIncludeSetItemRefPaths() {
+        return includeSetItemRefPaths;
+    }
+
+    @JsonProperty("include_set_item_ref_paths")
+    public void setIncludeSetItemRefPaths(Long includeSetItemRefPaths) {
+        this.includeSetItemRefPaths = includeSetItemRefPaths;
+    }
+
+    public GetSetItemsParams withIncludeSetItemRefPaths(Long includeSetItemRefPaths) {
+        this.includeSetItemRefPaths = includeSetItemRefPaths;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -55,7 +73,7 @@ public class GetSetItemsParams {
 
     @Override
     public String toString() {
-        return ((((("GetSetItemsParams"+" [setRefs=")+ setRefs)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((("GetSetItemsParams"+" [setRefs=")+ setRefs)+", includeSetItemRefPaths=")+ includeSetItemRefPaths)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

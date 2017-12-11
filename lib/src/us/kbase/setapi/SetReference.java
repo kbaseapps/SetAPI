@@ -14,21 +14,26 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
  * <p>Original spec-file type: SetReference</p>
- * 
+ * <pre>
+ * include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
+ *                     in the set. The ref_path for each item is either
+ *                         ref_path_to_set;item_ref  (if ref_path_to_set is given) or
+ *                         set_ref;item_ref
+ * </pre>
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "ref",
-    "path_to_set"
+    "ref_path_to_set"
 })
 public class SetReference {
 
     @JsonProperty("ref")
     private java.lang.String ref;
-    @JsonProperty("path_to_set")
-    private List<String> pathToSet;
+    @JsonProperty("ref_path_to_set")
+    private List<String> refPathToSet;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("ref")
@@ -46,18 +51,18 @@ public class SetReference {
         return this;
     }
 
-    @JsonProperty("path_to_set")
-    public List<String> getPathToSet() {
-        return pathToSet;
+    @JsonProperty("ref_path_to_set")
+    public List<String> getRefPathToSet() {
+        return refPathToSet;
     }
 
-    @JsonProperty("path_to_set")
-    public void setPathToSet(List<String> pathToSet) {
-        this.pathToSet = pathToSet;
+    @JsonProperty("ref_path_to_set")
+    public void setRefPathToSet(List<String> refPathToSet) {
+        this.refPathToSet = refPathToSet;
     }
 
-    public SetReference withPathToSet(List<String> pathToSet) {
-        this.pathToSet = pathToSet;
+    public SetReference withRefPathToSet(List<String> refPathToSet) {
+        this.refPathToSet = refPathToSet;
         return this;
     }
 
@@ -73,7 +78,7 @@ public class SetReference {
 
     @Override
     public java.lang.String toString() {
-        return ((((((("SetReference"+" [ref=")+ ref)+", pathToSet=")+ pathToSet)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((("SetReference"+" [ref=")+ ref)+", refPathToSet=")+ refPathToSet)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

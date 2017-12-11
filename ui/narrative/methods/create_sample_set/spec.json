@@ -1,0 +1,175 @@
+{
+  "ver" : "1.0.0",
+  "authors" : [ ],
+  "contact" : "help@kbase.us",
+  "visible" : true,
+  "categories" : ["active","expression"],
+  "widgets" : {
+    "input" : null,
+    "output" : "kbaseRNASeqAnalysisNew"
+  },
+  "parameters" : [ {
+    "id" : "sampleset_id",
+    "optional" : false,
+    "advanced" : false,
+    "allow_multiple" : false,
+    "default_values" : [ "" ],
+    "field_type" : "text",
+    "text_options" : {
+      "valid_ws_types" : ["KBaseRNASeq.RNASeqSampleSet"],
+      "is_output_name": true
+    }
+  },{
+    "id" : "sampleset_desc",
+    "optional" : true,
+    "advanced" : true,
+    "allow_multiple" : false,
+    "default_values" : [ "" ],
+    "field_type" : "textarea",
+    "textarea_options" : {
+      "n_rows" : 4
+    }
+  },{
+    "id" : "platform",
+    "optional" : true,
+    "advanced" : true,
+    "allow_multiple" : false,
+    "default_values" : [ "" ],
+    "field_type" : "text"
+  },{
+    "id" : "Library_type",
+    "optional" : false,
+    "advanced" : false,
+    "allow_multiple" : false,
+    "default_values" : [ "" ],
+    "field_type" : "dropdown",
+    "dropdown_options":{
+      "options": [
+        {
+          "value": "SingleEnd",
+          "display": "SingleEnd",
+          "id": "singleEnd",
+          "ui_name": "singleEnd"
+        },
+        {
+          "value": "PairedEnd",
+          "display": "PairedEnd",
+          "id": "pairedEnd",
+          "ui_name": "PairedEnd"
+        }
+      ]
+    }
+  },{
+    "id" : "sample_id",
+    "optional" : false,
+    "advanced" : false,
+    "allow_multiple" : false,
+    "default_values" : [ "" ],
+    "field_type" : "text",
+    "text_options" : {
+      "valid_ws_types" : [ "KBaseAssembly.SingleEndLibrary","KBaseAssembly.PairedEndLibrary", "KBaseFile.SingleEndLibrary","KBaseFile.PairedEndLibrary"]
+    }
+  },{
+    "id" : "condition",
+    "optional" : false,
+    "advanced" : false,
+    "allow_multiple" : false,
+    "default_values" : [ "" ],
+    "field_type" : "text"
+  },{
+     "id" : "domain",
+    "optional" : true,
+    "advanced" : false,
+    "allow_multiple" : false,
+    "default_values" : [ "" ],
+    "field_type" : "dropdown",
+    "dropdown_options":{
+      "options": [
+        {
+          "value": "Eukaryotes",
+          "display": "Eukaryotes"
+        },
+        {
+          "value": "Prokaryotes",
+          "display": "Prokaryotes"
+        }
+      ]
+    }
+  },{
+    "id" : "source",
+    "optional" : true,
+    "advanced" : true,
+    "allow_multiple" : false,
+    "default_values" : [ "" ],
+    "field_type" : "text"
+  },{
+    "id" : "publication_id",
+    "optional" : true,
+    "advanced" : true,
+    "allow_multiple" : false,
+    "default_values" : [ "" ],
+    "field_type" : "text"
+  }],
+  "parameter-groups": [
+      {
+        "id": "sample_n_conditions",
+        "parameters": ["sample_id", "condition"],
+        "optional": false,
+        "allow_multiple": true,
+        "with_border": true
+      }
+  ],
+  "behavior" : {
+    "service-mapping" : {
+    	"url" : "",
+    	"name" : "SetAPI",
+    	"method" : "create_sample_set",
+	"input_mapping" : [
+	{
+          "narrative_system_variable": "workspace",
+          "target_property": "ws_id"
+        },
+        {
+          "input_parameter": "sampleset_id",
+          "target_property": "sampleset_id"
+        },{
+          "input_parameter": "sampleset_desc",
+          "target_property": "sampleset_desc"
+        },{
+          "input_parameter": "platform",
+          "target_property": "platform"
+        },{
+          "input_parameter": "Library_type",
+          "target_property": "Library_type"
+	    },{
+          "input_parameter": "sample_n_conditions",
+          "target_property": "sample_n_conditions"
+        },{
+          "input_parameter": "domain",
+          "target_property": "domain"
+        },{
+          "input_parameter": "source",
+          "target_property": "source"
+        },{
+          "input_parameter": "publication_id",
+          "target_property": "publication_id"
+        }
+      ],
+      "output_mapping" : [
+      	{
+          "input_parameter": "sampleset_id",
+          "target_property": "output"
+        },
+        {
+          "narrative_system_variable": "workspace",
+          "target_property": "workspace"
+        },
+        {
+      	  "service_method_output_path": [0],
+	      "target_property": "CreateRNASeqSampleSet"
+	}
+      ]
+    }
+  },
+  "job_id_output_field" : "docker"
+}
