@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from biokbase.workspace.client import Workspace
+from Workspace.WorkspaceClient import Workspace
 from SetAPI import util
 
 class SetInterfaceV1:

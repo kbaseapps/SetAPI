@@ -1,7 +1,7 @@
 from pprint import pprint
 
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
-from biokbase.workspace.client import Workspace
+from Workspace.WorkspaceClient import Workspace
 
 class AssemblySetInterfaceV1:
 
