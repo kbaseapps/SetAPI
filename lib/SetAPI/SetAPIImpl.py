@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #BEGIN_HEADER
 
-# from biokbase.workspace.client import Workspace
+# from Workspace.WorkspaceClient import Workspace
 from Workspace.WorkspaceClient import Workspace
 
 from SetAPI.reads.ReadsSetInterfaceV1 import ReadsSetInterfaceV1

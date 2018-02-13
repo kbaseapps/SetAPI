@@ -3,7 +3,7 @@
 
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
 
-from biokbase.workspace.client import Workspace
+from Workspace.WorkspaceClient import Workspace
 
 from pprint import pprint
 

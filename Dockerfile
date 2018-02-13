@@ -5,28 +5,17 @@ MAINTAINER KBase Developer
 # Insert apt-get instructions here to install
 # any required dependencies for your module.
 
-# RUN apt-get update
+RUN apt-get -y update && apt-get install -y python-dev libffi-dev libssl-dev
+RUN pip install cffi ndg-httpsclient pyopenssl==17.03 cryptography==2.0.3 --upgrade \
+    && pip install pyasn1 --upgrade \
+    && pip install requests --upgrade \
+    && pip install 'requests[security]' --upgrade \
+    && pip install coverage
 
-RUN sudo apt-get install python-dev libffi-dev libssl-dev
-RUN pip install cffi --upgrade
-RUN pip install setuptools --upgrade
-RUN pip install pyopenssl --upgrade
-RUN pip install ndg-httpsclient --upgrade
-RUN pip install pyasn1 --upgrade
-RUN pip install requests --upgrade && \
-    pip install 'requests[security]' --upgrade
-RUN pip install coverage
+
 # -----------------------------------------
 
 # update installed WS client (will now include get_objects2)
-RUN mkdir -p /kb/module && \
-    cd /kb/module && \
-    git clone https://github.com/kbase/workspace_deluxe && \
-    cd workspace_deluxe && \
-    git checkout 837ad4c && \
-    rm -rf /kb/deployment/lib/biokbase/workspace && \
-    cp -vr lib/biokbase/workspace /kb/deployment/lib/biokbase/workspace
-
 
 COPY ./ /kb/module
 RUN mkdir -p /kb/module/work
