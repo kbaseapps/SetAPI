@@ -108,11 +108,10 @@ class SetAPITest(unittest.TestCase):
                 "sampleset_desc": "first pass at testing algae GFFs from NCBI",
                 "domain": "euk",
                 "platform": "Illumina",
-                "sample_ids": [self.read1ref,
-                               self.read2ref,
-                               self.read3ref
-                              ],
-                "condition": ["WT", "Cond1", "Cond2"],
+                "sample_n_conditions": [
+                    {"sample_id": [self.read1ref], "condition": "WT"},
+                    {"sample_id": [self.read2ref, self.read3ref], "condition": "Cond1"},
+                ],
                 "source": "NCBI",
                 "Library_type": "SingleEnd",
                 "publication_id": "none",
@@ -158,7 +157,7 @@ class SetAPITest(unittest.TestCase):
         self.assertTrue('info' not in item3)
         self.assertTrue('ref' in item3)
         self.assertTrue('label' in item3)
-        self.assertEqual(item3['label'], 'Cond2')
+        self.assertEqual(item3['label'], 'Cond1')
         self.assertEqual(item3['ref'], self.read3ref)
 
         # test the call to make sure we get info for each item
