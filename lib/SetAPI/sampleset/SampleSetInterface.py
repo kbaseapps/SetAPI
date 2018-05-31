@@ -23,16 +23,16 @@ class SampleSetInterface:
 
     def create_sample_set(self, ctx, params):
 
+        params["sample_ids"] = []
+        params["condition"] = []
+        for item in params.get('sample_n_conditions', []):
+            params["sample_ids"].extend(item['sample_id'])
+            params["condition"].extend([item['condition'] for i in item['sample_id']])
+
+        pprint(params)
         try:
-            if 'sample_n_conditions' in params:
-                params["sample_ids"] = [item['sample_id'] for item in params['sample_n_conditions']]
-                params["condition"] = [item['condition'] for item in params['sample_n_conditions']]
-                del params['sample_n_conditions']
-
-            pprint(params)
-
             ### Create the working dir for the method; change it to a function call
-            out_obj = {k: v for k, v in params.iteritems() if not k in ('ws_id')}
+            out_obj = {k: v for k, v in params.iteritems() if k not in ('ws_id',)}
 
             sample_ids = params["sample_ids"]
             out_obj['num_samples'] = len(sample_ids)
@@ -89,6 +89,6 @@ class SampleSetInterface:
             pprint(result)
             return result
 
-        except Exception, e:
+        except Exception as e:
             raise Exception(
                 "Error Saving the object to workspace {0},{1}".format(out_obj['sampleset_id'], "".join(traceback.format_exc())))
