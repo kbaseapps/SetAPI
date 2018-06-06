@@ -612,6 +612,7 @@ module SetAPI {
         string Library_type;
         string publication_id;
         string external_source_date;
+        string conditionset_ref;
     } CreateRNASeqSampleSetParams;
 
     typedef structure{
