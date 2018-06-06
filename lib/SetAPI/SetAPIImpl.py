@@ -35,7 +35,7 @@ class SetAPI:
     ######################################### noqa
     VERSION = "0.2.2"
     GIT_URL = "git@github.com:Tianhao-Gu/SetAPI.git"
-    GIT_COMMIT_HASH = "d6c256363e1e3415c94a07c1a114831496af6d79"
+    GIT_COMMIT_HASH = "7fc812b07b64df91bded787ea550139abd0e1b29"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
