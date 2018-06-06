@@ -143,6 +143,9 @@
           "input_parameter": "sampleset_id",
           "target_property": "sampleset_id"
         },{
+          "input_parameter": "conditionset_ref",
+          "target_property": "conditionset_ref"
+        },{
           "input_parameter": "sampleset_desc",
           "target_property": "sampleset_desc"
         },{
