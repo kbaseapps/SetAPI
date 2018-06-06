@@ -83,7 +83,7 @@
           "subdata_included" : ["conditions"],
           "path_to_subdata": ["conditions"]
         },
-        "multiselection":true,
+        "multiselection":false,
         "show_src_obj":false,
         "allow_custom":false
       }
