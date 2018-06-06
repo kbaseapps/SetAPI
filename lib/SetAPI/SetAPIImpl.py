@@ -33,9 +33,9 @@ class SetAPI:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.2.0"
-    GIT_URL = "https://github.com/ugswork/SetAPI.git"
-    GIT_COMMIT_HASH = "b53442292ff35663c7a3c9b3de669120db1aa8a0"
+    VERSION = "0.2.2"
+    GIT_URL = "git@github.com:Tianhao-Gu/SetAPI.git"
+    GIT_COMMIT_HASH = "d6c256363e1e3415c94a07c1a114831496af6d79"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -1938,7 +1938,7 @@ class SetAPI:
            String, parameter "condition" of list of String, parameter
            "source" of String, parameter "Library_type" of String, parameter
            "publication_id" of String, parameter "external_source_date" of
-           String
+           String, parameter "conditionset_ref" of String
         :returns: instance of type "CreateRNASeqSampleSetResult" ->
            structure: parameter "set_ref" of String, parameter "set_info" of
            type "object_info" (Information about an object, including user

@@ -69,13 +69,24 @@
     "text_options" : {
       "valid_ws_types" : [ "KBaseAssembly.SingleEndLibrary","KBaseAssembly.PairedEndLibrary", "KBaseFile.SingleEndLibrary","KBaseFile.PairedEndLibrary"]
     }
-  },{
-    "id" : "condition",
-    "optional" : false,
-    "advanced" : false,
-    "allow_multiple" : false,
-    "default_values" : [ "" ],
-    "field_type" : "text"
+  },
+  {
+      "id" : "condition",
+      "optional" : false,
+      "advanced" : false,
+      "allow_multiple" : false,
+      "default_values" : [ "" ],
+      "field_type" : "textsubdata",
+      "textsubdata_options" : {
+        "subdata_selection": {
+          "parameter_id" : "conditionset_ref",
+          "subdata_included" : ["conditions"],
+          "path_to_subdata": ["conditions"]
+        },
+        "multiselection":true,
+        "show_src_obj":false,
+        "allow_custom":false
+      }
   },{
      "id" : "domain",
     "optional" : true,
@@ -94,6 +105,16 @@
           "display": "Prokaryotes"
         }
       ]
+    }
+  },{
+    "id" : "conditionset_ref",
+    "optional" : true,
+    "advanced" : false,
+    "allow_multiple" : true,
+    "default_values" : [ "" ],
+    "field_type" : "text",
+    "text_options" : {
+      "valid_ws_types" : [ "KBaseExperiments.ConditionSet"]
     }
   },{
     "id" : "source",

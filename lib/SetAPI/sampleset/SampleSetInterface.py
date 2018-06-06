@@ -3,12 +3,15 @@ An interface for handling sample sets
 """
 
 import traceback
+import os
 from pprint import pprint
+from DataFileUtil.DataFileUtilClient import DataFileUtil
 
 class SampleSetInterface:
 
     def __init__(self, workspace_client):
         self.ws_client = workspace_client
+        self.dfu = DataFileUtil(os.environ['SDK_CALLBACK_URL'])
 
     def _ws_get_ref(self, ws_id, obj_id):
         if '/' in obj_id:
@@ -21,6 +24,22 @@ class SampleSetInterface:
         info = self.ws_client.get_object_info_new({"objects": [{'ref': obj_id}]})[0]
         return info[1]
 
+    def _dfu_get_obj_data(self, obj_ref):
+        obj_data = self.dfu.get_objects(
+                {"object_refs":[obj_ref]})['data'][0]['data']
+
+        return obj_data
+
+    def _check_condition_matching(self, conditionset_ref, matching_conditions):
+
+        conditionset_data = self._dfu_get_obj_data(conditionset_ref)
+        conditions = conditionset_data.get('conditions').keys()
+
+        if set(conditions) != set(matching_conditions):
+            error_msg = 'ERROR: Given conditoins ({}) '.format(matching_conditions)
+            error_msg += 'are not matching ConditionSet conditions: {}'.format(conditions)
+            raise ValueError(error_msg)
+
     def create_sample_set(self, ctx, params):
 
         params["sample_ids"] = []
@@ -30,6 +49,10 @@ class SampleSetInterface:
             params["condition"].extend([item['condition'] for i in item['sample_id']])
 
         pprint(params)
+
+        conditionset_ref = params.get('conditionset_ref')
+        if conditionset_ref:
+            self._check_condition_matching(conditionset_ref, params["condition"])
         try:
             ### Create the working dir for the method; change it to a function call
             out_obj = {k: v for k, v in params.iteritems() if k not in ('ws_id',)}

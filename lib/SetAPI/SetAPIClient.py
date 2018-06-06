@@ -1749,7 +1749,7 @@ class SetAPI(object):
            String, parameter "condition" of list of String, parameter
            "source" of String, parameter "Library_type" of String, parameter
            "publication_id" of String, parameter "external_source_date" of
-           String
+           String, parameter "conditionset_ref" of String
         :returns: instance of type "CreateRNASeqSampleSetResult" ->
            structure: parameter "set_ref" of String, parameter "set_info" of
            type "object_info" (Information about an object, including user

@@ -32,7 +32,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "source",
     "Library_type",
     "publication_id",
-    "external_source_date"
+    "external_source_date",
+    "conditionset_ref"
 })
 public class CreateRNASeqSampleSetParams {
 
@@ -58,6 +59,8 @@ public class CreateRNASeqSampleSetParams {
     private java.lang.String publicationId;
     @JsonProperty("external_source_date")
     private java.lang.String externalSourceDate;
+    @JsonProperty("conditionset_ref")
+    private java.lang.String conditionsetRef;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("ws_id")
@@ -225,6 +228,21 @@ public class CreateRNASeqSampleSetParams {
         return this;
     }
 
+    @JsonProperty("conditionset_ref")
+    public java.lang.String getConditionsetRef() {
+        return conditionsetRef;
+    }
+
+    @JsonProperty("conditionset_ref")
+    public void setConditionsetRef(java.lang.String conditionsetRef) {
+        this.conditionsetRef = conditionsetRef;
+    }
+
+    public CreateRNASeqSampleSetParams withConditionsetRef(java.lang.String conditionsetRef) {
+        this.conditionsetRef = conditionsetRef;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -237,7 +255,7 @@ public class CreateRNASeqSampleSetParams {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((((("CreateRNASeqSampleSetParams"+" [wsId=")+ wsId)+", samplesetId=")+ samplesetId)+", samplesetDesc=")+ samplesetDesc)+", domain=")+ domain)+", platform=")+ platform)+", sampleIds=")+ sampleIds)+", condition=")+ condition)+", source=")+ source)+", LibraryType=")+ LibraryType)+", publicationId=")+ publicationId)+", externalSourceDate=")+ externalSourceDate)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((("CreateRNASeqSampleSetParams"+" [wsId=")+ wsId)+", samplesetId=")+ samplesetId)+", samplesetDesc=")+ samplesetDesc)+", domain=")+ domain)+", platform=")+ platform)+", sampleIds=")+ sampleIds)+", condition=")+ condition)+", source=")+ source)+", LibraryType=")+ LibraryType)+", publicationId=")+ publicationId)+", externalSourceDate=")+ externalSourceDate)+", conditionsetRef=")+ conditionsetRef)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

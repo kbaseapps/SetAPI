@@ -2377,6 +2377,7 @@ CreateRNASeqSampleSetParams is a reference to a hash where the following keys ar
 	Library_type has a value which is a string
 	publication_id has a value which is a string
 	external_source_date has a value which is a string
+	conditionset_ref has a value which is a string
 CreateRNASeqSampleSetResult is a reference to a hash where the following keys are defined:
 	set_ref has a value which is a string
 	set_info has a value which is a Workspace.object_info
@@ -2421,6 +2422,7 @@ CreateRNASeqSampleSetParams is a reference to a hash where the following keys ar
 	Library_type has a value which is a string
 	publication_id has a value which is a string
 	external_source_date has a value which is a string
+	conditionset_ref has a value which is a string
 CreateRNASeqSampleSetResult is a reference to a hash where the following keys are defined:
 	set_ref has a value which is a string
 	set_info has a value which is a Workspace.object_info
@@ -4946,6 +4948,7 @@ source has a value which is a string
 Library_type has a value which is a string
 publication_id has a value which is a string
 external_source_date has a value which is a string
+conditionset_ref has a value which is a string
 
 </pre>
 
@@ -4965,6 +4968,7 @@ source has a value which is a string
 Library_type has a value which is a string
 publication_id has a value which is a string
 external_source_date has a value which is a string
+conditionset_ref has a value which is a string
 
 
 =end text
