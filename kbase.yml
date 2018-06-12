@@ -11,7 +11,7 @@ module-version:
     0.2.2
 
 owners:
-    [rsutormin, msneddon, wjriehl, tgu2]
+    [wjriehl, tgu2]
 
 service-config:
     dynamic-service: true

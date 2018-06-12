@@ -5,13 +5,12 @@ An interface for handling sample sets
 import traceback
 import os
 from pprint import pprint
-from DataFileUtil.DataFileUtilClient import DataFileUtil
+from SetAPI import util
 
 class SampleSetInterface:
 
     def __init__(self, workspace_client):
         self.ws_client = workspace_client
-        self.dfu = DataFileUtil(os.environ['SDK_CALLBACK_URL'])
 
     def _ws_get_ref(self, ws_id, obj_id):
         if '/' in obj_id:
@@ -24,19 +23,13 @@ class SampleSetInterface:
         info = self.ws_client.get_object_info_new({"objects": [{'ref': obj_id}]})[0]
         return info[1]
 
-    def _dfu_get_obj_data(self, obj_ref):
-        obj_data = self.dfu.get_objects(
-                {"object_refs":[obj_ref]})['data'][0]['data']
-
-        return obj_data
-
     def _check_condition_matching(self, conditionset_ref, matching_conditions):
 
-        conditionset_data = self._dfu_get_obj_data(conditionset_ref)
+        conditionset_data = util.dfu_get_obj_data(conditionset_ref)
         conditions = conditionset_data.get('conditions').keys()
 
         if set(conditions) != set(matching_conditions):
-            error_msg = 'ERROR: Given conditoins ({}) '.format(matching_conditions)
+            error_msg = 'ERROR: Given conditions ({}) '.format(matching_conditions)
             error_msg += 'are not matching ConditionSet conditions: {}'.format(conditions)
             raise ValueError(error_msg)
 
