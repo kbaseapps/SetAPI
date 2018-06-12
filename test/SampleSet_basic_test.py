@@ -349,5 +349,5 @@ class SetAPITest(unittest.TestCase):
         setAPI = self.getImpl()
 
         with self.assertRaisesRegexp(
-                ValueError, 'ERROR: Given conditoins'):
+                ValueError, 'ERROR: Given conditions'):
             setAPI.create_sample_set(self.getContext(), create_ss_params)
