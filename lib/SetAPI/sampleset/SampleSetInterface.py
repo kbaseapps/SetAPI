@@ -38,10 +38,14 @@ class SampleSetInterface:
         params["sample_ids"] = []
         params["condition"] = []
         for item in params.get('sample_n_conditions', []):
-            if isinstance(item['condition'], list): # Auto populate UI puts input into an array
-                if len(item['condition']) > 1:
+            item_condition = item['condition']
+            if not isinstance(item_condition, (basestring, list)):
+                raise ValueError('ERROR: condition should be either a list or a string')
+
+            if isinstance(item_condition, list): # Auto populate UI puts input into an array
+                if len(item_condition) > 1:
                     raise ValueError('ERROR: please only select 1 condition per Reads')
-                item['condition'] = item['condition'][0]
+                item['condition'] = item_condition[0]
 
             params["sample_ids"].extend(item['sample_id'])
             params["condition"].extend([item['condition'] for i in item['sample_id']])

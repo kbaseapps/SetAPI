@@ -327,7 +327,7 @@ class SetAPITest(unittest.TestCase):
         setObjName = 'micromonas_rnaseq_test1_sampleset'
 
         unmatching_condition = 'unmatching_condition'
-        # create the set object
+        # create the set object with unmatching conditions
         create_ss_params = {
                 "ws_id": workspace,
                 "sampleset_id": setObjName,
@@ -350,4 +350,35 @@ class SetAPITest(unittest.TestCase):
 
         with self.assertRaisesRegexp(
                 ValueError, 'ERROR: Given conditions'):
+            setAPI.create_sample_set(self.getContext(), create_ss_params)
+
+    def test_non_list_string_conditions(self):
+
+        workspace = self.getWsName()
+        setObjName = 'micromonas_rnaseq_test1_sampleset'
+
+        digital_condition = 10
+        # create the set object with unmatching conditions
+        create_ss_params = {
+                "ws_id": workspace,
+                "sampleset_id": setObjName,
+                "sampleset_desc": "first pass at testing algae GFFs from NCBI",
+                "domain": "euk",
+                "platform": "Illumina",
+                "sample_n_conditions": [
+                    {"sample_id": [self.read1ref], "condition": digital_condition},
+                    {"sample_id": [self.read2ref, self.read3ref], "condition": self.condition_2},
+                ],
+                "source": "NCBI",
+                "Library_type": "SingleEnd",
+                "publication_id": "none",
+                "string external_source_date": "not sure",
+                "conditionset_ref":  self.condition_set_ref
+               }
+
+        # test a save
+        setAPI = self.getImpl()
+
+        with self.assertRaisesRegexp(
+                ValueError, 'ERROR: condition should be either a list or a string'):
             setAPI.create_sample_set(self.getContext(), create_ss_params)
