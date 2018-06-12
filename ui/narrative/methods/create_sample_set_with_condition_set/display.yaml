@@ -1,7 +1,7 @@
 #
 # Define basic display information
 #
-name     : Create RNA-seq Sample Set
+name     : Create RNA-seq Sample Set With Condition Set
 
 tooltip  : |
     Provide RNA-seq reads and the metadata to create an RNA-seq Sample Set

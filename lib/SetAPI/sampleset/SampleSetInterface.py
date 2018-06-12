@@ -3,7 +3,9 @@ An interface for handling sample sets
 """
 
 import traceback
+import os
 from pprint import pprint
+from SetAPI import util
 
 class SampleSetInterface:
 
@@ -21,15 +23,39 @@ class SampleSetInterface:
         info = self.ws_client.get_object_info_new({"objects": [{'ref': obj_id}]})[0]
         return info[1]
 
+    def _check_condition_matching(self, conditionset_ref, matching_conditions):
+
+        conditionset_data = util.dfu_get_obj_data(conditionset_ref)
+        conditions = conditionset_data.get('conditions').keys()
+
+        if set(conditions) != set(matching_conditions):
+            error_msg = 'ERROR: Given conditions ({}) '.format(matching_conditions)
+            error_msg += 'are not matching ConditionSet conditions: {}'.format(conditions)
+            raise ValueError(error_msg)
+
     def create_sample_set(self, ctx, params):
 
         params["sample_ids"] = []
         params["condition"] = []
         for item in params.get('sample_n_conditions', []):
+            item_condition = item['condition']
+            if not isinstance(item_condition, (basestring, list)):
+                raise ValueError('ERROR: condition should be either a list or a string')
+
+            if isinstance(item_condition, list): # Auto populate UI puts input into an array
+                if len(item_condition) > 1:
+                    raise ValueError('ERROR: please only select 1 condition per Reads')
+                item['condition'] = item_condition[0]
+
             params["sample_ids"].extend(item['sample_id'])
             params["condition"].extend([item['condition'] for i in item['sample_id']])
 
+
         pprint(params)
+
+        conditionset_ref = params.get('conditionset_ref')
+        if conditionset_ref:
+            self._check_condition_matching(conditionset_ref, params["condition"])
         try:
             ### Create the working dir for the method; change it to a function call
             out_obj = {k: v for k, v in params.iteritems() if k not in ('ws_id',)}
