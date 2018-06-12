@@ -2,6 +2,8 @@
 This module contains some utility functions for the SetAPI.
 """
 import re
+import os
+from DataFileUtil.DataFileUtilClient import DataFileUtil
 
 def check_reference(ref):
     """
@@ -29,3 +31,10 @@ def populate_item_object_ref_paths(set_items, obj_selector):
     for set_item in set_items:
         set_item["ref_path"] = obj_selector['ref'] + ';' + set_item['ref']
     return set_items
+
+def dfu_get_obj_data(obj_ref):
+    dfu = DataFileUtil(os.environ['SDK_CALLBACK_URL'])
+    obj_data = dfu.get_objects(
+            {"object_refs":[obj_ref]})['data'][0]['data']
+
+    return obj_data
