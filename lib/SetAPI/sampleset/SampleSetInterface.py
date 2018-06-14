@@ -28,7 +28,7 @@ class SampleSetInterface:
         conditionset_data = util.dfu_get_obj_data(conditionset_ref)
         conditions = conditionset_data.get('conditions').keys()
 
-        if set(conditions) != set(matching_conditions):
+        if not all([x in conditions for x in matching_conditions]):
             error_msg = 'ERROR: Given conditions ({}) '.format(matching_conditions)
             error_msg += 'are not matching ConditionSet conditions: {}'.format(conditions)
             raise ValueError(error_msg)

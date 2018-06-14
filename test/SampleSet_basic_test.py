@@ -78,13 +78,15 @@ class SetAPITest(unittest.TestCase):
         # conditions
         cls.condition_1 = 'WT'
         cls.condition_2 = 'Cond1'
+        cls.condition_3 = 'HY'
 
         # create a conditition set
         workspace_id = cls.dfu.ws_name_to_id(cls.wsName)
         condition_set_object_name = 'test_Condition_Set'
         condition_set_data = {
                             'conditions': {cls.condition_1: ['0', '0'],
-                                           cls.condition_2: ['0', '0']},
+                                           cls.condition_2: ['0', '0'],
+                                           cls.condition_3: ['0', '0']},
                             'factors': [
                                         {
                                             "factor": "Time series design",
@@ -366,8 +368,7 @@ class SetAPITest(unittest.TestCase):
                 "domain": "euk",
                 "platform": "Illumina",
                 "sample_n_conditions": [
-                    {"sample_id": [self.read1ref], "condition": digital_condition},
-                    {"sample_id": [self.read2ref, self.read3ref], "condition": self.condition_2},
+                    {"sample_id": [self.read1ref], "condition": digital_condition}
                 ],
                 "source": "NCBI",
                 "Library_type": "SingleEnd",
