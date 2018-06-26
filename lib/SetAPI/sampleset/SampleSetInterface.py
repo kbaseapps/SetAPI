@@ -56,6 +56,8 @@ class SampleSetInterface:
         conditionset_ref = params.get('conditionset_ref')
         if conditionset_ref:
             self._check_condition_matching(conditionset_ref, params["condition"])
+        else:
+            del params['conditionset_ref']
         try:
             ### Create the working dir for the method; change it to a function call
             out_obj = {k: v for k, v in params.iteritems() if k not in ('ws_id',)}
