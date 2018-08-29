@@ -24,7 +24,7 @@ module KBaseSets {
 
     /*
         The workspace id for a FeatureSet data object.
-        @id ws KBaseFeatureValues.DifferentialExpressionMatrix
+        @id ws KBaseFeatureValues.DifferentialExpressionMatrix KBaseMatrices.DifferentialExpressionMatrix
     */
     typedef string ws_diffexpmatrix_id;
 
