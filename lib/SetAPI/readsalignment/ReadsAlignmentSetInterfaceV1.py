@@ -7,6 +7,7 @@ from pprint import pprint
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
 from SetAPI import util
 
+
 class ReadsAlignmentSetInterfaceV1:
     def __init__(self, workspace_client):
         self.workspace_client = workspace_client
@@ -19,10 +20,10 @@ class ReadsAlignmentSetInterfaceV1:
             raise ValueError('"data" parameter field required to save a ReadsAlignmentSet')
 
         save_result = self.set_interface.save_set(
-                'KBaseSets.ReadsAlignmentSet',
-                ctx['provenance'],
-                params
-            )
+            'KBaseSets.ReadsAlignmentSet',
+            ctx['provenance'],
+            params
+        )
         info = save_result[0]
         return {
             'set_ref': str(info[6]) + '/' + str(info[0]) + '/' + str(info[4]),
@@ -44,7 +45,7 @@ class ReadsAlignmentSetInterfaceV1:
             if "label" not in item:
                 item["label"] = ""
 
-        ref_list = list(map(lambda r: {"ref": r}, refs))
+        ref_list = list([{"ref": r} for r in refs])
 
         # Get all the genome ids from our ReadsAlignment references (it's the genome_id key in
         # the object metadata). Make a set out of them.
@@ -83,11 +84,11 @@ class ReadsAlignmentSetInterfaceV1:
         if "KBaseSets" in set_type:
             # If it's a KBaseSets type, then we know the usual interface will work...
             return self.set_interface.get_set(
-                    params['ref'],
-                    include_item_info,
-                    ref_path_to_set,
-                    include_set_item_ref_paths
-                )
+                params['ref'],
+                include_item_info,
+                ref_path_to_set,
+                include_set_item_ref_paths
+            )
         else:
             # ...otherwise, we need to fetch it directly from the workspace and tweak it into the
             # expected return object
@@ -105,7 +106,7 @@ class ReadsAlignmentSetInterfaceV1:
                 reads_to_alignments = obj["mapped_alignments_ids"]
                 refs = set()
                 for mapping in reads_to_alignments:
-                    refs.update(mapping.values())
+                    refs.update(list(mapping.values()))
                 alignment_ref_list = list(refs)
             alignment_items = [{"ref": i} for i in alignment_ref_list]
 
@@ -131,7 +132,8 @@ class ReadsAlignmentSetInterfaceV1:
 
     def _check_get_reads_alignment_set_params(self, params):
         if 'ref' not in params or params['ref'] is None:
-            raise ValueError('"ref" parameter field specifiying the reads alignment set is required')
+            raise ValueError(
+                '"ref" parameter field specifiying the reads alignment set is required')
         elif not util.check_reference(params['ref']):
             raise ValueError('"ref" parameter must be a valid workspace reference')
         if 'include_item_info' in params:

@@ -1,6 +1,7 @@
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
 from SetAPI import util
 
+
 class ReadsSetInterfaceV1:
     def __init__(self, workspace_client):
         self.ws = workspace_client
@@ -13,10 +14,10 @@ class ReadsSetInterfaceV1:
             raise ValueError('"data" parameter field required to save a ReadsSet')
 
         save_result = self.setInterface.save_set(
-                                                'KBaseSets.ReadsSet',
-                                                ctx['provenance'],
-                                                params
-                                                )
+            'KBaseSets.ReadsSet',
+            ctx['provenance'],
+            params
+        )
         info = save_result[0]
         return {
             'set_ref': str(info[6]) + '/' + str(info[0]) + '/' + str(info[4]),
@@ -57,11 +58,11 @@ class ReadsSetInterfaceV1:
         # If this is a KBaseSets.ReadsSet, do as normal.
         if "KBaseSets" in set_type:
             set_data = self.setInterface.get_set(
-                    params['ref'],
-                    include_item_info,
-                    ref_path_to_set,
-                    include_set_item_ref_paths
-                )
+                params['ref'],
+                include_item_info,
+                ref_path_to_set,
+                include_set_item_ref_paths
+            )
             return self._normalize_read_set_data(set_data)
 
         # Otherwise, fetch the SampleSet info from the workspace and go on from there.
@@ -95,7 +96,7 @@ class ReadsSetInterfaceV1:
                 reads_obj_specs = [{"ref": i["ref"]} for i in reads_items]
                 infos = self.ws.get_object_info3({"objects": reads_obj_specs,
                                                   "includeMetadata": 1}
-                                                )["infos"]
+                                                 )["infos"]
                 for idx, info in enumerate(infos):
                     reads_items[idx]["info"] = info
             """
@@ -116,7 +117,7 @@ class ReadsSetInterfaceV1:
         elif not util.check_reference(params['ref']):
             raise ValueError('"ref" parameter must be a valid workspace reference')
         if 'include_item_info' in params:
-            if params['include_item_info'] not in [0,1]:
+            if params['include_item_info'] not in [0, 1]:
                 raise ValueError('"include_item_info" parameter field can only be set to 0 or 1')
 
         obj_spec = util.build_ws_obj_selector(params.get('ref'),

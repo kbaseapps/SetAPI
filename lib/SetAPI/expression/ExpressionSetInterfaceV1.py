@@ -1,8 +1,9 @@
 """
 An interface for handling sets of Expression objects.
 """
-from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
 from SetAPI import util
+from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
+
 
 class ExpressionSetInterfaceV1:
     def __init__(self, workspace_client):
@@ -16,10 +17,10 @@ class ExpressionSetInterfaceV1:
             raise ValueError('"data" parameter field required to save an ExpressionSet')
 
         save_result = self.set_interface.save_set(
-                'KBaseSets.ExpressionSet',
-                ctx['provenance'],
-                params
-            )
+            'KBaseSets.ExpressionSet',
+            ctx['provenance'],
+            params
+        )
         info = save_result[0]
         return {
             'set_ref': str(info[6]) + '/' + str(info[0]) + '/' + str(info[4]),
@@ -41,7 +42,7 @@ class ExpressionSetInterfaceV1:
             if "label" not in item:
                 item["label"] = ""
 
-        ref_list = list(map(lambda r: {"ref": r}, refs))
+        ref_list = list([{"ref": r} for r in refs])
 
         # Get all the genome ids from our Expression references (it's the genome_id key in
         # the object metadata). Make a set out of them.
@@ -73,11 +74,11 @@ class ExpressionSetInterfaceV1:
         if "KBaseSets" in set_type:
             # If it's a KBaseSets type, then we know the usual interface will work...
             return self.set_interface.get_set(
-                    params['ref'],
-                    include_item_info,
-                    ref_path_to_set,
-                    include_set_item_ref_paths
-                )
+                params['ref'],
+                include_item_info,
+                ref_path_to_set,
+                include_set_item_ref_paths
+            )
         else:
             # ...otherwise, we need to fetch it directly from the workspace and tweak it into the
             # expected return object
@@ -94,7 +95,7 @@ class ExpressionSetInterfaceV1:
 
                 refs = set()
                 for mapping in alignments_to_expressions:
-                    refs.update(mapping.values())
+                    refs.update(list(mapping.values()))
                 expression_ref_list = list(refs)
 
             expression_items = [{"ref": i} for i in expression_ref_list]

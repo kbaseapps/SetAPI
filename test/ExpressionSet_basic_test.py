@@ -1,21 +1,17 @@
 # -*- coding: utf-8 -*-
-import unittest
 import os
+import shutil
 import time
+import unittest
+from configparser import ConfigParser
+from os import environ
 from pprint import pprint
 
-from os import environ
-try:
-    from ConfigParser import ConfigParser  # py2
-except:
-    from configparser import ConfigParser  # py3
-
-from Workspace.WorkspaceClient import Workspace as workspaceService
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
-
-from FakeObjectsForTests.FakeObjectsForTestsClient import FakeObjectsForTests
 from SetAPI.authclient import KBaseAuth as _KBaseAuth
+from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
+from installed_clients.WorkspaceClient import Workspace as workspaceService
 from util import (
     info_to_ref,
     make_fake_alignment,
@@ -25,7 +21,7 @@ from util import (
     make_fake_old_alignment_set,
     make_fake_old_expression_set
 )
-import shutil
+
 
 class ExpressionSetAPITest(unittest.TestCase):
 
@@ -271,8 +267,8 @@ class ExpressionSetAPITest(unittest.TestCase):
         self.assertIsNotNone(fetched_set)
         self.assertIn("data", fetched_set)
         self.assertIn("info", fetched_set)
-        self.assertEquals(len(fetched_set["data"]["items"]), 3)
-        self.assertEquals(expression_set_ref, info_to_ref(fetched_set["info"]))
+        self.assertEqual(len(fetched_set["data"]["items"]), 3)
+        self.assertEqual(expression_set_ref, info_to_ref(fetched_set["info"]))
         for item in fetched_set["data"]["items"]:
             self.assertNotIn("info", item)
             self.assertNotIn("ref_path", item)
@@ -322,7 +318,7 @@ class ExpressionSetAPITest(unittest.TestCase):
             self.assertIn("ref", item)
             self.assertIn("label", item)
             self.assertIn("ref_path", item)
-            self.assertEquals(item["ref_path"], expression_set_ref + ";" + item["ref"])
+            self.assertEqual(item["ref_path"], expression_set_ref + ";" + item["ref"])
 
     def test_get_created_rnaseq_expression_set_ref_path(self):
 
@@ -338,10 +334,10 @@ class ExpressionSetAPITest(unittest.TestCase):
             self.assertIn("ref", item)
             self.assertIn("label", item)
             self.assertIn("ref_path", item)
-            self.assertEquals(item["ref_path"],
+            self.assertEqual(item["ref_path"],
                               created_expression_set_ref + ";" + item["ref"])
         if self.DEBUG:
-            print("INPUT: CREATED KBasesets.ExpressionSet: " + created_expression_set_ref)
+            print(("INPUT: CREATED KBasesets.ExpressionSet: " + created_expression_set_ref))
             pprint(fetched_set_with_ref_path)
             print("==========================")
 
