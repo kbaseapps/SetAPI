@@ -26,7 +26,7 @@ class SampleSetInterface:
     def _check_condition_matching(self, conditionset_ref, matching_conditions):
 
         conditionset_data = util.dfu_get_obj_data(conditionset_ref)
-        conditions = conditionset_data.get('conditions').keys()
+        conditions = list(conditionset_data.get('conditions').keys())
 
         if not all([x in conditions for x in matching_conditions]):
             error_msg = 'ERROR: Given conditions ({}) '.format(matching_conditions)
@@ -39,7 +39,7 @@ class SampleSetInterface:
         params["condition"] = []
         for item in params.get('sample_n_conditions', []):
             item_condition = item['condition']
-            if not isinstance(item_condition, (basestring, list)):
+            if not isinstance(item_condition, (str, list)):
                 raise ValueError('ERROR: condition should be either a list or a string')
 
             if isinstance(item_condition, list): # Auto populate UI puts input into an array
@@ -60,7 +60,7 @@ class SampleSetInterface:
             del params['conditionset_ref']
         try:
             ### Create the working dir for the method; change it to a function call
-            out_obj = {k: v for k, v in params.iteritems() if k not in ('ws_id',)}
+            out_obj = {k: v for k, v in params.items() if k not in ('ws_id',)}
 
             sample_ids = params["sample_ids"]
             out_obj['num_samples'] = len(sample_ids)
@@ -97,7 +97,7 @@ class SampleSetInterface:
             provenance[0]['input_ws_objects'] = [self._ws_get_ref(params['ws_id'], sample) for sample in sample_ids]
 
             # Saving RNASeqSampleSet to Workspace
-            print("Saving {0} object to workspace".format(params['sampleset_id']))
+            print(("Saving {0} object to workspace".format(params['sampleset_id'])))
             res = self.ws_client.save_objects(
                 {"workspace": params['ws_id'],
                  "objects": [{

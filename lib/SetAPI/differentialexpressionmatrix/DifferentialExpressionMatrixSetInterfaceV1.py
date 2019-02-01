@@ -14,13 +14,14 @@ class DifferentialExpressionMatrixSetInterfaceV1:
         if 'data' in params and params['data'] is not None:
             self._validate_differential_expression_matrix_set_data(params['data'])
         else:
-            raise ValueError('"data" parameter field required to save a DifferentialExpressionMatrixSet')
+            raise ValueError(
+                '"data" parameter field required to save a DifferentialExpressionMatrixSet')
 
         save_result = self.set_interface.save_set(
-                'KBaseSets.DifferentialExpressionMatrixSet',
-                ctx['provenance'],
-                params
-            )
+            'KBaseSets.DifferentialExpressionMatrixSet',
+            ctx['provenance'],
+            params
+        )
         info = save_result[0]
         return {
             'set_ref': str(info[6]) + '/' + str(info[0]) + '/' + str(info[4]),
@@ -42,7 +43,7 @@ class DifferentialExpressionMatrixSetInterfaceV1:
             if "label" not in item:
                 item["label"] = ""
 
-        ref_list = list(map(lambda r: {"ref": r}, refs))
+        ref_list = list([{"ref": r} for r in refs])
 
         # Get all the genome ids from our DifferentialExpressionMatrix references (it's the
         # Genome key in the object metadata). Make a set out of them.
@@ -72,16 +73,17 @@ class DifferentialExpressionMatrixSetInterfaceV1:
             ref_path_to_set = params['ref_path_to_set']
 
         set_data = self.set_interface.get_set(
-                params['ref'],
-                include_item_info,
-                ref_path_to_set,
-                include_set_item_ref_paths
-            )
+            params['ref'],
+            include_item_info,
+            ref_path_to_set,
+            include_set_item_ref_paths
+        )
         return set_data
 
     def _check_get_differential_expression_matrix_set_params(self, params):
         if 'ref' not in params or params['ref'] is None:
-            raise ValueError('"ref" parameter field specifiying the DifferentialExpressionMatrix set is required')
+            raise ValueError(
+                '"ref" parameter field specifiying the DifferentialExpressionMatrix set is required')
         elif not check_reference(params['ref']):
             raise ValueError('"ref" parameter must be a valid workspace reference')
         if 'include_item_info' in params:

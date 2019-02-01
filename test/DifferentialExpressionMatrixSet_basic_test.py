@@ -1,21 +1,15 @@
 # -*- coding: utf-8 -*-
-import unittest
 import os
 import time
-from pprint import pprint
-
+import unittest
+from configparser import ConfigParser  # py3
 from os import environ
-try:
-    from ConfigParser import ConfigParser  # py2
-except:
-    from configparser import ConfigParser  # py3
 
-from Workspace.WorkspaceClient import Workspace as workspaceService
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
-
-from FakeObjectsForTests.FakeObjectsForTestsClient import FakeObjectsForTests
 from SetAPI.authclient import KBaseAuth as _KBaseAuth
+from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
+from installed_clients.WorkspaceClient import Workspace as workspaceService
 from util import (
     info_to_ref,
     make_fake_diff_exp_matrix
@@ -70,7 +64,7 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
 
         # Make fake diff exp matrices
         cls.diff_exps_no_genome = list()
-        for i in xrange(3):
+        for i in range(3):
             cls.diff_exps_no_genome.append(
                 make_fake_diff_exp_matrix(
                     "fake_mat_no_genome_{}".format(i), wsName, cls.wsClient
@@ -78,7 +72,7 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
             )
 
         cls.diff_exps_genome = list()
-        for i in xrange(3):
+        for i in range(3):
             cls.diff_exps_genome.append(
                 make_fake_diff_exp_matrix(
                     "fake_mat_genome_{}".format(i),
@@ -228,8 +222,8 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
         self.assertIsNotNone(fetched_set)
         self.assertIn("data", fetched_set)
         self.assertIn("info", fetched_set)
-        self.assertEquals(len(fetched_set["data"]["items"]), 3)
-        self.assertEquals(dem_set_ref, info_to_ref(fetched_set["info"]))
+        self.assertEqual(len(fetched_set["data"]["items"]), 3)
+        self.assertEqual(dem_set_ref, info_to_ref(fetched_set["info"]))
         for item in fetched_set["data"]["items"]:
             self.assertNotIn("info", item)
             self.assertIn("ref", item)
@@ -276,8 +270,8 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
         self.assertIsNotNone(fetched_set_with_ref_path)
         self.assertIn("data", fetched_set_with_ref_path)
         self.assertIn("info", fetched_set_with_ref_path)
-        self.assertEquals(len(fetched_set_with_ref_path["data"]["items"]), 3)
-        self.assertEquals(dem_set_ref, info_to_ref(fetched_set_with_ref_path["info"]))
+        self.assertEqual(len(fetched_set_with_ref_path["data"]["items"]), 3)
+        self.assertEqual(dem_set_ref, info_to_ref(fetched_set_with_ref_path["info"]))
         for item in fetched_set_with_ref_path["data"]["items"]:
             self.assertNotIn("info", item)
             self.assertIn("ref", item)

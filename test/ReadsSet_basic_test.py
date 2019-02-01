@@ -1,25 +1,16 @@
 # -*- coding: utf-8 -*-
-import unittest
 import os
-import json
 import time
-import requests
-import shutil
-
+import unittest
+from configparser import ConfigParser
 from os import environ
-try:
-    from ConfigParser import ConfigParser  # py2
-except:
-    from configparser import ConfigParser  # py3
-
 from pprint import pprint
 
-from Workspace.WorkspaceClient import Workspace as workspaceService
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
-
-from FakeObjectsForTests.FakeObjectsForTestsClient import FakeObjectsForTests
 from SetAPI.authclient import KBaseAuth as _KBaseAuth
+from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
+from installed_clients.WorkspaceClient import Workspace as workspaceService
 from util import make_fake_sampleset
 
 

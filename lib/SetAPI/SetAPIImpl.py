@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 #BEGIN_HEADER
 
-# from Workspace.WorkspaceClient import Workspace
-from Workspace.WorkspaceClient import Workspace
-
-from SetAPI.reads.ReadsSetInterfaceV1 import ReadsSetInterfaceV1
 from SetAPI.assembly.AssemblySetInterfaceV1 import AssemblySetInterfaceV1
-from SetAPI.genome.GenomeSetInterfaceV1 import GenomeSetInterfaceV1
-from SetAPI.readsalignment.ReadsAlignmentSetInterfaceV1 import ReadsAlignmentSetInterfaceV1
-from SetAPI.featureset.FeatureSetSetInterfaceV1 import FeatureSetSetInterfaceV1
+from SetAPI.differentialexpressionmatrix.DifferentialExpressionMatrixSetInterfaceV1 import \
+    DifferentialExpressionMatrixSetInterfaceV1
 from SetAPI.expression.ExpressionSetInterfaceV1 import ExpressionSetInterfaceV1
-from SetAPI.differentialexpressionmatrix.DifferentialExpressionMatrixSetInterfaceV1 import DifferentialExpressionMatrixSetInterfaceV1
-from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
+from SetAPI.featureset.FeatureSetSetInterfaceV1 import FeatureSetSetInterfaceV1
 from SetAPI.generic.DynamicServiceCache import DynamicServiceCache
+from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
+from SetAPI.genome.GenomeSetInterfaceV1 import GenomeSetInterfaceV1
+from SetAPI.reads.ReadsSetInterfaceV1 import ReadsSetInterfaceV1
+from SetAPI.readsalignment.ReadsAlignmentSetInterfaceV1 import ReadsAlignmentSetInterfaceV1
 from SetAPI.sampleset.SampleSetInterface import SampleSetInterface
+from installed_clients.WorkspaceClient import Workspace
+
 
 #END_HEADER
 
@@ -33,9 +33,9 @@ class SetAPI:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.2.2"
-    GIT_URL = "git@github.com:Tianhao-Gu/SetAPI.git"
-    GIT_COMMIT_HASH = "7fc812b07b64df91bded787ea550139abd0e1b29"
+    VERSION = "0.2.4"
+    GIT_URL = "https://github.com/kbaseapps/SetAPI.git"
+    GIT_COMMIT_HASH = "77a9d6670dc526b9b1614b650fa6089961495d7c"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -87,37 +87,39 @@ class SetAPI:
            when its input parameter 'include_set_item_ref_paths' is set to
            1.) -> structure: parameter "ref" of type "ws_diffexpmatrix_id"
            (The workspace id for a FeatureSet data object. @id ws
-           KBaseFeatureValues.DifferentialExpressionMatrix;), parameter
-           "ref_path" of type "ws_diffexpmatrix_id" (The workspace id for a
-           FeatureSet data object. @id ws
-           KBaseFeatureValues.DifferentialExpressionMatrix;), parameter
-           "label" of String, parameter "info" of type "object_info"
-           (Information about an object, including user provided metadata.
-           obj_id objid - the numerical id of the object. obj_name name - the
-           name of the object. type_string type - the type of the object.
-           timestamp save_date - the save date of the object. obj_ver ver -
-           the version of the object. username saved_by - the user that saved
-           or copied the object. ws_id wsid - the workspace containing the
-           object. ws_name workspace - the workspace containing the object.
-           string chsum - the md5 checksum of the object. int size - the size
-           of the object in bytes. usermeta meta - arbitrary user-supplied
-           metadata about the object.) -> tuple of size 11: parameter "objid"
-           of type "obj_id" (The unique, permanent numerical ID of an
-           object.), parameter "name" of type "obj_name" (A string used as a
-           name for an object. Any string consisting of alphanumeric
-           characters and the characters |._- that is not an integer is
-           acceptable.), parameter "type" of type "type_string" (A type
-           string. Specifies the type and its version in a single string in
-           the format [module].[typename]-[major].[minor]: module - a string.
-           The module name of the typespec containing the type. typename - a
-           string. The name of the type as assigned by the typedef statement.
-           major - an integer. The major version of the type. A change in the
-           major version implies the type has changed in a non-backwards
-           compatible way. minor - an integer. The minor version of the type.
-           A change in the minor version implies that the type has changed in
-           a way that is backwards compatible with previous type definitions.
-           In many cases, the major and minor versions are optional, and if
-           not provided the most recent version will be used. Example:
+           KBaseFeatureValues.DifferentialExpressionMatrix
+           KBaseMatrices.DifferentialExpressionMatrix;), parameter "ref_path"
+           of type "ws_diffexpmatrix_id" (The workspace id for a FeatureSet
+           data object. @id ws
+           KBaseFeatureValues.DifferentialExpressionMatrix
+           KBaseMatrices.DifferentialExpressionMatrix;), parameter "label" of
+           String, parameter "info" of type "object_info" (Information about
+           an object, including user provided metadata. obj_id objid - the
+           numerical id of the object. obj_name name - the name of the
+           object. type_string type - the type of the object. timestamp
+           save_date - the save date of the object. obj_ver ver - the version
+           of the object. username saved_by - the user that saved or copied
+           the object. ws_id wsid - the workspace containing the object.
+           ws_name workspace - the workspace containing the object. string
+           chsum - the md5 checksum of the object. int size - the size of the
+           object in bytes. usermeta meta - arbitrary user-supplied metadata
+           about the object.) -> tuple of size 11: parameter "objid" of type
+           "obj_id" (The unique, permanent numerical ID of an object.),
+           parameter "name" of type "obj_name" (A string used as a name for
+           an object. Any string consisting of alphanumeric characters and
+           the characters |._- that is not an integer is acceptable.),
+           parameter "type" of type "type_string" (A type string. Specifies
+           the type and its version in a single string in the format
+           [module].[typename]-[major].[minor]: module - a string. The module
+           name of the typespec containing the type. typename - a string. The
+           name of the type as assigned by the typedef statement. major - an
+           integer. The major version of the type. A change in the major
+           version implies the type has changed in a non-backwards compatible
+           way. minor - an integer. The minor version of the type. A change
+           in the minor version implies that the type has changed in a way
+           that is backwards compatible with previous type definitions. In
+           many cases, the major and minor versions are optional, and if not
+           provided the most recent version will be used. Example:
            MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
            time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
            character Z (representing the UTC timezone) or the difference in
@@ -218,37 +220,39 @@ class SetAPI:
            when its input parameter 'include_set_item_ref_paths' is set to
            1.) -> structure: parameter "ref" of type "ws_diffexpmatrix_id"
            (The workspace id for a FeatureSet data object. @id ws
-           KBaseFeatureValues.DifferentialExpressionMatrix;), parameter
-           "ref_path" of type "ws_diffexpmatrix_id" (The workspace id for a
-           FeatureSet data object. @id ws
-           KBaseFeatureValues.DifferentialExpressionMatrix;), parameter
-           "label" of String, parameter "info" of type "object_info"
-           (Information about an object, including user provided metadata.
-           obj_id objid - the numerical id of the object. obj_name name - the
-           name of the object. type_string type - the type of the object.
-           timestamp save_date - the save date of the object. obj_ver ver -
-           the version of the object. username saved_by - the user that saved
-           or copied the object. ws_id wsid - the workspace containing the
-           object. ws_name workspace - the workspace containing the object.
-           string chsum - the md5 checksum of the object. int size - the size
-           of the object in bytes. usermeta meta - arbitrary user-supplied
-           metadata about the object.) -> tuple of size 11: parameter "objid"
-           of type "obj_id" (The unique, permanent numerical ID of an
-           object.), parameter "name" of type "obj_name" (A string used as a
-           name for an object. Any string consisting of alphanumeric
-           characters and the characters |._- that is not an integer is
-           acceptable.), parameter "type" of type "type_string" (A type
-           string. Specifies the type and its version in a single string in
-           the format [module].[typename]-[major].[minor]: module - a string.
-           The module name of the typespec containing the type. typename - a
-           string. The name of the type as assigned by the typedef statement.
-           major - an integer. The major version of the type. A change in the
-           major version implies the type has changed in a non-backwards
-           compatible way. minor - an integer. The minor version of the type.
-           A change in the minor version implies that the type has changed in
-           a way that is backwards compatible with previous type definitions.
-           In many cases, the major and minor versions are optional, and if
-           not provided the most recent version will be used. Example:
+           KBaseFeatureValues.DifferentialExpressionMatrix
+           KBaseMatrices.DifferentialExpressionMatrix;), parameter "ref_path"
+           of type "ws_diffexpmatrix_id" (The workspace id for a FeatureSet
+           data object. @id ws
+           KBaseFeatureValues.DifferentialExpressionMatrix
+           KBaseMatrices.DifferentialExpressionMatrix;), parameter "label" of
+           String, parameter "info" of type "object_info" (Information about
+           an object, including user provided metadata. obj_id objid - the
+           numerical id of the object. obj_name name - the name of the
+           object. type_string type - the type of the object. timestamp
+           save_date - the save date of the object. obj_ver ver - the version
+           of the object. username saved_by - the user that saved or copied
+           the object. ws_id wsid - the workspace containing the object.
+           ws_name workspace - the workspace containing the object. string
+           chsum - the md5 checksum of the object. int size - the size of the
+           object in bytes. usermeta meta - arbitrary user-supplied metadata
+           about the object.) -> tuple of size 11: parameter "objid" of type
+           "obj_id" (The unique, permanent numerical ID of an object.),
+           parameter "name" of type "obj_name" (A string used as a name for
+           an object. Any string consisting of alphanumeric characters and
+           the characters |._- that is not an integer is acceptable.),
+           parameter "type" of type "type_string" (A type string. Specifies
+           the type and its version in a single string in the format
+           [module].[typename]-[major].[minor]: module - a string. The module
+           name of the typespec containing the type. typename - a string. The
+           name of the type as assigned by the typedef statement. major - an
+           integer. The major version of the type. A change in the major
+           version implies the type has changed in a non-backwards compatible
+           way. minor - an integer. The minor version of the type. A change
+           in the minor version implies that the type has changed in a way
+           that is backwards compatible with previous type definitions. In
+           many cases, the major and minor versions are optional, and if not
+           provided the most recent version will be used. Example:
            MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
            time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
            character Z (representing the UTC timezone) or the difference in

@@ -1,27 +1,19 @@
 # -*- coding: utf-8 -*-
-import unittest
 import os
-import json
 import time
-import requests
-import shutil
-
+import unittest
+from configparser import ConfigParser
 from os import environ
-try:
-    from ConfigParser import ConfigParser  # py2
-except:
-    from configparser import ConfigParser  # py3
-
 from pprint import pprint
 
-from Workspace.WorkspaceClient import Workspace as workspaceService
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
-from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
-
-from DataPaletteService.DataPaletteServiceClient import DataPaletteService
-from FakeObjectsForTests.FakeObjectsForTestsClient import FakeObjectsForTests
 from SetAPI.authclient import KBaseAuth as _KBaseAuth
+from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
+from installed_clients.DataPaletteServiceServiceClient import DataPaletteService
+from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
+from installed_clients.WorkspaceClient import Workspace as workspaceService
+
 
 class SetAPITest(unittest.TestCase):
     DEBUG = False
@@ -194,7 +186,7 @@ class SetAPITest(unittest.TestCase):
                 self.assertTrue('ref' in item)
                 self.assertTrue('info' not in item)
                 self.assertTrue('ref_path' in item)
-                self.assertEquals(item['ref_path'], s['ref'] + ';' + item['ref'])
+                self.assertEqual(item['ref_path'], s['ref'] + ';' + item['ref'])
 
         self.unit_test_get_set_items()
 
@@ -245,9 +237,9 @@ class SetAPITest(unittest.TestCase):
                 if ws_info[4] < 1000:
                     ids.append(str(ws_info[0]))
                 else:
-                    print("Workspace: " + ws_info[1] + ", size=" + str(ws_info[4]) + " (skipped)")
+                    print(("Workspace: " + ws_info[1] + ", size=" + str(ws_info[4]) + " (skipped)"))
     
-            print("Number of workspaces for bulk list_sets: " + str(len(ids)))
+            print(("Number of workspaces for bulk list_sets: " + str(len(ids))))
             if len(ids) > 0:
                 ret = self.getImpl().list_sets(self.getContext(),
                                          {'workspaces': [ids[0]], 
@@ -258,7 +250,7 @@ class SetAPITest(unittest.TestCase):
             ret = self.getImpl().list_sets(self.getContext(),
                                            {'workspaces': ids, 
                                             'include_set_item_info': 1})[0]
-            print("Objects found: " + str(len(ret['sets'])) + ", time=" + str(time.time() - t1))
+            print(("Objects found: " + str(len(ret['sets'])) + ", time=" + str(time.time() - t1)))
         finally:
             GenericSetNavigator.DEBUG = False
 
@@ -287,4 +279,4 @@ class SetAPITest(unittest.TestCase):
                 self.assertTrue('info' in item)
                 self.assertEqual(len(item['info']), 11)
                 self.assertTrue('ref_path' in item)
-                self.assertEquals(item["ref_path"], s["ref"] + ";" + item["ref"])
+                self.assertEqual(item["ref_path"], s["ref"] + ";" + item["ref"])
