@@ -19,6 +19,18 @@ class GenericSetNavigator:
         Get a list of the top-level sets (that is, sets that are unreferenced by
         any other sets in the specified workspace). Set item references are always
         returned, ws info for each of those items can optionally be included too.
+
+        params: dict with keys-
+            workspace - string - workspace to search for sets
+            workspaces - list<string> - list of workspaces to search for sets
+            include_metadata - [0, 1], default=0 - if 1, get metadata for set items
+            include_set_item_info [0, 1], default=0 - if 1, get Workspace object_info
+                for each set item
+            include_set_item_ref_paths [0, 1], default=0 - if 1, build ref paths for
+                each set item returned
+
+        returns: dict with key "sets"
+            value: list of sets in the workspaces given by params
         """
         t1 = time.time()
         self._validate_list_params(params)
@@ -36,10 +48,10 @@ class GenericSetNavigator:
         # the list of obj refs contained in each of those sets
         top_level_sets = self._get_top_level_sets(all_sets)
 
-        if 'include_set_item_info' in params and params['include_set_item_info'] == 1:
+        if params.get('include_set_item_info', 0) == 1:
             top_level_sets = self._populate_set_item_info(top_level_sets)
 
-        if 'include_set_item_ref_paths' in params and params['include_set_item_ref_paths'] == 1:
+        if params.get('include_set_item_ref_paths', 0) == 1:
             top_level_sets = self._populate_set_item_ref_path(top_level_sets)
 
         if self.DEBUG:
@@ -50,17 +62,34 @@ class GenericSetNavigator:
         return ret
 
     def _validate_list_params(self, params):
-        if ('workspace' not in params) and ('workspaces' not in params):
+        """
+        Validates the parameters set to list_sets.
+        Rules:
+        1. At least one of workspace and workspaces must be present as keys. If
+           both are missing, raise a ValueError
+        2. include_set_item_info must be 0 or 1 if present
+        """
+        if 'workspace' not in params and 'workspaces' not in params:
             raise ValueError('One of "workspace" or "workspaces" field required to list sets')
 
-        if 'include_set_item_info' in params and params['include_set_item_info'] is not None:
-            if params['include_set_item_info'] not in [0, 1]:
-                raise ValueError('"include_set_item_info" field must be set to 0 or 1')
+        if params.get('include_set_item_info', 0) not in [0, 1]:
+            raise ValueError('"include_set_item_info" field must be set to 0 or 1')
 
     def _list_all_sets(self, workspaces, include_metadata):
+        """
+        Inputs:
+        workspaces - list<string> - list of workspaces to search for sets
+        include_metadata - [0,1] default=0 - get object metadata or not
+
+        Outputs:
+        list of sets where each set is a dict with 2 keys:
+        ref - workspace reference (wsid/objid/ver)
+        info - workspace object info tuple
+        """
         ws_info_list = []
         t1 = time.time()
         if len(workspaces) == 1:
+            # If just one workspaces, just fetch the one
             ws = workspaces[0]
             list_params = {}
             if str(ws).isdigit():
@@ -69,6 +98,8 @@ class GenericSetNavigator:
                 list_params['workspace'] = str(ws)
             ws_info_list.append(self.ws.get_workspace_info(list_params))
         else:
+            # If > 1 workspace, it's faster to grab all workspaces the
+            # user has access to and filter down to what's in the list
             ws_map = {key: True for key in workspaces}
             for ws_info in self.ws.list_workspace_info({'perm': 'r'}):
                 if ws_info[1] in ws_map or str(ws_info[0]) in ws_map:
@@ -81,31 +112,25 @@ class GenericSetNavigator:
         processed_refs = {}
         for t in GenericSetNavigator.SET_TYPES:
             list_params = {'includeMetadata': include_metadata, 'type': t}
-            for s in WorkspaceListObjectsIterator(self.ws, list_objects_params=list_params,
+            for s in WorkspaceListObjectsIterator(self.ws,
+                                                  list_objects_params=list_params,
                                                   ws_info_list=ws_info_list):
-                sets.append({'ref': self._build_obj_ref(s),
+                ref = self._build_obj_ref(s)
+                sets.append({'ref': ref,
                              'info': s})
-                ref = str(s[6]) + '/' + str(s[0]) + '/' + str(s[4])
                 processed_refs[ref] = True
         if self.DEBUG:
             print(("Time of object info listing: " + str(time.time() - t2)))
         return sets
 
-    def _get_workspace_info(self, workspace):
-        # typedef tuple<ws_id 0:id, ws_name 1:workspace, username 2:owner, timestamp 3:moddate,
-        # int 4max_objid, permission 5user_permission, permission 6globalread,
-        # lock_status 7lockstat, usermeta 8metadata> workspace_info;
-        ws_identity = {}
-        if str(workspace).isdigit():
-            ws_identity['id'] = int(workspace)
-        else:
-            ws_identity['workspace'] = workspace
-        return self.ws.get_workspace_info(ws_identity)
-
     def _get_top_level_sets(self, set_list):
         '''
         Assumes set_list items are populated, kicks out any set that
         is directly referenced by another set on the list.
+
+        set_list = list of dicts with keys
+        ref - Workspace object reference
+
         '''
 
         # create lookup hash for the sets
@@ -130,13 +155,21 @@ class GenericSetNavigator:
         return top_level_sets
 
     def _populate_set_refs(self, set_list):
+        """
+        Given a list of sets, go fetch their items and attach them
+        to the original list.
 
+        Has a side effect of updating the input set_list.
+
+        set_list = list<dict> where each item has (at least) keys:
+        * ref - Workspace object reference for the set object
+
+        updates each item to have a key "items" containing a list
+        of Workspace object references in no particular order.
+        """
         objects = []
         for s in set_list:
-            set_ref = s['ref']
-            if 'dp_ref' in s:
-                set_ref = s['dp_ref'] + ';' + set_ref
-            objects.append({'ref': set_ref})
+            objects.append({'ref': s['ref']})
 
         if len(objects) > 0:
             obj_data = self.ws.get_objects2({
@@ -154,7 +187,6 @@ class GenericSetNavigator:
         return set_list
 
     def _populate_set_item_info(self, set_list):
-
         # keys are refs to items, values are a ref to one of the
         # sets that they are in.  We build a lookup here first so that
         # we don't duplicate items in the ws call, but depending
@@ -164,8 +196,6 @@ class GenericSetNavigator:
         for s in set_list:
             for i in s['items']:
                 set_ref = s['ref']
-                if 'dp_ref' in s:
-                    set_ref = s['dp_ref'] + ';' + set_ref
                 item_refs[i['ref']] = set_ref
 
         objects = []
@@ -218,14 +248,27 @@ class GenericSetNavigator:
 
     def get_set_items(self, params):
         '''
-        Given a list of reference to set objects, get the list of items for each set
-        with metadata.  NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST
+        Given a list of references to set objects, get the list of items for each set
+        with metadata.  NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST.
+
+        params: dict with keys:
+        * set_refs - list of Workspace refs to set objects
+        * include_set_item_ref_paths - int (0 or 1). if 1, return the complete reference
+            path (ws1/obj1/ver1;ws2/obj2/ver2; ... etc) for each set item
+
+        outputs: dict with key "sets" with value = list of dicts. Each dict has keys:
+        * ref - Workspace object ref
+        * info - Workspace object info tuple
+        * ref_path - reference path from set object to each item in the set
+        * items - list of Workspace refs for each item in the set
         '''
         self._validate_get_set_items_params(params)
 
+        # get the set info for each set object
         set_list = self._get_set_info(params['set_refs'])
-
+        # populate the list of items in each set
         set_list = self._populate_set_refs(set_list)
+        # add the info for each set item in the list
         set_list = self._populate_set_item_info(set_list)
 
         if 'include_set_item_ref_paths' in params and params['include_set_item_ref_paths'] == 1:
@@ -242,7 +285,6 @@ class GenericSetNavigator:
                 raise ValueError('"ref" field in each object of "set_refs" list is required')
 
     def _get_set_info(self, set_refs):
-
         objects = []
         for s in set_refs:
             objects.append(util.build_ws_obj_selector(s['ref'], s.get('path_to_set', [])))

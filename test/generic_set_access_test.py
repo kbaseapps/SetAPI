@@ -114,6 +114,18 @@ class SetAPITest(unittest.TestCase):
                 })[0]
             self.setRefs.append(res['set_ref'])
 
+    def test_list_sets_bad_input(self):
+        ctx = self.getContext()
+        set_api = self.getImpl()
+
+        with self.assertRaises(ValueError) as err:
+            set_api.list_sets(ctx, {'include_set_item_info': 1})
+        self.assertIn('One of "workspace" or "workspaces" field required to list sets', str(err.exception))
+
+        with self.assertRaises(ValueError) as err:
+            set_api.list_sets(ctx, {'workspace': 12345, 'include_set_item_info': 'foo'})
+        self.assertIn('"include_set_item_info" field must be set to 0 or 1', str(err.exception))
+
     def test_list_sets(self):
         workspace = self.getWsName()
         setAPI = self.getImpl()
