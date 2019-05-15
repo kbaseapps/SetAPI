@@ -10,7 +10,6 @@ from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
 from SetAPI.authclient import KBaseAuth as _KBaseAuth
 from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
-from installed_clients.DataPaletteServiceServiceClient import DataPaletteService
 from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 from installed_clients.WorkspaceClient import Workspace as workspaceService
 
@@ -46,7 +45,6 @@ class SetAPITest(unittest.TestCase):
         cls.wsClient = workspaceService(cls.wsURL, token=token)
         cls.serviceImpl = SetAPI(cls.cfg)
         cls.serviceWizardURL = cls.cfg['service-wizard']
-        cls.dataPaletteServiceVersion = cls.cfg['datapaletteservice-version']
 
         # setup data at the class level for now (so that the code is run
         # once for all tests, not before each test case.  Not sure how to
@@ -57,7 +55,7 @@ class SetAPITest(unittest.TestCase):
         cls.wsName = wsName
 
         foft = FakeObjectsForTests(os.environ['SDK_CALLBACK_URL'])
-        [info1, info2] = foft.create_fake_reads({'ws_name': wsName, 
+        [info1, info2] = foft.create_fake_reads({'ws_name': wsName,
                                                  'obj_names': ['reads1', 'reads2']})
         cls.read1ref = str(info1[6]) + '/' + str(info1[0]) + '/' + str(info1[4])
         cls.read2ref = str(info2[6]) + '/' + str(info2[0]) + '/' + str(info2[4])
@@ -108,7 +106,7 @@ class SetAPITest(unittest.TestCase):
                     }
                 ]
             }
-            # test a save
+            # test a save - makes a new ReadsSet object in the workspace.
             res = setAPI.save_reads_set_v1(self.getContext(), {
                     'data': set_data,
                     'output_object_name': s,
@@ -116,9 +114,19 @@ class SetAPITest(unittest.TestCase):
                 })[0]
             self.setRefs.append(res['set_ref'])
 
-    # NOTE: According to Python unittest naming rules test method names should start from 'test'.
-    def test_list_sets(self):
+    def test_list_sets_bad_input(self):
+        ctx = self.getContext()
+        set_api = self.getImpl()
 
+        with self.assertRaises(ValueError) as err:
+            set_api.list_sets(ctx, {'include_set_item_info': 1})
+        self.assertIn('One of "workspace" or "workspaces" field required to list sets', str(err.exception))
+
+        with self.assertRaises(ValueError) as err:
+            set_api.list_sets(ctx, {'workspace': 12345, 'include_set_item_info': 'foo'})
+        self.assertIn('"include_set_item_info" field must be set to 0 or 1', str(err.exception))
+
+    def test_list_sets(self):
         workspace = self.getWsName()
         setAPI = self.getImpl()
 
@@ -129,9 +137,10 @@ class SetAPITest(unittest.TestCase):
             })[0]
         self.assertEqual(len(res['sets']), 0)
 
-        # create the test sets
+        # create the test sets, adds a ReadsSet object in the workspace
         self.create_sets()
 
+        # Get the sets in the workspace along with their item info.
         res = setAPI.list_sets(self.getContext(), {
                 'workspace': workspace,
                 'include_set_item_info': 1
@@ -149,6 +158,7 @@ class SetAPITest(unittest.TestCase):
                 self.assertTrue('info' in item)
                 self.assertEqual(len(item['info']), 11)
 
+        # Get the sets in a workspace without their item info (just the refs)
         res2 = setAPI.list_sets(self.getContext(), {
                 'workspace':workspace
             })[0]
@@ -164,6 +174,7 @@ class SetAPITest(unittest.TestCase):
                 self.assertTrue('ref' in item)
                 self.assertTrue('info' not in item)
 
+        # Get the sets with their reference paths
         res3 = setAPI.list_sets(self.getContext(), {
                     'workspace': workspace,
                     'include_set_item_ref_paths': 1
@@ -190,46 +201,6 @@ class SetAPITest(unittest.TestCase):
 
         self.unit_test_get_set_items()
 
-        set_obj_name = self.setNames[0]
-        wsName2 = "test_SetAPI_" + str(int(time.time() * 1000)) + "_two"
-        self.getWsClient().create_workspace({'workspace': wsName2})
-        try:
-            set_obj_ref = self.getWsName() + '/' + set_obj_name
-            dps = DataPaletteService(self.serviceWizardURL, 
-                                     token=self.getContext()['token'],
-                                     service_ver=self.dataPaletteServiceVersion)
-            dps.add_to_palette({'workspace': wsName2, 
-                                'new_refs': [{'ref': set_obj_ref}]})
-            ret = self.getImpl().list_sets(self.getContext(),
-                                                {'workspace': wsName2, 
-                                                 'include_set_item_info': 1,
-                                                 'include_raw_data_palettes': 1})[0]
-            set_list = ret['sets']
-            self.assertEqual(1, len(set_list))
-            set_info = set_list[0]
-            info = set_info['info']
-            self.assertEqual(self.getWsName(), info[7])
-            self.assertEqual(set_obj_name, info[1])
-            self.assertTrue('raw_data_palettes' in ret)
-            self.assertEqual(1, len(ret['raw_data_palettes']))
-            self.assertIn('info', ret['raw_data_palettes'][0])
-            self.assertIn('ref', ret['raw_data_palettes'][0])
-            self.assertTrue('raw_data_palette_refs' in ret)
-            self.assertEqual(1, len(ret['raw_data_palette_refs']))
-            
-            set_list2 = self.getImpl().list_sets(self.getContext(),
-                                                 {'workspaces': [workspace, wsName2], 
-                                                  'include_set_item_info': 1,
-                                                  'include_metadata': 1})[0]['sets']
-            self.assertEqual(len(set_list2), len(self.setNames))
-            self.assertTrue(len(set_list2) > 0)
-            for set_obj in set_list2:
-                self.assertIsNotNone(set_obj['info'][10])
-                for item in set_obj['items']:
-                    self.assertIsNotNone(item['info'][10])
-        finally:
-            self.getWsClient().delete_workspace({'workspace': wsName2})
-
     def test_bulk_list_sets(self):
         try:
             ids = []
@@ -238,17 +209,16 @@ class SetAPITest(unittest.TestCase):
                     ids.append(str(ws_info[0]))
                 else:
                     print(("Workspace: " + ws_info[1] + ", size=" + str(ws_info[4]) + " (skipped)"))
-    
+
             print(("Number of workspaces for bulk list_sets: " + str(len(ids))))
             if len(ids) > 0:
                 ret = self.getImpl().list_sets(self.getContext(),
-                                         {'workspaces': [ids[0]], 
+                                         {'workspaces': [ids[0]],
                                           'include_set_item_info': 1})[0]
-                self.assertTrue('raw_data_palettes' not in ret)
             GenericSetNavigator.DEBUG = True
             t1 = time.time()
             ret = self.getImpl().list_sets(self.getContext(),
-                                           {'workspaces': ids, 
+                                           {'workspaces': ids,
                                             'include_set_item_info': 1})[0]
             print(("Objects found: " + str(len(ret['sets'])) + ", time=" + str(time.time() - t1)))
         finally:

@@ -1,7 +1,6 @@
 
 
 #include <workspace.spec>
-#include <DataPaletteService.spec>
 
 
 module SetAPI {
@@ -637,8 +636,6 @@ module SetAPI {
             workspace parameter),
         include_metadata - flag for including metadata into Set object info
             and into object info of items (it affects DP raw data as well),
-        include_raw_data_palettes - advanced option designed for
-            optimization of listing methods in NarrativeService.
         include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
                             in the set. The ref_path for each item is either
                                 ref_path_to_set;item_ref  (if ref_path_to_set is given) or
@@ -649,7 +646,6 @@ module SetAPI {
         string workspaces;
         boolean include_set_item_info;
         boolean include_metadata;
-        boolean include_raw_data_palettes;
         boolean include_set_item_ref_paths;
     } ListSetParams;
 
@@ -665,29 +661,20 @@ module SetAPI {
     } SetItemInfo;
 
     /*
-        dp_ref - optional reference to DataPalette container in case given set object
-            is coming from DataPalette.
+        ref - the workspace object ref for the set
+        info - the Workspace object_info tuple for the set
+        items - the SetItemInfo for each of the items in the set
     */
     typedef structure {
         ws_obj_id ref;
         Workspace.object_info info;
         list<SetItemInfo> items;
-        ws_obj_id dp_ref;
     } SetInfo;
 
 
 
-    /*
-        raw_data_palettes - optional DP output turned on by 'include_raw_data_palettes'
-            in input parameters,
-        raw_data_palette_refs - optional DP output (mapping from workspace Id to reference
-            to DataPalette container existing in particular workspace) turned on by
-            'include_raw_data_palettes' in input parameters,
-    */
     typedef structure {
         list <SetInfo> sets;
-        list <DataPaletteService.DataInfo> raw_data_palettes;
-        mapping<string ws_text_id, string ws_ref> raw_data_palette_refs;
     } ListSetResult;
 
     /* Use to get the top-level sets in a WS. Optionally can include
