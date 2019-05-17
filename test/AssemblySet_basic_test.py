@@ -1,25 +1,18 @@
 # -*- coding: utf-8 -*-
-import unittest
 import os
-import json
-import time
-import requests
 import shutil
-
+import time
+import unittest
+from configparser import ConfigParser
 from os import environ
-try:
-    from ConfigParser import ConfigParser  # py2
-except:
-    from configparser import ConfigParser  # py3
-
 from pprint import pprint
 
-from Workspace.WorkspaceClient import Workspace as workspaceService
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
-
-from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 from SetAPI.authclient import KBaseAuth as _KBaseAuth
+from installed_clients.AssemblyUtilClient import AssemblyUtil
+from installed_clients.WorkspaceClient import Workspace as workspaceService
+
 
 class SetAPITest(unittest.TestCase):
 

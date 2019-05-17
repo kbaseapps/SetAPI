@@ -2,9 +2,8 @@
 An interface for saving and retrieving Sets of FeatureSets.
 """
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
-from SetAPI.util import (
-    check_reference
-)
+from SetAPI.util import check_reference
+
 
 class FeatureSetSetInterfaceV1:
     def __init__(self, workspace_client):
@@ -18,10 +17,10 @@ class FeatureSetSetInterfaceV1:
             raise ValueError('"data" parameter field required to save a FeatureSetSet')
 
         save_result = self.set_interface.save_set(
-                'KBaseSets.FeatureSetSet',
-                ctx['provenance'],
-                params
-            )
+            'KBaseSets.FeatureSetSet',
+            ctx['provenance'],
+            params
+        )
         info = save_result[0]
         return {
             'set_ref': str(info[6]) + '/' + str(info[0]) + '/' + str(info[4]),
@@ -57,11 +56,11 @@ class FeatureSetSetInterfaceV1:
             ref_path_to_set = params['ref_path_to_set']
 
         set_data = self.set_interface.get_set(
-                params['ref'],
-                include_item_info,
-                ref_path_to_set,
-                include_set_item_ref_paths
-            )
+            params['ref'],
+            include_item_info,
+            ref_path_to_set,
+            include_set_item_ref_paths
+        )
         set_data = self._normalize_feature_set_set_data(set_data)
 
         return set_data

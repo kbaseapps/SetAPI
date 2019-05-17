@@ -1,9 +1,11 @@
 """
 This module contains some utility functions for the SetAPI.
 """
-import re
 import os
-from DataFileUtil.DataFileUtilClient import DataFileUtil
+import re
+
+from installed_clients.DataFileUtilClient import DataFileUtil
+
 
 def check_reference(ref):
     """
@@ -16,12 +18,14 @@ def check_reference(ref):
         return False
     return True
 
+
 def build_ws_obj_selector(ref, ref_path_to_set):
     if ref_path_to_set and len(ref_path_to_set) > 0:
         return {
             'ref': ';'.join(ref_path_to_set)
         }
     return {'ref': ref}
+
 
 def populate_item_object_ref_paths(set_items, obj_selector):
     """
@@ -32,9 +36,10 @@ def populate_item_object_ref_paths(set_items, obj_selector):
         set_item["ref_path"] = obj_selector['ref'] + ';' + set_item['ref']
     return set_items
 
+
 def dfu_get_obj_data(obj_ref):
     dfu = DataFileUtil(os.environ['SDK_CALLBACK_URL'])
     obj_data = dfu.get_objects(
-            {"object_refs":[obj_ref]})['data'][0]['data']
+        {"object_refs": [obj_ref]})['data'][0]['data']
 
     return obj_data
