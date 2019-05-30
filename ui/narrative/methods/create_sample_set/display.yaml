@@ -4,7 +4,7 @@
 name     : Create RNA-seq Sample Set
 
 tooltip  : |
-    Provide RNA-seq reads and the metadata to create an RNA-seq Sample Set
+    Allows users to provide RNA-seq reads and the corresponding metadata to create an RNASeqSampleSet data object.
 screenshots :
     []
 
@@ -26,71 +26,68 @@ method-suggestions :
 parameters :
     sampleset_id :
         ui-name : |
-            RNA-seq Sample Set
+            RNA-seq SampleSet
         short-hint : |
-            Name of the RNA-seq sample set output object.
+            Name of the RNASeqSampleSet output object.
     sampleset_desc :
         ui-name : |
-            Sample Set Description
+            SampleSet Description
         short-hint : |
-            The detailed description of the input RNA-seq samples
+            A detailed description of the input RNA-seq samples.
     platform :
         ui-name : |
             Platform
         short-hint : |
-            The platform used for sequencing (e.g Illumina)
+            The platform used for sequencing (e.g Illumina).
     Library_type :
         ui-name : |
             Library Type
         short-hint : |
-            The type of sequencing reads - single-end vs. paired-end
+            The type of sequencing reads (single-end vs. paired-end).
     condition:
         ui-name : |
             Condition Labels
         short-hint : |
-            Short label for each sample in the RNA-seq experiment. All replicates for the same condition must have same label.
+            A short label for each sample in the RNA-seq experiment. <b>Note:</b> all replicates for the same condition must have the same label.
     sample_id:
         ui-name : |
-            Reads (Single-end/Paired-end)
+            Reads (Single-End/Paired-End)
         short-hint : |
-            Select the single-end or paired-end reads files based on the type of sequencing reads.
+            Select the single-end or paired-end reads based on the type of sequencing reads.
     domain :
         ui-name : |
             Domain
         short-hint : |
-            The domain of the genome - prokaryotes vs. eukaryotes
+            The domain of the genome (prokaryotes vs. eukaryotes).
     source :
         ui-name : |
             Source
         short-hint : |
-            The source of the data used for RNA-seq experiment (e.g NCBI)
+            The source of the data used for RNA-seq experiment (e.g NCBI).
     publication_id:
         ui-name : |
             Publication Details
         short-hint : |
-            The publication details of the data used for RNA-seq experiment
+            The publication details of the data used for RNA-seq experiment.
     conditionset_ref:
         ui-name : |
             Condition Set
         short-hint : |
-            Select a ConditionSet object
+            Select a ConditionSet object.
 parameter-groups :
     sample_n_conditions :
         ui-name : |
             RNA-seq Sample and Condition
         short-hint : |
-            For each sample, select the sample and provide the short label for condition. All replicates for the same condition must have same label.
+            For each sample, select the sample and provide the short label for condition. <b>Note:</b> All replicates for the same condition must have same label.
 description : |
-    <p>This App allows the users to select the single-end or paired-end read files and provide the metadata for a set of samples to create RNASeqSampleSet object. Note that the user must provide reads for two or more samples.</p>
+    <p>This App allows users to select the single-end or paired-end read files and provide the metadata for a set of samples to create an RNASeqSampleSet object. Note that the user must provide reads for at least two samples.</p>
 
-    <p>Users need to import single-end or paired-end read files to the Data Pane before starting this App.</p>
+    <p>Users need to import single-end or paired-end read objects to the Data Pane before starting this App.</p>
 
-    <p>It is mandatory for users to select the "Library Type", "Domain", "RNA-seq Sample and Condition Labels" and provide the "RNA-seq Sample Set" (RNASeqSampleSet object name). All replicates for the same condition must have same label.</p>
+    <p>It is mandatory for users to select the "Library Type", "Domain", "RNA-seq Sample and Condition Labels," and provide the "RNA-seq Sample Set" (RNASeqSampleSet object name). All replicates for the same condition must have same label.</p>
 
     <p>Users can optionally fill in additional metadata information in the advanced options.</p>
-
-    <p><strong>Team members who developed & deployed algorithm in KBase:</strong>
-    Srividya Ramakrishnan, Sunita Kumari, Shinjae Yoo, Priya Ranjan, Jim Thomason, Vivek Kumar. For questions, <a href="mailto:help@kbase.us">e-mail help@kbase.us</a></p>
 
 publications :
     -
