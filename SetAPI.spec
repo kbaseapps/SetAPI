@@ -543,12 +543,15 @@ module SetAPI {
     } GenomeSetItem;
 
     /*
+        optional 'elements' is only used to save 'KBaseSearch.GenomeSet' type
         @meta ws description as description
         @meta ws length(items) as item_count
+        @option elements
     */
     typedef structure {
         string description;
         list<GenomeSetItem> items;
+        mapping<string, GenomeSetItem> elements;
     } GenomeSet;
 
 
