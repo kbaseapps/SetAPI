@@ -38,13 +38,13 @@ class GenomeSetInterfaceV1:
         # TODO: add checks that only one copy of each genome data is in the set
         if save_search_set:
             if 'elements' not in data:
-                raise ValueError('"elements" list must be defined in data to save an KBaseSearch.GenomeSet')
+                raise ValueError('"elements" list must be defined in data to save a KBaseSearch.GenomeSet')
 
             if 'description' not in data:
                 data['description'] = ''
         else:
             if 'items' not in data:
-                raise ValueError('"items" list must be defined in data to save an KBaseSets.GenomeSet')
+                raise ValueError('"items" list must be defined in data to save a KBaseSets.GenomeSet')
 
             # add 'description' and 'label' fields if not present in data:
             for item in data['items']:
