@@ -8,13 +8,23 @@ class GenomeSetInterfaceV1:
         self.setInterface = SetInterfaceV1(workspace_client)
 
     def save_genome_set(self, ctx, params):
+        """
+        by default save 'KBaseSets.GenomeSet'
+        save 'KBaseSearch.GenomeSet' by setting save_search_set
+        """
+        save_search_set = params.get('save_search_set', False)
+
         if 'data' in params:
-            self._validate_genome_set_data(params['data'])
+            self._validate_genome_set_data(params['data'], save_search_set)
         else:
             raise ValueError('"data" parameter field required to save an GenomeSet')
 
+        genome_type = 'KBaseSets.GenomeSet'
+        if save_search_set:
+            genome_type = 'KBaseSearch.GenomeSet'
+
         save_result = self.setInterface.save_set(
-            'KBaseSets.GenomeSet',
+            genome_type,
             ctx['provenance'],
             params
         )
@@ -24,18 +34,24 @@ class GenomeSetInterfaceV1:
             'set_info': info
         }
 
-    def _validate_genome_set_data(self, data):
+    def _validate_genome_set_data(self, data, save_search_set):
         # TODO: add checks that only one copy of each genome data is in the set
+        if save_search_set:
+            if 'elements' not in data:
+                raise ValueError('"elements" list must be defined in data to save an KBaseSearch.GenomeSet')
 
-        if 'items' not in data:
-            raise ValueError('"items" list must be defined in data to save an GenomeSet')
+            if 'description' not in data:
+                data['description'] = ''
+        else:
+            if 'items' not in data:
+                raise ValueError('"items" list must be defined in data to save an KBaseSets.GenomeSet')
 
-        # add 'description' and 'label' fields if not present in data:
-        for item in data['items']:
-            if 'label' not in item:
-                item['label'] = ''
-        if 'description' not in data:
-            data['description'] = ''
+            # add 'description' and 'label' fields if not present in data:
+            for item in data['items']:
+                if 'label' not in item:
+                    item['label'] = ''
+            if 'description' not in data:
+                data['description'] = ''
 
     def get_genome_set(self, ctx, params):
         self._check_get_genome_set_params(params)
