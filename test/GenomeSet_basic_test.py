@@ -52,8 +52,8 @@ class SetAPITest(unittest.TestCase):
         cls.wsName = wsName
 
         foft = FakeObjectsForTests(os.environ['SDK_CALLBACK_URL'])
-        [info1, info2] = foft.create_fake_genomes({'ws_name': wsName, 
-                                                   'obj_names': ['genome_obj_1', 
+        [info1, info2] = foft.create_fake_genomes({'ws_name': wsName,
+                                                   'obj_names': ['genome_obj_1',
                                                                  'genome_obj_2']})
         cls.genome1ref = str(info1[6]) + '/' + str(info1[0]) + '/' + str(info1[4])
         cls.genome2ref = str(info2[6]) + '/' + str(info2[0]) + '/' + str(info2[4])
@@ -162,6 +162,63 @@ class SetAPITest(unittest.TestCase):
         self.assertEqual(item2['ref_path'], res['set_ref'] + ';' + item2['ref'])
         pprint(d2)
 
+    def test_save_and_get_kbasesearch_genome(self):
+
+        workspace = self.getWsName()
+        setObjName = 'set_of_kbasesearch_genomes'
+
+        # create the set object
+        set_data = {
+            'description': 'my kbasesearch genome set',
+            'elements': {
+                self.genome1ref: {
+                    'ref': self.genome1ref,
+                    'metadata': {'test_metadata': 'metadata'}
+                },
+                self.genome2ref: {
+                    'ref': self.genome2ref,
+                    'metadata': {'test_metadata': 'metadata'}
+                }
+            }
+        }
+
+        # test a save
+        setAPI = self.getImpl()
+        res = setAPI.save_genome_set_v1(self.getContext(), {
+                'data': set_data,
+                'output_object_name': setObjName,
+                'workspace': workspace,
+                'save_search_set': True
+            })[0]
+
+        self.assertTrue('set_ref' in res)
+        self.assertTrue('set_info' in res)
+        self.assertEqual(len(res['set_info']), 11)
+
+        self.assertEqual(res['set_info'][1], setObjName)
+        self.assertTrue('KBaseSearch.GenomeSet' in res['set_info'][2])
+
+        # test get of that object
+        d1 = setAPI.get_genome_set_v1(self.getContext(), {
+                'ref': workspace + '/' + setObjName
+            })[0]
+        self.assertTrue('data' in d1)
+        self.assertTrue('info' in d1)
+        self.assertEqual(len(d1['info']), 11)
+        self.assertTrue('KBaseSearch.GenomeSet' in res['set_info'][2])
+
+        self.assertEqual(d1['data']['description'], 'my kbasesearch genome set')
+        self.assertEqual(len(d1['data']['elements']), 2)
+
+        elements = d1['data']['elements']
+        self.assertTrue(self.genome1ref in elements)
+        self.assertTrue(self.genome2ref in elements)
+
+        genome_2 = elements.get(self.genome2ref)
+        self.assertTrue('ref' in genome_2)
+        self.assertEqual(genome_2.get('ref'), self.genome2ref)
+        self.assertEqual(genome_2['metadata']['test_metadata'], 'metadata')
+
     # NOTE: Comment the following line to run the test
     @unittest.skip("skipped test_save_and_get_of_emtpy_set")
     def test_save_and_get_of_emtpy_set(self):
@@ -172,7 +229,7 @@ class SetAPITest(unittest.TestCase):
         # create the set object
         set_data = {
             'description':'nothing to see here',
-            'items': [ 
+            'items': [
             ]
         }
         # test a save

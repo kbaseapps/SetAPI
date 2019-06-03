@@ -33,9 +33,9 @@ class SetAPI:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.2.4"
-    GIT_URL = "https://github.com/briehl/SetAPI"
-    GIT_COMMIT_HASH = "a6307d8579afc46dfee78639081737fb917551d6"
+    VERSION = "0.3.1"
+    GIT_URL = "https://github.com/Tianhao-Gu/SetAPI.git"
+    GIT_COMMIT_HASH = "48dfcbb2483cde9f219e9afc58dbeb6ff59ece0a"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -1687,18 +1687,19 @@ class SetAPI:
            "include_set_item_ref_paths" of type "boolean" (A boolean. 0 =
            false, 1 = true.), parameter "ref_path_to_set" of list of String
         :returns: instance of type "GetGenomeSetV1Result" -> structure:
-           parameter "data" of type "GenomeSet" (@meta ws description as
-           description @meta ws length(items) as item_count) -> structure:
-           parameter "description" of String, parameter "items" of list of
-           type "GenomeSetItem" (When saving an GenomeSet, only 'ref' is
-           required. You should never set 'info'.  'info' is provided
-           optionally when fetching the GenomeSet. ref_path is optionally
-           returned by get_genome_set_v1() when its input parameter
-           'include_set_item_ref_paths' is set to 1.) -> structure: parameter
-           "ref" of type "ws_genome_id" (The workspace ID for a Genome
-           object. @id ws KBaseGenomes.Genome), parameter "ref_path" of type
-           "ws_genome_id" (The workspace ID for a Genome object. @id ws
-           KBaseGenomes.Genome), parameter "label" of String, parameter
+           parameter "data" of type "GenomeSet" (optional 'elements' is only
+           used to save 'KBaseSearch.GenomeSet' type @meta ws description as
+           description @meta ws length(items) as item_count @option elements)
+           -> structure: parameter "description" of String, parameter "items"
+           of list of type "GenomeSetItem" (When saving an GenomeSet, only
+           'ref' is required. You should never set 'info'.  'info' is
+           provided optionally when fetching the GenomeSet. ref_path is
+           optionally returned by get_genome_set_v1() when its input
+           parameter 'include_set_item_ref_paths' is set to 1.) -> structure:
+           parameter "ref" of type "ws_genome_id" (The workspace ID for a
+           Genome object. @id ws KBaseGenomes.Genome), parameter "ref_path"
+           of type "ws_genome_id" (The workspace ID for a Genome object. @id
+           ws KBaseGenomes.Genome), parameter "label" of String, parameter
            "info" of type "object_info" (Information about an object,
            including user provided metadata. obj_id objid - the numerical id
            of the object. obj_name name - the name of the object. type_string
@@ -1716,6 +1717,59 @@ class SetAPI:
            characters |._- that is not an integer is acceptable.), parameter
            "type" of type "type_string" (A type string. Specifies the type
            and its version in a single string in the format
+           [module].[typename]-[major].[minor]: module - a string. The module
+           name of the typespec containing the type. typename - a string. The
+           name of the type as assigned by the typedef statement. major - an
+           integer. The major version of the type. A change in the major
+           version implies the type has changed in a non-backwards compatible
+           way. minor - an integer. The minor version of the type. A change
+           in the minor version implies that the type has changed in a way
+           that is backwards compatible with previous type definitions. In
+           many cases, the major and minor versions are optional, and if not
+           provided the most recent version will be used. Example:
+           MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
+           time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
+           character Z (representing the UTC timezone) or the difference in
+           time to UTC in the format +/-HHMM, eg: 2012-12-17T23:24:06-0500
+           (EST time) 2013-04-03T08:56:32+0000 (UTC time)
+           2013-04-03T08:56:32Z (UTC time)), parameter "version" of Long,
+           parameter "saved_by" of type "username" (Login name of a KBase
+           user account.), parameter "wsid" of type "ws_id" (The unique,
+           permanent numerical ID of a workspace.), parameter "workspace" of
+           type "ws_name" (A string used as a name for a workspace. Any
+           string consisting of alphanumeric characters and "_", ".", or "-"
+           that is not an integer is acceptable. The name may optionally be
+           prefixed with the workspace owner's user name and a colon, e.g.
+           kbasetest:my_workspace.), parameter "chsum" of String, parameter
+           "size" of Long, parameter "meta" of type "usermeta" (User provided
+           metadata about an object. Arbitrary key-value pairs provided by
+           the user.) -> mapping from String to String, parameter "elements"
+           of mapping from String to type "GenomeSetItem" (When saving an
+           GenomeSet, only 'ref' is required. You should never set 'info'. 
+           'info' is provided optionally when fetching the GenomeSet.
+           ref_path is optionally returned by get_genome_set_v1() when its
+           input parameter 'include_set_item_ref_paths' is set to 1.) ->
+           structure: parameter "ref" of type "ws_genome_id" (The workspace
+           ID for a Genome object. @id ws KBaseGenomes.Genome), parameter
+           "ref_path" of type "ws_genome_id" (The workspace ID for a Genome
+           object. @id ws KBaseGenomes.Genome), parameter "label" of String,
+           parameter "info" of type "object_info" (Information about an
+           object, including user provided metadata. obj_id objid - the
+           numerical id of the object. obj_name name - the name of the
+           object. type_string type - the type of the object. timestamp
+           save_date - the save date of the object. obj_ver ver - the version
+           of the object. username saved_by - the user that saved or copied
+           the object. ws_id wsid - the workspace containing the object.
+           ws_name workspace - the workspace containing the object. string
+           chsum - the md5 checksum of the object. int size - the size of the
+           object in bytes. usermeta meta - arbitrary user-supplied metadata
+           about the object.) -> tuple of size 11: parameter "objid" of type
+           "obj_id" (The unique, permanent numerical ID of an object.),
+           parameter "name" of type "obj_name" (A string used as a name for
+           an object. Any string consisting of alphanumeric characters and
+           the characters |._- that is not an integer is acceptable.),
+           parameter "type" of type "type_string" (A type string. Specifies
+           the type and its version in a single string in the format
            [module].[typename]-[major].[minor]: module - a string. The module
            name of the typespec containing the type. typename - a string. The
            name of the type as assigned by the typedef statement. major - an
@@ -1809,21 +1863,78 @@ class SetAPI:
            (workspace_name or workspace_id - alternative options defining
            target workspace, output_object_name - workspace object name (this
            parameter is used together with one of workspace params from
-           above)) -> structure: parameter "workspace" of String, parameter
-           "output_object_name" of String, parameter "data" of type
-           "GenomeSet" (@meta ws description as description @meta ws
-           length(items) as item_count) -> structure: parameter "description"
-           of String, parameter "items" of list of type "GenomeSetItem" (When
-           saving an GenomeSet, only 'ref' is required. You should never set
-           'info'.  'info' is provided optionally when fetching the
-           GenomeSet. ref_path is optionally returned by get_genome_set_v1()
-           when its input parameter 'include_set_item_ref_paths' is set to
-           1.) -> structure: parameter "ref" of type "ws_genome_id" (The
-           workspace ID for a Genome object. @id ws KBaseGenomes.Genome),
-           parameter "ref_path" of type "ws_genome_id" (The workspace ID for
-           a Genome object. @id ws KBaseGenomes.Genome), parameter "label" of
-           String, parameter "info" of type "object_info" (Information about
-           an object, including user provided metadata. obj_id objid - the
+           above) save_search_set - default 'False', save
+           'KBaseSets.GenomeSet' data type if set 'True', save
+           'KBaseSearch.GenomeSet' data type) -> structure: parameter
+           "workspace" of String, parameter "output_object_name" of String,
+           parameter "data" of type "GenomeSet" (optional 'elements' is only
+           used to save 'KBaseSearch.GenomeSet' type @meta ws description as
+           description @meta ws length(items) as item_count @option elements)
+           -> structure: parameter "description" of String, parameter "items"
+           of list of type "GenomeSetItem" (When saving an GenomeSet, only
+           'ref' is required. You should never set 'info'.  'info' is
+           provided optionally when fetching the GenomeSet. ref_path is
+           optionally returned by get_genome_set_v1() when its input
+           parameter 'include_set_item_ref_paths' is set to 1.) -> structure:
+           parameter "ref" of type "ws_genome_id" (The workspace ID for a
+           Genome object. @id ws KBaseGenomes.Genome), parameter "ref_path"
+           of type "ws_genome_id" (The workspace ID for a Genome object. @id
+           ws KBaseGenomes.Genome), parameter "label" of String, parameter
+           "info" of type "object_info" (Information about an object,
+           including user provided metadata. obj_id objid - the numerical id
+           of the object. obj_name name - the name of the object. type_string
+           type - the type of the object. timestamp save_date - the save date
+           of the object. obj_ver ver - the version of the object. username
+           saved_by - the user that saved or copied the object. ws_id wsid -
+           the workspace containing the object. ws_name workspace - the
+           workspace containing the object. string chsum - the md5 checksum
+           of the object. int size - the size of the object in bytes.
+           usermeta meta - arbitrary user-supplied metadata about the
+           object.) -> tuple of size 11: parameter "objid" of type "obj_id"
+           (The unique, permanent numerical ID of an object.), parameter
+           "name" of type "obj_name" (A string used as a name for an object.
+           Any string consisting of alphanumeric characters and the
+           characters |._- that is not an integer is acceptable.), parameter
+           "type" of type "type_string" (A type string. Specifies the type
+           and its version in a single string in the format
+           [module].[typename]-[major].[minor]: module - a string. The module
+           name of the typespec containing the type. typename - a string. The
+           name of the type as assigned by the typedef statement. major - an
+           integer. The major version of the type. A change in the major
+           version implies the type has changed in a non-backwards compatible
+           way. minor - an integer. The minor version of the type. A change
+           in the minor version implies that the type has changed in a way
+           that is backwards compatible with previous type definitions. In
+           many cases, the major and minor versions are optional, and if not
+           provided the most recent version will be used. Example:
+           MyModule.MyType-3.1), parameter "save_date" of type "timestamp" (A
+           time in the format YYYY-MM-DDThh:mm:ssZ, where Z is either the
+           character Z (representing the UTC timezone) or the difference in
+           time to UTC in the format +/-HHMM, eg: 2012-12-17T23:24:06-0500
+           (EST time) 2013-04-03T08:56:32+0000 (UTC time)
+           2013-04-03T08:56:32Z (UTC time)), parameter "version" of Long,
+           parameter "saved_by" of type "username" (Login name of a KBase
+           user account.), parameter "wsid" of type "ws_id" (The unique,
+           permanent numerical ID of a workspace.), parameter "workspace" of
+           type "ws_name" (A string used as a name for a workspace. Any
+           string consisting of alphanumeric characters and "_", ".", or "-"
+           that is not an integer is acceptable. The name may optionally be
+           prefixed with the workspace owner's user name and a colon, e.g.
+           kbasetest:my_workspace.), parameter "chsum" of String, parameter
+           "size" of Long, parameter "meta" of type "usermeta" (User provided
+           metadata about an object. Arbitrary key-value pairs provided by
+           the user.) -> mapping from String to String, parameter "elements"
+           of mapping from String to type "GenomeSetItem" (When saving an
+           GenomeSet, only 'ref' is required. You should never set 'info'. 
+           'info' is provided optionally when fetching the GenomeSet.
+           ref_path is optionally returned by get_genome_set_v1() when its
+           input parameter 'include_set_item_ref_paths' is set to 1.) ->
+           structure: parameter "ref" of type "ws_genome_id" (The workspace
+           ID for a Genome object. @id ws KBaseGenomes.Genome), parameter
+           "ref_path" of type "ws_genome_id" (The workspace ID for a Genome
+           object. @id ws KBaseGenomes.Genome), parameter "label" of String,
+           parameter "info" of type "object_info" (Information about an
+           object, including user provided metadata. obj_id objid - the
            numerical id of the object. obj_name name - the name of the
            object. type_string type - the type of the object. timestamp
            save_date - the save date of the object. obj_ver ver - the version
@@ -1865,7 +1976,9 @@ class SetAPI:
            kbasetest:my_workspace.), parameter "chsum" of String, parameter
            "size" of Long, parameter "meta" of type "usermeta" (User provided
            metadata about an object. Arbitrary key-value pairs provided by
-           the user.) -> mapping from String to String
+           the user.) -> mapping from String to String, parameter
+           "save_search_set" of type "boolean" (A boolean. 0 = false, 1 =
+           true.)
         :returns: instance of type "SaveGenomeSetV1Result" -> structure:
            parameter "set_ref" of String, parameter "set_info" of type
            "object_info" (Information about an object, including user
