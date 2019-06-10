@@ -1,7 +1,7 @@
 #
 # Define basic display information
 #
-name     : Create RNA-seq Sample Set With Condition Set
+name     : Create RNA-seq SampleSet With Condition Set
 
 tooltip  : |
     Provide RNA-seq reads and the metadata to create an RNA-seq Sample Set
@@ -33,17 +33,17 @@ parameters :
         ui-name : |
             Sample Set Description
         short-hint : |
-            The detailed description of the input RNA-seq samples
+            The detailed description of the input RNA-seq samples.
     platform :
         ui-name : |
             Platform
         short-hint : |
-            The platform used for sequencing (e.g Illumina)
+            The platform used for sequencing (e.g Illumina).
     Library_type :
         ui-name : |
             Library Type
         short-hint : |
-            The type of sequencing reads - single-end vs. paired-end
+            The type of sequencing reads (single-end vs. paired-end).
     condition:
         ui-name : |
             Condition Labels
@@ -58,28 +58,28 @@ parameters :
         ui-name : |
             Domain
         short-hint : |
-            The domain of the genome - prokaryotes vs. eukaryotes
+            The domain of the genome (prokaryotes vs. eukaryotes).
     source :
         ui-name : |
             Source
         short-hint : |
-            The source of the data used for RNA-seq experiment (e.g NCBI)
+            The source of the data used for RNA-seq experiment (e.g NCBI).
     publication_id:
         ui-name : |
             Publication Details
         short-hint : |
-            The publication details of the data used for RNA-seq experiment
+            The publication details of the data used for RNA-seq experiment.
     conditionset_ref:
         ui-name : |
             Condition Set
         short-hint : |
-            Select a ConditionSet object
+            Select a ConditionSet object.
 parameter-groups :
     sample_n_conditions :
         ui-name : |
             RNA-seq Sample and Condition
         short-hint : |
-            For each sample, select the sample and provide the short label for condition. All replicates for the same condition must have same label.
+            For each sample, select the sample and provide the short label for the condition. All replicates for the same condition must have the same label.
 description : |
     <p>This App allows the users to select the single-end or paired-end read files and provide the metadata for a set of samples to create RNASeqSampleSet object. Note that the user must provide reads for two or more samples.</p>
 
@@ -90,4 +90,10 @@ description : |
     <p>Users can optionally fill in additional metadata information in the advanced options.</p>
 
     <p><strong>Team members who developed & deployed algorithm in KBase:</strong>
-    Srividya Ramakrishnan, Sunita Kumari, Shinjae Yoo, Priya Ranjan, Jim Thomason, Vivek Kumar. For questions, <a href="mailto:help@kbase.us">e-mail help@kbase.us</a></p>
+    Srividya Ramakrishnan, Sunita Kumari, Shinjae Yoo, Priya Ranjan, Jim Thomason, Vivek Kumar. For questions, please <a href="http://kbase.us/contact-us/">contact us</a>.</p>
+
+publications :
+    -
+        display-text: |
+            Arkin AP, Cottingham RW, Henry CS, Harris NL, Stevens RL, Maslov S, et al. KBase: The United States Department of Energy Systems Biology Knowledgebase. Nature Biotechnology. 2018;36: 566. doi: 10.1038/nbt.4163
+        link: https://www.nature.com/articles/nbt.4163
