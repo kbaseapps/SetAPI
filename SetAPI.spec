@@ -543,12 +543,15 @@ module SetAPI {
     } GenomeSetItem;
 
     /*
+        optional 'elements' is only used to save 'KBaseSearch.GenomeSet' type
         @meta ws description as description
         @meta ws length(items) as item_count
+        @option elements
     */
     typedef structure {
         string description;
         list<GenomeSetItem> items;
+        mapping<string, GenomeSetItem> elements;
     } GenomeSet;
 
 
@@ -581,11 +584,14 @@ module SetAPI {
             target workspace,
         output_object_name - workspace object name (this parameter is
             used together with one of workspace params from above)
+        save_search_set - default 'False', save 'KBaseSets.GenomeSet' data type
+                          if set 'True', save 'KBaseSearch.GenomeSet' data type
     */
     typedef structure {
         string workspace;
         string output_object_name;
         GenomeSet data;
+        boolean save_search_set;
     } SaveGenomeSetV1Params;
 
     typedef structure {
