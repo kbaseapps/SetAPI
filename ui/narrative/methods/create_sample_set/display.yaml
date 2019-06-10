@@ -1,7 +1,7 @@
 #
 # Define basic display information
 #
-name     : Create RNA-seq Sample Set
+name     : Create RNA-seq SampleSet
 
 tooltip  : |
     Allows users to provide RNA-seq reads and the corresponding metadata to create an RNASeqSampleSet data object.
@@ -88,6 +88,8 @@ description : |
     <p>It is mandatory for users to select the "Library Type", "Domain", "RNA-seq Sample and Condition Labels," and provide the "RNA-seq Sample Set" (RNASeqSampleSet object name). All replicates for the same condition must have same label.</p>
 
     <p>Users can optionally fill in additional metadata information in the advanced options.</p>
+
+    <p><strong>Team members who developed & deployed algorithm in KBase:</strong> Srividya Ramakrishnan, Sunita Kumari, Shinjae Yoo, Priya Ranjan, Jim Thomason, and Vivek Kumar. For questions, please <a href="http://kbase.us/contact-us/">contact us</a>.</p>
 
 publications :
     -
