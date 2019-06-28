@@ -1,3 +1,6 @@
+### Version 0.3.2
+- update docs
+
 ### Version 0.2.4
 - convert to py3
 
