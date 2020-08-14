@@ -8,10 +8,10 @@ service-language:
     python
 
 module-version:
-    0.3.2
+    0.3.3
 
 owners:
-    [wjriehl, tgu2]
+    [wjriehl, tgu2, slebras]
 
 service-config:
     dynamic-service: true
