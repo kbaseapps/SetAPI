@@ -628,7 +628,25 @@ module SetAPI {
     funcdef create_sample_set(CreateRNASeqSampleSetParams params)
                       returns(CreateRNASeqSampleSetResult) authentication required;
 
+    typedef tuple<string column, boolean ascending> column_sorting;
 
+    typedef structure {
+        string query;
+        string ref;
+        list<column_sorting> sort_by;
+        int start;
+        int limit;
+        list<string> query_fields;
+    } SampleSetToSamplesInfoParams;
+
+    typedef structure {
+        int num_found;
+        int start;
+        list<UnspecifiedObject> samples;
+    } SampleSetToSamplesInfoResult;
+
+    funcdef sample_set_to_samples_info(SampleSetToSamplesInfoParams params)
+                        returns(SampleSetToSamplesInfoResult result) authentication required;
 
 
 
