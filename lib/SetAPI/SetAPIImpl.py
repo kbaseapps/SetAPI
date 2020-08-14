@@ -34,9 +34,9 @@ class SetAPI:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.3.2"
+    VERSION = "0.3.3"
     GIT_URL = "https://github.com/slebras/SetAPI.git"
-    GIT_COMMIT_HASH = "91f285da610ac0035e949204f94246cf165ae559"
+    GIT_COMMIT_HASH = "05d42558c00c1f71c099d8de522681ae42156137"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
