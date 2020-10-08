@@ -642,6 +642,7 @@ module SetAPI {
     typedef structure {
         int num_found;
         int start;
+        string query;
         list<UnspecifiedObject> samples;
     } SampleSetToSamplesInfoResult;
 

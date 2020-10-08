@@ -29,6 +29,9 @@ class SamplesSearchUtils():
 
     def sample_set_to_samples_info(self, params, aggs=None, track_total_hits=False):
         """
+        params - input parameters for "sample_set_to_samples_info" function, see spec file for contents
+        aggs - elasticsearch aggregation, see elasticsearch documentation for formatting
+        track_total_hits - True/False - Whether to track the total number of hits past the elasticsearch limit
         """
         sample_set_ref = params['ref']
         sort_by, extra_must, start, limit = self._parse_inputs(params)
@@ -74,14 +77,12 @@ class SamplesSearchUtils():
         return self._process_sample_set_resp(respj['result'], start, query_data)
 
     def _process_sample_set_resp(self, resp, start, query):
-        """
-        """
         if resp.get('hits'):
             hits = resp['hits']
             return {
                 "num_found": int(resp['count']),
                 "start": start,
-                # "query": query,
+                "query": query,
                 # this should handle empty results list of hits, also sort by feature_id
                 "samples": [self._process_sample(h['doc'], h['id']) for h in hits]
             }
@@ -90,7 +91,7 @@ class SamplesSearchUtils():
             return {
                 "num_found": int(resp['count']),
                 "start": start,
-                # "query": query,
+                "query": query,
                 "samples": []
             }
         else:
