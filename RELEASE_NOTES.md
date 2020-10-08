@@ -1,5 +1,5 @@
 ### Version 0.3.3
-- Adding search api capabilties for KBaseSets.SampelSet Object.
+- Adding search api capabilties for KBaseSets.SampleSet Object.
 
 ### Version 0.3.2
 - update docs
