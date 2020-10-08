@@ -36,7 +36,7 @@ class SetAPI:
     ######################################### noqa
     VERSION = "0.3.3"
     GIT_URL = "https://github.com/slebras/SetAPI.git"
-    GIT_COMMIT_HASH = "606165471b5919f5847dc52223d4f2ec6e5ffdbf"
+    GIT_COMMIT_HASH = "4974a322f7c6bf14b20a637b3da45fd5a60dddf1"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -2130,7 +2130,8 @@ class SetAPI:
            "query_fields" of list of String
         :returns: instance of type "SampleSetToSamplesInfoResult" ->
            structure: parameter "num_found" of Long, parameter "start" of
-           Long, parameter "samples" of list of unspecified object
+           Long, parameter "query" of String, parameter "samples" of list of
+           unspecified object
         """
         # ctx is the context object
         # return variables are: result
