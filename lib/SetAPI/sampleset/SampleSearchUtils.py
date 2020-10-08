@@ -1,9 +1,6 @@
-import os
 import requests
 import json
 import uuid
-
-from installed_clients.DataFileUtilClient import DataFileUtil
 
 
 class SamplesSearchUtils():
