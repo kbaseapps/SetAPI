@@ -36,7 +36,7 @@ class SetAPI:
     ######################################### noqa
     VERSION = "0.3.3"
     GIT_URL = "https://github.com/slebras/SetAPI.git"
-    GIT_COMMIT_HASH = "05d42558c00c1f71c099d8de522681ae42156137"
+    GIT_COMMIT_HASH = "606165471b5919f5847dc52223d4f2ec6e5ffdbf"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
