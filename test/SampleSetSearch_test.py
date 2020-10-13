@@ -89,11 +89,22 @@ class SetAPITest(unittest.TestCase):
         self.assertEqual(s1['samples'], s2['samples'])
 
     # @unittest.skip('x')
+    def test_param_error_conditions(self):
+        # test without ref argument
+        with self.assertRaises(ValueError):
+            ret = self.serviceImpl.sample_set_to_samples_info(self.ctx, {
+                "start": 0,
+                "limit": 10
+            })
+        with self.assertRaises(ValueError):
+            ret = self.serviceImpl.sample_set_to_samples_info(self.ctx, {
+            })
+
+    # @unittest.skip('x')
     def test_sample_set_to_sample_info(self):
+        # test defaults of "start" and "limit" variables
         ret = self.serviceImpl.sample_set_to_samples_info(self.ctx, {
             "ref": self.sample_set_ref,
-            "start": 0,
-            "limit": 10
         })[0]
         with open('data/sample_set_search_compare.json') as f:
             compare_to = json.load(f)

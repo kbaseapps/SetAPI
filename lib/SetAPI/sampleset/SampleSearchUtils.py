@@ -68,9 +68,9 @@ class SamplesSearchUtils():
                             f"with parameters: \n{json.dumps(query_data)} \nResponse body:\n{resp.text}")
         respj = resp.json()
         if self.debug:
-            print(f'respone from query: {respj}')
+            print(f'response from query: {respj}')
         if respj.get('error'):
-            raise Exception(f"Error from Search API with parameters\n{json.dumps(query_data)}\n Response body:\n{respj}")
+            raise RuntimeError(f"Error from Search API with parameters\n{json.dumps(query_data)}\n Response body:\n{respj}")
         return self._process_sample_set_resp(respj['result'], start, query_data)
 
     def _process_sample_set_resp(self, resp, start, query):
@@ -83,7 +83,7 @@ class SamplesSearchUtils():
                 # this should handle empty results list of hits, also sort by feature_id
                 "samples": [self._process_sample(h['doc'], h['id']) for h in hits]
             }
-        # empty list in reponse for hits
+        # empty list in response for hits
         elif 'hits' in resp:
             return {
                 "num_found": int(resp['count']),

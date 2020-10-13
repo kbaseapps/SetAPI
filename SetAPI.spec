@@ -628,6 +628,20 @@ module SetAPI {
     funcdef create_sample_set(CreateRNASeqSampleSetParams params)
                       returns(CreateRNASeqSampleSetResult) authentication required;
 
+
+
+    /*
+    KBaseSets.SampleSet Methods
+
+    column_sorting - tuple (column, ascending) - tuple of string, boolean where the former is the name of the column on which to sort, and the later is a boolean describing whether to sort ascending (true) or descending (false)
+
+    query   - string query to search against all searchable fields
+    ref     - workspace reference of the sampleset object
+    sort_by - list column_sorting
+    start   - default 0  - starting index for pagination
+    limit   - default 10 - number of documents to retrieve starting from start pagination
+    */
+
     typedef tuple<string column, boolean ascending> column_sorting;
 
     typedef structure {
@@ -636,7 +650,6 @@ module SetAPI {
         list<column_sorting> sort_by;
         int start;
         int limit;
-        list<string> query_fields;
     } SampleSetToSamplesInfoParams;
 
     typedef structure {

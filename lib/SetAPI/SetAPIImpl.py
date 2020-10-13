@@ -2138,7 +2138,7 @@ class SetAPI:
         #BEGIN sample_set_to_samples_info
         sample_search_utils = SamplesSearchUtils(ctx['token'], self.search_url)
         if not params.get('ref'):
-          raise ValueError(f"Argument 'ref' must be specified, ref = '{ref}' ")
+          raise ValueError(f"Argument 'ref' must be specified, 'ref' = '{params.get('ref')}' ")
         result = sample_search_utils.sample_set_to_samples_info(params)
         #END sample_set_to_samples_info
 
