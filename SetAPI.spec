@@ -636,8 +636,8 @@ module SetAPI {
     column_sorting - tuple (column, ascending) - tuple of string, boolean where the former is the name of the column on which to sort, and the later is a boolean describing whether to sort ascending (true) or descending (false)
 
     query   - string query to search against all searchable fields
-    ref     - workspace reference of the sampleset object
-    sort_by - list column_sorting
+    ref     - string workspace reference of the sampleset object
+    sort_by - list of column_sorting in order of sorting, 0 index colum_sorting tuple highest level of sorting
     start   - default 0  - starting index for pagination
     limit   - default 10 - number of documents to retrieve starting from start pagination
     */
