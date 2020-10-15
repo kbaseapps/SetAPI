@@ -1,0 +1,483 @@
+{
+  "num_found": 7,
+  "samples": [
+    {
+      "sample_version": 1,
+      "name": [
+        "altamaha_2018_pw_15hr_WHONDRS-PP48-000107"
+      ],
+      "latitude": [
+        "31.334597;degrees"
+      ],
+      "collection_date": [
+        "2018-10-17"
+      ],
+      "longitude": [
+        "-81.479282;degrees"
+      ],
+      "primary_physiographic_feature": [
+        "Stream"
+      ],
+      "collection_time": [
+        "10:00:00Z"
+      ],
+      "state_province": [
+        "Georgia"
+      ],
+      "field_name_informal_classification": [
+        "Filter"
+      ],
+      "field_program_cruise": [
+        "WHONDRS 48hr"
+      ],
+      "related_url_description": [
+        "Associated data from surface and pore water samples (i.e. anions, cations, FTICR) are published on ESS-DIVE"
+      ],
+      "location_description": [
+        "Persistently inundated location of the stream near to the shoreline."
+      ],
+      "related_url_type": [
+        "DOI"
+      ],
+      "sample_description": [
+        "15 hour time point. Filter used for filtered pore water samples (second site located a few meters upstream in a more variably inundated zone)"
+      ],
+      "related_url": [
+        "https://data.ess-dive.lbl.gov/view/doi:10.15485/1577263"
+      ],
+      "material": [
+        "Other"
+      ],
+      "collector_chief_scientist": [
+        "Christof Meile"
+      ],
+      "collection_method_description": [
+        "0.22 micron filter used to filter water samples"
+      ],
+      "name_of_physiographic_feature": [
+        "Altamaha River"
+      ],
+      "country": [
+        "United States"
+      ],
+      "purpose": [
+        "Microbial analyses (e.g. metagenomics, metatranscriptomics) for 48hr time series (whondrs.pnnl.gov) "
+      ],
+      "id": [
+        "HRV003M16"
+      ],
+      "is_public": false,
+      "copied": null,
+      "kbase_sample_id": "fa73aaef-48f5-47d8-b6c2-bac890f90e45"
+    },
+    {
+      "sample_version": 1,
+      "name": [
+        "altamaha_2018_sw_39hr_48hr_WHONDRS-SW48-000107"
+      ],
+      "latitude": [
+        "31.334597;degrees"
+      ],
+      "collection_date": [
+        "2018-10-18"
+      ],
+      "longitude": [
+        "-81.479282;degrees"
+      ],
+      "primary_physiographic_feature": [
+        "Stream"
+      ],
+      "collection_time": [
+        "09:25:00Z"
+      ],
+      "state_province": [
+        "Georgia"
+      ],
+      "field_name_informal_classification": [
+        "Filter"
+      ],
+      "field_program_cruise": [
+        "WHONDRS 48hr"
+      ],
+      "related_url_description": [
+        "Associated data from surface and pore water samples (i.e. anions, cations, FTICR) are published on ESS-DIVE"
+      ],
+      "location_description": [
+        "Persistently inundated location of the stream near to the shoreline."
+      ],
+      "related_url_type": [
+        "DOI"
+      ],
+      "sample_description": [
+        "39 hour time point. Filter used for filtered surface water samples  (second site located a few meters upstream in a more variably inundated zone)"
+      ],
+      "related_url": [
+        "https://data.ess-dive.lbl.gov/view/doi:10.15485/1577263"
+      ],
+      "material": [
+        "Other"
+      ],
+      "collector_chief_scientist": [
+        "Christof Meile"
+      ],
+      "collection_method_description": [
+        "0.22 micron filter used to filter water samples"
+      ],
+      "name_of_physiographic_feature": [
+        "Altamaha River"
+      ],
+      "country": [
+        "United States"
+      ],
+      "purpose": [
+        "Microbial analyses (e.g. metagenomics, metatranscriptomics) for 48hr time series (whondrs.pnnl.gov) "
+      ],
+      "id": [
+        "WHO000BC7  "
+      ],
+      "is_public": false,
+      "copied": null,
+      "kbase_sample_id": "c95f057d-f06f-40ec-ae71-3586fc77aed3"
+    },
+    {
+      "sample_version": 1,
+      "name": [
+        "columbia_2018_pw_45hr_WHONDRS-PP48-000066"
+      ],
+      "latitude": [
+        "46.372986;degrees"
+      ],
+      "collection_date": [
+        "2018-08-15"
+      ],
+      "longitude": [
+        "-119.2721;degrees"
+      ],
+      "primary_physiographic_feature": [
+        "Stream"
+      ],
+      "collection_time": [
+        "13:11:00Z"
+      ],
+      "state_province": [
+        "Washington"
+      ],
+      "field_name_informal_classification": [
+        "Filter"
+      ],
+      "field_program_cruise": [
+        "WHONDRS 48hr"
+      ],
+      "related_url_description": [
+        "Associated data from surface and pore water samples (i.e. anions, cations, FTICR) are published on ESS-DIVE"
+      ],
+      "location_description": [
+        "Persistently inundated location of the stream near to the shoreline."
+      ],
+      "related_url_type": [
+        "DOI"
+      ],
+      "sample_description": [
+        "45 hour time point. Filter used for filtered pore water samples"
+      ],
+      "related_url": [
+        "https://data.ess-dive.lbl.gov/view/doi:10.15485/1577265"
+      ],
+      "material": [
+        "Other"
+      ],
+      "collector_chief_scientist": [
+        "James Stegen"
+      ],
+      "collection_method_description": [
+        "0.22 micron filter used to filter water samples"
+      ],
+      "name_of_physiographic_feature": [
+        "Columbia River"
+      ],
+      "country": [
+        "United States"
+      ],
+      "purpose": [
+        "Microbial analyses (e.g. metagenomics, metatranscriptomics) for 48hr time series (whondrs.pnnl.gov) "
+      ],
+      "id": [
+        "IECUR0002 "
+      ],
+      "is_public": false,
+      "copied": null,
+      "kbase_sample_id": "5e38fb48-5ddb-48bf-9b4d-c8035c3614e0"
+    },
+    {
+      "sample_version": 1,
+      "name": [
+        "columbia_2018_sw_45hr_WHONDRS-SW48-000066"
+      ],
+      "latitude": [
+        "46.372986;degrees"
+      ],
+      "collection_date": [
+        "2018-08-15"
+      ],
+      "longitude": [
+        "-119.2721;degrees"
+      ],
+      "primary_physiographic_feature": [
+        "Stream"
+      ],
+      "collection_time": [
+        "13:11:00Z"
+      ],
+      "state_province": [
+        "Washington"
+      ],
+      "field_name_informal_classification": [
+        "Filter"
+      ],
+      "field_program_cruise": [
+        "WHONDRS 48hr"
+      ],
+      "related_url_description": [
+        "Associated data from surface and pore water samples (i.e. anions, cations, FTICR) are published on ESS-DIVE"
+      ],
+      "location_description": [
+        "Persistently inundated location of the stream near to the shoreline."
+      ],
+      "related_url_type": [
+        "DOI"
+      ],
+      "sample_description": [
+        "45 hour time point. Filter used for filtered surface water samples"
+      ],
+      "related_url": [
+        "https://data.ess-dive.lbl.gov/view/doi:10.15485/1577265"
+      ],
+      "material": [
+        "Other"
+      ],
+      "collector_chief_scientist": [
+        "James Stegen"
+      ],
+      "collection_method_description": [
+        "0.22 micron filter used to filter water samples"
+      ],
+      "name_of_physiographic_feature": [
+        "Columbia River"
+      ],
+      "country": [
+        "United States"
+      ],
+      "purpose": [
+        "Microbial analyses (e.g. metagenomics, metatranscriptomics) for 48hr time series (whondrs.pnnl.gov) "
+      ],
+      "id": [
+        "HRV003M16X"
+      ],
+      "is_public": false,
+      "copied": null,
+      "kbase_sample_id": "25d61433-6e1c-4645-9990-ada19ee0908a"
+    },
+    {
+      "sample_version": 1,
+      "name": [
+        "eastfork_2018_sw_27hr_WHONDRS-SW48-000043"
+      ],
+      "latitude": [
+        "35.966194;degrees"
+      ],
+      "collection_date": [
+        "2018-08-15"
+      ],
+      "longitude": [
+        "-84.358442;degrees"
+      ],
+      "primary_physiographic_feature": [
+        "Stream"
+      ],
+      "collection_time": [
+        "16:00:00Z"
+      ],
+      "state_province": [
+        "Tennessee"
+      ],
+      "field_name_informal_classification": [
+        "Filter"
+      ],
+      "field_program_cruise": [
+        "WHONDRS 48hr"
+      ],
+      "related_url_description": [
+        "Associated data from surface and pore water samples (i.e. anions, cations, FTICR) are published on ESS-DIVE"
+      ],
+      "location_description": [
+        "Persistently inundated location of the stream near to the shoreline."
+      ],
+      "related_url_type": [
+        "DOI"
+      ],
+      "sample_description": [
+        "27 hour time point. Filter used for filtered surface water samples"
+      ],
+      "related_url": [
+        "https://data.ess-dive.lbl.gov/view/doi:10.15485/1577278"
+      ],
+      "material": [
+        "Other"
+      ],
+      "collector_chief_scientist": [
+        "Scott Brooks"
+      ],
+      "collection_method_description": [
+        "0.22 micron filter used to filter water samples"
+      ],
+      "name_of_physiographic_feature": [
+        "East Fork Poplar Creek"
+      ],
+      "country": [
+        "United States"
+      ],
+      "purpose": [
+        "Microbial analyses (e.g. metagenomics, metatranscriptomics) for 48hr time series (whondrs.pnnl.gov) "
+      ],
+      "id": [
+        "WHO000BC7  "
+      ],
+      "is_public": false,
+      "copied": null,
+      "kbase_sample_id": "78b92e67-2ad3-49f1-b69b-cce483a1b8a5"
+    },
+    {
+      "sample_version": 1,
+      "name": [
+        "erpe_2018_pw_18hr_WHONDRS-PP48-000091"
+      ],
+      "latitude": [
+        "52.476416;degrees"
+      ],
+      "collection_date": [
+        "2018-09-26"
+      ],
+      "longitude": [
+        "13.6257102;degrees"
+      ],
+      "primary_physiographic_feature": [
+        "Stream"
+      ],
+      "collection_time": [
+        "06:00:00Z"
+      ],
+      "field_name_informal_classification": [
+        "Filter"
+      ],
+      "field_program_cruise": [
+        "WHONDRS 48hr"
+      ],
+      "related_url_description": [
+        "Associated data from surface and pore water samples (i.e. anions, cations, FTICR) are published on ESS-DIVE"
+      ],
+      "location_description": [
+        "Persistently inundated location of the stream near to the shoreline."
+      ],
+      "related_url_type": [
+        "DOI"
+      ],
+      "sample_description": [
+        "18 hour time point. Filter used for filtered pore water samples"
+      ],
+      "related_url": [
+        "https://data.ess-dive.lbl.gov/view/doi:10.15485/1577260"
+      ],
+      "material": [
+        "Other"
+      ],
+      "collector_chief_scientist": [
+        " Jörg Lewandowski and Birgit Mueller"
+      ],
+      "collection_method_description": [
+        "0.22 micron filter used to filter water samples"
+      ],
+      "name_of_physiographic_feature": [
+        "Erpe River"
+      ],
+      "country": [
+        "Germany"
+      ],
+      "purpose": [
+        "Microbial analyses (e.g. metagenomics, metatranscriptomics) for 48hr time series (whondrs.pnnl.gov) "
+      ],
+      "id": [
+        "IECUR0002Y "
+      ],
+      "is_public": false,
+      "copied": null,
+      "kbase_sample_id": "d6f87c63-0dc1-4b55-8e9e-cfbe42232081"
+    },
+    {
+      "sample_version": 1,
+      "name": [
+        "erpe_2018_sw_18hr_WHONDRS-SW48-000091"
+      ],
+      "latitude": [
+        "52.476416;degrees"
+      ],
+      "collection_date": [
+        "2018-09-26"
+      ],
+      "longitude": [
+        "13.6257102;degrees"
+      ],
+      "primary_physiographic_feature": [
+        "Stream"
+      ],
+      "collection_time": [
+        "06:00:00Z"
+      ],
+      "field_name_informal_classification": [
+        "Filter"
+      ],
+      "field_program_cruise": [
+        "WHONDRS 48hr"
+      ],
+      "related_url_description": [
+        "Associated data from surface and pore water samples (i.e. anions, cations, FTICR) are published on ESS-DIVE"
+      ],
+      "location_description": [
+        "Persistently inundated location of the stream near to the shoreline."
+      ],
+      "related_url_type": [
+        "DOI"
+      ],
+      "sample_description": [
+        "18 hour time point. Filter used for filtered surface water samples"
+      ],
+      "related_url": [
+        "https://data.ess-dive.lbl.gov/view/doi:10.15485/1577260"
+      ],
+      "material": [
+        "Other"
+      ],
+      "collector_chief_scientist": [
+        " Jörg Lewandowski and Birgit Mueller"
+      ],
+      "collection_method_description": [
+        "0.22 micron filter used to filter water samples"
+      ],
+      "name_of_physiographic_feature": [
+        "Erpe River"
+      ],
+      "country": [
+        "Germany"
+      ],
+      "purpose": [
+        "Microbial analyses (e.g. metagenomics, metatranscriptomics) for 48hr time series (whondrs.pnnl.gov) "
+      ],
+      "id": [
+        "IECUR0002Z"
+      ],
+      "is_public": false,
+      "copied": null,
+      "kbase_sample_id": "9d9d39cf-217e-483f-8392-3a3cd168761c"
+    }
+  ],
+  "start": 0
+}

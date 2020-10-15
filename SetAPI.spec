@@ -630,6 +630,38 @@ module SetAPI {
 
 
 
+    /*
+    KBaseSets.SampleSet Methods
+
+    column_sorting - tuple (column, ascending) - tuple of string, boolean where the former is the name of the column on which to sort, and the later is a boolean describing whether to sort ascending (true) or descending (false)
+
+    query   - string query to search against all searchable fields
+    ref     - string workspace reference of the sampleset object
+    sort_by - list of column_sorting in order of sorting, 0 index colum_sorting tuple highest level of sorting
+    start   - default 0  - starting index for pagination
+    limit   - default 10 - number of documents to retrieve starting from start pagination
+    */
+
+    typedef tuple<string column, boolean ascending> column_sorting;
+
+    typedef structure {
+        string query;
+        string ref;
+        list<column_sorting> sort_by;
+        int start;
+        int limit;
+    } SampleSetToSamplesInfoParams;
+
+    typedef structure {
+        int num_found;
+        int start;
+        string query;
+        list<UnspecifiedObject> samples;
+    } SampleSetToSamplesInfoResult;
+
+    funcdef sample_set_to_samples_info(SampleSetToSamplesInfoParams params)
+                        returns(SampleSetToSamplesInfoResult result) authentication required;
+
 
 
     /* ******* Generic SET METHODS ************ */

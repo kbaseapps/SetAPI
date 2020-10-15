@@ -12,6 +12,7 @@ from SetAPI.genome.GenomeSetInterfaceV1 import GenomeSetInterfaceV1
 from SetAPI.reads.ReadsSetInterfaceV1 import ReadsSetInterfaceV1
 from SetAPI.readsalignment.ReadsAlignmentSetInterfaceV1 import ReadsAlignmentSetInterfaceV1
 from SetAPI.sampleset.SampleSetInterface import SampleSetInterface
+from SetAPI.sampleset.SampleSearchUtils import SamplesSearchUtils
 from installed_clients.WorkspaceClient import Workspace
 
 
@@ -33,9 +34,9 @@ class SetAPI:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.3.1"
-    GIT_URL = "https://github.com/Tianhao-Gu/SetAPI.git"
-    GIT_COMMIT_HASH = "48dfcbb2483cde9f219e9afc58dbeb6ff59ece0a"
+    VERSION = "0.3.3"
+    GIT_URL = "https://github.com/slebras/SetAPI.git"
+    GIT_COMMIT_HASH = "4974a322f7c6bf14b20a637b3da45fd5a60dddf1"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -46,6 +47,10 @@ class SetAPI:
         #BEGIN_CONSTRUCTOR
         self.workspaceURL = config['workspace-url']
         self.serviceWizardURL = config['service-wizard']
+        if config.get('search-url'):
+          self.search_url = config.get('search-url')
+        else:
+          self.search_url = config.get('kbase-endpoint') + '/searchapi2/rpc'
         #END_CONSTRUCTOR
         pass
 
@@ -2113,6 +2118,36 @@ class SetAPI:
                              'returnVal is not type dict as required.')
         # return the results
         return [returnVal]
+
+    def sample_set_to_samples_info(self, ctx, params):
+        """
+        :param params: instance of type "SampleSetToSamplesInfoParams" ->
+           structure: parameter "query" of String, parameter "ref" of String,
+           parameter "sort_by" of list of type "column_sorting" -> tuple of
+           size 2: parameter "column" of String, parameter "ascending" of
+           type "boolean" (A boolean. 0 = false, 1 = true.), parameter
+           "start" of Long, parameter "limit" of Long, parameter
+           "query_fields" of list of String
+        :returns: instance of type "SampleSetToSamplesInfoResult" ->
+           structure: parameter "num_found" of Long, parameter "start" of
+           Long, parameter "query" of String, parameter "samples" of list of
+           unspecified object
+        """
+        # ctx is the context object
+        # return variables are: result
+        #BEGIN sample_set_to_samples_info
+        sample_search_utils = SamplesSearchUtils(ctx['token'], self.search_url)
+        if not params.get('ref'):
+          raise ValueError(f"Argument 'ref' must be specified, 'ref' = '{params.get('ref')}' ")
+        result = sample_search_utils.sample_set_to_samples_info(params)
+        #END sample_set_to_samples_info
+
+        # At some point might do deeper type checking...
+        if not isinstance(result, dict):
+            raise ValueError('Method sample_set_to_samples_info return value ' +
+                             'result is not type dict as required.')
+        # return the results
+        return [result]
 
     def list_sets(self, ctx, params):
         """
