@@ -18,7 +18,15 @@ class SamplesSearchUtils():
             sort_by = params['sort_by']
         if params.get('query'):
             # use default all_sample_metadata_field as specified in the index_runner spec
-            extra_must.append({"match": {"all_sample_metadata_field": str(params['query'])}})
+            query_data = {
+                "multi_match": {
+                    "fields": ["all_sample_metadata_field"],
+                    "query": str(params['query']),
+                    "operator": "or",
+                    "type": "phrase_prefix"
+                }
+            }
+            extra_must.append(query_data)
         start = params.get('start', 0)
         limit = params.get('limit', 10)
 
@@ -118,7 +126,7 @@ class SamplesSearchUtils():
             "save_date"
         ]
         for field in remove_fields:
-            if sample_doc.get(field):
-                sample_doc.pop(field)
+            if field in sample_doc:
+                del sample_doc[field]
         sample_doc['kbase_sample_id'] = sample_id.split('::')[1].split(":")[0]
         return sample_doc

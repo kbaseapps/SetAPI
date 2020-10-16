@@ -124,3 +124,30 @@ class SetAPITest(unittest.TestCase):
         compare_to['samples'] = [s for s in compare_to['samples'] if s.get('state_province') and s['state_province'][0] == "Georgia"]
         compare_to['num_found'] = len(compare_to['samples'])
         self._compare_samples(ret, compare_to)
+
+    # @unittest.skip('x')
+    def test_prefix_query_search(self):
+        ret = self.serviceImpl.sample_set_to_samples_info(self.ctx, {
+            "ref": self.sample_set_ref,
+            "query": "Germa"
+        })[0]
+        with open("data/sample_set_search_compare.json") as f:
+            compare_to = json.load(f)
+        # get the samples with country 'Germany' only
+        compare_to['samples'] = [s for s in compare_to['samples'] if s.get('country') and s['country'][0] == "Germany"]
+        compare_to['num_found'] = len(compare_to['samples'])
+        self._compare_samples(ret, compare_to)
+
+    # @unittest.skip('x')
+    def test_prefix_query_search_2(self):
+        ret = self.serviceImpl.sample_set_to_samples_info(self.ctx, {
+            "ref": self.sample_set_ref,
+            "query": "Ge"
+        })[0]
+        with open("data/sample_set_search_compare.json") as f:
+            compare_to = json.load(f)
+        # get the samples with country 'Germany' only
+        compare_to['samples'] = [s for s in compare_to['samples'] if (s.get('country') and s['country'][0] == "Germany") or (s.get('state_province') and s['state_province'][0] == "Georgia")]
+        compare_to['num_found'] = len(compare_to['samples'])
+        self._compare_samples(ret, compare_to)
+
