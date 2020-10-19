@@ -1,3 +1,7 @@
+### Version 0.3.4
+- Updating SampleSet search to include prefix search. Adding tests.
+- Fixing bug for removing unnecessary fields from SampleSet search
+
 ### Version 0.3.3
 - Adding search api capabilties for KBaseSets.SampleSet Object.
 
