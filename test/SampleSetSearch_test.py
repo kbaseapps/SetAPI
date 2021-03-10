@@ -100,8 +100,7 @@ class SetAPITest(unittest.TestCase):
             ret = self.serviceImpl.sample_set_to_samples_info(self.ctx, {
             })
 
-    @unittest.skip('x')
-    # skip because sample is not fixed
+    # @unittest.skip('x')
     def test_sample_set_to_sample_info(self):
         # test defaults of "start" and "limit" variables
         ret = self.serviceImpl.sample_set_to_samples_info(self.ctx, {
@@ -111,8 +110,7 @@ class SetAPITest(unittest.TestCase):
             compare_to = json.load(f)
         self._compare_samples(ret, compare_to)
 
-    @unittest.skip('x')
-    # skip because sample is not fixed
+    # @unittest.skip('x')
     def test_query_search(self):
         ret = self.serviceImpl.sample_set_to_samples_info(self.ctx, {
             "ref": self.sample_set_ref,
@@ -127,8 +125,7 @@ class SetAPITest(unittest.TestCase):
         compare_to['num_found'] = len(compare_to['samples'])
         self._compare_samples(ret, compare_to)
 
-    @unittest.skip('x')
-    # skip because sample is not fixed
+    # @unittest.skip('x')
     def test_prefix_query_search(self):
         ret = self.serviceImpl.sample_set_to_samples_info(self.ctx, {
             "ref": self.sample_set_ref,
@@ -141,8 +138,7 @@ class SetAPITest(unittest.TestCase):
         compare_to['num_found'] = len(compare_to['samples'])
         self._compare_samples(ret, compare_to)
 
-    @unittest.skip('x')
-    # skip because sample is not fixed
+    # @unittest.skip('x')
     def test_prefix_query_search_2(self):
         ret = self.serviceImpl.sample_set_to_samples_info(self.ctx, {
             "ref": self.sample_set_ref,
