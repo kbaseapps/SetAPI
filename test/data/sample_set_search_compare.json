@@ -66,6 +66,7 @@
       "id": [
         "HRV003M16"
       ],
+      "index_runner_ver": "1.9.17",
       "kbase_sample_id": "fa73aaef-48f5-47d8-b6c2-bac890f90e45"
     },
     {
@@ -133,6 +134,7 @@
       "id": [
         "WHO000BC7  "
       ],
+      "index_runner_ver": "1.9.17",
       "kbase_sample_id": "c95f057d-f06f-40ec-ae71-3586fc77aed3"
     },
     {
@@ -200,6 +202,7 @@
       "id": [
         "IECUR0002 "
       ],
+      "index_runner_ver": "1.9.17",
       "kbase_sample_id": "5e38fb48-5ddb-48bf-9b4d-c8035c3614e0"
     },
     {
@@ -267,6 +270,7 @@
       "id": [
         "HRV003M16X"
       ],
+      "index_runner_ver": "1.9.17",
       "kbase_sample_id": "25d61433-6e1c-4645-9990-ada19ee0908a"
     },
     {
@@ -334,6 +338,7 @@
       "id": [
         "WHO000BC7  "
       ],
+      "index_runner_ver": "1.9.17",
       "kbase_sample_id": "78b92e67-2ad3-49f1-b69b-cce483a1b8a5"
     },
     {
@@ -398,6 +403,7 @@
       "id": [
         "IECUR0002Y "
       ],
+      "index_runner_ver": "1.9.17",
       "kbase_sample_id": "d6f87c63-0dc1-4b55-8e9e-cfbe42232081"
     },
     {
@@ -462,6 +468,7 @@
       "id": [
         "IECUR0002Z"
       ],
+      "index_runner_ver": "1.9.17",
       "kbase_sample_id": "9d9d39cf-217e-483f-8392-3a3cd168761c"
     }
   ],
