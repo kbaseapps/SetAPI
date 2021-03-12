@@ -52,7 +52,7 @@ jobs:
         KBASE_AUTH_SERVICE_URL_ESCAPED: ${{ 'https:\/\/ci.kbase.us\/services\/auth\/api\/legacy\/KBase\/Sessions\/Login' }}
       run: |
         # Add token to config
-        sed -ie "s/^test_token=.*$/&$KBASE_CI_TOKEN/g" ./test_local/test.cfg
+        sed -ie "s/^test_token=.*$/&$KBASE_TEST_TOKEN/g" ./test_local/test.cfg
         sed -ie "s/^kbase_endpoint=.*$/kbase_endpoint=$KBASE_ENDPOINT_ESCAPED/g" ./test_local/test.cfg
         sed -ie "s/^auth_service_url=.*$/auth_service_url=$KBASE_AUTH_SERVICE_URL_ESCAPED/g" ./test_local/test.cfg
 
