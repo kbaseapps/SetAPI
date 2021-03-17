@@ -11,7 +11,7 @@ module-version:
     0.3.5
 
 owners:
-    [wjriehl, tgu2, slebras]
+    [wjriehl, tgu2, slebras,zimingy]
 
 service-config:
     dynamic-service: true
