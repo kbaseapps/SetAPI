@@ -1,4 +1,7 @@
 ### Version 0.3.4
+- Skipped sample tests and added github action
+
+### Version 0.3.4
 - Updating SampleSet search to include prefix search. Adding tests.
 - Fixing bug for removing unnecessary fields from SampleSet search
 
