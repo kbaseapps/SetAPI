@@ -96,16 +96,6 @@
       ]
     }
   },{
-    "id" : "conditionset_ref",
-    "optional" : true,
-    "advanced" : true,
-    "allow_multiple" : false,
-    "default_values" : [ "" ],
-    "field_type" : "text",
-    "text_options" : {
-      "valid_ws_types" : [ "KBaseExperiments.ConditionSet"]
-    }
-  },{
     "id" : "source",
     "optional" : true,
     "advanced" : true,
@@ -142,10 +132,6 @@
         {
           "input_parameter": "sampleset_id",
           "target_property": "sampleset_id"
-        },{
-          "input_parameter": "conditionset_ref",
-          "target_type_transform": "resolved-ref",
-          "target_property": "conditionset_ref"
         },{
           "input_parameter": "sampleset_desc",
           "target_property": "sampleset_desc"

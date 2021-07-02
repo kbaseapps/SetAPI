@@ -151,7 +151,6 @@ class SetAPITest(unittest.TestCase):
                 "Library_type": "SingleEnd",
                 "publication_id": "none",
                 "string external_source_date": "not sure",
-                "conditionset_ref":  self.condition_set_ref
                }
 
         # test a save
@@ -242,7 +241,6 @@ class SetAPITest(unittest.TestCase):
                 "Library_type": "SingleEnd",
                 "publication_id": "none",
                 "string external_source_date": "not sure",
-                "conditionset_ref":  self.condition_set_ref
                }
 
         # test a save
@@ -313,6 +311,7 @@ class SetAPITest(unittest.TestCase):
 
         pprint(d2)
 
+    @unittest.skip('conditionset_ref not supported')
     def test_unmatched_conditions(self):
 
         workspace = self.getWsName()
@@ -364,7 +363,6 @@ class SetAPITest(unittest.TestCase):
                 "Library_type": "SingleEnd",
                 "publication_id": "none",
                 "string external_source_date": "not sure",
-                "conditionset_ref":  self.condition_set_ref
                }
 
         # test a save
