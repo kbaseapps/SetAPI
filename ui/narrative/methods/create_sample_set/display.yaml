@@ -69,11 +69,6 @@ parameters :
             Publication Details
         short-hint : |
             The publication details of the data used for RNA-seq experiment.
-    conditionset_ref:
-        ui-name : |
-            Condition Set
-        short-hint : |
-            Select a ConditionSet object.
 parameter-groups :
     sample_n_conditions :
         ui-name : |
