@@ -200,4 +200,30 @@ module KBaseSets {
         list<GenomeSetItem> items;
     } GenomeSet;
 
+    /*
+        @id sample
+        sample_id assigned by the sample_service.
+    */
+    typedef string sample_id;
+
+    /*
+        id - id assigned by sample_service
+        name - name of sample in sample_service
+        version - version of the sample in sample_service
+    */
+    typedef structure {
+        sample_id id;
+        string name;
+        int version;
+    } sample_info;
+
+    /*
+        @metadata ws length(samples) as num_samples
+    */
+
+    typedef structure {
+        list<sample_info> samples;
+        string description;
+    } SampleSet;
+
 };
