@@ -34,9 +34,9 @@ class SetAPI:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.3.3"
-    GIT_URL = "https://github.com/slebras/SetAPI.git"
-    GIT_COMMIT_HASH = "4974a322f7c6bf14b20a637b3da45fd5a60dddf1"
+    VERSION = "0.3.5"
+    GIT_URL = "git@github.com:kbaseapps/SetAPI.git"
+    GIT_COMMIT_HASH = "3ea7e513dbf833b3c6d599973601987b5a6deec1"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -2056,7 +2056,8 @@ class SetAPI:
            String, parameter "condition" of list of String, parameter
            "source" of String, parameter "Library_type" of String, parameter
            "publication_id" of String, parameter "external_source_date" of
-           String, parameter "conditionset_ref" of String
+           String, parameter "conditionset_ref" of String, parameter
+           "sample_n_conditions" of mapping from String to String
         :returns: instance of type "CreateRNASeqSampleSetResult" ->
            structure: parameter "set_ref" of String, parameter "set_info" of
            type "object_info" (Information about an object, including user
@@ -2123,11 +2124,20 @@ class SetAPI:
         """
         :param params: instance of type "SampleSetToSamplesInfoParams" ->
            structure: parameter "query" of String, parameter "ref" of String,
-           parameter "sort_by" of list of type "column_sorting" -> tuple of
-           size 2: parameter "column" of String, parameter "ascending" of
-           type "boolean" (A boolean. 0 = false, 1 = true.), parameter
-           "start" of Long, parameter "limit" of Long, parameter
-           "query_fields" of list of String
+           parameter "sort_by" of list of type "column_sorting"
+           (KBaseSets.SampleSet Methods column_sorting - tuple (column,
+           ascending) - tuple of string, boolean where the former is the name
+           of the column on which to sort, and the later is a boolean
+           describing whether to sort ascending (true) or descending (false)
+           query   - string query to search against all searchable fields ref
+           - string workspace reference of the sampleset object sort_by -
+           list of column_sorting in order of sorting, 0 index colum_sorting
+           tuple highest level of sorting start   - default 0  - starting
+           index for pagination limit   - default 10 - number of documents to
+           retrieve starting from start pagination) -> tuple of size 2:
+           parameter "column" of String, parameter "ascending" of type
+           "boolean" (A boolean. 0 = false, 1 = true.), parameter "start" of
+           Long, parameter "limit" of Long
         :returns: instance of type "SampleSetToSamplesInfoResult" ->
            structure: parameter "num_found" of Long, parameter "start" of
            Long, parameter "query" of String, parameter "samples" of list of
