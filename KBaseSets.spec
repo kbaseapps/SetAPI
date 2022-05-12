@@ -219,11 +219,13 @@ module KBaseSets {
 
     /*
         @metadata ws length(samples) as num_samples
+        metadata keys - a list of all fields available as keys within samples of a given sample set.
     */
 
     typedef structure {
         list<sample_info> samples;
         string description;
+        list<string> metadata_keys;
     } SampleSet;
 
 };
