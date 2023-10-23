@@ -19,47 +19,23 @@ class SetAPITest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        token = environ.get('KB_AUTH_TOKEN', None)
-        cls.cfg = get_test_config()
-        auth_client = KBaseAuth(
-            cls.cfg.get('auth-service-url',
-                "https://kbase.us/services/authorization/Sessions/Login"))
-        user_id = auth_client.get_user(token)
-        # WARNING: don't call any logging methods on the context object,
-        # it'll result in a NoneType error
-        cls.ctx = MethodContext(None)
-        cls.ctx.update({'token': token,
-                        'user_id': user_id,
-                        'provenance': [
-                            {'service': 'SetAPI',
-                             'method': 'please_never_use_it_in_production',
-                             'method_params': []
-                             }],
-                        'authenticated': 1})
-        cls.wsURL = cls.cfg['workspace-url']
-        cls.wsClient = workspaceService(cls.wsURL, token=token)
-        cls.serviceImpl = SetAPI(cls.cfg)
+        attributes = get_test_config()
+        for attr in ['cfg', 'ctx', 'serviceImpl', 'wsClient', 'wsName', 'wsURL']:
+            setattr(cls, attr, attributes[attr])
 
-        # setup data at the class level for now (so that the code is run
-        # once for all tests, not before each test case.  Not sure how to
-        # do that outside this function..)
-        suffix = int(time.time() * 1000)
-        wsName = "test_SetAPI_" + str(suffix)
-        cls.wsClient.create_workspace({'workspace': wsName})
-        cls.wsName = wsName
         # copy test file to scratch area
         fna_filename = "seq.fna"
         fna_path = os.path.join(cls.cfg['scratch'], fna_filename)
         shutil.copy(os.path.join(TEST_BASE_DIR, "data", fna_filename), fna_path)
 
-        ru = AssemblyUtil(os.environ['SDK_CALLBACK_URL'])
-        cls.assembly1ref = ru.save_assembly_from_fasta(
+        au = AssemblyUtil(os.environ['SDK_CALLBACK_URL'])
+        cls.assembly1ref = au.save_assembly_from_fasta(
             {
                 'file':{'path': fna_path},
                 'workspace_name': cls.wsName,
                 'assembly_name': 'assembly_obj_1'
             })
-        cls.assembly2ref = ru.save_assembly_from_fasta(
+        cls.assembly2ref = au.save_assembly_from_fasta(
             {
                 'file':{'path': fna_path},
                 'workspace_name': cls.wsName,

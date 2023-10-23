@@ -19,35 +19,9 @@ class SetAPITest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        token = environ.get('KB_AUTH_TOKEN', None)
-        cls.cfg = get_test_config()
-        authServiceUrl = cls.cfg.get('auth-service-url',
-                "https://kbase.us/services/authorization/Sessions/Login")
-        auth_client = _KBaseAuth(authServiceUrl)
-        user_id = auth_client.get_user(token)
-        # WARNING: don't call any logging methods on the context object,
-        # it'll result in a NoneType error
-        cls.ctx = MethodContext(None)
-        cls.ctx.update({'token': token,
-                        'user_id': user_id,
-                        'provenance': [
-                            {'service': 'SetAPI',
-                             'method': 'please_never_use_it_in_production',
-                             'method_params': []
-                             }],
-                        'authenticated': 1})
-        cls.wsURL = cls.cfg['workspace-url']
-        cls.wsClient = workspaceService(cls.wsURL, token=token)
-        cls.serviceImpl = SetAPI(cls.cfg)
-        cls.dfu = DataFileUtil(os.environ['SDK_CALLBACK_URL'])
-
-        # setup data at the class level for now (so that the code is run
-        # once for all tests, not before each test case.  Not sure how to
-        # do that outside this function..)
-        suffix = int(time.time() * 1000)
-        wsName = "test_SetAPI_" + str(suffix)
-        ret = cls.wsClient.create_workspace({'workspace': wsName})
-        cls.wsName = wsName
+        attributes = get_test_config()
+        for attr in ['cfg', 'ctx', 'serviceImpl', 'wsClient', 'wsName', 'wsURL']:
+            setattr(cls, attr, attributes[attr])
         cls.prepare_data()
 
     @classmethod

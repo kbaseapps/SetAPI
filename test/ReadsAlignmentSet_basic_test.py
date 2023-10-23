@@ -29,51 +29,26 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        token = environ.get('KB_AUTH_TOKEN', None)
-        cls.cfg = get_test_config()
-        authServiceUrl = cls.cfg.get("auth-service-url",
-                                     "https://kbase.us/services/authorization/Sessions/Login")
-        auth_client = KBaseAuth(authServiceUrl)
-        user_id = auth_client.get_user(token)
-        # WARNING: don't call any logging methods on the context object,
-        # it'll result in a NoneType error
-        cls.ctx = MethodContext(None)
-        cls.ctx.update({'token': token,
-                        'user_id': user_id,
-                        'provenance': [
-                            {'service': 'SetAPI',
-                             'method': 'please_never_use_it_in_production',
-                             'method_params': []
-                             }],
-                        'authenticated': 1})
-        cls.wsURL = cls.cfg['workspace-url']
-        cls.wsClient = workspaceService(cls.wsURL, token=token)
-        cls.serviceImpl = SetAPI(cls.cfg)
-
-        # setup data at the class level for now (so that the code is run
-        # once for all tests, not before each test case.  Not sure how to
-        # do that outside this function..)
-        suffix = int(time.time() * 1000)
-        wsName = "test_SetAPI_" + str(suffix)
-        cls.wsClient.create_workspace({'workspace': wsName})
-        cls.wsName = wsName
+        attributes = get_test_config()
+        for attr in ['cfg', 'ctx', 'serviceImpl', 'wsClient', 'wsName', 'wsURL']:
+            setattr(cls, attr, attributes[attr])
 
         foft = FakeObjectsForTests(os.environ['SDK_CALLBACK_URL'])
 
         # Make a fake genome
         [fake_genome, fake_genome2] = foft.create_fake_genomes({
-            "ws_name": wsName,
+            "ws_name": cls.wsName,
             "obj_names": ["fake_genome", "fake_genome2"]
         })
         cls.genome_refs = [info_to_ref(fake_genome), info_to_ref(fake_genome2)]
 
         # Make some fake reads objects
         fake_reads_list = foft.create_fake_reads({
-            'ws_name': wsName,
+            'ws_name': cls.wsName,
             "obj_names": ["reads1", "reads2", "reads3"]
         })
-        cls.alignment_refs = list()
-        cls.reads_refs = list()
+        cls.alignment_refs = []
+        cls.reads_refs = []
 
         dummy_filename = "dummy.txt"
         cls.dummy_path = os.path.join(cls.cfg['scratch'], dummy_filename)
@@ -90,12 +65,12 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
                     "fake_alignment_{}".format(idx),
                     reads_ref,
                     cls.genome_refs[0],
-                    wsName, cls.wsClient
+                    cls.wsName, cls.wsClient
                 )
             )
 
         # Make a fake RNASeqSampleSet
-        cls.sampleset_ref = make_fake_sampleset("fake_sampleset", [], [], wsName, cls.wsClient)
+        cls.sampleset_ref = make_fake_sampleset("fake_sampleset", [], [], cls.wsName, cls.wsClient)
 
         # Finally, make a couple fake RNASeqAlignmentSts objects from those alignments
         cls.fake_rnaseq_alignment_set1 = make_fake_old_alignment_set(
@@ -104,7 +79,7 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             cls.genome_refs[0],
             cls.sampleset_ref,
             cls.alignment_refs,
-            wsName,
+            cls.wsName,
             cls.wsClient)
         cls.fake_rnaseq_alignment_set2 = make_fake_old_alignment_set(
             "fake_rnaseq_alignment_set2",
@@ -112,7 +87,7 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             cls.genome_refs[0],
             cls.sampleset_ref,
             cls.alignment_refs,
-            wsName,
+            cls.wsName,
             cls.wsClient,
             include_sample_alignments=True
         )
@@ -122,7 +97,7 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             os.environ['SDK_CALLBACK_URL'],
             cls.dummy_path,
             "fake_annotation",
-            wsName,
+            cls.wsName,
             cls.wsClient)
 
         # Now we can phony up some expression objects to build sets out of.
@@ -136,7 +111,7 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
                 cls.genome_refs[0],
                 cls.annotation_ref,
                 alignment_ref,
-                wsName,
+                cls.wsName,
                 cls.wsClient
             ))
 
@@ -148,7 +123,7 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             cls.alignment_refs,
             cls.fake_rnaseq_alignment_set1,
             cls.expression_refs,
-            wsName,
+            cls.wsName,
             cls.wsClient,
             True)
 

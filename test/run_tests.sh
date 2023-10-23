@@ -8,7 +8,7 @@ export KB_DEPLOYMENT_CONFIG="$current_dir"/deploy.cfg
 export KB_AUTH_TOKEN=`cat /kb/module/work/token`
 export PYTHONPATH="$current_dir"/../lib:"$current_dir"/../test:"$PYTHONPATH"
 
-cd "$current_dir"/../test
+cd "$current_dir"/..
 
 # collect coverage data
 pytest \
@@ -17,4 +17,4 @@ pytest \
     --cov-report=html \
     --cov-report=xml \
     -vv \
-    .
+    test/

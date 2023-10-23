@@ -19,38 +19,13 @@ class SetAPITest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        token = environ.get('KB_AUTH_TOKEN', None)
-        cls.cfg = get_test_config()
-        authServiceUrl = cls.cfg.get('auth-service-url',
-                "https://kbase.us/services/authorization/Sessions/Login")
-        auth_client = KBaseAuth(authServiceUrl)
-        user_id = auth_client.get_user(token)
-        # WARNING: don't call any logging methods on the context object,
-        # it'll result in a NoneType error
-        cls.ctx = MethodContext(None)
-        cls.ctx.update({'token': token,
-                        'user_id': user_id,
-                        'provenance': [
-                            {'service': 'SetAPI',
-                             'method': 'please_never_use_it_in_production',
-                             'method_params': []
-                             }],
-                        'authenticated': 1})
-        cls.wsURL = cls.cfg['workspace-url']
-        cls.wsClient = workspaceService(cls.wsURL, token=token)
-        cls.serviceImpl = SetAPI(cls.cfg)
+        attributes = get_test_config()
+        for attr in ['cfg', 'ctx', 'serviceImpl', 'wsClient', 'wsName', 'wsURL']:
+            setattr(cls, attr, attributes[attr])
+
         cls.serviceWizardURL = cls.cfg['service-wizard']
-
-        # setup data at the class level for now (so that the code is run
-        # once for all tests, not before each test case.  Not sure how to
-        # do that outside this function..)
-        suffix = int(time.time() * 1000)
-        wsName = "test_SetAPI_" + str(suffix)
-        ret = cls.wsClient.create_workspace({'workspace': wsName})
-        cls.wsName = wsName
-
         foft = FakeObjectsForTests(os.environ['SDK_CALLBACK_URL'])
-        [info1, info2] = foft.create_fake_reads({'ws_name': wsName,
+        [info1, info2] = foft.create_fake_reads({'ws_name': cls.wsName,
                                                  'obj_names': ['reads1', 'reads2']})
         cls.read1ref = str(info1[6]) + '/' + str(info1[0]) + '/' + str(info1[4])
         cls.read2ref = str(info2[6]) + '/' + str(info2[0]) + '/' + str(info2[4])
@@ -120,6 +95,15 @@ class SetAPITest(unittest.TestCase):
         with self.assertRaises(ValueError) as err:
             set_api.list_sets(ctx, {'workspace': 12345, 'include_set_item_info': 'foo'})
         self.assertIn('"include_set_item_info" field must be set to 0 or 1', str(err.exception))
+
+        # with self.assertRaises(ValueError) as err:
+        #     set_api.list_sets(ctx, {'workspace': 12345, 'set_types': []})
+        # self.assertIn('At least one type must be specified if using the "set_types" parameter', str(err.exception))
+
+
+        # with self.assertRaises(ValueError) as err:
+        #     set_api.list_sets(ctx, {'workspace': 12345, 'set_types': ['big', 'bad', 'wolf']})
+        # self.assertIn('The following values for the "set_types" parameter are invalid: big, bad, wolf', str(err.exception))
 
     def test_list_sets(self):
         workspace = self.getWsName()
