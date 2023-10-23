@@ -9,7 +9,7 @@ from pprint import pprint
 
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
-from SetAPI.authclient import KBaseAuth as _KBaseAuth
+from installed_clients.authclient import KBaseAuth
 from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 from installed_clients.WorkspaceClient import Workspace as workspaceService
@@ -28,7 +28,7 @@ class SetAPITest(unittest.TestCase):
             cls.cfg[nameval[0]] = nameval[1]
         authServiceUrl = cls.cfg.get('auth-service-url',
                 "https://kbase.us/services/authorization/Sessions/Login")
-        auth_client = _KBaseAuth(authServiceUrl)
+        auth_client = KBaseAuth(authServiceUrl)
         user_id = auth_client.get_user(token)
         # WARNING: don't call any logging methods on the context object,
         # it'll result in a NoneType error
@@ -154,4 +154,3 @@ class SetAPITest(unittest.TestCase):
         compare_to['samples'] = [s for s in compare_to['samples'] if (s.get('country') and s['country'][0] == "Germany") or (s.get('state_province') and s['state_province'][0] == "Georgia")]
         compare_to['num_found'] = len(compare_to['samples'])
         self._compare_samples(ret, compare_to)
-
