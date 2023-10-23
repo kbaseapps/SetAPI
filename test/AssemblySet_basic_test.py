@@ -3,13 +3,14 @@ import os
 import shutil
 import time
 import unittest
-from configparser import ConfigParser
 from os import environ
 from pprint import pprint
+from test.test_config import get_test_config
+from test import TEST_BASE_DIR
 
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
-from SetAPI.authclient import KBaseAuth as _KBaseAuth
+from installed_clients.authclient import KBaseAuth
 from installed_clients.AssemblyUtilClient import AssemblyUtil
 from installed_clients.WorkspaceClient import Workspace as workspaceService
 
@@ -19,15 +20,10 @@ class SetAPITest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         token = environ.get('KB_AUTH_TOKEN', None)
-        config_file = environ.get('KB_DEPLOYMENT_CONFIG', None)
-        cls.cfg = {}
-        config = ConfigParser()
-        config.read(config_file)
-        for nameval in config.items('SetAPI'):
-            cls.cfg[nameval[0]] = nameval[1]
-        authServiceUrl = cls.cfg.get('auth-service-url',
-                "https://kbase.us/services/authorization/Sessions/Login")
-        auth_client = _KBaseAuth(authServiceUrl)
+        cls.cfg = get_test_config()
+        auth_client = KBaseAuth(
+            cls.cfg.get('auth-service-url',
+                "https://kbase.us/services/authorization/Sessions/Login"))
         user_id = auth_client.get_user(token)
         # WARNING: don't call any logging methods on the context object,
         # it'll result in a NoneType error
@@ -49,27 +45,25 @@ class SetAPITest(unittest.TestCase):
         # do that outside this function..)
         suffix = int(time.time() * 1000)
         wsName = "test_SetAPI_" + str(suffix)
-        ret = cls.wsClient.create_workspace({'workspace': wsName})
-#        wsName = 'pranjan77:1477441032423'
+        cls.wsClient.create_workspace({'workspace': wsName})
         cls.wsName = wsName
         # copy test file to scratch area
         fna_filename = "seq.fna"
         fna_path = os.path.join(cls.cfg['scratch'], fna_filename)
-        shutil.copy(os.path.join("data", fna_filename), fna_path)
+        shutil.copy(os.path.join(TEST_BASE_DIR, "data", fna_filename), fna_path)
 
         ru = AssemblyUtil(os.environ['SDK_CALLBACK_URL'])
-        ws_obj_name = 'MyNewAssembly'
-        cls.assembly1ref = ru.save_assembly_from_fasta( 
+        cls.assembly1ref = ru.save_assembly_from_fasta(
             {
-                'file':{'path':fna_path},
-                'workspace_name':wsName,
-                'assembly_name':'assembly_obj_1'
+                'file':{'path': fna_path},
+                'workspace_name': cls.wsName,
+                'assembly_name': 'assembly_obj_1'
             })
-        cls.assembly2ref = ru.save_assembly_from_fasta( 
+        cls.assembly2ref = ru.save_assembly_from_fasta(
             {
-                'file':{'path':fna_path},
-                'workspace_name':wsName,
-                'assembly_name':'assembly_obj_2'
+                'file':{'path': fna_path},
+                'workspace_name': cls.wsName,
+                'assembly_name': 'assembly_obj_2'
             })
 
 
@@ -83,13 +77,7 @@ class SetAPITest(unittest.TestCase):
         return self.__class__.wsClient
 
     def getWsName(self):
-        if hasattr(self.__class__, 'wsName'):
-            return self.__class__.wsName
-        suffix = int(time.time() * 1000)
-        wsName = "test_SetAPI_" + str(suffix)
-        ret = self.getWsClient().create_workspace({'workspace': wsName})
-        self.__class__.wsName = wsName
-        return wsName
+        return self.__class__.wsName
 
     def getImpl(self):
         return self.__class__.serviceImpl
@@ -186,8 +174,7 @@ class SetAPITest(unittest.TestCase):
         # create the set object
         set_data = {
             'description':'nothing to see here',
-            'items': [ 
-            ]
+            'items': []
         }
         # test a save
         setAPI = self.getImpl()

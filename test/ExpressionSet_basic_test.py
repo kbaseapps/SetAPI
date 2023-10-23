@@ -3,16 +3,16 @@ import os
 import shutil
 import time
 import unittest
-from configparser import ConfigParser
+from test.test_config import get_test_config
 from os import environ
 from pprint import pprint
-
+from test import TEST_BASE_DIR
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
-from SetAPI.authclient import KBaseAuth as _KBaseAuth
+from installed_clients.authclient import KBaseAuth as _KBaseAuth
 from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 from installed_clients.WorkspaceClient import Workspace as workspaceService
-from util import (
+from test.util import (
     info_to_ref,
     make_fake_alignment,
     make_fake_annotation,
@@ -30,12 +30,7 @@ class ExpressionSetAPITest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         token = environ.get('KB_AUTH_TOKEN', None)
-        config_file = environ.get('KB_DEPLOYMENT_CONFIG', None)
-        cls.cfg = {}
-        config = ConfigParser()
-        config.read(config_file)
-        for nameval in config.items('SetAPI'):
-            cls.cfg[nameval[0]] = nameval[1]
+        cls.cfg = get_test_config()
         authServiceUrl = cls.cfg.get("auth-service-url",
                                      "https://kbase.us/services/authorization/Sessions/Login")
         auth_client = _KBaseAuth(authServiceUrl)
@@ -67,14 +62,14 @@ class ExpressionSetAPITest(unittest.TestCase):
 
         # Make a fake genome
         [fake_genome, fake_genome2] = foft.create_fake_genomes({
-            "ws_name": wsName,
+            "ws_name": cls.wsName,
             "obj_names": ["fake_genome", "fake_genome2"]
         })
         cls.genome_refs = [info_to_ref(fake_genome), info_to_ref(fake_genome2)]
 
         # Make some fake reads objects
         fake_reads_list = foft.create_fake_reads({
-            'ws_name': wsName,
+            'ws_name': cls.wsName,
             "obj_names": ["reads1", "reads2", "reads3"]
         })
         cls.alignment_refs = list()
@@ -83,7 +78,7 @@ class ExpressionSetAPITest(unittest.TestCase):
         # Make some fake alignments referencing those reads and genome
         dummy_filename = "dummy.txt"
         cls.dummy_path = os.path.join(cls.cfg['scratch'], dummy_filename)
-        shutil.copy(os.path.join("data", dummy_filename), cls.dummy_path)
+        shutil.copy(os.path.join(TEST_BASE_DIR, "data", dummy_filename), cls.dummy_path)
 
         for idx, reads_info in enumerate(fake_reads_list):
             reads_ref = info_to_ref(reads_info)
@@ -95,7 +90,7 @@ class ExpressionSetAPITest(unittest.TestCase):
                     "fake_alignment_{}".format(idx),
                     reads_ref,
                     cls.genome_refs[0],
-                    wsName,
+                    cls.wsName,
                     cls.wsClient)
             )
 
@@ -104,7 +99,7 @@ class ExpressionSetAPITest(unittest.TestCase):
             os.environ['SDK_CALLBACK_URL'],
             cls.dummy_path,
             "fake_annotation",
-            wsName,
+            cls.wsName,
             cls.wsClient)
 
         # Now we can phony up some expression objects to build sets out of.
@@ -118,13 +113,13 @@ class ExpressionSetAPITest(unittest.TestCase):
                 cls.genome_refs[0],
                 cls.annotation_ref,
                 alignment_ref,
-                wsName,
+                cls.wsName,
                 cls.wsClient
             ))
 
         # Make a fake RNASeq Alignment Set object
         # Make a fake RNASeqSampleSet
-        cls.sampleset_ref = make_fake_sampleset("fake_sampleset", [], [], wsName, cls.wsClient)
+        cls.sampleset_ref = make_fake_sampleset("fake_sampleset", [], [], cls.wsName, cls.wsClient)
 
         # Finally, make a couple fake RNASeqAlignmentSts objects from those alignments
         cls.fake_rnaseq_alignment_set = make_fake_old_alignment_set(
@@ -133,7 +128,7 @@ class ExpressionSetAPITest(unittest.TestCase):
             cls.genome_refs[0],
             cls.sampleset_ref,
             cls.alignment_refs,
-            wsName,
+            cls.wsName,
             cls.wsClient)
 
         # Make a fake RNASeq Expression Set object
@@ -144,7 +139,7 @@ class ExpressionSetAPITest(unittest.TestCase):
                                                     cls.alignment_refs,
                                                     cls.fake_rnaseq_alignment_set,
                                                     cls.expression_refs,
-                                                    wsName,
+                                                    cls.wsName,
                                                     cls.wsClient,
                                                     True)
 
@@ -362,4 +357,3 @@ class ExpressionSetAPITest(unittest.TestCase):
             })
         self.assertIn('"ref" parameter field specifiying the expression set is required',
                       str(err.exception))
-

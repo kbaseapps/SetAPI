@@ -2,13 +2,13 @@
 import os
 import time
 import unittest
-from configparser import ConfigParser
+from test.test_config import get_test_config
 from os import environ
 from pprint import pprint
 
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
-from SetAPI.authclient import KBaseAuth as _KBaseAuth
+from installed_clients.authclient import KBaseAuth
 from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 from installed_clients.WorkspaceClient import Workspace as workspaceService
 
@@ -18,15 +18,10 @@ class SetAPITest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         token = environ.get('KB_AUTH_TOKEN', None)
-        config_file = environ.get('KB_DEPLOYMENT_CONFIG', None)
-        cls.cfg = {}
-        config = ConfigParser()
-        config.read(config_file)
-        for nameval in config.items('SetAPI'):
-            cls.cfg[nameval[0]] = nameval[1]
+        cls.cfg = get_test_config()
         authServiceUrl = cls.cfg.get('auth-service-url',
                 "https://kbase.us/services/authorization/Sessions/Login")
-        auth_client = _KBaseAuth(authServiceUrl)
+        auth_client = KBaseAuth(authServiceUrl)
         user_id = auth_client.get_user(token)
         # WARNING: don't call any logging methods on the context object,
         # it'll result in a NoneType error

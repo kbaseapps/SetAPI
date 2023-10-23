@@ -3,16 +3,17 @@ import os
 import shutil
 import time
 import unittest
-from configparser import ConfigParser
+from test.test_config import get_test_config
 from os import environ
 from pprint import pprint
+from test import TEST_BASE_DIR
 
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
-from SetAPI.authclient import KBaseAuth as _KBaseAuth
+from installed_clients.authclient import KBaseAuth
 from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 from installed_clients.WorkspaceClient import Workspace as workspaceService
-from util import (
+from test.util import (
     info_to_ref,
     make_fake_alignment,
     make_fake_sampleset,
@@ -29,15 +30,10 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         token = environ.get('KB_AUTH_TOKEN', None)
-        config_file = environ.get('KB_DEPLOYMENT_CONFIG', None)
-        cls.cfg = {}
-        config = ConfigParser()
-        config.read(config_file)
-        for nameval in config.items('SetAPI'):
-            cls.cfg[nameval[0]] = nameval[1]
+        cls.cfg = get_test_config()
         authServiceUrl = cls.cfg.get("auth-service-url",
                                      "https://kbase.us/services/authorization/Sessions/Login")
-        auth_client = _KBaseAuth(authServiceUrl)
+        auth_client = KBaseAuth(authServiceUrl)
         user_id = auth_client.get_user(token)
         # WARNING: don't call any logging methods on the context object,
         # it'll result in a NoneType error
@@ -81,7 +77,7 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
 
         dummy_filename = "dummy.txt"
         cls.dummy_path = os.path.join(cls.cfg['scratch'], dummy_filename)
-        shutil.copy(os.path.join("data", dummy_filename), cls.dummy_path)
+        shutil.copy(os.path.join(TEST_BASE_DIR, "data", dummy_filename), cls.dummy_path)
 
         # Make some fake alignments referencing those reads and genome
         for idx, reads_info in enumerate(fake_reads_list):
@@ -403,4 +399,3 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             })
         self.assertIn('"ref" parameter field specifiying the reads alignment set is required',
                       str(err.exception))
-
