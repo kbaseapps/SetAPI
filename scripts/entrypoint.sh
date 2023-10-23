@@ -1,7 +1,5 @@
 #!/bin/sh
 
-# . /kb/deployment/user-env.sh
-
 python ./scripts/prepare_deploy_cfg.py ./deploy.cfg ./work/config.properties
 
 if [ -f ./work/token ] ; then
@@ -16,6 +14,7 @@ elif [ "${1}" = "test" ] ; then
 elif [ "${1}" = "async" ] ; then
   sh ./scripts/run_async.sh
 elif [ "${1}" = "bash" ] ; then
+  echo "This image only supports sh shells"
   sh
 elif [ "${1}" = "sh" ] ; then
   sh
