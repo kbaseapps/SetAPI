@@ -1,15 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
-import time
 import unittest
-from configparser import ConfigParser  # py3
-from os import environ
-
-from SetAPI.SetAPIImpl import SetAPI
-from SetAPI.SetAPIServer import MethodContext
-from installed_clients.authclient import KBaseAuth
+from test.test_config import get_test_config
 from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
-from installed_clients.WorkspaceClient import Workspace as workspaceService
 from test.util import (
     info_to_ref,
     make_fake_diff_exp_matrix
@@ -19,39 +12,9 @@ from test.util import (
 class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        token = environ.get('KB_AUTH_TOKEN', None)
-        config_file = environ.get('KB_DEPLOYMENT_CONFIG', None)
-        cls.cfg = {}
-        config = ConfigParser()
-        config.read(config_file)
-        for nameval in config.items('SetAPI'):
-            cls.cfg[nameval[0]] = nameval[1]
-        authServiceUrl = cls.cfg.get("auth-service-url",
-                                     "https://kbase.us/services/authorization/Sessions/Login")
-        auth_client = KBaseAuth(authServiceUrl)
-        user_id = auth_client.get_user(token)
-        # WARNING: don't call any logging methods on the context object,
-        # it'll result in a NoneType error
-        cls.ctx = MethodContext(None)
-        cls.ctx.update({'token': token,
-                        'user_id': user_id,
-                        'provenance': [
-                            {'service': 'SetAPI',
-                             'method': 'please_never_use_it_in_production',
-                             'method_params': []
-                             }],
-                        'authenticated': 1})
-        cls.wsURL = cls.cfg['workspace-url']
-        cls.wsClient = workspaceService(cls.wsURL, token=token)
-        cls.serviceImpl = SetAPI(cls.cfg)
-
-        # setup data at the class level for now (so that the code is run
-        # once for all tests, not before each test case.  Not sure how to
-        # do that outside this function..)
-        suffix = int(time.time() * 1000)
-        wsName = "test_SetAPI_" + str(suffix)
-        cls.wsClient.create_workspace({'workspace': wsName})
-        cls.wsName = wsName
+        props = get_test_config()
+        for prop in ['cfg', 'ctx', 'serviceImpl', 'wsClient', 'wsName', 'wsURL']:
+            setattr(cls, prop, props[prop])
 
         foft = FakeObjectsForTests(os.environ['SDK_CALLBACK_URL'])
 
