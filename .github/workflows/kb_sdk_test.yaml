@@ -41,7 +41,6 @@ jobs:
                   sh $GITHUB_WORKSPACE/kb_sdk_actions/bin/kb-sdk version
                   # use CI for testing
                   sed -ie "s/appdev/ci/g" ./test_local/test.cfg
-                  tail "test_local/test.cfg"
 
             - name: Configure authentication
               if: "!contains(github.event.head_commit.message, 'skip ci')"

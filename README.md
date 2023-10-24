@@ -32,15 +32,6 @@ $ cat requirements.txt | sed -e '/^\s*#.*$/d' -e '/^\s*$/d' | xargs -n 1 pip ins
 
 ...substituting in the appropriate requirements file name.
 
-## Tests
-
-Tests do not require the use of the SDK or a test token. They can be run using the shell script `test/run_tests.sh`, or directly from the command line:
-
-```bash
-$ export PYTHONPATH=$PYTHONPATH:$(pwd)/lib
-$ pytest test
-```
-
 ## API changes
 
 If you make changes to the spec (and thus the API) of the SetAPI app, you will need to recompile the app to generate updated versions of `SetAPIImpl.py`, `SetAPIServer.py`, and the compilation report, `compile_report.json`. These updated files must be committed to the GitHub repo.
