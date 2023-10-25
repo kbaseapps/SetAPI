@@ -8,7 +8,7 @@ from pprint import pprint
 
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
-from SetAPI.authclient import KBaseAuth as _KBaseAuth
+from installed_clients.authclient import KBaseAuth
 from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 from installed_clients.WorkspaceClient import Workspace as workspaceService
 
@@ -26,7 +26,7 @@ class SetAPITest(unittest.TestCase):
             cls.cfg[nameval[0]] = nameval[1]
         authServiceUrl = cls.cfg.get('auth-service-url',
                 "https://kbase.us/services/authorization/Sessions/Login")
-        auth_client = _KBaseAuth(authServiceUrl)
+        auth_client = KBaseAuth(authServiceUrl)
         user_id = auth_client.get_user(token)
         # WARNING: don't call any logging methods on the context object,
         # it'll result in a NoneType error
@@ -52,7 +52,7 @@ class SetAPITest(unittest.TestCase):
         cls.wsName = wsName
 
         foft = FakeObjectsForTests(os.environ['SDK_CALLBACK_URL'])
-        [info1, info2] = foft.create_fake_genomes({'ws_name': wsName,
+        [info1, info2] = foft.create_fake_genomes({'ws_name': cls.wsName,
                                                    'obj_names': ['genome_obj_1',
                                                                  'genome_obj_2']})
         cls.genome1ref = str(info1[6]) + '/' + str(info1[0]) + '/' + str(info1[4])

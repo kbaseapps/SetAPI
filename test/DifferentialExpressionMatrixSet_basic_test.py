@@ -7,10 +7,10 @@ from os import environ
 
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
-from SetAPI.authclient import KBaseAuth as _KBaseAuth
+from installed_clients.authclient import KBaseAuth
 from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 from installed_clients.WorkspaceClient import Workspace as workspaceService
-from util import (
+from test.util import (
     info_to_ref,
     make_fake_diff_exp_matrix
 )
@@ -28,7 +28,7 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
             cls.cfg[nameval[0]] = nameval[1]
         authServiceUrl = cls.cfg.get("auth-service-url",
                                      "https://kbase.us/services/authorization/Sessions/Login")
-        auth_client = _KBaseAuth(authServiceUrl)
+        auth_client = KBaseAuth(authServiceUrl)
         user_id = auth_client.get_user(token)
         # WARNING: don't call any logging methods on the context object,
         # it'll result in a NoneType error
@@ -57,7 +57,7 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
 
         # Make fake genomes
         [fake_genome, fake_genome2] = foft.create_fake_genomes({
-            "ws_name": wsName,
+            "ws_name": cls.wsName,
             "obj_names": ["fake_genome", "fake_genome2"]
         })
         cls.genome_refs = [info_to_ref(fake_genome), info_to_ref(fake_genome2)]
@@ -67,7 +67,7 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
         for i in range(3):
             cls.diff_exps_no_genome.append(
                 make_fake_diff_exp_matrix(
-                    "fake_mat_no_genome_{}".format(i), wsName, cls.wsClient
+                    "fake_mat_no_genome_{}".format(i), cls.wsName, cls.wsClient
                 )
             )
 
@@ -76,7 +76,7 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
             cls.diff_exps_genome.append(
                 make_fake_diff_exp_matrix(
                     "fake_mat_genome_{}".format(i),
-                    wsName,
+                    cls.wsName,
                     cls.wsClient,
                     genome_ref=cls.genome_refs[0]
                 )
