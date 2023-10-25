@@ -4,11 +4,14 @@ on:
     push:
         branches:
             - master
+            - main
 
     pull_request:
-        branches:
-            - master
-            - develop
+        types:
+            - opened
+            - reopened
+            - synchronize
+            - closed
 
 jobs:
     sdk_tests:
@@ -26,7 +29,7 @@ jobs:
                   path: "kb_sdk_actions"
 
             - name: Set up test environment
-              if: "!contains(github.event.head_commit.message, 'skip ci')"
+              if: "!contains(github.event.head_commit.message , 'skip ci')"
               shell: bash
               env:
                   KBASE_TEST_TOKEN: ${{ secrets.KBASE_TEST_TOKEN }}
@@ -54,8 +57,13 @@ jobs:
             - name: Run tests
               if: "!contains(github.event.head_commit.message, 'skip ci')"
               shell: bash
-              env:
-                  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
               run: |
                   sh $GITHUB_WORKSPACE/kb_sdk_actions/bin/kb-sdk test
-                  bash <(curl -s https://codecov.io/bash)
+
+            - name: Send to Codecov
+              id: send_to_codecov
+              uses: codecov/codecov-action@v3
+              with:
+                  token: ${{ secrets.CODECOV_TOKEN }}
+                  files: ./test_local/workdir/python-coverage/coverage.xml
+                  fail_ci_if_error: true
