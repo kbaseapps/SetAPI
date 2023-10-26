@@ -4,7 +4,7 @@ import time
 import unittest
 from pprint import pprint
 from test.test_config import get_test_config
-
+import pytest
 from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 from installed_clients.DataFileUtilClient import DataFileUtil
 
@@ -125,40 +125,40 @@ class SetAPITest(unittest.TestCase):
         print('======  Returned val from create_sample_set  ======')
         pprint(res)
 
-        self.assertTrue('set_ref' in res)
-        self.assertTrue('set_info' in res)
-        self.assertEqual(len(res['set_info']), 11)
+        assert 'set_ref' in res
+        assert 'set_info' in res
+        assert len(res['set_info']) == 11
 
-        self.assertEqual(res['set_info'][1], setObjName)
-        self.assertTrue('num_samples' in res['set_info'][10])
-        self.assertEqual(res['set_info'][10]['num_samples'], '3')
+        assert res['set_info'][1] == setObjName
+        assert 'num_samples' in res['set_info'][10]
+        assert res['set_info'][10]['num_samples'] == '3'
 
         # test get of that object
         d1 = setAPI.get_reads_set_v1(self.getContext(), {
                 'ref': workspace + '/' + setObjName
             })[0]
-        self.assertTrue('data' in d1)
-        self.assertTrue('info' in d1)
-        self.assertEqual(len(d1['info']), 11)
-        self.assertTrue('item_count' in d1['info'][10])
-        self.assertEqual(d1['info'][10]['item_count'], 3)
+        assert 'data' in d1
+        assert 'info' in d1
+        assert len(d1['info']) == 11
+        assert 'item_count' in d1['info'][10]
+        assert d1['info'][10]['item_count'] == 3
 
-        self.assertEqual(d1['data']['description'], 'first pass at testing algae GFFs from NCBI')
-        self.assertEqual(len(d1['data']['items']), 3)
+        assert d1['data']['description'] == 'first pass at testing algae GFFs from NCBI'
+        assert len(d1['data']['items']) == 3
 
         item2 = d1['data']['items'][1]
-        self.assertTrue('info' not in item2)
-        self.assertTrue('ref' in item2)
-        self.assertTrue('label' in item2)
-        self.assertEqual(item2['label'], self.condition_2)
-        self.assertEqual(item2['ref'], self.read2ref)
+        assert 'info' not in item2
+        assert 'ref' in item2
+        assert 'label' in item2
+        assert item2['label'] == self.condition_2
+        assert item2['ref'] == self.read2ref
 
         item3 = d1['data']['items'][2]
-        self.assertTrue('info' not in item3)
-        self.assertTrue('ref' in item3)
-        self.assertTrue('label' in item3)
-        self.assertEqual(item3['label'], self.condition_2)
-        self.assertEqual(item3['ref'], self.read3ref)
+        assert 'info' not in item3
+        assert 'ref' in item3
+        assert 'label' in item3
+        assert item3['label'] == self.condition_2
+        assert item3['ref'] == self.read3ref
 
         # test the call to make sure we get info for each item
         d2 = setAPI.get_reads_set_v1(self.getContext(), {
@@ -166,23 +166,23 @@ class SetAPITest(unittest.TestCase):
                 'include_item_info': 1,
                 'include_set_item_ref_paths': 1
             })[0]
-        self.assertTrue('data' in d2)
-        self.assertTrue('info' in d2)
-        self.assertEqual(len(d2['info']), 11)
-        self.assertTrue('item_count' in d2['info'][10])
-        self.assertEqual(d2['info'][10]['item_count'], 3)
+        assert 'data' in d2
+        assert 'info' in d2
+        assert len(d2['info']) == 11
+        assert 'item_count' in d2['info'][10]
+        assert d2['info'][10]['item_count'] == 3
 
-        self.assertEqual(d2['data']['description'], 'first pass at testing algae GFFs from NCBI')
-        self.assertEqual(len(d2['data']['items']), 3)
+        assert d2['data']['description'] == 'first pass at testing algae GFFs from NCBI'
+        assert len(d2['data']['items']) == 3
 
         item2 = d2['data']['items'][1]
-        self.assertTrue('info' in item2)
-        self.assertTrue(len(item2['info']), 11)
-        self.assertTrue('ref' in item2)
-        self.assertEqual(item2['ref'],self.read2ref)
+        assert 'info' in item2
+        assert len(item2['info']), 11
+        assert 'ref' in item2
+        assert item2['ref'] == self.read2ref
 
-        self.assertTrue('ref_path' in item2)
-        self.assertEqual(item2['ref_path'], res['set_ref'] + ';' + item2['ref'])
+        assert 'ref_path' in item2
+        assert item2['ref_path'] == res['set_ref'] + ';' + item2['ref']
 
         pprint(d2)
 
@@ -215,40 +215,40 @@ class SetAPITest(unittest.TestCase):
         print('======  Returned val from create_sample_set  ======')
         pprint(res)
 
-        self.assertTrue('set_ref' in res)
-        self.assertTrue('set_info' in res)
-        self.assertEqual(len(res['set_info']), 11)
+        assert 'set_ref' in res
+        assert 'set_info' in res
+        assert len(res['set_info']) == 11
 
-        self.assertEqual(res['set_info'][1], setObjName)
-        self.assertTrue('num_samples' in res['set_info'][10])
-        self.assertEqual(res['set_info'][10]['num_samples'], '3')
+        assert res['set_info'][1] == setObjName
+        assert 'num_samples' in res['set_info'][10]
+        assert res['set_info'][10]['num_samples'] == '3'
 
         # test get of that object
         d1 = setAPI.get_reads_set_v1(self.getContext(), {
                 'ref': workspace + '/' + setObjName
             })[0]
-        self.assertTrue('data' in d1)
-        self.assertTrue('info' in d1)
-        self.assertEqual(len(d1['info']), 11)
-        self.assertTrue('item_count' in d1['info'][10])
-        self.assertEqual(d1['info'][10]['item_count'], 3)
+        assert 'data' in d1
+        assert 'info' in d1
+        assert len(d1['info']) == 11
+        assert 'item_count' in d1['info'][10]
+        assert d1['info'][10]['item_count'] == 3
 
-        self.assertEqual(d1['data']['description'], 'first pass at testing algae GFFs from NCBI')
-        self.assertEqual(len(d1['data']['items']), 3)
+        assert d1['data']['description'] == 'first pass at testing algae GFFs from NCBI'
+        assert len(d1['data']['items']) == 3
 
         item2 = d1['data']['items'][1]
-        self.assertTrue('info' not in item2)
-        self.assertTrue('ref' in item2)
-        self.assertTrue('label' in item2)
-        self.assertEqual(item2['label'], self.condition_2)
-        self.assertEqual(item2['ref'], self.read2ref)
+        assert 'info' not in item2
+        assert 'ref' in item2
+        assert 'label' in item2
+        assert item2['label'] == self.condition_2
+        assert item2['ref'] == self.read2ref
 
         item3 = d1['data']['items'][2]
-        self.assertTrue('info' not in item3)
-        self.assertTrue('ref' in item3)
-        self.assertTrue('label' in item3)
-        self.assertEqual(item3['label'], self.condition_2)
-        self.assertEqual(item3['ref'], self.read3ref)
+        assert 'info' not in item3
+        assert 'ref' in item3
+        assert 'label' in item3
+        assert item3['label'] == self.condition_2
+        assert item3['ref'] == self.read3ref
 
         # test the call to make sure we get info for each item
         d2 = setAPI.get_reads_set_v1(self.getContext(), {
@@ -256,23 +256,23 @@ class SetAPITest(unittest.TestCase):
                 'include_item_info': 1,
                 'include_set_item_ref_paths': 1
             })[0]
-        self.assertTrue('data' in d2)
-        self.assertTrue('info' in d2)
-        self.assertEqual(len(d2['info']), 11)
-        self.assertTrue('item_count' in d2['info'][10])
-        self.assertEqual(d2['info'][10]['item_count'], 3)
+        assert 'data' in d2
+        assert 'info' in d2
+        assert len(d2['info']) == 11
+        assert 'item_count' in d2['info'][10]
+        assert d2['info'][10]['item_count'] == 3
 
-        self.assertEqual(d2['data']['description'], 'first pass at testing algae GFFs from NCBI')
-        self.assertEqual(len(d2['data']['items']), 3)
+        assert d2['data']['description'] == 'first pass at testing algae GFFs from NCBI'
+        assert len(d2['data']['items']) == 3
 
         item2 = d2['data']['items'][1]
-        self.assertTrue('info' in item2)
-        self.assertTrue(len(item2['info']), 11)
-        self.assertTrue('ref' in item2)
-        self.assertEqual(item2['ref'],self.read2ref)
+        assert 'info' in item2
+        assert len(item2['info']), 11
+        assert 'ref' in item2
+        assert item2['ref'] == self.read2ref
 
-        self.assertTrue('ref_path' in item2)
-        self.assertEqual(item2['ref_path'], res['set_ref'] + ';' + item2['ref'])
+        assert 'ref_path' in item2
+        assert item2['ref_path'] == res['set_ref'] + ';' + item2['ref']
 
         pprint(d2)
 
@@ -304,8 +304,10 @@ class SetAPITest(unittest.TestCase):
         # test a save
         setAPI = self.getImpl()
 
-        with self.assertRaisesRegex(
-                ValueError, 'ERROR: Given conditions'):
+        with pytest.raises(
+            ValueError,
+            match='ERROR: Given conditions'
+        ):
             setAPI.create_sample_set(self.getContext(), create_ss_params)
 
     def test_non_list_string_conditions(self):
@@ -333,6 +335,8 @@ class SetAPITest(unittest.TestCase):
         # test a save
         setAPI = self.getImpl()
 
-        with self.assertRaisesRegex(
-                ValueError, 'ERROR: condition should be either a list or a string'):
+        with pytest.raises(
+            ValueError,
+            match='ERROR: condition should be either a list or a string'
+        ):
             setAPI.create_sample_set(self.getContext(), create_ss_params)

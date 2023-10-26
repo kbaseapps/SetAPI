@@ -4,7 +4,7 @@ import time
 import unittest
 from pprint import pprint
 from test.test_config import get_test_config
-
+import pytest
 from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
 from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 
@@ -82,13 +82,17 @@ class SetAPITest(unittest.TestCase):
         ctx = self.getContext()
         set_api = self.getImpl()
 
-        with self.assertRaises(ValueError) as err:
+        with pytest.raises(
+            ValueError,
+            match='One of "workspace" or "workspaces" field required to list sets'
+        ):
             set_api.list_sets(ctx, {'include_set_item_info': 1})
-        self.assertIn('One of "workspace" or "workspaces" field required to list sets', str(err.exception))
 
-        with self.assertRaises(ValueError) as err:
+        with pytest.raises(
+            ValueError,
+            match='"include_set_item_info" field must be set to 0 or 1'
+        ):
             set_api.list_sets(ctx, {'workspace': 12345, 'include_set_item_info': 'foo'})
-        self.assertIn('"include_set_item_info" field must be set to 0 or 1', str(err.exception))
 
     def test_list_sets(self):
         workspace = self.getWsName()
@@ -99,7 +103,7 @@ class SetAPITest(unittest.TestCase):
                 'workspace': workspace,
                 'include_set_item_info': 1
             })[0]
-        self.assertEqual(len(res['sets']), 0)
+        assert len(res['sets']) == 0
 
         # create the test sets, adds a ReadsSet object in the workspace
         self.create_sets()
@@ -109,34 +113,34 @@ class SetAPITest(unittest.TestCase):
                 'workspace': workspace,
                 'include_set_item_info': 1
             })[0]
-        self.assertTrue('sets' in res)
-        self.assertEqual(len(res['sets']), len(self.setNames))
+        assert 'sets' in res
+        assert len(res['sets']) == len(self.setNames)
         for s in res['sets']:
-            self.assertTrue('ref' in s)
-            self.assertTrue('info' in s)
-            self.assertTrue('items' in s)
-            self.assertEqual(len(s['info']), 11)
-            self.assertEqual(len(s['items']), 2)
+            assert 'ref' in s
+            assert 'info' in s
+            assert 'items' in s
+            assert len(s['info']) == 11
+            assert len(s['items']) == 2
             for item in s['items']:
-                self.assertTrue('ref' in item)
-                self.assertTrue('info' in item)
-                self.assertEqual(len(item['info']), 11)
+                assert 'ref' in item
+                assert 'info' in item
+                assert len(item['info']) == 11
 
         # Get the sets in a workspace without their item info (just the refs)
         res2 = setAPI.list_sets(self.getContext(), {
                 'workspace':workspace
             })[0]
-        self.assertTrue('sets' in res2)
-        self.assertEqual(len(res2['sets']), len(self.setNames))
+        assert 'sets' in res2
+        assert len(res2['sets']) == len(self.setNames)
         for s in res2['sets']:
-            self.assertTrue('ref' in s)
-            self.assertTrue('info' in s)
-            self.assertTrue('items' in s)
-            self.assertEqual(len(s['info']), 11)
-            self.assertEqual(len(s['items']), 2)
+            assert 'ref' in s
+            assert 'info' in s
+            assert 'items' in s
+            assert len(s['info']) == 11
+            assert len(s['items']) == 2
             for item in s['items']:
-                self.assertTrue('ref' in item)
-                self.assertTrue('info' not in item)
+                assert 'ref' in item
+                assert 'info' not in item
 
         # Get the sets with their reference paths
         res3 = setAPI.list_sets(self.getContext(), {
@@ -149,19 +153,19 @@ class SetAPITest(unittest.TestCase):
             pprint(res3)
             print('=====================================')
 
-        self.assertTrue('sets' in res3)
-        self.assertEqual(len(res3['sets']), len(self.setNames))
+        assert 'sets' in res3
+        assert len(res3['sets']) == len(self.setNames)
         for s in res3['sets']:
-            self.assertTrue('ref' in s)
-            self.assertTrue('info' in s)
-            self.assertTrue('items' in s)
-            self.assertEqual(len(s['info']), 11)
-            self.assertEqual(len(s['items']), 2)
+            assert 'ref' in s
+            assert 'info' in s
+            assert 'items' in s
+            assert len(s['info']) == 11
+            assert len(s['items']) == 2
             for item in s['items']:
-                self.assertTrue('ref' in item)
-                self.assertTrue('info' not in item)
-                self.assertTrue('ref_path' in item)
-                self.assertEqual(item['ref_path'], s['ref'] + ';' + item['ref'])
+                assert 'ref' in item
+                assert 'info' not in item
+                assert 'ref_path' in item
+                assert item['ref_path'] == s['ref'] + ';' + item['ref']
 
         self.unit_test_get_set_items()
 
@@ -201,16 +205,16 @@ class SetAPITest(unittest.TestCase):
             pprint(res)
             print('========================================')
 
-        self.assertEqual(len(res['sets']), 3)
+        assert len(res['sets']) == 3
         for s in res['sets']:
-            self.assertTrue('ref' in s)
-            self.assertTrue('info' in s)
-            self.assertTrue('items' in s)
-            self.assertEqual(len(s['info']), 11)
-            self.assertEqual(len(s['items']), 2)
+            assert 'ref' in s
+            assert 'info' in s
+            assert 'items' in s
+            assert len(s['info']) == 11
+            assert len(s['items']) == 2
             for item in s['items']:
-                self.assertTrue('ref' in item)
-                self.assertTrue('info' in item)
-                self.assertEqual(len(item['info']), 11)
-                self.assertTrue('ref_path' in item)
-                self.assertEqual(item["ref_path"], s["ref"] + ";" + item["ref"])
+                assert 'ref' in item
+                assert 'info' in item
+                assert len(item['info']) == 11
+                assert 'ref_path' in item
+                assert item["ref_path"] == s["ref"] + ";" + item["ref"]
