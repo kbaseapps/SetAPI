@@ -3,6 +3,7 @@ import os
 import shutil
 import unittest
 from pprint import pprint
+import pytest
 
 from test.test_config import get_test_config
 from test import TEST_BASE_DIR
@@ -157,12 +158,12 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             "output_object_name": alignment_set_name,
             "data": alignment_set
         })[0]
-        self.assertIsNotNone(result)
-        self.assertIn("set_ref", result)
-        self.assertIn("set_info", result)
-        self.assertEqual(result["set_ref"], info_to_ref(result["set_info"]))
-        self.assertEqual(result["set_info"][1], alignment_set_name)
-        self.assertIn("KBaseSets.ReadsAlignmentSet", result["set_info"][2])
+        assert result is not None
+        assert "set_ref" in result
+        assert "set_info" in result
+        assert result["set_ref"] == info_to_ref(result["set_info"])
+        assert result["set_info"][1] == alignment_set_name
+        assert "KBaseSets.ReadsAlignmentSet" in result["set_info"][2]
 
     def test_save_alignment_set_mismatched_genomes(self):
         alignment_set_name = "alignment_set_bad_genomes"
@@ -182,27 +183,33 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
                 "label": "wt"
             }]
         }
-        with self.assertRaises(ValueError) as err:
+        with pytest.raises(
+            ValueError,
+            match="All ReadsAlignments in the set must be aligned against "
+                          "the same genome reference"
+        ):
             self.getImpl().save_reads_alignment_set_v1(self.getContext(), {
                 "workspace": self.getWsName(),
                 "output_object_name": alignment_set_name,
                 "data": alignment_set
             })
-            self.assertIn("All ReadsAlignments in the set must be aligned against "
-                          "the same genome reference", str(err.exception))
 
     def test_save_alignment_set_no_data(self):
-        with self.assertRaises(ValueError) as err:
+        with pytest.raises(
+            ValueError,
+            match='"data" parameter field required to save a ReadsAlignmentSet'
+        ):
             self.getImpl().save_reads_alignment_set_v1(self.getContext(), {
                 "workspace": self.getWsName(),
                 "output_object_name": "foo",
                 "data": None
             })
-        self.assertIn('"data" parameter field required to save a ReadsAlignmentSet',
-                      str(err.exception))
 
     def test_save_alignment_set_no_alignments(self):
-        with self.assertRaises(ValueError) as err:
+        with pytest.raises(
+            ValueError,
+            match="A ReadsAlignmentSet must contain at least one ReadsAlignment reference."
+        ):
             self.getImpl().save_reads_alignment_set_v1(self.getContext(), {
                 "workspace": self.getWsName(),
                 "output_object_name": "foo",
@@ -210,8 +217,6 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
                     "items": []
                 }
             })
-        self.assertIn("A ReadsAlignmentSet must contain at "
-                      "least one ReadsAlignment reference.", str(err.exception))
 
     def test_get_old_alignment_set(self):
         for ref in [self.fake_rnaseq_alignment_set1, self.fake_rnaseq_alignment_set2]:
@@ -219,29 +224,29 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
                 "ref": ref,
                 "include_item_info": 0
             })[0]
-            self.assertIsNotNone(fetched_set)
-            self.assertIn("data", fetched_set)
-            self.assertIn("info", fetched_set)
-            self.assertEqual(len(fetched_set["data"]["items"]), 3)
-            self.assertEqual(ref, info_to_ref(fetched_set["info"]))
+            assert fetched_set is not None
+            assert "data" in fetched_set
+            assert "info" in fetched_set
+            assert len(fetched_set["data"]["items"]) == 3
+            assert ref == info_to_ref(fetched_set["info"])
             for item in fetched_set["data"]["items"]:
-                self.assertNotIn("info", item)
-                self.assertIn("ref", item)
-                self.assertIn("label", item)
+                assert "info" not in item
+                assert "ref" in item
+                assert "label" in item
 
             fetched_set_with_info = self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
                 "ref": ref,
                 "include_item_info": 1,
                 "include_set_item_ref_paths": 1
             })[0]
-            self.assertIsNotNone(fetched_set_with_info)
-            self.assertIn("data", fetched_set_with_info)
+            assert fetched_set_with_info is not None
+            assert "data" in fetched_set_with_info
             for item in fetched_set_with_info["data"]["items"]:
-                self.assertIn("info", item)
-                self.assertIn("ref", item)
-                self.assertIn("label", item)
-                self.assertIn("ref_path", item)
-                self.assertEqual(item["ref_path"], ref + ";" + item["ref"])
+                assert "info" in item
+                assert "ref" in item
+                assert "label" in item
+                assert "ref_path" in item
+                assert item["ref_path"] == ref + ";" + item["ref"]
 
     def test_get_old_alignment_set_ref_path_to_set(self):
         alignment_ref = self.fake_rnaseq_alignment_set1
@@ -253,17 +258,17 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             "include_item_info": 0,
             "include_set_item_ref_paths": 1
         })[0]
-        self.assertIsNotNone(fetched_set)
-        self.assertIn("data", fetched_set)
-        self.assertIn("info", fetched_set)
-        self.assertEqual(len(fetched_set["data"]["items"]), 3)
-        self.assertEqual(alignment_ref, info_to_ref(fetched_set["info"]))
+        assert fetched_set is not None
+        assert "data" in fetched_set
+        assert "info" in fetched_set
+        assert len(fetched_set["data"]["items"]) == 3
+        assert alignment_ref == info_to_ref(fetched_set["info"])
         for item in fetched_set["data"]["items"]:
-            self.assertNotIn("info", item)
-            self.assertIn("ref", item)
-            self.assertIn("label", item)
-            self.assertIn("ref_path", item)
-            self.assertEqual(item["ref_path"], ";".join(ref_path_to_set) + ";" + item["ref"])
+            assert "info" not in item
+            assert "ref" in item
+            assert "label" in item
+            assert "ref_path" in item
+            assert item["ref_path"] == ";".join(ref_path_to_set) + ";" + item["ref"]
 
         if self.DEBUG:
             print('======  RNASeq Alignment with ref_path_to_set ========')
@@ -292,26 +297,26 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             "ref": alignment_set_ref,
             "include_item_info": 0
         })[0]
-        self.assertIsNotNone(fetched_set)
-        self.assertIn("data", fetched_set)
-        self.assertIn("info", fetched_set)
-        self.assertEqual(len(fetched_set["data"]["items"]), 3)
-        self.assertEqual(alignment_set_ref, info_to_ref(fetched_set["info"]))
+        assert fetched_set is not None
+        assert "data" in fetched_set
+        assert "info" in fetched_set
+        assert len(fetched_set["data"]["items"]) == 3
+        assert alignment_set_ref == info_to_ref(fetched_set["info"])
         for item in fetched_set["data"]["items"]:
-            self.assertNotIn("info", item)
-            self.assertIn("ref", item)
-            self.assertIn("label", item)
+            assert "info" not in item
+            assert "ref" in item
+            assert "label" in item
 
         fetched_set_with_info = self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
             "ref": alignment_set_ref,
             "include_item_info": 1
         })[0]
-        self.assertIsNotNone(fetched_set_with_info)
-        self.assertIn("data", fetched_set_with_info)
+        assert fetched_set_with_info is not None
+        assert "data" in fetched_set_with_info
         for item in fetched_set_with_info["data"]["items"]:
-            self.assertIn("info", item)
-            self.assertIn("ref", item)
-            self.assertIn("label", item)
+            assert "info" in item
+            assert "ref" in item
+            assert "label" in item
 
     def test_get_alignment_set_ref_path(self):
         alignment_set_name = "test_alignment_set_ref_path"
@@ -336,36 +341,39 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             "include_item_info": 0,
             "include_set_item_ref_paths": 1
         })[0]
-        self.assertIsNotNone(fetched_set)
-        self.assertIn("data", fetched_set)
-        self.assertIn("info", fetched_set)
-        self.assertEqual(len(fetched_set["data"]["items"]), 3)
-        self.assertEqual(alignment_set_ref, info_to_ref(fetched_set["info"]))
+        assert fetched_set is not None
+        assert "data" in fetched_set
+        assert "info" in fetched_set
+        assert len(fetched_set["data"]["items"]) == 3
+        assert alignment_set_ref == info_to_ref(fetched_set["info"])
         for item in fetched_set["data"]["items"]:
-            self.assertNotIn("info", item)
-            self.assertIn("ref", item)
-            self.assertIn("label", item)
-            self.assertIn("ref_path", item)
-            self.assertEqual(item["ref_path"], alignment_set_ref + ";" + item["ref"])
+            assert "info" not in item
+            assert "ref" in item
+            assert "label" in item
+            assert "ref_path" in item
+            assert item["ref_path"] == alignment_set_ref + ";" + item["ref"]
 
     def test_get_alignment_set_bad_ref(self):
-        with self.assertRaises(ValueError) as err:
+        with pytest.raises(
+            ValueError,
+            match='"ref" parameter must be a valid workspace reference'
+        ):
             self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
                 "ref": "not_a_ref"
             })
-        self.assertIn('"ref" parameter must be a valid workspace reference', str(err.exception))
 
     def test_get_alignment_set_bad_path(self):
-        with self.assertRaises(Exception):
+        with pytest.raises(Exception):
             self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
                 "ref": "1/2/3",
                 "path_to_set": ["foo", "bar"]
             })
 
     def test_get_alignment_set_no_ref(self):
-        with self.assertRaises(ValueError) as err:
+        with pytest.raises(
+            ValueError,
+            match='"ref" parameter field specifiying the reads alignment set is required'
+        ):
             self.getImpl().get_reads_alignment_set_v1(self.getContext(), {
                 "ref": None
             })
-        self.assertIn('"ref" parameter field specifiying the reads alignment set is required',
-                      str(err.exception))

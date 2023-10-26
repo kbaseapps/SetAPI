@@ -4,7 +4,7 @@ import time
 import json
 import unittest
 from test.test_config import get_test_config
-
+import pytest
 from installed_clients.DataFileUtilClient import DataFileUtil
 
 
@@ -43,21 +43,21 @@ class SetAPITest(unittest.TestCase):
         return self.__class__.ctx
 
     def _compare_samples(self, s1, s2):
-        self.assertEqual(s1['num_found'], s2['num_found'])
-        self.assertEqual(s1['start'], s2['start'])
-        self.assertEqual(s1['samples'], s2['samples'])
+        assert s1['num_found'] == s2['num_found']
+        assert s1['start'] == s2['start']
+        assert s1['samples'] == s2['samples']
 
     # @unittest.skip('x')
     def test_param_error_conditions(self):
         # test without ref argument
-        with self.assertRaises(ValueError):
-            ret = self.serviceImpl.sample_set_to_samples_info(self.ctx, {
+        with pytest.raises(ValueError):
+            self.serviceImpl.sample_set_to_samples_info(self.ctx, {
                 "start": 0,
                 "limit": 10
             })
-        with self.assertRaises(ValueError):
-            ret = self.serviceImpl.sample_set_to_samples_info(self.ctx, {
-            })
+
+        with pytest.raises(ValueError):
+            self.serviceImpl.sample_set_to_samples_info(self.ctx, {})
 
     @unittest.skip('x')
     # test_sample_set_to_sample_info

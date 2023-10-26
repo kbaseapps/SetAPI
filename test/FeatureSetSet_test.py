@@ -2,6 +2,7 @@
 import os
 import unittest
 from test.test_config import get_test_config
+import pytest
 
 from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 from test.util import (
@@ -69,26 +70,30 @@ class FeatureSetSetAPITest(unittest.TestCase):
             "output_object_name": set_name,
             "data": expression_set
         })[0]
-        self.assertIsNotNone(result)
-        self.assertIn("set_ref", result)
-        self.assertIn("set_info", result)
-        self.assertEqual(result["set_ref"], info_to_ref(result["set_info"]))
-        self.assertEqual(result["set_info"][1], set_name)
-        self.assertIn("KBaseSets.FeatureSetSet", result["set_info"][2])
+        assert result is not None
+        assert "set_ref" in result
+        assert "set_info" in result
+        assert result["set_ref"] == info_to_ref(result["set_info"])
+        assert result["set_info"][1] == set_name
+        assert "KBaseSets.FeatureSetSet" in result["set_info"][2]
 
     def test_save_feature_set_set_no_data(self):
-        with self.assertRaises(ValueError) as err:
+        with pytest.raises(
+            ValueError,
+            match='"data" parameter field required to save a FeatureSetSet'
+        ):
             self.getImpl().save_feature_set_set_v1(self.getContext(), {
                 "workspace": self.getWsName(),
                 "output_object_name": "foo",
                 "data": None
             })
-        self.assertIn('"data" parameter field required to save a FeatureSetSet',
-                      str(err.exception))
 
     @unittest.skip("Currently allow empty FeatureSetSets")
     def test_save_feature_set_set_empty(self):
-        with self.assertRaises(ValueError) as err:
+        with pytest.raises(
+            ValueError,
+            match="At least one FeatureSet is required to save a FeatureSetSet."
+        ):
             self.getImpl().save_feature_set_set_v1(self.getContext(), {
                 "workspace": self.getWsName(),
                 "output_object_name": "foo",
@@ -97,8 +102,6 @@ class FeatureSetSetAPITest(unittest.TestCase):
                     "items": []
                 }
             })
-        self.assertIn("At least one FeatureSet is required to save a FeatureSetSet.",
-                      str(err.exception))
 
     def test_get_feature_set_set(self):
         set_name = "test_featureset_set2"
@@ -122,49 +125,52 @@ class FeatureSetSetAPITest(unittest.TestCase):
             "ref": featureset_set_ref,
             "include_item_info": 0
         })[0]
-        self.assertIsNotNone(fetched_set)
-        self.assertIn("data", fetched_set)
-        self.assertIn("info", fetched_set)
-        self.assertEqual(len(fetched_set["data"]["items"]), 3)
-        self.assertEqual(featureset_set_ref, info_to_ref(fetched_set["info"]))
+        assert fetched_set is not None
+        assert "data" in fetched_set
+        assert "info" in fetched_set
+        assert len(fetched_set["data"]["items"]) == 3
+        assert featureset_set_ref == info_to_ref(fetched_set["info"])
         for item in fetched_set["data"]["items"]:
-            self.assertNotIn("info", item)
-            self.assertNotIn("ref_path", item)
-            self.assertIn("ref", item)
-            self.assertIn("label", item)
+            assert "info" not in item
+            assert "ref_path" not in item
+            assert "ref" in item
+            assert "label" in item
 
         fetched_set_with_info = self.getImpl().get_feature_set_set_v1(self.getContext(), {
             "ref": featureset_set_ref,
             "include_item_info": 1,
             "include_set_item_ref_paths": 1
         })[0]
-        self.assertIsNotNone(fetched_set_with_info)
-        self.assertIn("data", fetched_set_with_info)
+        assert fetched_set_with_info is not None
+        assert "data" in fetched_set_with_info
         for item in fetched_set_with_info["data"]["items"]:
-            self.assertIn("info", item)
-            self.assertIn("ref", item)
-            self.assertIn("label", item)
-            self.assertIn("ref_path", item)
-            self.assertEqual(item["ref_path"], featureset_set_ref + ";" + item["ref"])
+            assert "info" in item
+            assert "ref" in item
+            assert "label" in item
+            assert "ref_path" in item
+            assert item["ref_path"] == featureset_set_ref + ";" + item["ref"]
 
     def test_get_feature_set_set_bad_ref(self):
-        with self.assertRaises(ValueError) as err:
+        with pytest.raises(
+            ValueError,
+            match='"ref" parameter must be a valid workspace reference'
+        ):
             self.getImpl().get_feature_set_set_v1(self.getContext(), {
                 "ref": "not_a_ref"
             })
-        self.assertIn('"ref" parameter must be a valid workspace reference', str(err.exception))
 
     def test_get_feature_set_set_bad_path(self):
-        with self.assertRaises(Exception):
+        with pytest.raises(Exception):
             self.getImpl().get_feature_set_set_v1(self.getContext(), {
                 "ref": "1/2/3",
                 "path_to_set": ["foo", "bar"]
             })
 
     def test_get_feature_set_set_no_ref(self):
-        with self.assertRaises(ValueError) as err:
+        with pytest.raises(
+            ValueError,
+            match='"ref" parameter field specifiying the FeatureSet set is required'
+        ):
             self.getImpl().get_feature_set_set_v1(self.getContext(), {
                 "ref": None
             })
-        self.assertIn('"ref" parameter field specifiying the FeatureSet set is required',
-                      str(err.exception))
