@@ -5,26 +5,22 @@ import pytest
 import pprint
 from test.test_config import get_test_config
 from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
-from test.util import (
-    info_to_ref,
-    make_fake_diff_exp_matrix
-)
+from test.util import info_to_ref, make_fake_diff_exp_matrix
 
 
 class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         props = get_test_config()
-        for prop in ['cfg', 'ctx', 'serviceImpl', 'wsClient', 'wsName', 'wsURL']:
+        for prop in ["cfg", "ctx", "serviceImpl", "wsClient", "wsName", "wsURL"]:
             setattr(cls, prop, props[prop])
 
-        foft = FakeObjectsForTests(os.environ['SDK_CALLBACK_URL'])
+        foft = FakeObjectsForTests(os.environ["SDK_CALLBACK_URL"])
 
         # Make fake genomes
-        [fake_genome, fake_genome2] = foft.create_fake_genomes({
-            "ws_name": cls.wsName,
-            "obj_names": ["fake_genome", "fake_genome2"]
-        })
+        [fake_genome, fake_genome2] = foft.create_fake_genomes(
+            {"ws_name": cls.wsName, "obj_names": ["fake_genome", "fake_genome2"]}
+        )
         cls.genome_refs = [info_to_ref(fake_genome), info_to_ref(fake_genome2)]
 
         # Make fake diff exp matrices
@@ -43,15 +39,15 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
                     "fake_mat_genome_{}".format(i),
                     cls.wsName,
                     cls.wsClient,
-                    genome_ref=cls.genome_refs[0]
+                    genome_ref=cls.genome_refs[0],
                 )
             )
 
     @classmethod
     def tearDownClass(cls):
-        if hasattr(cls, 'wsName'):
-            cls.wsClient.delete_workspace({'workspace': cls.wsName})
-            print('Test workspace was deleted')
+        if hasattr(cls, "wsName"):
+            cls.wsClient.delete_workspace({"workspace": cls.wsName})
+            print("Test workspace was deleted")
 
     def getWsClient(self):
         return self.__class__.wsClient
@@ -69,19 +65,16 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
         set_name = "test_diff_exp_matrix_set"
         set_items = list()
         for ref in self.diff_exps_genome:
-            set_items.append({
-                "label": "foo",
-                "ref": ref
-            })
-        matrix_set = {
-            "description": "test_matrix_set",
-            "items": set_items
-        }
-        result = self.getImpl().save_differential_expression_matrix_set_v1(self.getContext(), {
-            "workspace": self.getWsName(),
-            "output_object_name": set_name,
-            "data": matrix_set
-        })[0]
+            set_items.append({"label": "foo", "ref": ref})
+        matrix_set = {"description": "test_matrix_set", "items": set_items}
+        result = self.getImpl().save_differential_expression_matrix_set_v1(
+            self.getContext(),
+            {
+                "workspace": self.getWsName(),
+                "output_object_name": set_name,
+                "data": matrix_set,
+            },
+        )[0]
         assert result is not None
         assert "set_ref" in result
         assert "set_info" in result
@@ -93,19 +86,16 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
         set_name = "test_de_matrix_set_no_genome"
         set_items = list()
         for ref in self.diff_exps_no_genome:
-            set_items.append({
-                "label": "foo",
-                "ref": ref
-            })
-        matrix_set = {
-            "description": "test_matrix_set",
-            "items": set_items
-        }
-        result = self.getImpl().save_differential_expression_matrix_set_v1(self.getContext(), {
-            "workspace": self.getWsName(),
-            "output_object_name": set_name,
-            "data": matrix_set
-        })[0]
+            set_items.append({"label": "foo", "ref": ref})
+        matrix_set = {"description": "test_matrix_set", "items": set_items}
+        result = self.getImpl().save_differential_expression_matrix_set_v1(
+            self.getContext(),
+            {
+                "workspace": self.getWsName(),
+                "output_object_name": set_name,
+                "data": matrix_set,
+            },
+        )[0]
         assert result is not None
         assert "set_ref" in result
         assert "set_info" in result
@@ -117,75 +107,78 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
         set_name = "dem_set_bad_genomes"
         dem_set = {
             "description": "this_better_fail",
-            "items": [{
-                "ref": make_fake_diff_exp_matrix(
-                    "odd_dem",
-                    self.getWsName(),
-                    self.getWsClient(),
-                    genome_ref=self.genome_refs[1]
-                ),
-                "label": "odd_alignment"
-            }, {
-                "ref": self.diff_exps_genome[0],
-                "label": "not_so_odd"
-            }]
+            "items": [
+                {
+                    "ref": make_fake_diff_exp_matrix(
+                        "odd_dem",
+                        self.getWsName(),
+                        self.getWsClient(),
+                        genome_ref=self.genome_refs[1],
+                    ),
+                    "label": "odd_alignment",
+                },
+                {"ref": self.diff_exps_genome[0], "label": "not_so_odd"},
+            ],
         }
         with pytest.raises(
             ValueError,
-            match="All Differential Expression Matrix objects in the set must use the same genome reference."
+            match="All Differential Expression Matrix objects in the set must use the same genome reference.",
         ):
-            self.getImpl().save_differential_expression_matrix_set_v1(self.getContext(), {
-                "workspace": self.getWsName(),
-                "output_object_name": set_name,
-                "data": dem_set
-            })
+            self.getImpl().save_differential_expression_matrix_set_v1(
+                self.getContext(),
+                {
+                    "workspace": self.getWsName(),
+                    "output_object_name": set_name,
+                    "data": dem_set,
+                },
+            )
 
     def test_save_dem_set_no_data(self):
         with pytest.raises(
             ValueError,
-            match='"data" parameter field required to save a DifferentialExpressionMatrixSet'
+            match='"data" parameter field required to save a DifferentialExpressionMatrixSet',
         ):
-            self.getImpl().save_differential_expression_matrix_set_v1(self.getContext(), {
-                "workspace": self.getWsName(),
-                "output_object_name": "foo",
-                "data": None
-            })
+            self.getImpl().save_differential_expression_matrix_set_v1(
+                self.getContext(),
+                {
+                    "workspace": self.getWsName(),
+                    "output_object_name": "foo",
+                    "data": None,
+                },
+            )
 
     def test_save_dem_set_no_dem(self):
         with pytest.raises(
             ValueError,
-            match="A DifferentialExpressionMatrixSet must contain at least one DifferentialExpressionMatrix object reference."
+            match="A DifferentialExpressionMatrixSet must contain at least one DifferentialExpressionMatrix object reference.",
         ):
-            self.getImpl().save_differential_expression_matrix_set_v1(self.getContext(), {
-                "workspace": self.getWsName(),
-                "output_object_name": "foo",
-                "data": {
-                    "items": []
-                }
-            })
+            self.getImpl().save_differential_expression_matrix_set_v1(
+                self.getContext(),
+                {
+                    "workspace": self.getWsName(),
+                    "output_object_name": "foo",
+                    "data": {"items": []},
+                },
+            )
 
     def test_get_dem_set(self):
         set_name = "test_expression_set"
         set_items = list()
         for ref in self.diff_exps_no_genome:
-            set_items.append({
-                "label": "wt",
-                "ref": ref
-            })
-        dem_set = {
-            "description": "test_test_diffExprMatrixSet",
-            "items": set_items
-        }
-        dem_set_ref = self.getImpl().save_differential_expression_matrix_set_v1(self.getContext(), {
-            "workspace": self.getWsName(),
-            "output_object_name": set_name,
-            "data": dem_set
-        })[0]["set_ref"]
+            set_items.append({"label": "wt", "ref": ref})
+        dem_set = {"description": "test_test_diffExprMatrixSet", "items": set_items}
+        dem_set_ref = self.getImpl().save_differential_expression_matrix_set_v1(
+            self.getContext(),
+            {
+                "workspace": self.getWsName(),
+                "output_object_name": set_name,
+                "data": dem_set,
+            },
+        )[0]["set_ref"]
 
-        fetched_set = self.getImpl().get_differential_expression_matrix_set_v1(self.getContext(), {
-            "ref": dem_set_ref,
-            "include_item_info": 0
-        })[0]
+        fetched_set = self.getImpl().get_differential_expression_matrix_set_v1(
+            self.getContext(), {"ref": dem_set_ref, "include_item_info": 0}
+        )[0]
         assert fetched_set is not None
         assert "data" in fetched_set
         assert "info" in fetched_set
@@ -197,13 +190,11 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
             assert "ref_path" not in item
             assert "label" in item
 
-        fetched_set_with_info = self.getImpl().get_differential_expression_matrix_set_v1(
-            self.getContext(),
-            {
-                "ref": dem_set_ref,
-                "include_item_info": 1
-            }
-        )[0]
+        fetched_set_with_info = (
+            self.getImpl().get_differential_expression_matrix_set_v1(
+                self.getContext(), {"ref": dem_set_ref, "include_item_info": 1}
+            )[0]
+        )
         assert fetched_set_with_info is not None
         assert "data" in fetched_set_with_info
         for item in fetched_set_with_info["data"]["items"]:
@@ -215,25 +206,27 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
         set_name = "test_diff_expression_set_ref_path"
         set_items = []
         for ref in self.diff_exps_no_genome:
-            set_items.append({
-                "label": "wt",
-                "ref": ref
-            })
-        dem_set = {
-            "description": "test_diffExprMatrixSet_ref_path",
-            "items": set_items
-        }
-        dem_set_ref = self.getImpl().save_differential_expression_matrix_set_v1(self.getContext(), {
-            "workspace": self.getWsName(),
-            "output_object_name": set_name,
-            "data": dem_set
-        })[0]["set_ref"]
+            set_items.append({"label": "wt", "ref": ref})
+        dem_set = {"description": "test_diffExprMatrixSet_ref_path", "items": set_items}
+        dem_set_ref = self.getImpl().save_differential_expression_matrix_set_v1(
+            self.getContext(),
+            {
+                "workspace": self.getWsName(),
+                "output_object_name": set_name,
+                "data": dem_set,
+            },
+        )[0]["set_ref"]
 
-        fetched_set_with_ref_path = self.getImpl().get_differential_expression_matrix_set_v1(self.getContext(), {
-            "ref": dem_set_ref,
-            "include_item_info": 0,
-            "include_set_item_ref_paths": 1
-        })[0]
+        fetched_set_with_ref_path = (
+            self.getImpl().get_differential_expression_matrix_set_v1(
+                self.getContext(),
+                {
+                    "ref": dem_set_ref,
+                    "include_item_info": 0,
+                    "include_set_item_ref_paths": 1,
+                },
+            )[0]
+        )
         assert fetched_set_with_ref_path is not None
         assert "data" in fetched_set_with_ref_path
         assert "info" in fetched_set_with_ref_path
@@ -244,30 +237,28 @@ class DifferentialExpressionMatrixSetAPITest(unittest.TestCase):
             assert "ref" in item
             assert "label" in item
             assert "ref_path" in item
-            assert item["ref_path"] == dem_set_ref + ';' + item["ref"]
-        #pprint(fetched_set_with_ref_path)
+            assert item["ref_path"] == dem_set_ref + ";" + item["ref"]
+        # pprint(fetched_set_with_ref_path)
 
     def test_get_dem_set_bad_ref(self):
         with pytest.raises(
-            ValueError,
-            match='"ref" parameter must be a valid workspace reference'
+            ValueError, match='"ref" parameter must be a valid workspace reference'
         ):
-            self.getImpl().get_differential_expression_matrix_set_v1(self.getContext(), {
-                "ref": "not_a_ref"
-            })
+            self.getImpl().get_differential_expression_matrix_set_v1(
+                self.getContext(), {"ref": "not_a_ref"}
+            )
 
     def test_get_dem_set_bad_path(self):
         with pytest.raises(Exception):
-            self.getImpl().get_differential_expression_matrix_set_v1(self.getContext(), {
-                "ref": "1/2/3",
-                "path_to_set": ["foo", "bar"]
-            })
+            self.getImpl().get_differential_expression_matrix_set_v1(
+                self.getContext(), {"ref": "1/2/3", "path_to_set": ["foo", "bar"]}
+            )
 
     def test_get_dem_set_no_ref(self):
         with pytest.raises(
             ValueError,
-            match='"ref" parameter field specifiying the DifferentialExpressionMatrix set is required'
+            match='"ref" parameter field specifiying the DifferentialExpressionMatrix set is required',
         ):
-            self.getImpl().get_differential_expression_matrix_set_v1(self.getContext(), {
-                "ref": None
-            })
+            self.getImpl().get_differential_expression_matrix_set_v1(
+                self.getContext(), {"ref": None}
+            )

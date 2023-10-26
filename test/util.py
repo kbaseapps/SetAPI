@@ -13,7 +13,9 @@ def info_to_ref(info):
     return "{}/{}/{}".format(info[6], info[0], info[4])
 
 
-def make_fake_alignment(callback_url, dummy_file, name, reads_ref, genome_ref, ws_name, ws_client):
+def make_fake_alignment(
+    callback_url, dummy_file, name, reads_ref, genome_ref, ws_name, ws_client
+):
     """
     Makes a Fake KBaseRNASeq.RNASeqAlignment object and returns a ref to it.
     callback_url: needed for DataFileUtil,
@@ -25,18 +27,17 @@ def make_fake_alignment(callback_url, dummy_file, name, reads_ref, genome_ref, w
     workspace_client: a Workspace client tuned to the server of your choice
     """
     dfu = DataFileUtil(callback_url)
-    dummy_shock_info = dfu.file_to_shock({
-        "file_path": dummy_file,
-        "make_handle": 1
-    })
+    dummy_shock_info = dfu.file_to_shock({"file_path": dummy_file, "make_handle": 1})
     fake_alignment = {
-        "file": dummy_shock_info['handle'],
+        "file": dummy_shock_info["handle"],
         "library_type": "fake",
         "read_sample_id": reads_ref,
         "condition": "fake",
-        "genome_id": genome_ref
+        "genome_id": genome_ref,
     }
-    return make_fake_object(fake_alignment, "KBaseRNASeq.RNASeqAlignment", name, ws_name, ws_client)
+    return make_fake_object(
+        fake_alignment, "KBaseRNASeq.RNASeqAlignment", name, ws_name, ws_client
+    )
 
 
 def make_fake_sampleset(name, reads_refs, conditions, ws_name, ws_client):
@@ -55,11 +56,21 @@ def make_fake_sampleset(name, reads_refs, conditions, ws_name, ws_client):
         "sample_ids": reads_refs,
         "Library_type": "fake",
     }
-    return make_fake_object(fake_sampleset, "KBaseRNASeq.RNASeqSampleSet", name, ws_name, ws_client)
+    return make_fake_object(
+        fake_sampleset, "KBaseRNASeq.RNASeqSampleSet", name, ws_name, ws_client
+    )
 
 
-def make_fake_old_alignment_set(name, reads_refs, genome_ref, sampleset_ref, alignments_refs,
-                                ws_name, ws_client, include_sample_alignments=False):
+def make_fake_old_alignment_set(
+    name,
+    reads_refs,
+    genome_ref,
+    sampleset_ref,
+    alignments_refs,
+    ws_name,
+    ws_client,
+    include_sample_alignments=False,
+):
     """
     Make a fake set object for KBaseRNASeq.RNASeqAlignmentSet objects
     Needs a whole bunch of stuff:
@@ -79,18 +90,30 @@ def make_fake_old_alignment_set(name, reads_refs, genome_ref, sampleset_ref, ali
         "genome_id": genome_ref,
         "read_sample_ids": reads_refs,
         "mapped_rnaseq_alignments": mapped_alignments_ids,
-        "mapped_alignments_ids": mapped_alignments_ids
+        "mapped_alignments_ids": mapped_alignments_ids,
     }
     if include_sample_alignments:
         fake_rnaseq_alignment_set["sample_alignments"] = alignments_refs
-    return make_fake_object(fake_rnaseq_alignment_set, "KBaseRNASeq.RNASeqAlignmentSet",
-                            name, ws_name, ws_client)
+    return make_fake_object(
+        fake_rnaseq_alignment_set,
+        "KBaseRNASeq.RNASeqAlignmentSet",
+        name,
+        ws_name,
+        ws_client,
+    )
 
 
-def make_fake_old_expression_set(name, genome_ref, sampleset_ref,
-                                 alignments_refs, alignmentset_ref,
-                                 expressions_refs, ws_name, ws_client,
-                                 include_sample_expressions=False):
+def make_fake_old_expression_set(
+    name,
+    genome_ref,
+    sampleset_ref,
+    alignments_refs,
+    alignmentset_ref,
+    expressions_refs,
+    ws_name,
+    ws_client,
+    include_sample_expressions=False,
+):
     """
     Make a fake set object for KBaseRNASeq.RNASeqAlignmentSet objects
     Needs a whole bunch of stuff:
@@ -110,30 +133,43 @@ def make_fake_old_expression_set(name, genome_ref, sampleset_ref,
         "genome_id": genome_ref,
         "mapped_expression_ids": mapped_expression_ids,
         "mapped_expression_objects": [],
-        "alignmentSet_id": alignmentset_ref
+        "alignmentSet_id": alignmentset_ref,
     }
     if include_sample_expressions:
         fake_rnaseq_expression_set["sample_expression_ids"] = expressions_refs
-    return make_fake_object(fake_rnaseq_expression_set, "KBaseRNASeq.RNASeqExpressionSet",
-                            name, ws_name, ws_client)
+    return make_fake_object(
+        fake_rnaseq_expression_set,
+        "KBaseRNASeq.RNASeqExpressionSet",
+        name,
+        ws_name,
+        ws_client,
+    )
 
 
 def make_fake_annotation(callback_url, dummy_file, name, ws_name, ws_client):
     dfu = DataFileUtil(callback_url)
-    dummy_shock_info = dfu.file_to_shock({
-        "file_path": dummy_file,
-        "make_handle": 1
-    })
+    dummy_shock_info = dfu.file_to_shock({"file_path": dummy_file, "make_handle": 1})
     annotation = {
-        "handle": dummy_shock_info['handle'],
+        "handle": dummy_shock_info["handle"],
         "size": 0,
         "genome_id": "not_a_real_genome",
-        "genome_scientific_name": "Genomus falsus"
+        "genome_scientific_name": "Genomus falsus",
     }
-    return make_fake_object(annotation, "KBaseRNASeq.GFFAnnotation", name, ws_name, ws_client)
+    return make_fake_object(
+        annotation, "KBaseRNASeq.GFFAnnotation", name, ws_name, ws_client
+    )
 
 
-def make_fake_expression(callback_url, dummy_file, name, genome_ref, annotation_ref, alignment_ref, ws_name, ws_client):
+def make_fake_expression(
+    callback_url,
+    dummy_file,
+    name,
+    genome_ref,
+    annotation_ref,
+    alignment_ref,
+    ws_name,
+    ws_client,
+):
     """
     Makes a Fake KBaseRNASeq.RNASeqExpression object and returns a ref to it.
     genome_ref: reference to a genome object
@@ -141,10 +177,7 @@ def make_fake_expression(callback_url, dummy_file, name, genome_ref, annotation_
     alignment_ref: reference to a KBaseRNASeq.RNASeqAlignment
     """
     dfu = DataFileUtil(callback_url)
-    dummy_shock_info = dfu.file_to_shock({
-        "file_path": dummy_file,
-        "make_handle": 1
-    })
+    dummy_shock_info = dfu.file_to_shock({"file_path": dummy_file, "make_handle": 1})
     exp = {
         "id": "fake",
         "type": "fake",
@@ -156,9 +189,11 @@ def make_fake_expression(callback_url, dummy_file, name, genome_ref, annotation_
         "condition": "",
         "tool_used": "none",
         "tool_version": "0.0.0",
-        "file": dummy_shock_info['handle']
+        "file": dummy_shock_info["handle"],
     }
-    return make_fake_object(exp, "KBaseRNASeq.RNASeqExpression", name, ws_name, ws_client)
+    return make_fake_object(
+        exp, "KBaseRNASeq.RNASeqExpression", name, ws_name, ws_client
+    )
 
 
 def make_fake_feature_set(name, genome_ref, ws_name, ws_client):
@@ -177,10 +212,12 @@ def make_fake_feature_set(name, genome_ref, ws_name, ws_client):
         "elements": {
             "feature1": [genome_ref],
             "feature2": [genome_ref],
-            "feature3": [genome_ref]
-        }
+            "feature3": [genome_ref],
+        },
     }
-    return make_fake_object(feature_set, "KBaseCollections.FeatureSet", name, ws_name, ws_client)
+    return make_fake_object(
+        feature_set, "KBaseCollections.FeatureSet", name, ws_name, ws_client
+    )
 
 
 def make_fake_diff_exp_matrix(name, ws_name, ws_client, genome_ref=None):
@@ -213,20 +250,17 @@ def make_fake_diff_exp_matrix(name, ws_name, ws_client, genome_ref=None):
 
     Makes the dumbest matrix ever - just a single row, a single column, a single 0 value.
     """
-    matrix_data = {
-        "row_ids": ["row1"],
-        "col_ids": ["col1"],
-        "values": [[0.0]]
-    }
-    diff_exp_matrix = {
-        "type": "level",
-        "scale": "raw",
-        "data": matrix_data
-    }
+    matrix_data = {"row_ids": ["row1"], "col_ids": ["col1"], "values": [[0.0]]}
+    diff_exp_matrix = {"type": "level", "scale": "raw", "data": matrix_data}
     if genome_ref is not None:
-        diff_exp_matrix['genome_ref'] = genome_ref
-    return make_fake_object(diff_exp_matrix, "KBaseFeatureValues.DifferentialExpressionMatrix",
-                            name, ws_name, ws_client)
+        diff_exp_matrix["genome_ref"] = genome_ref
+    return make_fake_object(
+        diff_exp_matrix,
+        "KBaseFeatureValues.DifferentialExpressionMatrix",
+        name,
+        ws_name,
+        ws_client,
+    )
 
 
 def make_fake_object(obj, obj_type, name, workspace_name, workspace_client):
@@ -237,13 +271,10 @@ def make_fake_object(obj, obj_type, name, workspace_name, workspace_client):
     Returns a reference to that object.
     """
     return info_to_ref(
-        workspace_client.save_objects({
-            "workspace": workspace_name,
-            "objects": [{
-                "type": obj_type,
-                "meta": {},
-                "data": obj,
-                "name": name
-            }]
-        })[0]
+        workspace_client.save_objects(
+            {
+                "workspace": workspace_name,
+                "objects": [{"type": obj_type, "meta": {}, "data": obj, "name": name}],
+            }
+        )[0]
     )
