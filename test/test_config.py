@@ -1,6 +1,7 @@
 import os
 import time
 from configparser import ConfigParser
+from typing import Any
 
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
@@ -9,7 +10,16 @@ from installed_clients.WorkspaceClient import Workspace
 
 CONFIG_FILE = "./deploy.cfg"
 
-def parse_config():
+def parse_config() -> dict[str, str]:
+    """Parse the configuration file and return the contents.
+
+    Returns the configuration variables under the 'SetAPI' header.
+    The config file is either specified by the environment variable
+    KB_DEPLOYMENT_CONFIG or the local variable CONFIG_FILE.
+
+    :return: dictionary of key-value pairs
+    :rtype: dict[str, str]
+    """
     config_file = os.environ.get("KB_DEPLOYMENT_CONFIG", CONFIG_FILE)
     print(f"Retrieving config from {config_file}")
     cfg_dict = {}
@@ -20,7 +30,15 @@ def parse_config():
     return cfg_dict
 
 
-def get_test_config():
+def get_test_config() -> dict[str, Any]:
+    """Generate various useful values and variables for testing.
+
+    Includes a workspace, a token, a context, a config, and more!
+
+    :return: dictionary of key-value pairs
+    :rtype: dict[str, Any]
+    """
+
     conf = parse_config()
 
     # retrieve a token from the auth client
