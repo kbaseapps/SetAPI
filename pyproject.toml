@@ -1,0 +1,8 @@
+[tool.black]
+# don't format the installed clients or the SDK-generated files.
+extend-exclude = '''
+lib/(
+    installed_clients/*
+|
+    SetAPI/SetAPI(Impl|Server).py
+)'''

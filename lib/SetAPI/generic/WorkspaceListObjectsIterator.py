@@ -2,22 +2,33 @@ from collections import deque
 
 
 class WorkspaceListObjectsIterator:
-
-    # ws_info - optional workspace info tuple (if is not defined then either ws_id 
+    # ws_info - optional workspace info tuple (if is not defined then either ws_id
     #    or ws_name should be provided),
-    # ws_id/ws_name - optional workspace identification (if neither is defined 
+    # ws_id/ws_name - optional workspace identification (if neither is defined
     #    then ws_info should be provided),
-    # list_objects_params - optional structure with such Woskspace.ListObjectsParams 
+    # list_objects_params - optional structure with such Woskspace.ListObjectsParams
     #    as 'type' or 'before', 'after', 'showHidden', 'includeMetadata' and so on,
     #    wherein there is no need to set 'ids' or 'workspaces' or 'min/maxObjectID'.
-    def __init__(self, ws_client, ws_info_list=None, ws_id=None, ws_name=None,
-                 list_objects_params={}, part_size=10000, global_limit=100000):
+    def __init__(
+        self,
+        ws_client,
+        ws_info_list=None,
+        ws_id=None,
+        ws_name=None,
+        list_objects_params={},
+        part_size=10000,
+        global_limit=100000,
+    ):
         self.ws = ws_client
         if not ws_info_list:
             if (not ws_id) and (not ws_name):
-                raise ValueError("In case ws_info_list is not set either ws_id or " +
-                                 "ws_name should be set")
-            ws_info_list = [self.ws.get_workspace_info({"id": ws_id, "workspace": ws_name})]
+                raise ValueError(
+                    "In case ws_info_list is not set either ws_id or "
+                    + "ws_name should be set"
+                )
+            ws_info_list = [
+                self.ws.get_workspace_info({"id": ws_id, "workspace": ws_name})
+            ]
         # Let's split workspaces into blocks
         blocks = []  # Each block is array of ws_info
         sorted_ws_info_deque = deque(sorted(ws_info_list, key=lambda x: x[4]))
@@ -62,15 +73,15 @@ class WorkspaceListObjectsIterator:
         if self.min_obj_id < 0 or self.min_obj_id > self.max_obj_count:
             try:
                 block = next(self.block_iter)
-                self.list_objects_params['ids'] = [ws_info[0] for ws_info in block]
+                self.list_objects_params["ids"] = [ws_info[0] for ws_info in block]
             except StopIteration:
                 return None
             last_ws_info = block[len(block) - 1]
             self.min_obj_id = 1
             self.max_obj_count = last_ws_info[4]
         max_obj_id = self.min_obj_id + self.part_size - 1
-        self.list_objects_params['minObjectID'] = self.min_obj_id
-        self.list_objects_params['maxObjectID'] = max_obj_id
+        self.list_objects_params["minObjectID"] = self.min_obj_id
+        self.list_objects_params["maxObjectID"] = max_obj_id
         self.min_obj_id += self.part_size  # For next load cycle
         ret = self.ws.list_objects(self.list_objects_params)
         return ret.__iter__()
