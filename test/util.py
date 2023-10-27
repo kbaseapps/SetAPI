@@ -81,7 +81,7 @@ def make_fake_old_alignment_set(
     Setting include_sample_alignments to True will include the optional "sample_alignments"
     attribute of the object.
     """
-    mapped_alignments_ids = list()
+    mapped_alignments_ids = []
     for idx, ref in enumerate(reads_refs):
         mapped_alignments_ids.append({ref: alignments_refs[idx]})
 
@@ -124,7 +124,7 @@ def make_fake_old_expression_set(
     Setting include_sample_alignments to True will include the optional "sample_alignments"
     attribute of the object.
     """
-    mapped_expression_ids = list()
+    mapped_expression_ids = []
     for idx, ref in enumerate(alignments_refs):
         mapped_expression_ids.append({ref: expressions_refs[idx]})
 

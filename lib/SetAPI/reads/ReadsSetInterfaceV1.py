@@ -72,7 +72,7 @@ class ReadsSetInterfaceV1:
             obj_info[10]["item_count"] = len(obj.get("sample_ids", []))
             set_data = {"data": {"items": [], "description": desc}, "info": obj_info}
 
-            reads_items = list()
+            reads_items = []
             if len(obj.get("sample_ids")) != len(obj.get("condition")):
                 raise RuntimeError(
                     "Invalid RNASeqSampleSet! The number of conditions \

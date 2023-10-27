@@ -41,7 +41,7 @@ class ReadsAlignmentSetInterfaceV1:
                 "least one ReadsAlignment reference."
             )
 
-        refs = list()
+        refs = []
         for item in data["items"]:
             refs.append(item["ref"])
             if "label" not in item:
@@ -105,7 +105,7 @@ class ReadsAlignmentSetInterfaceV1:
 
             obj = obj_data["data"]
             obj_info = obj_data["info"]
-            alignment_ref_list = list()
+            alignment_ref_list = []
             if "sample_alignments" in obj:
                 alignment_ref_list = obj["sample_alignments"]
             else:

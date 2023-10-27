@@ -3,21 +3,20 @@ import os
 import shutil
 import unittest
 from pprint import pprint
-import pytest
-
-from test.test_config import get_test_config
 from test import TEST_BASE_DIR
-from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
-
+from test.conftest import WS_NAME, test_config
 from test.util import (
     info_to_ref,
     make_fake_alignment,
-    make_fake_sampleset,
     make_fake_annotation,
     make_fake_expression,
     make_fake_old_alignment_set,
     make_fake_old_expression_set,
+    make_fake_sampleset,
 )
+
+import pytest
+from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 
 
 class ReadsAlignmentSetAPITest(unittest.TestCase):
@@ -25,7 +24,7 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        props = get_test_config()
+        props = test_config()
         for prop in ["cfg", "ctx", "serviceImpl", "wsClient", "wsName", "wsURL"]:
             setattr(cls, prop, props[prop])
 
@@ -33,13 +32,13 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
 
         # Make a fake genome
         [fake_genome, fake_genome2] = foft.create_fake_genomes(
-            {"ws_name": cls.wsName, "obj_names": ["fake_genome", "fake_genome2"]}
+            {"ws_name": WS_NAME, "obj_names": ["fake_genome", "fake_genome2"]}
         )
         cls.genome_refs = [info_to_ref(fake_genome), info_to_ref(fake_genome2)]
 
         # Make some fake reads objects
         fake_reads_list = foft.create_fake_reads(
-            {"ws_name": cls.wsName, "obj_names": ["reads1", "reads2", "reads3"]}
+            {"ws_name": WS_NAME, "obj_names": ["reads1", "reads2", "reads3"]}
         )
         cls.alignment_refs = []
         cls.reads_refs = []
@@ -56,17 +55,17 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
                 make_fake_alignment(
                     os.environ["SDK_CALLBACK_URL"],
                     cls.dummy_path,
-                    "fake_alignment_{}".format(idx),
+                    f"fake_alignment_{idx!s}",
                     reads_ref,
                     cls.genome_refs[0],
-                    cls.wsName,
+                    WS_NAME,
                     cls.wsClient,
                 )
             )
 
         # Make a fake RNASeqSampleSet
         cls.sampleset_ref = make_fake_sampleset(
-            "fake_sampleset", [], [], cls.wsName, cls.wsClient
+            "fake_sampleset", [], [], WS_NAME, cls.wsClient
         )
 
         # Finally, make a couple fake RNASeqAlignmentSts objects from those alignments
@@ -76,7 +75,7 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             cls.genome_refs[0],
             cls.sampleset_ref,
             cls.alignment_refs,
-            cls.wsName,
+            WS_NAME,
             cls.wsClient,
         )
         cls.fake_rnaseq_alignment_set2 = make_fake_old_alignment_set(
@@ -85,7 +84,7 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             cls.genome_refs[0],
             cls.sampleset_ref,
             cls.alignment_refs,
-            cls.wsName,
+            WS_NAME,
             cls.wsClient,
             include_sample_alignments=True,
         )
@@ -95,23 +94,23 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             os.environ["SDK_CALLBACK_URL"],
             cls.dummy_path,
             "fake_annotation",
-            cls.wsName,
+            WS_NAME,
             cls.wsClient,
         )
 
         # Now we can phony up some expression objects to build sets out of.
         # name, genome_ref, annotation_ref, alignment_ref, ws_name, ws_client
-        cls.expression_refs = list()
+        cls.expression_refs = []
         for idx, alignment_ref in enumerate(cls.alignment_refs):
             cls.expression_refs.append(
                 make_fake_expression(
                     os.environ["SDK_CALLBACK_URL"],
                     cls.dummy_path,
-                    "fake_expression_{}".format(idx),
+                    f"fake_expression_{idx!s}",
                     cls.genome_refs[0],
                     cls.annotation_ref,
                     alignment_ref,
-                    cls.wsName,
+                    WS_NAME,
                     cls.wsClient,
                 )
             )
@@ -124,22 +123,13 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             cls.alignment_refs,
             cls.fake_rnaseq_alignment_set1,
             cls.expression_refs,
-            cls.wsName,
+            WS_NAME,
             cls.wsClient,
             True,
         )
 
-    @classmethod
-    def tearDownClass(cls):
-        if hasattr(cls, "wsName"):
-            cls.wsClient.delete_workspace({"workspace": cls.wsName})
-            print("Test workspace was deleted")
-
     def getWsClient(self):
         return self.__class__.wsClient
-
-    def getWsName(self):
-        return self.__class__.wsName
 
     def getImpl(self):
         return self.__class__.serviceImpl
@@ -149,14 +139,12 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
 
     def test_save_alignment_set(self):
         alignment_set_name = "test_alignment_set"
-        alignment_items = list()
-        for ref in self.alignment_refs:
-            alignment_items.append({"label": "wt", "ref": ref})
+        alignment_items = [{"label": "wt", "ref": ref} for ref in self.alignment_refs]
         alignment_set = {"description": "test_alignments", "items": alignment_items}
         result = self.getImpl().save_reads_alignment_set_v1(
             self.getContext(),
             {
-                "workspace": self.getWsName(),
+                "workspace": WS_NAME,
                 "output_object_name": alignment_set_name,
                 "data": alignment_set,
             },
@@ -180,7 +168,7 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
                         "odd_alignment",
                         self.reads_refs[0],
                         self.genome_refs[1],
-                        self.getWsName(),
+                        WS_NAME,
                         self.getWsClient(),
                     ),
                     "label": "odd_alignment",
@@ -196,7 +184,7 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             self.getImpl().save_reads_alignment_set_v1(
                 self.getContext(),
                 {
-                    "workspace": self.getWsName(),
+                    "workspace": WS_NAME,
                     "output_object_name": alignment_set_name,
                     "data": alignment_set,
                 },
@@ -210,7 +198,7 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             self.getImpl().save_reads_alignment_set_v1(
                 self.getContext(),
                 {
-                    "workspace": self.getWsName(),
+                    "workspace": WS_NAME,
                     "output_object_name": "foo",
                     "data": None,
                 },
@@ -224,7 +212,7 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             self.getImpl().save_reads_alignment_set_v1(
                 self.getContext(),
                 {
-                    "workspace": self.getWsName(),
+                    "workspace": WS_NAME,
                     "output_object_name": "foo",
                     "data": {"items": []},
                 },
@@ -290,14 +278,12 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
 
     def test_get_alignment_set(self):
         alignment_set_name = "test_alignment_set"
-        alignment_items = list()
-        for ref in self.alignment_refs:
-            alignment_items.append({"label": "wt", "ref": ref})
+        alignment_items = [{"label": "wt", "ref": ref} for ref in self.alignment_refs]
         alignment_set = {"description": "test_alignments", "items": alignment_items}
         alignment_set_ref = self.getImpl().save_reads_alignment_set_v1(
             self.getContext(),
             {
-                "workspace": self.getWsName(),
+                "workspace": WS_NAME,
                 "output_object_name": alignment_set_name,
                 "data": alignment_set,
             },
@@ -328,14 +314,12 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
 
     def test_get_alignment_set_ref_path(self):
         alignment_set_name = "test_alignment_set_ref_path"
-        alignment_items = list()
-        for ref in self.alignment_refs:
-            alignment_items.append({"label": "wt", "ref": ref})
+        alignment_items = [{"label": "wt", "ref": ref} for ref in self.alignment_refs]
         alignment_set = {"description": "test_alignments", "items": alignment_items}
         alignment_set_ref = self.getImpl().save_reads_alignment_set_v1(
             self.getContext(),
             {
-                "workspace": self.getWsName(),
+                "workspace": WS_NAME,
                 "output_object_name": alignment_set_name,
                 "data": alignment_set,
             },
@@ -370,7 +354,10 @@ class ReadsAlignmentSetAPITest(unittest.TestCase):
             )
 
     def test_get_alignment_set_bad_path(self):
-        with pytest.raises(Exception):
+        with pytest.raises(
+            Exception,
+            match="JSONRPCError: -32500. Object 2 cannot be accessed:"
+        ):
             self.getImpl().get_reads_alignment_set_v1(
                 self.getContext(), {"ref": "1/2/3", "path_to_set": ["foo", "bar"]}
             )

@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 import os
 import unittest
-from test.test_config import get_test_config
-import pytest
-
-from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
+from test.conftest import WS_NAME, test_config
 from test.util import info_to_ref, make_fake_feature_set
+
+import pytest
+from installed_clients.baseclient import ServerError
+from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 
 
 class FeatureSetSetAPITest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        props = get_test_config()
+        props = test_config()
         for prop in ["cfg", "ctx", "serviceImpl", "wsClient", "wsName", "wsURL"]:
             setattr(cls, prop, props[prop])
 
@@ -19,29 +20,20 @@ class FeatureSetSetAPITest(unittest.TestCase):
 
         # Make fake genomes
         [fake_genome, fake_genome2] = foft.create_fake_genomes(
-            {"ws_name": cls.wsName, "obj_names": ["fake_genome", "fake_genome2"]}
+            {"ws_name": WS_NAME, "obj_names": ["fake_genome", "fake_genome2"]}
         )
         cls.genome_refs = [info_to_ref(fake_genome), info_to_ref(fake_genome2)]
 
         # Make some fake feature sets
         cls.featureset_refs = [
             make_fake_feature_set(
-                "feature_set_{}".format(i), cls.genome_refs[0], cls.wsName, cls.wsClient
+                f"feature_set_{i!s}", cls.genome_refs[0], WS_NAME, cls.wsClient
             )
             for i in range(3)
         ]
 
-    @classmethod
-    def tearDownClass(cls):
-        if hasattr(cls, "wsName"):
-            cls.wsClient.delete_workspace({"workspace": cls.wsName})
-            print("Test workspace was deleted")
-
     def getWsClient(self):
         return self.__class__.wsClient
-
-    def getWsName(self):
-        return self.__class__.wsName
 
     def getImpl(self):
         return self.__class__.serviceImpl
@@ -51,14 +43,12 @@ class FeatureSetSetAPITest(unittest.TestCase):
 
     def test_save_feature_set_set(self):
         set_name = "test_feature_set_set"
-        set_items = list()
-        for ref in self.featureset_refs:
-            set_items.append({"label": "foo", "ref": ref})
+        set_items = [{"label": "foo", "ref": ref} for ref in self.featureset_refs]
         expression_set = {"description": "test_expressions", "items": set_items}
         result = self.getImpl().save_feature_set_set_v1(
             self.getContext(),
             {
-                "workspace": self.getWsName(),
+                "workspace": WS_NAME,
                 "output_object_name": set_name,
                 "data": expression_set,
             },
@@ -77,7 +67,7 @@ class FeatureSetSetAPITest(unittest.TestCase):
             self.getImpl().save_feature_set_set_v1(
                 self.getContext(),
                 {
-                    "workspace": self.getWsName(),
+                    "workspace": WS_NAME,
                     "output_object_name": "foo",
                     "data": None,
                 },
@@ -92,7 +82,7 @@ class FeatureSetSetAPITest(unittest.TestCase):
             self.getImpl().save_feature_set_set_v1(
                 self.getContext(),
                 {
-                    "workspace": self.getWsName(),
+                    "workspace": WS_NAME,
                     "output_object_name": "foo",
                     "data": {"description": "empty_set", "items": []},
                 },
@@ -100,14 +90,12 @@ class FeatureSetSetAPITest(unittest.TestCase):
 
     def test_get_feature_set_set(self):
         set_name = "test_featureset_set2"
-        set_items = list()
-        for ref in self.featureset_refs:
-            set_items.append({"label": "wt", "ref": ref})
+        set_items = [{"label": "wt", "ref": ref} for ref in self.featureset_refs]
         featureset_set = {"description": "test_alignments", "items": set_items}
         featureset_set_ref = self.getImpl().save_feature_set_set_v1(
             self.getContext(),
             {
-                "workspace": self.getWsName(),
+                "workspace": WS_NAME,
                 "output_object_name": set_name,
                 "data": featureset_set,
             },
@@ -153,7 +141,10 @@ class FeatureSetSetAPITest(unittest.TestCase):
             )
 
     def test_get_feature_set_set_bad_path(self):
-        with pytest.raises(Exception):
+        with pytest.raises(
+            ServerError,
+            match="JSONRPCError: -32500. Object 2 cannot be accessed:"
+        ):
             self.getImpl().get_feature_set_set_v1(
                 self.getContext(), {"ref": "1/2/3", "path_to_set": ["foo", "bar"]}
             )

@@ -15,11 +15,11 @@ class SampleSetInterface:
     def _ws_get_ref(self, ws_id, obj_id):
         if "/" in obj_id:
             return obj_id
-        else:
-            info = self.ws_client.get_object_info_new(
-                {"objects": [{"name": obj_id, "workspace": ws_id}]}
-            )[0]
-            return "{0}/{1}/{2}".format(info[6], info[0], info[4])
+
+        info = self.ws_client.get_object_info_new(
+            {"objects": [{"name": obj_id, "workspace": ws_id}]}
+        )[0]
+        return f"{info[6]}/{info[0]}/{info[4]}"
 
     def _ws_get_obj_name(self, obj_id):
         info = self.ws_client.get_object_info_new({"objects": [{"ref": obj_id}]})[0]
@@ -41,7 +41,7 @@ class SampleSetInterface:
         params["condition"] = []
         for item in params.get("sample_n_conditions", []):
             item_condition = item["condition"]
-            if not isinstance(item_condition, (str, list)):
+            if not isinstance(item_condition, (str | list)):
                 raise ValueError("ERROR: condition should be either a list or a string")
 
             if isinstance(
@@ -98,7 +98,7 @@ class SampleSetInterface:
                     {"objects": [{"ref": reads_ref}]}
                 )
                 obj_type = reads_info["infos"][0][2].split("-")[0]
-                if not (obj_type in lib_type):
+                if obj_type not in lib_type:
                     raise ValueError(
                         "Library_type mentioned : {0}. Please add only {1} typed objects in Reads fields".format(
                             params["Library_type"], params["Library_type"]
@@ -115,7 +115,7 @@ class SampleSetInterface:
             ]
 
             # Saving RNASeqSampleSet to Workspace
-            print(("Saving {0} object to workspace".format(params["sampleset_id"])))
+            print(f"Saving {params['sampleset_id']} object to workspace")
             res = self.ws_client.save_objects(
                 {
                     "workspace": params["ws_id"],
@@ -133,7 +133,7 @@ class SampleSetInterface:
             out_obj['sample_ids'] = [self._ws_get_obj_name(sample_id) for
                                      sample_id in params['sample_ids']]
             """
-            result = dict()
+            result = {}
             result["set_ref"] = "{0}/{1}/{2}".format(res[6], res[0], res[4])
             result["set_info"] = res
 

@@ -36,7 +36,7 @@ class ExpressionSetInterfaceV1:
                 "least one Expression object reference."
             )
 
-        refs = list()
+        refs = []
         for item in data["items"]:
             refs.append(item["ref"])
             if "label" not in item:

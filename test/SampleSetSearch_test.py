@@ -1,39 +1,30 @@
 # -*- coding: utf-8 -*-
+import json
 import os
 import time
-import json
 import unittest
-from test.test_config import get_test_config
+from test import TEST_BASE_DIR
+from test.conftest import WS_NAME, test_config
+
 import pytest
 from installed_clients.DataFileUtilClient import DataFileUtil
+
+SAMPLES_TEST_DATA = None
+with open(os.path.join(TEST_BASE_DIR, "data", "sample_set_search_compare.json")) as f:
+     SAMPLES_TEST_DATA = json.load(f)
 
 
 class SetAPITest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        props = get_test_config()
+        props = test_config()
         for prop in ["cfg", "ctx", "serviceImpl", "wsClient", "wsName", "wsURL"]:
             setattr(cls, prop, props[prop])
         cls.dfu = DataFileUtil(os.environ["SDK_CALLBACK_URL"])
         cls.sample_set_ref = "45700/57/1"
 
-    @classmethod
-    def tearDownClass(cls):
-        if hasattr(cls, "wsName"):
-            cls.wsClient.delete_workspace({"workspace": cls.wsName})
-            print("Test workspace was deleted")
-
     def getWsClient(self):
         return self.__class__.wsClient
-
-    def getWsName(self):
-        if hasattr(self.__class__, "wsName"):
-            return self.__class__.wsName
-        suffix = int(time.time() * 1000)
-        wsName = "test_SetAPI_" + str(suffix)
-        ret = self.getWsClient().create_workspace({"workspace": wsName})
-        self.__class__.wsName = wsName
-        return wsName
 
     def serviceImpl(self):
         return self.__class__.serviceImpl
@@ -49,15 +40,22 @@ class SetAPITest(unittest.TestCase):
     # @unittest.skip('x')
     def test_param_error_conditions(self):
         # test without ref argument
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match="Argument 'ref' must be specified, 'ref' = 'None'"
+        ):
             self.serviceImpl.sample_set_to_samples_info(
                 self.ctx, {"start": 0, "limit": 10}
             )
 
-        with pytest.raises(ValueError):
+    def test_param_error_conditions_empty_params(self):
+        with pytest.raises(
+            ValueError,
+            match="Argument 'ref' must be specified, 'ref' = 'None'"
+        ):
             self.serviceImpl.sample_set_to_samples_info(self.ctx, {})
 
-    @unittest.skip("x")
+    @unittest.skip("only particular users have permission to search")
     # test_sample_set_to_sample_info
     def test_sample_set_to_sample_info(self):
         # test defaults of "start" and "limit" variables
@@ -71,7 +69,7 @@ class SetAPITest(unittest.TestCase):
             compare_to = json.load(f)
         self._compare_samples(ret, compare_to)
 
-    @unittest.skip("x")
+    @unittest.skip("only particular users have permission to search")
     # skipped because only particular users have permission to search
     def test_query_search(self):
         ret = self.serviceImpl.sample_set_to_samples_info(
@@ -89,7 +87,7 @@ class SetAPITest(unittest.TestCase):
         compare_to["num_found"] = len(compare_to["samples"])
         self._compare_samples(ret, compare_to)
 
-    @unittest.skip("x")
+    @unittest.skip("only particular users have permission to search")
     # skipped because only particular users have permission to search
     def test_prefix_query_search(self):
         ret = self.serviceImpl.sample_set_to_samples_info(
@@ -106,7 +104,7 @@ class SetAPITest(unittest.TestCase):
         compare_to["num_found"] = len(compare_to["samples"])
         self._compare_samples(ret, compare_to)
 
-    @unittest.skip("x")
+    @unittest.skip("only particular users have permission to search")
     # skipped because only particular users have permission to search
     def test_prefix_query_search_2(self):
         ret = self.serviceImpl.sample_set_to_samples_info(

@@ -3,7 +3,7 @@ import os
 import time
 import unittest
 from pprint import pprint
-from test.test_config import get_test_config
+from test.conftest import INFO_LENGTH, WS_NAME, test_config
 
 from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 
@@ -11,34 +11,19 @@ from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 class SetAPITest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        props = get_test_config()
+        props = test_config()
         for prop in ["cfg", "ctx", "serviceImpl", "wsClient", "wsName", "wsURL"]:
             setattr(cls, prop, props[prop])
 
         foft = FakeObjectsForTests(os.environ["SDK_CALLBACK_URL"])
         [info1, info2] = foft.create_fake_genomes(
-            {"ws_name": cls.wsName, "obj_names": ["genome_obj_1", "genome_obj_2"]}
+            {"ws_name": WS_NAME, "obj_names": ["genome_obj_1", "genome_obj_2"]}
         )
         cls.genome1ref = str(info1[6]) + "/" + str(info1[0]) + "/" + str(info1[4])
         cls.genome2ref = str(info2[6]) + "/" + str(info2[0]) + "/" + str(info2[4])
 
-    @classmethod
-    def tearDownClass(cls):
-        if hasattr(cls, "wsName"):
-            cls.wsClient.delete_workspace({"workspace": cls.wsName})
-            print("Test workspace was deleted")
-
     def getWsClient(self):
         return self.__class__.wsClient
-
-    def getWsName(self):
-        if hasattr(self.__class__, "wsName"):
-            return self.__class__.wsName
-        suffix = int(time.time() * 1000)
-        wsName = "test_SetAPI_" + str(suffix)
-        ret = self.getWsClient().create_workspace({"workspace": wsName})
-        self.__class__.wsName = wsName
-        return wsName
 
     def getImpl(self):
         return self.__class__.serviceImpl
@@ -48,7 +33,7 @@ class SetAPITest(unittest.TestCase):
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'.
     def test_basic_save_and_get(self):
-        workspace = self.getWsName()
+        workspace = WS_NAME
         setObjName = "set_of_genomes"
 
         # create the set object
@@ -72,7 +57,7 @@ class SetAPITest(unittest.TestCase):
         )[0]
         assert "set_ref" in res
         assert "set_info" in res
-        assert len(res["set_info"]) == 11
+        assert len(res["set_info"]) == INFO_LENGTH
 
         assert res["set_info"][1] == setObjName
         assert "item_count" in res["set_info"][10]
@@ -84,7 +69,7 @@ class SetAPITest(unittest.TestCase):
         )[0]
         assert "data" in d1
         assert "info" in d1
-        assert len(d1["info"]) == 11
+        assert len(d1["info"]) == INFO_LENGTH
         assert "item_count" in d1["info"][10]
         assert d1["info"][10]["item_count"] == "2"
 
@@ -109,7 +94,7 @@ class SetAPITest(unittest.TestCase):
         )[0]
         assert "data" in d2
         assert "info" in d2
-        assert len(d2["info"]) == 11
+        assert len(d2["info"]) == INFO_LENGTH
         assert "item_count" in d2["info"][10]
         assert d2["info"][10]["item_count"] == "2"
 
@@ -118,7 +103,7 @@ class SetAPITest(unittest.TestCase):
 
         item2 = d2["data"]["items"][1]
         assert "info" in item2
-        assert len(item2["info"]), 11
+        assert len(item2["info"]), INFO_LENGTH
         assert "ref" in item2
         assert item2["ref"] == self.genome2ref
 
@@ -127,7 +112,7 @@ class SetAPITest(unittest.TestCase):
         pprint(d2)
 
     def test_save_and_get_kbasesearch_genome(self):
-        workspace = self.getWsName()
+        workspace = WS_NAME
         setObjName = "set_of_kbasesearch_genomes"
 
         # create the set object
@@ -159,7 +144,7 @@ class SetAPITest(unittest.TestCase):
 
         assert "set_ref" in res
         assert "set_info" in res
-        assert len(res["set_info"]) == 11
+        assert len(res["set_info"]) == INFO_LENGTH
 
         assert res["set_info"][1] == setObjName
         assert "KBaseSearch.GenomeSet" in res["set_info"][2]
@@ -170,7 +155,7 @@ class SetAPITest(unittest.TestCase):
         )[0]
         assert "data" in d1
         assert "info" in d1
-        assert len(d1["info"]) == 11
+        assert len(d1["info"]) == INFO_LENGTH
         assert "KBaseSearch.GenomeSet" in res["set_info"][2]
 
         assert d1["data"]["description"] == "my kbasesearch genome set"
@@ -188,7 +173,7 @@ class SetAPITest(unittest.TestCase):
     # NOTE: Comment the following line to run the test
     @unittest.skip("skipped test_save_and_get_of_emtpy_set")
     def test_save_and_get_of_emtpy_set(self):
-        workspace = self.getWsName()
+        workspace = WS_NAME
         setObjName = "nada_set"
 
         # create the set object
@@ -205,7 +190,7 @@ class SetAPITest(unittest.TestCase):
         )[0]
         assert "set_ref" in res
         assert "set_info" in res
-        assert len(res["set_info"]) == 11
+        assert len(res["set_info"]) == INFO_LENGTH
 
         assert res["set_info"][1] == setObjName
         assert "item_count" in res["set_info"][10]
@@ -217,7 +202,7 @@ class SetAPITest(unittest.TestCase):
         )[0]
         assert "data" in d1
         assert "info" in d1
-        assert len(d1["info"]) == 11
+        assert len(d1["info"]) == INFO_LENGTH
         assert "item_count" in d1["info"][10]
         assert d1["info"][10]["item_count"] == "0"
 
@@ -230,7 +215,7 @@ class SetAPITest(unittest.TestCase):
 
         assert "data" in d2
         assert "info" in d2
-        assert len(d2["info"]) == 11
+        assert len(d2["info"]) == INFO_LENGTH
         assert "item_count" in d2["info"][10]
         assert d2["info"][10]["item_count"] == "0"
 

@@ -25,7 +25,7 @@ class SetAPI:
     SetAPI
 
     Module Description:
-    
+
     '''
 
     ######## WARNING FOR GEVENT USERS ####### noqa
@@ -1750,7 +1750,7 @@ class SetAPI:
            metadata about an object. Arbitrary key-value pairs provided by
            the user.) -> mapping from String to String, parameter "elements"
            of mapping from String to type "GenomeSetItem" (When saving an
-           GenomeSet, only 'ref' is required. You should never set 'info'. 
+           GenomeSet, only 'ref' is required. You should never set 'info'.
            'info' is provided optionally when fetching the GenomeSet.
            ref_path is optionally returned by get_genome_set_v1() when its
            input parameter 'include_set_item_ref_paths' is set to 1.) ->
@@ -1930,7 +1930,7 @@ class SetAPI:
            metadata about an object. Arbitrary key-value pairs provided by
            the user.) -> mapping from String to String, parameter "elements"
            of mapping from String to type "GenomeSetItem" (When saving an
-           GenomeSet, only 'ref' is required. You should never set 'info'. 
+           GenomeSet, only 'ref' is required. You should never set 'info'.
            'info' is provided optionally when fetching the GenomeSet.
            ref_path is optionally returned by get_genome_set_v1() when its
            input parameter 'include_set_item_ref_paths' is set to 1.) ->
@@ -2148,7 +2148,7 @@ class SetAPI:
         #BEGIN sample_set_to_samples_info
         sample_search_utils = SamplesSearchUtils(ctx['token'], self.search_url)
         if not params.get('ref'):
-          raise ValueError(f"Argument 'ref' must be specified, 'ref' = '{params.get('ref')}' ")
+          raise ValueError(f"Argument 'ref' must be specified, 'ref' = '{params.get('ref')}'")
         result = sample_search_utils.sample_set_to_samples_info(params)
         #END sample_set_to_samples_info
 

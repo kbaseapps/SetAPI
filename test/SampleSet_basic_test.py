@@ -3,23 +3,24 @@ import os
 import time
 import unittest
 from pprint import pprint
-from test.test_config import get_test_config
+from test.conftest import INFO_LENGTH, WS_NAME, test_config
+
 import pytest
-from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 from installed_clients.DataFileUtilClient import DataFileUtil
+from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 
 
 class SetAPITest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        props = get_test_config()
+        props = test_config()
         for prop in ["cfg", "ctx", "serviceImpl", "wsClient", "wsName", "wsURL"]:
             setattr(cls, prop, props[prop])
 
         cls.dfu = DataFileUtil(os.environ["SDK_CALLBACK_URL"])
         foft = FakeObjectsForTests(os.environ["SDK_CALLBACK_URL"])
         [info1, info2, info3] = foft.create_fake_reads(
-            {"ws_name": cls.wsName, "obj_names": ["reads1", "reads2", "reads3"]}
+            {"ws_name": WS_NAME, "obj_names": ["reads1", "reads2", "reads3"]}
         )
         cls.read1ref = str(info1[6]) + "/" + str(info1[0]) + "/" + str(info1[4])
         cls.read2ref = str(info2[6]) + "/" + str(info2[0]) + "/" + str(info2[4])
@@ -35,7 +36,7 @@ class SetAPITest(unittest.TestCase):
         cls.condition_3 = "HY"
 
         # create a conditition set
-        workspace_id = cls.dfu.ws_name_to_id(cls.wsName)
+        workspace_id = cls.dfu.ws_name_to_id(WS_NAME)
         condition_set_object_name = "test_Condition_Set"
         condition_set_data = {
             "conditions": {
@@ -79,23 +80,8 @@ class SetAPITest(unittest.TestCase):
             str(dfu_oi[6]) + "/" + str(dfu_oi[0]) + "/" + str(dfu_oi[4])
         )
 
-    @classmethod
-    def tearDownClass(cls):
-        if hasattr(cls, "wsName"):
-            cls.wsClient.delete_workspace({"workspace": cls.wsName})
-            print("Test workspace was deleted")
-
     def getWsClient(self):
         return self.__class__.wsClient
-
-    def getWsName(self):
-        if hasattr(self.__class__, "wsName"):
-            return self.__class__.wsName
-        suffix = int(time.time() * 1000)
-        wsName = "test_SetAPI_" + str(suffix)
-        ret = self.getWsClient().create_workspace({"workspace": wsName})
-        self.__class__.wsName = wsName
-        return wsName
 
     def getImpl(self):
         return self.__class__.serviceImpl
@@ -105,7 +91,7 @@ class SetAPITest(unittest.TestCase):
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'.
     def test_basic_save_and_get(self):
-        workspace = self.getWsName()
+        workspace = WS_NAME
         setObjName = "micromonas_rnaseq_test1_sampleset"
 
         # create the set object
@@ -137,7 +123,7 @@ class SetAPITest(unittest.TestCase):
 
         assert "set_ref" in res
         assert "set_info" in res
-        assert len(res["set_info"]) == 11
+        assert len(res["set_info"]) == INFO_LENGTH
 
         assert res["set_info"][1] == setObjName
         assert "num_samples" in res["set_info"][10]
@@ -149,7 +135,7 @@ class SetAPITest(unittest.TestCase):
         )[0]
         assert "data" in d1
         assert "info" in d1
-        assert len(d1["info"]) == 11
+        assert len(d1["info"]) == INFO_LENGTH
         assert "item_count" in d1["info"][10]
         assert d1["info"][10]["item_count"] == 3
 
@@ -181,7 +167,7 @@ class SetAPITest(unittest.TestCase):
         )[0]
         assert "data" in d2
         assert "info" in d2
-        assert len(d2["info"]) == 11
+        assert len(d2["info"]) == INFO_LENGTH
         assert "item_count" in d2["info"][10]
         assert d2["info"][10]["item_count"] == 3
 
@@ -190,7 +176,7 @@ class SetAPITest(unittest.TestCase):
 
         item2 = d2["data"]["items"][1]
         assert "info" in item2
-        assert len(item2["info"]), 11
+        assert len(item2["info"]), INFO_LENGTH
         assert "ref" in item2
         assert item2["ref"] == self.read2ref
 
@@ -200,7 +186,7 @@ class SetAPITest(unittest.TestCase):
         pprint(d2)
 
     def test_basic_save_and_get_condition_in_list(self):
-        workspace = self.getWsName()
+        workspace = WS_NAME
         setObjName = "micromonas_rnaseq_test1_sampleset"
 
         # create the set object
@@ -232,7 +218,7 @@ class SetAPITest(unittest.TestCase):
 
         assert "set_ref" in res
         assert "set_info" in res
-        assert len(res["set_info"]) == 11
+        assert len(res["set_info"]) == INFO_LENGTH
 
         assert res["set_info"][1] == setObjName
         assert "num_samples" in res["set_info"][10]
@@ -244,7 +230,7 @@ class SetAPITest(unittest.TestCase):
         )[0]
         assert "data" in d1
         assert "info" in d1
-        assert len(d1["info"]) == 11
+        assert len(d1["info"]) == INFO_LENGTH
         assert "item_count" in d1["info"][10]
         assert d1["info"][10]["item_count"] == 3
 
@@ -276,7 +262,7 @@ class SetAPITest(unittest.TestCase):
         )[0]
         assert "data" in d2
         assert "info" in d2
-        assert len(d2["info"]) == 11
+        assert len(d2["info"]) == INFO_LENGTH
         assert "item_count" in d2["info"][10]
         assert d2["info"][10]["item_count"] == 3
 
@@ -285,7 +271,7 @@ class SetAPITest(unittest.TestCase):
 
         item2 = d2["data"]["items"][1]
         assert "info" in item2
-        assert len(item2["info"]), 11
+        assert len(item2["info"]), INFO_LENGTH
         assert "ref" in item2
         assert item2["ref"] == self.read2ref
 
@@ -296,7 +282,7 @@ class SetAPITest(unittest.TestCase):
 
     @unittest.skip("conditionset_ref not supported")
     def test_unmatched_conditions(self):
-        workspace = self.getWsName()
+        workspace = WS_NAME
         setObjName = "micromonas_rnaseq_test1_sampleset"
 
         unmatching_condition = "unmatching_condition"
@@ -328,7 +314,7 @@ class SetAPITest(unittest.TestCase):
             setAPI.create_sample_set(self.getContext(), create_ss_params)
 
     def test_non_list_string_conditions(self):
-        workspace = self.getWsName()
+        workspace = WS_NAME
         setObjName = "micromonas_rnaseq_test1_sampleset"
 
         digital_condition = 10

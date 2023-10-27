@@ -3,16 +3,16 @@ import os
 import shutil
 import unittest
 from pprint import pprint
-
 from test import TEST_BASE_DIR
-from test.test_config import get_test_config
+from test.conftest import INFO_LENGTH, WS_NAME, test_config
+
 from installed_clients.AssemblyUtilClient import AssemblyUtil
 
 
 class SetAPITest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        props = get_test_config()
+        props = test_config()
         for prop in ["cfg", "ctx", "serviceImpl", "wsClient", "wsName", "wsURL"]:
             setattr(cls, prop, props[prop])
 
@@ -25,29 +25,20 @@ class SetAPITest(unittest.TestCase):
         cls.assembly1ref = au.save_assembly_from_fasta(
             {
                 "file": {"path": fna_path},
-                "workspace_name": cls.wsName,
+                "workspace_name": WS_NAME,
                 "assembly_name": "assembly_obj_1",
             }
         )
         cls.assembly2ref = au.save_assembly_from_fasta(
             {
                 "file": {"path": fna_path},
-                "workspace_name": cls.wsName,
+                "workspace_name": WS_NAME,
                 "assembly_name": "assembly_obj_2",
             }
         )
 
-    @classmethod
-    def tearDownClass(cls):
-        if hasattr(cls, "wsName"):
-            cls.wsClient.delete_workspace({"workspace": cls.wsName})
-            print("Test workspace was deleted")
-
     def getWsClient(self):
         return self.__class__.wsClient
-
-    def getWsName(self):
-        return self.__class__.wsName
 
     def getImpl(self):
         return self.__class__.serviceImpl
@@ -57,7 +48,7 @@ class SetAPITest(unittest.TestCase):
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'.
     def test_basic_save_and_get(self):
-        workspace = self.getWsName()
+        workspace = WS_NAME
         setObjName = "set_of_assemblies"
 
         # create the set object
@@ -81,7 +72,7 @@ class SetAPITest(unittest.TestCase):
         )[0]
         assert "set_ref" in res
         assert "set_info" in res
-        assert len(res["set_info"]) == 11
+        assert len(res["set_info"]) == INFO_LENGTH
 
         assert res["set_info"][1] == setObjName
         assert "item_count" in res["set_info"][10]
@@ -93,7 +84,7 @@ class SetAPITest(unittest.TestCase):
         )[0]
         assert "data" in d1
         assert "info" in d1
-        assert len(d1["info"]) == 11
+        assert len(d1["info"]) == INFO_LENGTH
         assert "item_count" in d1["info"][10]
         assert d1["info"][10]["item_count"] == "2"
 
@@ -119,7 +110,7 @@ class SetAPITest(unittest.TestCase):
         )[0]
         assert "data" in d2
         assert "info" in d2
-        assert len(d2["info"]) == 11
+        assert len(d2["info"]) == INFO_LENGTH
         assert "item_count" in d2["info"][10]
         assert d2["info"][10]["item_count"] == "2"
 
@@ -128,7 +119,7 @@ class SetAPITest(unittest.TestCase):
 
         item2 = d2["data"]["items"][1]
         assert "info" in item2
-        assert len(item2["info"]), 11
+        assert len(item2["info"]), INFO_LENGTH
         assert "ref" in item2
         assert item2["ref"] == self.assembly2ref
 
@@ -138,7 +129,7 @@ class SetAPITest(unittest.TestCase):
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'.
     def skip_test_save_and_get_of_emtpy_set(self):
-        workspace = self.getWsName()
+        workspace = WS_NAME
         setObjName = "nada_set"
 
         # create the set object
@@ -155,7 +146,7 @@ class SetAPITest(unittest.TestCase):
         )[0]
         assert "set_ref" in res
         assert "set_info" in res
-        assert len(res["set_info"]) == 11
+        assert len(res["set_info"]) == INFO_LENGTH
 
         assert res["set_info"][1] == setObjName
         assert "item_count" in res["set_info"][10]
@@ -167,7 +158,7 @@ class SetAPITest(unittest.TestCase):
         )[0]
         assert "data" in d1
         assert "info" in d1
-        assert len(d1["info"]) == 11
+        assert len(d1["info"]) == INFO_LENGTH
         assert "item_count" in d1["info"][10]
         assert d1["info"][10]["item_count"] == "0"
 
@@ -180,7 +171,7 @@ class SetAPITest(unittest.TestCase):
 
         assert "data" in d2
         assert "info" in d2
-        assert len(d2["info"]) == 11
+        assert len(d2["info"]) == INFO_LENGTH
         assert "item_count" in d2["info"][10]
         assert d2["info"][10]["item_count"] == "0"
 
