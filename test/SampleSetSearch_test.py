@@ -31,7 +31,7 @@ class SetAPITest(BaseTestClass):
         with pytest.raises(
             ValueError, match="Argument 'ref' must be specified, 'ref' = 'None'"
         ):
-            self.serviceImpl.sample_set_to_samples_info(
+            self.set_api_client.sample_set_to_samples_info(
                 self.ctx, {"start": 0, "limit": 10}
             )
 
@@ -39,13 +39,13 @@ class SetAPITest(BaseTestClass):
         with pytest.raises(
             ValueError, match="Argument 'ref' must be specified, 'ref' = 'None'"
         ):
-            self.serviceImpl.sample_set_to_samples_info(self.ctx, {})
+            self.set_api_client.sample_set_to_samples_info(self.ctx, {})
 
     @unittest.skip("only particular users have permission to search")
     # test_sample_set_to_sample_info
     def test_sample_set_to_sample_info(self):
         # test defaults of "start" and "limit" variables
-        ret = self.serviceImpl.sample_set_to_samples_info(
+        ret = self.set_api_client.sample_set_to_samples_info(
             self.ctx,
             {
                 "ref": SAMPLE_SET_REF,
@@ -58,7 +58,7 @@ class SetAPITest(BaseTestClass):
     @unittest.skip("only particular users have permission to search")
     # skipped because only particular users have permission to search
     def test_query_search(self):
-        ret = self.serviceImpl.sample_set_to_samples_info(
+        ret = self.set_api_client.sample_set_to_samples_info(
             self.ctx,
             {"ref": SAMPLE_SET_REF, "start": 0, "limit": 10, "query": "Georgia"},
         )[0]
@@ -76,7 +76,7 @@ class SetAPITest(BaseTestClass):
     @unittest.skip("only particular users have permission to search")
     # skipped because only particular users have permission to search
     def test_prefix_query_search(self):
-        ret = self.serviceImpl.sample_set_to_samples_info(
+        ret = self.set_api_client.sample_set_to_samples_info(
             self.ctx, {"ref": SAMPLE_SET_REF, "query": "Germa"}
         )[0]
         with open("data/sample_set_search_compare.json") as f:
@@ -93,7 +93,7 @@ class SetAPITest(BaseTestClass):
     @unittest.skip("only particular users have permission to search")
     # skipped because only particular users have permission to search
     def test_prefix_query_search_2(self):
-        ret = self.serviceImpl.sample_set_to_samples_info(
+        ret = self.set_api_client.sample_set_to_samples_info(
             self.ctx, {"ref": SAMPLE_SET_REF, "query": "Ge"}
         )[0]
         with open("data/sample_set_search_compare.json") as f:

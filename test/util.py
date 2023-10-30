@@ -1,6 +1,7 @@
 """
 Some utility functions to help with testing. These mainly add fake objects to use in making sets.
 """
+from installed_clients import FakeObjectsForTestsClient
 from installed_clients.DataFileUtilClient import DataFileUtil
 
 
@@ -10,7 +11,41 @@ def info_to_ref(info):
     string.
     (Honestly, I just got sick of rewriting this everywhere and forgetting the indices - Bill).
     """
-    return "{}/{}/{}".format(info[6], info[0], info[4])
+    return f"{info[6]}/{info[0]}/{info[4]}"
+
+
+def make_genome_refs(foft: FakeObjectsForTestsClient, ws_name: str) -> list[str]:
+    """Create two fake genome references.
+
+    :param foft: fake objects for tests client
+    :type foft: FakeObjectsForTestsClient
+    :param ws_name: workspace name
+    :type ws_name: str
+    :return: list of KBase UPAs for the objects
+    :rtype: list[str]
+    """
+    genome_info = foft.create_fake_genomes(
+        {"ws_name": ws_name, "obj_names": ["genome_obj_1", "genome_obj_2"]}
+    )
+    return [info_to_ref(info) for info in genome_info]
+
+
+def make_reads_refs(foft: FakeObjectsForTestsClient, ws_name: str) -> list[str]:
+    """Create three fake reads refs.
+
+    :param foft: fake objects for tests client
+    :type foft: FakeObjectsForTestsClient
+    :param ws_name: workspace name
+    :type ws_name: str
+    :return: list of KBase UPAs for the fake reads.
+    :rtype: list[str]
+    """
+    # Make some fake reads objects
+    fake_reads_list = foft.create_fake_reads(
+        {"ws_name": ws_name, "obj_names": ["reads1", "reads2", "reads3"]}
+    )
+    return [info_to_ref(info) for info in fake_reads_list]
+
 
 
 def make_fake_alignment(

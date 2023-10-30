@@ -22,7 +22,6 @@ TOKEN = os.environ.get("KB_AUTH_TOKEN", None)
 SDK_CALLBACK_URL = os.environ["SDK_CALLBACK_URL"]
 INFO_LENGTH = 11
 
-
 def get_test_config() -> dict[str, Any]:
     """Generate various useful values and variables for testing.
 
@@ -75,11 +74,11 @@ def get_test_config() -> dict[str, Any]:
     ws_client.create_workspace({"workspace": ws_name})
 
     return {
-        "cfg": cfg_dict,
+        "config": cfg_dict,
         "ctx": ctx,
-        "serviceImpl": set_api_client,
-        "wsClient": ws_client,
-        "wsName": ws_name,
+        "set_api_client": set_api_client,
+        "ws_client": ws_client,
+        "ws_name": ws_name,
         "au": AssemblyUtil(SDK_CALLBACK_URL),
         "dfu": DataFileUtil(SDK_CALLBACK_URL),
         "foft": FakeObjectsForTests(SDK_CALLBACK_URL),
