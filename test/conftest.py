@@ -1,0 +1,88 @@
+"""Fixtures and global settings for the tests."""
+import os
+import time
+from configparser import ConfigParser
+from test import TEST_BASE_DIR
+from typing import Any
+
+import pytest
+from installed_clients.AssemblyUtilClient import AssemblyUtil
+from installed_clients.authclient import KBaseAuth
+from installed_clients.DataFileUtilClient import DataFileUtil
+from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
+from installed_clients.WorkspaceClient import Workspace
+from SetAPI.SetAPIImpl import SetAPI
+from SetAPI.SetAPIServer import MethodContext
+
+CONFIG_FILE = os.environ.get(
+    "KB_DEPLOYMENT_CONFIG",
+    os.path.join(TEST_BASE_DIR, "./deploy.cfg")
+)
+
+WS_NAME = "test_SetAPI_" + str(int(time.time() * 1000))
+TOKEN = os.environ.get("KB_AUTH_TOKEN", None)
+SDK_CALLBACK_URL = os.environ["SDK_CALLBACK_URL"]
+INFO_LENGTH = 11
+
+@pytest.fixture(scope="session")
+def test_config() -> dict[str, Any]:
+    """Generate various useful values and variables for testing.
+
+    Includes a workspace, a token, a context, a config, and more!
+
+    :yield: dictionary of key-value pairs
+    :rtype: dict[str, Any]
+    """
+    print(f"Retrieving config from {CONFIG_FILE}")
+    cfg_dict = {}
+    config_parser = ConfigParser()
+    config_parser.read(CONFIG_FILE)
+    for nameval in config_parser.items("SetAPI"):
+        cfg_dict[nameval[0]] = nameval[1]
+
+    auth_client = KBaseAuth(
+        cfg_dict.get(
+            "auth-service-url", "https://kbase.us/services/authorization/Sessions/Login"
+        )
+    )
+
+    # set up the context
+    ctx = MethodContext(None)
+    ctx.update(
+        {
+            "token": TOKEN,
+            "user_id": auth_client.get_user(TOKEN),
+            "provenance": [
+                {
+                    "service": "SetAPI",
+                    "method": "please_never_use_it_in_production",
+                    "method_params": [],
+                }
+            ],
+            "authenticated": 1,
+        }
+    )
+
+    # set up the SetAPI implementation
+    set_api_client = SetAPI(cfg_dict)
+
+    # create a workspace for the tests
+    ws_url = cfg_dict["workspace-url"]
+    ws_client = Workspace(ws_url, token=TOKEN)
+    ws_client.create_workspace({"workspace": WS_NAME})
+
+    yield {
+        "cfg": cfg_dict,
+        "ctx": ctx,
+        "serviceImpl": set_api_client,
+        "wsClient": ws_client,
+        "wsName": WS_NAME,
+        "wsURL": ws_url,
+        "au": AssemblyUtil(os.environ["SDK_CALLBACK_URL"]),
+        "dfu": DataFileUtil(os.environ["SDK_CALLBACK_URL"]),
+        "foft": FakeObjectsForTests(os.environ["SDK_CALLBACK_URL"]),
+    }
+
+    # teardown: delete workspace
+    ws_client.delete_workspace({"workspace": WS_NAME})
+    print("Test workspace was deleted")

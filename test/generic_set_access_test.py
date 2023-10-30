@@ -3,10 +3,11 @@ import os
 import time
 import unittest
 from pprint import pprint
-from test.test_config import get_test_config
+from test.conftest import INFO_LENGTH, WS_NAME, test_config
+
 import pytest
-from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
 from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
+from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
 
 
 class SetAPITest(unittest.TestCase):
@@ -14,34 +15,19 @@ class SetAPITest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        props = get_test_config()
+        props = test_config()
         for prop in ["cfg", "ctx", "serviceImpl", "wsClient", "wsName", "wsURL"]:
             setattr(cls, prop, props[prop])
 
         foft = FakeObjectsForTests(os.environ["SDK_CALLBACK_URL"])
         [info1, info2] = foft.create_fake_reads(
-            {"ws_name": cls.wsName, "obj_names": ["reads1", "reads2"]}
+            {"ws_name": WS_NAME, "obj_names": ["reads1", "reads2"]}
         )
         cls.read1ref = str(info1[6]) + "/" + str(info1[0]) + "/" + str(info1[4])
         cls.read2ref = str(info2[6]) + "/" + str(info2[0]) + "/" + str(info2[4])
 
-    @classmethod
-    def tearDownClass(cls):
-        if hasattr(cls, "wsName"):
-            cls.wsClient.delete_workspace({"workspace": cls.wsName})
-            print("Test workspace was deleted")
-
     def getWsClient(self):
         return self.__class__.wsClient
-
-    def getWsName(self):
-        if hasattr(self.__class__, "wsName"):
-            return self.__class__.wsName
-        suffix = int(time.time() * 1000)
-        wsName = "test_SetAPI_" + str(suffix)
-        ret = self.getWsClient().create_workspace({"workspace": wsName})
-        self.__class__.wsName = wsName
-        return wsName
 
     def getImpl(self):
         return self.__class__.serviceImpl
@@ -53,7 +39,7 @@ class SetAPITest(unittest.TestCase):
         if hasattr(self.__class__, "setNames"):
             return
 
-        workspace = self.getWsName()
+        workspace = WS_NAME
         self.__class__.setNames = ["set_o_reads1", "set_o_reads2", "set_o_reads3"]
         self.__class__.setRefs = []
 
@@ -89,7 +75,7 @@ class SetAPITest(unittest.TestCase):
             set_api.list_sets(ctx, {"workspace": 12345, "include_set_item_info": "foo"})
 
     def test_list_sets(self):
-        workspace = self.getWsName()
+        workspace = WS_NAME
         setAPI = self.getImpl()
 
         # make sure we can see an empty list of sets before WS has any
@@ -111,12 +97,12 @@ class SetAPITest(unittest.TestCase):
             assert "ref" in s
             assert "info" in s
             assert "items" in s
-            assert len(s["info"]) == 11
+            assert len(s["info"]) == INFO_LENGTH
             assert len(s["items"]) == 2
             for item in s["items"]:
                 assert "ref" in item
                 assert "info" in item
-                assert len(item["info"]) == 11
+                assert len(item["info"]) == INFO_LENGTH
 
         # Get the sets in a workspace without their item info (just the refs)
         res2 = setAPI.list_sets(self.getContext(), {"workspace": workspace})[0]
@@ -126,7 +112,7 @@ class SetAPITest(unittest.TestCase):
             assert "ref" in s
             assert "info" in s
             assert "items" in s
-            assert len(s["info"]) == 11
+            assert len(s["info"]) == INFO_LENGTH
             assert len(s["items"]) == 2
             for item in s["items"]:
                 assert "ref" in item
@@ -148,7 +134,7 @@ class SetAPITest(unittest.TestCase):
             assert "ref" in s
             assert "info" in s
             assert "items" in s
-            assert len(s["info"]) == 11
+            assert len(s["info"]) == INFO_LENGTH
             assert len(s["items"]) == 2
             for item in s["items"]:
                 assert "ref" in item
@@ -167,17 +153,9 @@ class SetAPITest(unittest.TestCase):
                 if ws_info[4] < 1000:
                     ids.append(str(ws_info[0]))
                 else:
-                    print(
-                        (
-                            "Workspace: "
-                            + ws_info[1]
-                            + ", size="
-                            + str(ws_info[4])
-                            + " (skipped)"
-                        )
-                    )
+                    print(f"Workspace: {ws_info[1]}, size={ws_info[4]!s} skipped")
 
-            print(("Number of workspaces for bulk list_sets: " + str(len(ids))))
+            print("Number of workspaces for bulk list_sets: " + str(len(ids)))
             if len(ids) > 0:
                 ret = self.getImpl().list_sets(
                     self.getContext(),
@@ -221,11 +199,11 @@ class SetAPITest(unittest.TestCase):
             assert "ref" in s
             assert "info" in s
             assert "items" in s
-            assert len(s["info"]) == 11
+            assert len(s["info"]) == INFO_LENGTH
             assert len(s["items"]) == 2
             for item in s["items"]:
                 assert "ref" in item
                 assert "info" in item
-                assert len(item["info"]) == 11
+                assert len(item["info"]) == INFO_LENGTH
                 assert "ref_path" in item
                 assert item["ref_path"] == s["ref"] + ";" + item["ref"]

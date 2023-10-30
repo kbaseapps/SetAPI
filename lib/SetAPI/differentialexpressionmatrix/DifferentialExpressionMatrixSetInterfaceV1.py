@@ -38,7 +38,7 @@ class DifferentialExpressionMatrixSetInterfaceV1:
                 "least one DifferentialExpressionMatrix object reference."
             )
 
-        refs = list()
+        refs = []
         for item in data["items"]:
             refs.append(item["ref"])
             if "label" not in item:

@@ -3,19 +3,21 @@ import os
 import shutil
 import unittest
 from pprint import pprint
-import pytest
 from test import TEST_BASE_DIR
-from test.test_config import get_test_config
-from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
+from test.conftest import WS_NAME, test_config
 from test.util import (
     info_to_ref,
     make_fake_alignment,
     make_fake_annotation,
     make_fake_expression,
-    make_fake_sampleset,
     make_fake_old_alignment_set,
     make_fake_old_expression_set,
+    make_fake_sampleset,
 )
+
+import pytest
+from installed_clients.baseclient import ServerError
+from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 
 
 class ExpressionSetAPITest(unittest.TestCase):
@@ -23,7 +25,7 @@ class ExpressionSetAPITest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        props = get_test_config()
+        props = test_config()
         for prop in ["cfg", "ctx", "serviceImpl", "wsClient", "wsName", "wsURL"]:
             setattr(cls, prop, props[prop])
 
@@ -31,16 +33,16 @@ class ExpressionSetAPITest(unittest.TestCase):
 
         # Make a fake genome
         [fake_genome, fake_genome2] = foft.create_fake_genomes(
-            {"ws_name": cls.wsName, "obj_names": ["fake_genome", "fake_genome2"]}
+            {"ws_name": WS_NAME, "obj_names": ["fake_genome", "fake_genome2"]}
         )
         cls.genome_refs = [info_to_ref(fake_genome), info_to_ref(fake_genome2)]
 
         # Make some fake reads objects
         fake_reads_list = foft.create_fake_reads(
-            {"ws_name": cls.wsName, "obj_names": ["reads1", "reads2", "reads3"]}
+            {"ws_name": WS_NAME, "obj_names": ["reads1", "reads2", "reads3"]}
         )
-        cls.alignment_refs = list()
-        cls.reads_refs = list()
+        cls.alignment_refs = []
+        cls.reads_refs = []
 
         # Make some fake alignments referencing those reads and genome
         dummy_filename = "dummy.txt"
@@ -54,10 +56,10 @@ class ExpressionSetAPITest(unittest.TestCase):
                 make_fake_alignment(
                     os.environ["SDK_CALLBACK_URL"],
                     cls.dummy_path,
-                    "fake_alignment_{}".format(idx),
+                    f"fake_alignment_{idx!s}",
                     reads_ref,
                     cls.genome_refs[0],
-                    cls.wsName,
+                    WS_NAME,
                     cls.wsClient,
                 )
             )
@@ -67,23 +69,23 @@ class ExpressionSetAPITest(unittest.TestCase):
             os.environ["SDK_CALLBACK_URL"],
             cls.dummy_path,
             "fake_annotation",
-            cls.wsName,
+            WS_NAME,
             cls.wsClient,
         )
 
         # Now we can phony up some expression objects to build sets out of.
         # name, genome_ref, annotation_ref, alignment_ref, ws_name, ws_client
-        cls.expression_refs = list()
+        cls.expression_refs = []
         for idx, alignment_ref in enumerate(cls.alignment_refs):
             cls.expression_refs.append(
                 make_fake_expression(
                     os.environ["SDK_CALLBACK_URL"],
                     cls.dummy_path,
-                    "fake_expression_{}".format(idx),
+                    f"fake_expression_{idx!s}",
                     cls.genome_refs[0],
                     cls.annotation_ref,
                     alignment_ref,
-                    cls.wsName,
+                    WS_NAME,
                     cls.wsClient,
                 )
             )
@@ -91,7 +93,7 @@ class ExpressionSetAPITest(unittest.TestCase):
         # Make a fake RNASeq Alignment Set object
         # Make a fake RNASeqSampleSet
         cls.sampleset_ref = make_fake_sampleset(
-            "fake_sampleset", [], [], cls.wsName, cls.wsClient
+            "fake_sampleset", [], [], WS_NAME, cls.wsClient
         )
 
         # Finally, make a couple fake RNASeqAlignmentSts objects from those alignments
@@ -101,7 +103,7 @@ class ExpressionSetAPITest(unittest.TestCase):
             cls.genome_refs[0],
             cls.sampleset_ref,
             cls.alignment_refs,
-            cls.wsName,
+            WS_NAME,
             cls.wsClient,
         )
 
@@ -113,22 +115,13 @@ class ExpressionSetAPITest(unittest.TestCase):
             cls.alignment_refs,
             cls.fake_rnaseq_alignment_set,
             cls.expression_refs,
-            cls.wsName,
+            WS_NAME,
             cls.wsClient,
             True,
         )
 
-    @classmethod
-    def tearDownClass(cls):
-        if hasattr(cls, "wsName"):
-            cls.wsClient.delete_workspace({"workspace": cls.wsName})
-            print("Test workspace was deleted")
-
     def getWsClient(self):
         return self.__class__.wsClient
-
-    def getWsName(self):
-        return self.__class__.wsName
 
     def getImpl(self):
         return self.__class__.serviceImpl
@@ -138,14 +131,12 @@ class ExpressionSetAPITest(unittest.TestCase):
 
     def test_save_expression_set(self):
         expression_set_name = "test_expression_set"
-        expression_items = list()
-        for ref in self.expression_refs:
-            expression_items.append({"label": "foo", "ref": ref})
+        expression_items = [{"label": "foo", "ref": ref} for ref in self.expression_refs]
         expression_set = {"description": "test_expressions", "items": expression_items}
         result = self.getImpl().save_expression_set_v1(
             self.getContext(),
             {
-                "workspace": self.getWsName(),
+                "workspace": WS_NAME,
                 "output_object_name": expression_set_name,
                 "data": expression_set,
             },
@@ -170,7 +161,7 @@ class ExpressionSetAPITest(unittest.TestCase):
                         self.genome_refs[1],
                         self.annotation_ref,
                         self.alignment_refs[0],
-                        self.getWsName(),
+                        WS_NAME,
                         self.getWsClient(),
                     ),
                     "label": "odd_alignment",
@@ -185,7 +176,7 @@ class ExpressionSetAPITest(unittest.TestCase):
             self.getImpl().save_expression_set_v1(
                 self.getContext(),
                 {
-                    "workspace": self.getWsName(),
+                    "workspace": WS_NAME,
                     "output_object_name": expression_set_name,
                     "data": expression_set,
                 },
@@ -198,7 +189,7 @@ class ExpressionSetAPITest(unittest.TestCase):
             self.getImpl().save_expression_set_v1(
                 self.getContext(),
                 {
-                    "workspace": self.getWsName(),
+                    "workspace": WS_NAME,
                     "output_object_name": "foo",
                     "data": None,
                 },
@@ -212,7 +203,7 @@ class ExpressionSetAPITest(unittest.TestCase):
             self.getImpl().save_expression_set_v1(
                 self.getContext(),
                 {
-                    "workspace": self.getWsName(),
+                    "workspace": WS_NAME,
                     "output_object_name": "foo",
                     "data": {"items": []},
                 },
@@ -220,14 +211,12 @@ class ExpressionSetAPITest(unittest.TestCase):
 
     def test_get_expression_set(self):
         expression_set_name = "test_expression_set"
-        expression_items = list()
-        for ref in self.expression_refs:
-            expression_items.append({"label": "wt", "ref": ref})
+        expression_items = [{"label": "wt", "ref": ref} for ref in self.expression_refs]
         expression_set = {"description": "test_alignments", "items": expression_items}
         expression_set_ref = self.getImpl().save_expression_set_v1(
             self.getContext(),
             {
-                "workspace": self.getWsName(),
+                "workspace": WS_NAME,
                 "output_object_name": expression_set_name,
                 "data": expression_set,
             },
@@ -260,14 +249,12 @@ class ExpressionSetAPITest(unittest.TestCase):
 
     def test_get_expression_set_ref_path(self):
         expression_set_name = "test_expression_set_ref_path"
-        expression_items = list()
-        for ref in self.expression_refs:
-            expression_items.append({"label": "wt", "ref": ref})
+        expression_items = [{"label": "wt", "ref": ref} for ref in self.expression_refs]
         expression_set = {"description": "test_alignments", "items": expression_items}
         expression_set_ref = self.getImpl().save_expression_set_v1(
             self.getContext(),
             {
-                "workspace": self.getWsName(),
+                "workspace": WS_NAME,
                 "output_object_name": expression_set_name,
                 "data": expression_set,
             },
@@ -310,10 +297,8 @@ class ExpressionSetAPITest(unittest.TestCase):
             assert item["ref_path"] == f"{created_expression_set_ref};{item['ref']}"
         if self.DEBUG:
             print(
-                (
-                    "INPUT: CREATED KBasesets.ExpressionSet: "
-                    + created_expression_set_ref
-                )
+                "INPUT: CREATED KBasesets.ExpressionSet: "
+                + created_expression_set_ref
             )
             pprint(fetched_set_with_ref_path)
             print("==========================")
@@ -327,7 +312,10 @@ class ExpressionSetAPITest(unittest.TestCase):
             )
 
     def test_get_expression_set_bad_path(self):
-        with pytest.raises(Exception):
+        with pytest.raises(
+            ServerError,
+            match="JSONRPCError: -32500. Object 2 cannot be accessed: "
+        ):
             self.getImpl().get_expression_set_v1(
                 self.getContext(), {"ref": "1/2/3", "path_to_set": ["foo", "bar"]}
             )
