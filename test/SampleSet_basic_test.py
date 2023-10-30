@@ -1,42 +1,34 @@
 # -*- coding: utf-8 -*-
-import os
-import time
 import unittest
 from pprint import pprint
-from test.conftest import INFO_LENGTH, WS_NAME, test_config
+from test.base_class import BaseTestClass
+from test.conftest import INFO_LENGTH
 
 import pytest
-from installed_clients.DataFileUtilClient import DataFileUtil
-from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 
 
-class SetAPITest(unittest.TestCase):
+class SetAPITest(BaseTestClass):
     @classmethod
-    def setUpClass(cls):
-        props = test_config()
-        for prop in ["cfg", "ctx", "serviceImpl", "wsClient", "wsName", "wsURL"]:
-            setattr(cls, prop, props[prop])
+    def prepare_data(cls: BaseTestClass) -> None:
+        """Set up fixtures for the class.
 
-        cls.dfu = DataFileUtil(os.environ["SDK_CALLBACK_URL"])
-        foft = FakeObjectsForTests(os.environ["SDK_CALLBACK_URL"])
-        [info1, info2, info3] = foft.create_fake_reads(
-            {"ws_name": WS_NAME, "obj_names": ["reads1", "reads2", "reads3"]}
+        :param cls: class object
+        :type cls: BaseTestClass
+        """
+        [info1, info2, info3] = cls.foft.create_fake_reads(
+            {"ws_name": cls.wsName, "obj_names": ["reads1", "reads2", "reads3"]}
         )
         cls.read1ref = str(info1[6]) + "/" + str(info1[0]) + "/" + str(info1[4])
         cls.read2ref = str(info2[6]) + "/" + str(info2[0]) + "/" + str(info2[4])
         cls.read3ref = str(info3[6]) + "/" + str(info3[0]) + "/" + str(info3[4])
 
-        cls.prepare_data()
-
-    @classmethod
-    def prepare_data(cls):
         # conditions
         cls.condition_1 = "WT"
         cls.condition_2 = "Cond1"
         cls.condition_3 = "HY"
 
         # create a conditition set
-        workspace_id = cls.dfu.ws_name_to_id(WS_NAME)
+        workspace_id = cls.dfu.ws_name_to_id(cls.wsName)
         condition_set_object_name = "test_Condition_Set"
         condition_set_data = {
             "conditions": {
@@ -80,23 +72,12 @@ class SetAPITest(unittest.TestCase):
             str(dfu_oi[6]) + "/" + str(dfu_oi[0]) + "/" + str(dfu_oi[4])
         )
 
-    def getWsClient(self):
-        return self.__class__.wsClient
-
-    def getImpl(self):
-        return self.__class__.serviceImpl
-
-    def getContext(self):
-        return self.__class__.ctx
-
-    # NOTE: According to Python unittest naming rules test method names should start from 'test'.
     def test_basic_save_and_get(self):
-        workspace = WS_NAME
         setObjName = "micromonas_rnaseq_test1_sampleset"
 
         # create the set object
         create_ss_params = {
-            "ws_id": workspace,
+            "ws_id": self.wsName,
             "sampleset_id": setObjName,
             "sampleset_desc": "first pass at testing algae GFFs from NCBI",
             "domain": "euk",
@@ -115,8 +96,8 @@ class SetAPITest(unittest.TestCase):
         }
 
         # test a save
-        setAPI = self.getImpl()
-        res = setAPI.create_sample_set(self.getContext(), create_ss_params)[0]
+        setAPI = self.serviceImpl
+        res = setAPI.create_sample_set(self.ctx, create_ss_params)[0]
 
         print("======  Returned val from create_sample_set  ======")
         pprint(res)
@@ -130,9 +111,9 @@ class SetAPITest(unittest.TestCase):
         assert res["set_info"][10]["num_samples"] == "3"
 
         # test get of that object
-        d1 = setAPI.get_reads_set_v1(
-            self.getContext(), {"ref": workspace + "/" + setObjName}
-        )[0]
+        d1 = setAPI.get_reads_set_v1(self.ctx, {"ref": self.wsName + "/" + setObjName})[
+            0
+        ]
         assert "data" in d1
         assert "info" in d1
         assert len(d1["info"]) == INFO_LENGTH
@@ -158,7 +139,7 @@ class SetAPITest(unittest.TestCase):
 
         # test the call to make sure we get info for each item
         d2 = setAPI.get_reads_set_v1(
-            self.getContext(),
+            self.ctx,
             {
                 "ref": res["set_ref"],
                 "include_item_info": 1,
@@ -186,12 +167,11 @@ class SetAPITest(unittest.TestCase):
         pprint(d2)
 
     def test_basic_save_and_get_condition_in_list(self):
-        workspace = WS_NAME
         setObjName = "micromonas_rnaseq_test1_sampleset"
 
         # create the set object
         create_ss_params = {
-            "ws_id": workspace,
+            "ws_id": self.wsName,
             "sampleset_id": setObjName,
             "sampleset_desc": "first pass at testing algae GFFs from NCBI",
             "domain": "euk",
@@ -210,8 +190,8 @@ class SetAPITest(unittest.TestCase):
         }
 
         # test a save
-        setAPI = self.getImpl()
-        res = setAPI.create_sample_set(self.getContext(), create_ss_params)[0]
+        setAPI = self.serviceImpl
+        res = setAPI.create_sample_set(self.ctx, create_ss_params)[0]
 
         print("======  Returned val from create_sample_set  ======")
         pprint(res)
@@ -225,9 +205,9 @@ class SetAPITest(unittest.TestCase):
         assert res["set_info"][10]["num_samples"] == "3"
 
         # test get of that object
-        d1 = setAPI.get_reads_set_v1(
-            self.getContext(), {"ref": workspace + "/" + setObjName}
-        )[0]
+        d1 = setAPI.get_reads_set_v1(self.ctx, {"ref": self.wsName + "/" + setObjName})[
+            0
+        ]
         assert "data" in d1
         assert "info" in d1
         assert len(d1["info"]) == INFO_LENGTH
@@ -253,7 +233,7 @@ class SetAPITest(unittest.TestCase):
 
         # test the call to make sure we get info for each item
         d2 = setAPI.get_reads_set_v1(
-            self.getContext(),
+            self.ctx,
             {
                 "ref": res["set_ref"],
                 "include_item_info": 1,
@@ -282,13 +262,12 @@ class SetAPITest(unittest.TestCase):
 
     @unittest.skip("conditionset_ref not supported")
     def test_unmatched_conditions(self):
-        workspace = WS_NAME
         setObjName = "micromonas_rnaseq_test1_sampleset"
 
         unmatching_condition = "unmatching_condition"
         # create the set object with unmatching conditions
         create_ss_params = {
-            "ws_id": workspace,
+            "ws_id": self.wsName,
             "sampleset_id": setObjName,
             "sampleset_desc": "first pass at testing algae GFFs from NCBI",
             "domain": "euk",
@@ -308,19 +287,18 @@ class SetAPITest(unittest.TestCase):
         }
 
         # test a save
-        setAPI = self.getImpl()
+        setAPI = self.serviceImpl
 
         with pytest.raises(ValueError, match="ERROR: Given conditions"):
-            setAPI.create_sample_set(self.getContext(), create_ss_params)
+            setAPI.create_sample_set(self.ctx, create_ss_params)
 
     def test_non_list_string_conditions(self):
-        workspace = WS_NAME
         setObjName = "micromonas_rnaseq_test1_sampleset"
 
         digital_condition = 10
         # create the set object with unmatching conditions
         create_ss_params = {
-            "ws_id": workspace,
+            "ws_id": self.wsName,
             "sampleset_id": setObjName,
             "sampleset_desc": "first pass at testing algae GFFs from NCBI",
             "domain": "euk",
@@ -335,9 +313,9 @@ class SetAPITest(unittest.TestCase):
         }
 
         # test a save
-        setAPI = self.getImpl()
+        setAPI = self.serviceImpl
 
         with pytest.raises(
             ValueError, match="ERROR: condition should be either a list or a string"
         ):
-            setAPI.create_sample_set(self.getContext(), create_ss_params)
+            setAPI.create_sample_set(self.ctx, create_ss_params)

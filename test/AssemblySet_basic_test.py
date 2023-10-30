@@ -1,54 +1,41 @@
 # -*- coding: utf-8 -*-
 import os
 import shutil
-import unittest
 from pprint import pprint
 from test import TEST_BASE_DIR
-from test.conftest import INFO_LENGTH, WS_NAME, test_config
+from test.base_class import BaseTestClass
+from test.conftest import INFO_LENGTH
 
-from installed_clients.AssemblyUtilClient import AssemblyUtil
 
-
-class SetAPITest(unittest.TestCase):
+class AssemblySetAPITest(BaseTestClass):
     @classmethod
-    def setUpClass(cls):
-        props = test_config()
-        for prop in ["cfg", "ctx", "serviceImpl", "wsClient", "wsName", "wsURL"]:
-            setattr(cls, prop, props[prop])
+    def prepare_data(cls: BaseTestClass) -> None:
+        """Set up fixtures for the class.
 
+        :param cls: class object
+        :type cls: BaseTestClass
+        """
         # copy test file to scratch area
         fna_filename = "seq.fna"
         fna_path = os.path.join(cls.cfg["scratch"], fna_filename)
         shutil.copy(os.path.join(TEST_BASE_DIR, "data", fna_filename), fna_path)
 
-        au = AssemblyUtil(os.environ["SDK_CALLBACK_URL"])
-        cls.assembly1ref = au.save_assembly_from_fasta(
+        cls.assembly1ref = cls.au.save_assembly_from_fasta(
             {
                 "file": {"path": fna_path},
-                "workspace_name": WS_NAME,
+                "workspace_name": cls.wsName,
                 "assembly_name": "assembly_obj_1",
             }
         )
-        cls.assembly2ref = au.save_assembly_from_fasta(
+        cls.assembly2ref = cls.au.save_assembly_from_fasta(
             {
                 "file": {"path": fna_path},
-                "workspace_name": WS_NAME,
+                "workspace_name": cls.wsName,
                 "assembly_name": "assembly_obj_2",
             }
         )
 
-    def getWsClient(self):
-        return self.__class__.wsClient
-
-    def getImpl(self):
-        return self.__class__.serviceImpl
-
-    def getContext(self):
-        return self.__class__.ctx
-
-    # NOTE: According to Python unittest naming rules test method names should start from 'test'.
     def test_basic_save_and_get(self):
-        workspace = WS_NAME
         setObjName = "set_of_assemblies"
 
         # create the set object
@@ -61,13 +48,13 @@ class SetAPITest(unittest.TestCase):
         }
 
         # test a save
-        setAPI = self.getImpl()
+        setAPI = self.serviceImpl
         res = setAPI.save_assembly_set_v1(
-            self.getContext(),
+            self.ctx,
             {
                 "data": set_data,
                 "output_object_name": setObjName,
-                "workspace": workspace,
+                "workspace": self.wsName,
             },
         )[0]
         assert "set_ref" in res
@@ -80,7 +67,7 @@ class SetAPITest(unittest.TestCase):
 
         # test get of that object
         d1 = setAPI.get_assembly_set_v1(
-            self.getContext(), {"ref": workspace + "/" + setObjName}
+            self.ctx, {"ref": self.wsName + "/" + setObjName}
         )[0]
         assert "data" in d1
         assert "info" in d1
@@ -101,7 +88,7 @@ class SetAPITest(unittest.TestCase):
 
         # test the call to make sure we get info for each item
         d2 = setAPI.get_reads_set_v1(
-            self.getContext(),
+            self.ctx,
             {
                 "ref": res["set_ref"],
                 "include_item_info": 1,
@@ -127,21 +114,19 @@ class SetAPITest(unittest.TestCase):
         assert item2["ref_path"] == res["set_ref"] + ";" + item2["ref"]
         pprint(d2)
 
-    # NOTE: According to Python unittest naming rules test method names should start from 'test'.
     def skip_test_save_and_get_of_emtpy_set(self):
-        workspace = WS_NAME
         setObjName = "nada_set"
 
         # create the set object
         set_data = {"description": "nothing to see here", "items": []}
         # test a save
-        setAPI = self.getImpl()
+        setAPI = self.serviceImpl
         res = setAPI.save_assembly_set_v1(
-            self.getContext(),
+            self.ctx,
             {
                 "data": set_data,
                 "output_object_name": setObjName,
-                "workspace": workspace,
+                "workspace": self.wsName,
             },
         )[0]
         assert "set_ref" in res
@@ -154,7 +139,7 @@ class SetAPITest(unittest.TestCase):
 
         # test get of that object
         d1 = setAPI.get_assembly_set_v1(
-            self.getContext(), {"ref": workspace + "/" + setObjName}
+            self.ctx, {"ref": self.wsName + "/" + setObjName}
         )[0]
         assert "data" in d1
         assert "info" in d1
@@ -166,7 +151,7 @@ class SetAPITest(unittest.TestCase):
         assert len(d1["data"]["items"]) == 0
 
         d2 = setAPI.get_assembly_set_v1(
-            self.getContext(), {"ref": res["set_ref"], "include_item_info": 1}
+            self.ctx, {"ref": res["set_ref"], "include_item_info": 1}
         )[0]
 
         assert "data" in d2

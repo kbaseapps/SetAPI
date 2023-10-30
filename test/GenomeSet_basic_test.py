@@ -1,39 +1,25 @@
 # -*- coding: utf-8 -*-
-import os
-import time
 import unittest
 from pprint import pprint
-from test.conftest import INFO_LENGTH, WS_NAME, test_config
+from test.base_class import BaseTestClass
+from test.conftest import INFO_LENGTH
 
-from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 
-
-class SetAPITest(unittest.TestCase):
+class SetAPITest(BaseTestClass):
     @classmethod
-    def setUpClass(cls):
-        props = test_config()
-        for prop in ["cfg", "ctx", "serviceImpl", "wsClient", "wsName", "wsURL"]:
-            setattr(cls, prop, props[prop])
+    def prepare_data(cls: BaseTestClass) -> None:
+        """Set up fixtures for the class.
 
-        foft = FakeObjectsForTests(os.environ["SDK_CALLBACK_URL"])
-        [info1, info2] = foft.create_fake_genomes(
-            {"ws_name": WS_NAME, "obj_names": ["genome_obj_1", "genome_obj_2"]}
+        :param cls: class object
+        :type cls: BaseTestClass
+        """
+        [info1, info2] = cls.foft.create_fake_genomes(
+            {"ws_name": cls.wsName, "obj_names": ["genome_obj_1", "genome_obj_2"]}
         )
         cls.genome1ref = str(info1[6]) + "/" + str(info1[0]) + "/" + str(info1[4])
         cls.genome2ref = str(info2[6]) + "/" + str(info2[0]) + "/" + str(info2[4])
 
-    def getWsClient(self):
-        return self.__class__.wsClient
-
-    def getImpl(self):
-        return self.__class__.serviceImpl
-
-    def getContext(self):
-        return self.__class__.ctx
-
-    # NOTE: According to Python unittest naming rules test method names should start from 'test'.
     def test_basic_save_and_get(self):
-        workspace = WS_NAME
         setObjName = "set_of_genomes"
 
         # create the set object
@@ -46,13 +32,13 @@ class SetAPITest(unittest.TestCase):
         }
 
         # test a save
-        setAPI = self.getImpl()
+        setAPI = self.serviceImpl
         res = setAPI.save_genome_set_v1(
-            self.getContext(),
+            self.ctx,
             {
                 "data": set_data,
                 "output_object_name": setObjName,
-                "workspace": workspace,
+                "workspace": self.wsName,
             },
         )[0]
         assert "set_ref" in res
@@ -65,7 +51,7 @@ class SetAPITest(unittest.TestCase):
 
         # test get of that object
         d1 = setAPI.get_genome_set_v1(
-            self.getContext(), {"ref": workspace + "/" + setObjName}
+            self.ctx, {"ref": self.wsName + "/" + setObjName}
         )[0]
         assert "data" in d1
         assert "info" in d1
@@ -85,7 +71,7 @@ class SetAPITest(unittest.TestCase):
 
         # test the call to make sure we get info for each item
         d2 = setAPI.get_reads_set_v1(
-            self.getContext(),
+            self.ctx,
             {
                 "ref": res["set_ref"],
                 "include_item_info": 1,
@@ -112,7 +98,6 @@ class SetAPITest(unittest.TestCase):
         pprint(d2)
 
     def test_save_and_get_kbasesearch_genome(self):
-        workspace = WS_NAME
         setObjName = "set_of_kbasesearch_genomes"
 
         # create the set object
@@ -131,13 +116,13 @@ class SetAPITest(unittest.TestCase):
         }
 
         # test a save
-        setAPI = self.getImpl()
+        setAPI = self.serviceImpl
         res = setAPI.save_genome_set_v1(
-            self.getContext(),
+            self.ctx,
             {
                 "data": set_data,
                 "output_object_name": setObjName,
-                "workspace": workspace,
+                "workspace": self.wsName,
                 "save_search_set": True,
             },
         )[0]
@@ -151,7 +136,7 @@ class SetAPITest(unittest.TestCase):
 
         # test get of that object
         d1 = setAPI.get_genome_set_v1(
-            self.getContext(), {"ref": workspace + "/" + setObjName}
+            self.ctx, {"ref": self.wsName + "/" + setObjName}
         )[0]
         assert "data" in d1
         assert "info" in d1
@@ -173,19 +158,18 @@ class SetAPITest(unittest.TestCase):
     # NOTE: Comment the following line to run the test
     @unittest.skip("skipped test_save_and_get_of_emtpy_set")
     def test_save_and_get_of_emtpy_set(self):
-        workspace = WS_NAME
         setObjName = "nada_set"
 
         # create the set object
         set_data = {"description": "nothing to see here", "items": []}
         # test a save
-        setAPI = self.getImpl()
+        setAPI = self.serviceImpl
         res = setAPI.save_genome_set_v1(
-            self.getContext(),
+            self.ctx,
             {
                 "data": set_data,
                 "output_object_name": setObjName,
-                "workspace": workspace,
+                "workspace": self.wsName,
             },
         )[0]
         assert "set_ref" in res
@@ -198,7 +182,7 @@ class SetAPITest(unittest.TestCase):
 
         # test get of that object
         d1 = setAPI.get_genome_set_v1(
-            self.getContext(), {"ref": workspace + "/" + setObjName}
+            self.ctx, {"ref": self.wsName + "/" + setObjName}
         )[0]
         assert "data" in d1
         assert "info" in d1
@@ -210,7 +194,7 @@ class SetAPITest(unittest.TestCase):
         assert len(d1["data"]["items"]) == 0
 
         d2 = setAPI.get_genome_set_v1(
-            self.getContext(), {"ref": res["set_ref"], "include_item_info": 1}
+            self.ctx, {"ref": res["set_ref"], "include_item_info": 1}
         )[0]
 
         assert "data" in d2
