@@ -1,6 +1,7 @@
 """Fixtures and global settings for the tests."""
 import json
 import os
+import shutil
 import time
 from configparser import ConfigParser
 from test import TEST_BASE_DIR
@@ -100,7 +101,7 @@ def test_workspace(
     result = ws_client.create_workspace({"workspace": ws_name})
     yield {"ws_client": ws_client, "ws_name": ws_name, "ws_id": result[0]}
     # delete the test workspace
-    deletion = ws_client.delete_workspace({"ws_name": ws_name})
+    deletion = ws_client.delete_workspace({"workspace": ws_name})
     log_this(
         config,
         "ws_results",
@@ -147,6 +148,13 @@ def clients(test_workspace: dict[str, Any]) -> dict[str, Any]:
 @pytest.fixture(scope="session")
 def reads_refs(clients: dict[str, Any], ws_name: str) -> list[str]:
     return make_reads_refs(clients["foft"], ws_name)
+
+
+@pytest.fixture(scope="session")
+def scratch_dir(config: dict[str, str]) -> str:
+    scratch_dir = config["scratch"]
+    shutil.copytree(os.path.join(TEST_BASE_DIR, "data"), scratch_dir, dirs_exist_ok=True)
+    return scratch_dir
 
 
 @pytest.fixture(scope="session")
