@@ -3,6 +3,7 @@ Some utility functions to help with testing. These mainly add fake objects to us
 """
 from installed_clients import FakeObjectsForTestsClient
 from installed_clients.DataFileUtilClient import DataFileUtil
+from installed_clients.AssemblyUtilClient import AssemblyUtil
 
 
 def info_to_ref(info):
@@ -12,6 +13,35 @@ def info_to_ref(info):
     (Honestly, I just got sick of rewriting this everywhere and forgetting the indices - Bill).
     """
     return f"{info[6]}/{info[0]}/{info[4]}"
+
+
+def make_assembly_refs(fna_path: str, ws_name: str, au: AssemblyUtil) -> list[str]:
+    """Create two assemblies and return the refs.
+
+    :param fna_path: path to an fna file
+    :type fna_path: str
+    :param ws_name: workspace name
+    :type ws_name: str
+    :param au: AssemblyUtil client
+    :type au: AssemblyUtil
+    :return: list of KBase UPAs
+    :rtype: list[str]
+    """
+    assembly1ref = au.save_assembly_from_fasta(
+        {
+            "file": {"path": fna_path},
+            "workspace_name": ws_name,
+            "assembly_name": "assembly_obj_1",
+        }
+    )
+    assembly2ref = au.save_assembly_from_fasta(
+        {
+            "file": {"path": fna_path},
+            "workspace_name": ws_name,
+            "assembly_name": "assembly_obj_2",
+        }
+    )
+    return [assembly1ref, assembly2ref]
 
 
 def make_genome_refs(foft: FakeObjectsForTestsClient, ws_name: str) -> list[str]:
@@ -45,7 +75,6 @@ def make_reads_refs(foft: FakeObjectsForTestsClient, ws_name: str) -> list[str]:
         {"ws_name": ws_name, "obj_names": ["reads1", "reads2", "reads3"]}
     )
     return [info_to_ref(info) for info in fake_reads_list]
-
 
 
 def make_fake_alignment(
