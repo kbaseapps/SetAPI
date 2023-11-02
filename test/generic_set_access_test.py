@@ -1,79 +1,86 @@
-# -*- coding: utf-8 -*-
+"""Generic set functionality tests."""
 import time
-from pprint import pprint
-from test.base_class import BaseTestClass
 from test.conftest import INFO_LENGTH
-from test.util import make_reads_refs
+from test.util import log_this
+from typing import Any
 
 import pytest
 from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
+from SetAPI.SetAPIImpl import SetAPI
 
-
-class SetAPITest(BaseTestClass):
 DEBUG = False
 
-@classmethod
-def prepare_data(cls: BaseTestClass) -> None:
-    """Set up fixtures for the class.
 
-    :param cls: class object
-    :type cls: BaseTestClass
-    """
-    cls.reads_refs = make_reads_refs(cls.foft, cls.ws_name)
+def create_sets(
+    reads_refs: list[str],
+    set_api_client: SetAPI,
+    ctx: dict[str, str | list],
+    ws_name: str,
+) -> dict:
+    set_names = ["set_o_reads1", "set_o_reads2", "set_o_reads3"]
+    set_refs = []
 
-def create_sets(self):
-    if hasattr(self.__class__, "setNames"):
-        return
-
-    self.__class__.setNames = ["set_o_reads1", "set_o_reads2", "set_o_reads3"]
-    self.__class__.setRefs = []
-
-    for s in self.setNames:
+    for s in set_names:
         set_data = {
             "description": "my first reads",
             "items": [
-                {"ref": self.reads_refs[0], "label": "reads1"},
-                {"ref": self.reads_refs[1], "label": "reads2"},
+                {"ref": reads_refs[0], "label": "reads1"},
+                {"ref": reads_refs[1], "label": "reads2"},
             ],
         }
         # test a save - makes a new ReadsSet object in the workspace.
-        res = self.set_api_client.save_reads_set_v1(
-            self.ctx,
-            {"data": set_data, "output_object_name": s, "workspace": self.ws_name},
+        res = set_api_client.save_reads_set_v1(
+            ctx,
+            {"data": set_data, "output_object_name": s, "workspace": ws_name},
         )[0]
-        self.setRefs.append(res["set_ref"])
+        set_refs.append(res["set_ref"])
 
-def test_list_sets_bad_input(self):
-    ctx = self.ctx
-    set_api = self.set_api_client
+    return {"set_names": set_names, "set_refs": set_refs}
 
+
+def test_list_sets_bad_input(
+    set_api_client: SetAPI, ctx: dict[str, str | list]
+) -> None:
     with pytest.raises(
         ValueError,
         match='One of "workspace" or "workspaces" field required to list sets',
     ):
-        set_api.list_sets(ctx, {"include_set_item_info": 1})
+        set_api_client.list_sets(ctx, {"include_set_item_info": 1})
 
     with pytest.raises(
         ValueError, match='"include_set_item_info" field must be set to 0 or 1'
     ):
-        set_api.list_sets(ctx, {"workspace": 12345, "include_set_item_info": "foo"})
+        set_api_client.list_sets(
+            ctx, {"workspace": 12345, "include_set_item_info": "foo"}
+        )
 
-def test_list_sets(self):
+
+def test_list_sets(
+    reads_refs: list[str],
+    config: dict[str, str],
+    set_api_client: SetAPI,
+    ctx: dict[str, str | list],
+    ws_name: str,
+    clients: dict[str, Any],
+) -> None:
+    list_sets_ws_name = f"{ws_name}_list_sets"
+    clients["ws"].create_workspace({"workspace": list_sets_ws_name})
+
     # make sure we can see an empty list of sets before WS has any
-    res = self.set_api_client.list_sets(
-        self.ctx, {"workspace": self.ws_name, "include_set_item_info": 1}
+    res = set_api_client.list_sets(
+        ctx, {"workspace": list_sets_ws_name, "include_set_item_info": 1}
     )[0]
     assert len(res["sets"]) == 0
 
     # create the test sets, adds a ReadsSet object in the workspace
-    self.create_sets()
+    set_data = create_sets(reads_refs, set_api_client, ctx, list_sets_ws_name)
 
     # Get the sets in the workspace along with their item info.
-    res = self.set_api_client.list_sets(
-        self.ctx, {"workspace": self.ws_name, "include_set_item_info": 1}
+    res = set_api_client.list_sets(
+        ctx, {"workspace": list_sets_ws_name, "include_set_item_info": 1}
     )[0]
     assert "sets" in res
-    assert len(res["sets"]) == len(self.setNames)
+    assert len(res["sets"]) == len(set_data["set_names"])
     for s in res["sets"]:
         assert "ref" in s
         assert "info" in s
@@ -86,9 +93,9 @@ def test_list_sets(self):
             assert len(item["info"]) == INFO_LENGTH
 
     # Get the sets in a workspace without their item info (just the refs)
-    res2 = self.set_api_client.list_sets(self.ctx, {"workspace": self.ws_name})[0]
+    res2 = set_api_client.list_sets(ctx, {"workspace": list_sets_ws_name})[0]
     assert "sets" in res2
-    assert len(res2["sets"]) == len(self.setNames)
+    assert len(res2["sets"]) == len(set_data["set_names"])
     for s in res2["sets"]:
         assert "ref" in s
         assert "info" in s
@@ -100,17 +107,15 @@ def test_list_sets(self):
             assert "info" not in item
 
     # Get the sets with their reference paths
-    res3 = self.set_api_client.list_sets(
-        self.ctx, {"workspace": self.ws_name, "include_set_item_ref_paths": 1}
+    res3 = set_api_client.list_sets(
+        ctx, {"workspace": list_sets_ws_name, "include_set_item_ref_paths": 1}
     )[0]
 
-    if self.DEBUG:
-        print("Result from list_items with ref_paths")
-        pprint(res3)
-        print("=====================================")
+    if DEBUG:
+        log_this(config, "list_items_with_ref_paths", res3)
 
     assert "sets" in res3
-    assert len(res3["sets"]) == len(self.setNames)
+    assert len(res3["sets"]) == len(set_data["set_names"])
     for s in res3["sets"]:
         assert "ref" in s
         assert "info" in s
@@ -123,51 +128,60 @@ def test_list_sets(self):
             assert "ref_path" in item
             assert item["ref_path"] == s["ref"] + ";" + item["ref"]
 
-    self.unit_test_get_set_items()
+    unit_test_get_set_items(set_data, config, set_api_client, ctx)
 
-def test_bulk_list_sets(self):
+
+def test_bulk_list_sets(
+    config: dict[str, str], clients: dict[str, Any], set_api_client: SetAPI, ctx: dict[str, str | list]
+) -> None:
+    magic_number = 1000
     try:
+        debug_lines = []
         ids = []
-        for ws_info in self.ws_client.list_workspace_info(
+        for ws_info in clients["ws"].list_workspace_info(
             {"perm": "r", "excludeGlobal": 1}
         ):
-            if ws_info[4] < 1000:
+            if ws_info[4] < magic_number:
                 ids.append(str(ws_info[0]))
             else:
-                print(f"Workspace: {ws_info[1]}, size={ws_info[4]} skipped")
+                debug_lines.append(f"Workspace: {ws_info[1]}, size={ws_info[4]} skipped")
 
-        print("Number of workspaces for bulk list_sets: " + str(len(ids)))
+        debug_lines.append("Number of workspaces for bulk list_sets: " + str(len(ids)))
         if len(ids) > 0:
-            ret = self.set_api_client.list_sets(
-                self.ctx,
+            ret = set_api_client.list_sets(
+                ctx,
                 {"workspaces": [ids[0]], "include_set_item_info": 1},
             )[0]
         GenericSetNavigator.DEBUG = True
         t1 = time.time()
-        ret = self.set_api_client.list_sets(
-            self.ctx, {"workspaces": ids, "include_set_item_info": 1}
+        ret = set_api_client.list_sets(
+            ctx, {"workspaces": ids, "include_set_item_info": 1}
         )[0]
 
-        print(f"Objects found: {len(ret['sets'])}, time={time.time() - t1}")
+        debug_lines.append(f"Objects found: {len(ret['sets'])}, time={time.time() - t1}")
+        if DEBUG:
+            log_this(config, "test_bulk_list_sets", debug_lines)
+
     finally:
         GenericSetNavigator.DEBUG = False
 
-def unit_test_get_set_items(self):
-    res = self.set_api_client.get_set_items(
-        self.ctx,
+
+def unit_test_get_set_items(
+    set_data: dict, config: dict[str, str], set_api_client: SetAPI, ctx: dict[str, str | list]
+) -> None:
+    res = set_api_client.get_set_items(
+        ctx,
         {
             "set_refs": [
-                {"ref": self.setRefs[0]},
-                {"ref": self.setRefs[1]},
-                {"ref": self.setRefs[2]},
+                {"ref": set_data["set_refs"][0]},
+                {"ref": set_data["set_refs"][1]},
+                {"ref": set_data["set_refs"][2]},
             ],
             "include_set_item_ref_paths": 1,
         },
     )[0]
-    if self.DEBUG:
-        print("Result from get_set_items with ref_paths")
-        pprint(res)
-        print("========================================")
+    if DEBUG:
+        log_this(config, "get_set_items", res)
 
     assert len(res["sets"]) == 3
     for s in res["sets"]:
