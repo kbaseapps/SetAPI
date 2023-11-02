@@ -20,4 +20,4 @@ pytest \
     --cov-report=html \
     --cov-report=xml \
     -vv \
-    test/AssemblySet_basic_test.py test/DifferentialExpressionMatrixSet_basic_test.py test/ReadsAlignmentSet_basic_test.py test/ReadsSet_basic_test.py
+    test/AssemblySet_basic_test.py test/DifferentialExpressionMatrixSet_basic_test.py test/ReadsAlignmentSet_basic_test.py test/ReadsSet_basic_test.py test/SampleSet_basic_test.py test/SampleSetSearch_test.py
