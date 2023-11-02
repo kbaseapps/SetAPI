@@ -3,9 +3,11 @@ import unittest
 from pprint import pprint
 from test.base_class import BaseTestClass
 from test.conftest import INFO_LENGTH
-
+from test.util import make_reads_refs
 import pytest
 
+
+N_READS = 3
 
 class SetAPITest(BaseTestClass):
     @classmethod
@@ -15,26 +17,19 @@ class SetAPITest(BaseTestClass):
         :param cls: class object
         :type cls: BaseTestClass
         """
-        [info1, info2, info3] = cls.foft.create_fake_reads(
-            {"ws_name": cls.wsName, "obj_names": ["reads1", "reads2", "reads3"]}
-        )
-        cls.read1ref = str(info1[6]) + "/" + str(info1[0]) + "/" + str(info1[4])
-        cls.read2ref = str(info2[6]) + "/" + str(info2[0]) + "/" + str(info2[4])
-        cls.read3ref = str(info3[6]) + "/" + str(info3[0]) + "/" + str(info3[4])
+        cls.reads_refs = make_reads_refs(cls.foft, cls.ws_name)
 
         # conditions
-        cls.condition_1 = "WT"
-        cls.condition_2 = "Cond1"
-        cls.condition_3 = "HY"
+        cls.conditions = ["WT", "Cond1", "HY"]
 
         # create a conditition set
-        workspace_id = cls.dfu.ws_name_to_id(cls.wsName)
+        workspace_id = cls.dfu.ws_name_to_id(cls.ws_name)
         condition_set_object_name = "test_Condition_Set"
         condition_set_data = {
             "conditions": {
-                cls.condition_1: ["0", "0"],
-                cls.condition_2: ["0", "0"],
-                cls.condition_3: ["0", "0"],
+                cls.conditions[0]: ["0", "0"],
+                cls.conditions[1]: ["0", "0"],
+                cls.conditions[2]: ["0", "0"],
             },
             "factors": [
                 {
@@ -77,16 +72,16 @@ class SetAPITest(BaseTestClass):
 
         # create the set object
         create_ss_params = {
-            "ws_id": self.wsName,
+            "ws_id": self.ws_name,
             "sampleset_id": setObjName,
             "sampleset_desc": "first pass at testing algae GFFs from NCBI",
             "domain": "euk",
             "platform": "Illumina",
             "sample_n_conditions": [
-                {"sample_id": [self.read1ref], "condition": self.condition_1},
+                {"sample_id": [self.reads_refs[0]], "condition": self.conditions[0]},
                 {
-                    "sample_id": [self.read2ref, self.read3ref],
-                    "condition": self.condition_2,
+                    "sample_id": [self.reads_refs[1], self.reads_refs[2]],
+                    "condition": self.conditions[1],
                 },
             ],
             "source": "NCBI",
@@ -96,8 +91,7 @@ class SetAPITest(BaseTestClass):
         }
 
         # test a save
-        setAPI = self.serviceImpl
-        res = setAPI.create_sample_set(self.ctx, create_ss_params)[0]
+        res = self.set_api_client.create_sample_set(self.ctx, create_ss_params)[0]
 
         print("======  Returned val from create_sample_set  ======")
         pprint(res)
@@ -108,37 +102,37 @@ class SetAPITest(BaseTestClass):
 
         assert res["set_info"][1] == setObjName
         assert "num_samples" in res["set_info"][10]
-        assert res["set_info"][10]["num_samples"] == "3"
+        assert res["set_info"][10]["num_samples"] == str(N_READS)
 
         # test get of that object
-        d1 = setAPI.get_reads_set_v1(self.ctx, {"ref": self.wsName + "/" + setObjName})[
+        d1 = self.set_api_client.get_reads_set_v1(self.ctx, {"ref": self.ws_name + "/" + setObjName})[
             0
         ]
         assert "data" in d1
         assert "info" in d1
         assert len(d1["info"]) == INFO_LENGTH
         assert "item_count" in d1["info"][10]
-        assert d1["info"][10]["item_count"] == 3
+        assert d1["info"][10]["item_count"] == N_READS
 
         assert d1["data"]["description"] == "first pass at testing algae GFFs from NCBI"
-        assert len(d1["data"]["items"]) == 3
+        assert len(d1["data"]["items"]) == N_READS
 
         item2 = d1["data"]["items"][1]
         assert "info" not in item2
         assert "ref" in item2
         assert "label" in item2
-        assert item2["label"] == self.condition_2
-        assert item2["ref"] == self.read2ref
+        assert item2["label"] == self.conditions[1]
+        assert item2["ref"] == self.reads_refs[1]
 
         item3 = d1["data"]["items"][2]
         assert "info" not in item3
         assert "ref" in item3
         assert "label" in item3
-        assert item3["label"] == self.condition_2
-        assert item3["ref"] == self.read3ref
+        assert item3["label"] == self.conditions[1]
+        assert item3["ref"] == self.reads_refs[2]
 
         # test the call to make sure we get info for each item
-        d2 = setAPI.get_reads_set_v1(
+        d2 = self.set_api_client.get_reads_set_v1(
             self.ctx,
             {
                 "ref": res["set_ref"],
@@ -150,16 +144,16 @@ class SetAPITest(BaseTestClass):
         assert "info" in d2
         assert len(d2["info"]) == INFO_LENGTH
         assert "item_count" in d2["info"][10]
-        assert d2["info"][10]["item_count"] == 3
+        assert d2["info"][10]["item_count"] == N_READS
 
         assert d2["data"]["description"] == "first pass at testing algae GFFs from NCBI"
-        assert len(d2["data"]["items"]) == 3
+        assert len(d2["data"]["items"]) == N_READS
 
         item2 = d2["data"]["items"][1]
         assert "info" in item2
         assert len(item2["info"]), INFO_LENGTH
         assert "ref" in item2
-        assert item2["ref"] == self.read2ref
+        assert item2["ref"] == self.reads_refs[1]
 
         assert "ref_path" in item2
         assert item2["ref_path"] == res["set_ref"] + ";" + item2["ref"]
@@ -171,16 +165,16 @@ class SetAPITest(BaseTestClass):
 
         # create the set object
         create_ss_params = {
-            "ws_id": self.wsName,
+            "ws_id": self.ws_name,
             "sampleset_id": setObjName,
             "sampleset_desc": "first pass at testing algae GFFs from NCBI",
             "domain": "euk",
             "platform": "Illumina",
             "sample_n_conditions": [
-                {"sample_id": [self.read1ref], "condition": [self.condition_1]},
+                {"sample_id": [self.reads_refs[0]], "condition": [self.conditions[0]]},
                 {
-                    "sample_id": [self.read2ref, self.read3ref],
-                    "condition": [self.condition_2],
+                    "sample_id": [self.reads_refs[1], self.reads_refs[2]],
+                    "condition": [self.conditions[1]],
                 },
             ],
             "source": "NCBI",
@@ -190,8 +184,7 @@ class SetAPITest(BaseTestClass):
         }
 
         # test a save
-        setAPI = self.serviceImpl
-        res = setAPI.create_sample_set(self.ctx, create_ss_params)[0]
+        res = self.set_api_client.create_sample_set(self.ctx, create_ss_params)[0]
 
         print("======  Returned val from create_sample_set  ======")
         pprint(res)
@@ -202,37 +195,37 @@ class SetAPITest(BaseTestClass):
 
         assert res["set_info"][1] == setObjName
         assert "num_samples" in res["set_info"][10]
-        assert res["set_info"][10]["num_samples"] == "3"
+        assert res["set_info"][10]["num_samples"] == str(N_READS)
 
         # test get of that object
-        d1 = setAPI.get_reads_set_v1(self.ctx, {"ref": self.wsName + "/" + setObjName})[
+        d1 = self.set_api_client.get_reads_set_v1(self.ctx, {"ref": self.ws_name + "/" + setObjName})[
             0
         ]
         assert "data" in d1
         assert "info" in d1
         assert len(d1["info"]) == INFO_LENGTH
         assert "item_count" in d1["info"][10]
-        assert d1["info"][10]["item_count"] == 3
+        assert d1["info"][10]["item_count"] == N_READS
 
         assert d1["data"]["description"] == "first pass at testing algae GFFs from NCBI"
-        assert len(d1["data"]["items"]) == 3
+        assert len(d1["data"]["items"]) == N_READS
 
         item2 = d1["data"]["items"][1]
         assert "info" not in item2
         assert "ref" in item2
         assert "label" in item2
-        assert item2["label"] == self.condition_2
-        assert item2["ref"] == self.read2ref
+        assert item2["label"] == self.conditions[1]
+        assert item2["ref"] == self.reads_refs[1]
 
         item3 = d1["data"]["items"][2]
         assert "info" not in item3
         assert "ref" in item3
         assert "label" in item3
-        assert item3["label"] == self.condition_2
-        assert item3["ref"] == self.read3ref
+        assert item3["label"] == self.conditions[1]
+        assert item3["ref"] == self.reads_refs[2]
 
         # test the call to make sure we get info for each item
-        d2 = setAPI.get_reads_set_v1(
+        d2 = self.set_api_client.get_reads_set_v1(
             self.ctx,
             {
                 "ref": res["set_ref"],
@@ -244,16 +237,16 @@ class SetAPITest(BaseTestClass):
         assert "info" in d2
         assert len(d2["info"]) == INFO_LENGTH
         assert "item_count" in d2["info"][10]
-        assert d2["info"][10]["item_count"] == 3
+        assert d2["info"][10]["item_count"] == N_READS
 
         assert d2["data"]["description"] == "first pass at testing algae GFFs from NCBI"
-        assert len(d2["data"]["items"]) == 3
+        assert len(d2["data"]["items"]) == N_READS
 
         item2 = d2["data"]["items"][1]
         assert "info" in item2
         assert len(item2["info"]), INFO_LENGTH
         assert "ref" in item2
-        assert item2["ref"] == self.read2ref
+        assert item2["ref"] == self.reads_refs[1]
 
         assert "ref_path" in item2
         assert item2["ref_path"] == res["set_ref"] + ";" + item2["ref"]
@@ -267,16 +260,16 @@ class SetAPITest(BaseTestClass):
         unmatching_condition = "unmatching_condition"
         # create the set object with unmatching conditions
         create_ss_params = {
-            "ws_id": self.wsName,
+            "ws_id": self.ws_name,
             "sampleset_id": setObjName,
             "sampleset_desc": "first pass at testing algae GFFs from NCBI",
             "domain": "euk",
             "platform": "Illumina",
             "sample_n_conditions": [
-                {"sample_id": [self.read1ref], "condition": unmatching_condition},
+                {"sample_id": [self.reads_refs[0]], "condition": unmatching_condition},
                 {
-                    "sample_id": [self.read2ref, self.read3ref],
-                    "condition": self.condition_2,
+                    "sample_id": [self.reads_refs[1], self.reads_refs[2]],
+                    "condition": self.conditions[1],
                 },
             ],
             "source": "NCBI",
@@ -287,10 +280,8 @@ class SetAPITest(BaseTestClass):
         }
 
         # test a save
-        setAPI = self.serviceImpl
-
         with pytest.raises(ValueError, match="ERROR: Given conditions"):
-            setAPI.create_sample_set(self.ctx, create_ss_params)
+            self.set_api_client.create_sample_set(self.ctx, create_ss_params)
 
     def test_non_list_string_conditions(self):
         setObjName = "micromonas_rnaseq_test1_sampleset"
@@ -298,13 +289,13 @@ class SetAPITest(BaseTestClass):
         digital_condition = 10
         # create the set object with unmatching conditions
         create_ss_params = {
-            "ws_id": self.wsName,
+            "ws_id": self.ws_name,
             "sampleset_id": setObjName,
             "sampleset_desc": "first pass at testing algae GFFs from NCBI",
             "domain": "euk",
             "platform": "Illumina",
             "sample_n_conditions": [
-                {"sample_id": [self.read1ref], "condition": digital_condition}
+                {"sample_id": [self.reads_refs[0]], "condition": digital_condition}
             ],
             "source": "NCBI",
             "Library_type": "SingleEnd",
@@ -313,9 +304,7 @@ class SetAPITest(BaseTestClass):
         }
 
         # test a save
-        setAPI = self.serviceImpl
-
         with pytest.raises(
             ValueError, match="ERROR: condition should be either a list or a string"
         ):
-            setAPI.create_sample_set(self.ctx, create_ss_params)
+            self.set_api_client.create_sample_set(self.ctx, create_ss_params)
