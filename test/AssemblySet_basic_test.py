@@ -35,7 +35,7 @@ def assembly_refs(
 
 def test_basic_save_and_get(
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
     ws_name: str,
     assembly_refs: list[str],
 ) -> None:
@@ -53,7 +53,7 @@ def test_basic_save_and_get(
 
     # test a save
     res = set_api_client.save_assembly_set_v1(
-        ctx,
+        context,
         {
             "data": set_data,
             "output_object_name": set_name,
@@ -69,7 +69,7 @@ def test_basic_save_and_get(
     assert res["set_info"][10]["item_count"] == str(N_ASSEMBLIES)
 
     # test get of that object
-    d1 = set_api_client.get_assembly_set_v1(ctx, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_assembly_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
     assert "data" in d1
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
@@ -89,7 +89,7 @@ def test_basic_save_and_get(
 
     # test the call to make sure we get info for each item
     d2 = set_api_client.get_reads_set_v1(
-        ctx,
+        context,
         {
             "ref": res["set_ref"],
             "include_item_info": 1,
@@ -132,7 +132,7 @@ def check_empty_set(obj: dict, description: str) -> None:
 
 
 def test_save_and_get_of_empty_set(
-    set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     set_name = "nada_set"
     set_description = "nothing to see here"
@@ -141,7 +141,7 @@ def test_save_and_get_of_empty_set(
     set_data = {"description": set_description, "items": []}
     # test a save
     res = set_api_client.save_assembly_set_v1(
-        ctx,
+        context,
         {
             "data": set_data,
             "output_object_name": set_name,
@@ -157,10 +157,10 @@ def test_save_and_get_of_empty_set(
     assert res["set_info"][10]["item_count"] == "0"
 
     # test get of that object
-    d1 = set_api_client.get_assembly_set_v1(ctx, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_assembly_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
     check_empty_set(d1, set_description)
 
     d2 = set_api_client.get_assembly_set_v1(
-        ctx, {"ref": res["set_ref"], "include_item_info": 1}
+        context, {"ref": res["set_ref"], "include_item_info": 1}
     )[0]
     check_empty_set(d2, set_description)

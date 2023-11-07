@@ -110,7 +110,7 @@ def test_data(
 
 
 def test_save_expression_set(
-    test_data: dict, set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     expression_set_name = "test_expression_set"
     expression_items = [
@@ -118,7 +118,7 @@ def test_save_expression_set(
     ]
     expression_set = {"description": "test_expressions", "items": expression_items}
     result = set_api_client.save_expression_set_v1(
-        ctx,
+        context,
         {
             "workspace": ws_name,
             "output_object_name": expression_set_name,
@@ -138,7 +138,7 @@ def test_save_expression_set_mismatched_genomes(
     ws_name: str,
     clients: dict[str, Any],
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
 ) -> None:
     expression_set_name = "expression_set_bad_genomes"
     expression_set = {
@@ -165,7 +165,7 @@ def test_save_expression_set_mismatched_genomes(
         match="All Expression objects in the set must use the same genome reference.",
     ):
         set_api_client.save_expression_set_v1(
-            ctx,
+            context,
             {
                 "workspace": ws_name,
                 "output_object_name": expression_set_name,
@@ -175,13 +175,13 @@ def test_save_expression_set_mismatched_genomes(
 
 
 def test_save_expression_set_no_data(
-    set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     with pytest.raises(
         ValueError, match='"data" parameter field required to save an ExpressionSet'
     ):
         set_api_client.save_expression_set_v1(
-            ctx,
+            context,
             {
                 "workspace": ws_name,
                 "output_object_name": "foo",
@@ -191,14 +191,14 @@ def test_save_expression_set_no_data(
 
 
 def test_save_expression_set_no_expressions(
-    set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     with pytest.raises(
         ValueError,
         match="An ExpressionSet must contain at least one Expression object reference.",
     ):
         set_api_client.save_expression_set_v1(
-            ctx,
+            context,
             {
                 "workspace": ws_name,
                 "output_object_name": "foo",
@@ -208,7 +208,7 @@ def test_save_expression_set_no_expressions(
 
 
 def test_get_expression_set(
-    test_data: dict, set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     expression_set_name = "test_expression_set"
     expression_items = [
@@ -216,7 +216,7 @@ def test_get_expression_set(
     ]
     expression_set = {"description": "test_alignments", "items": expression_items}
     expression_set_ref = set_api_client.save_expression_set_v1(
-        ctx,
+        context,
         {
             "workspace": ws_name,
             "output_object_name": expression_set_name,
@@ -225,7 +225,7 @@ def test_get_expression_set(
     )[0]["set_ref"]
 
     fetched_set = set_api_client.get_expression_set_v1(
-        ctx, {"ref": expression_set_ref, "include_item_info": 0}
+        context, {"ref": expression_set_ref, "include_item_info": 0}
     )[0]
     assert fetched_set is not None
     assert "data" in fetched_set
@@ -239,7 +239,7 @@ def test_get_expression_set(
         assert "label" in item
 
     fetched_set_with_info = set_api_client.get_expression_set_v1(
-        ctx, {"ref": expression_set_ref, "include_item_info": 1}
+        context, {"ref": expression_set_ref, "include_item_info": 1}
     )[0]
     assert fetched_set_with_info is not None
     assert "data" in fetched_set_with_info
@@ -251,7 +251,7 @@ def test_get_expression_set(
 
 
 def test_get_expression_set_ref_path(
-    test_data: dict, set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     expression_set_name = "test_expression_set_ref_path"
     expression_items = [
@@ -259,7 +259,7 @@ def test_get_expression_set_ref_path(
     ]
     expression_set = {"description": "test_alignments", "items": expression_items}
     expression_set_ref = set_api_client.save_expression_set_v1(
-        ctx,
+        context,
         {
             "workspace": ws_name,
             "output_object_name": expression_set_name,
@@ -268,7 +268,7 @@ def test_get_expression_set_ref_path(
     )[0]["set_ref"]
 
     fetched_set_with_info = set_api_client.get_expression_set_v1(
-        ctx,
+        context,
         {
             "ref": expression_set_ref,
             "include_item_info": 1,
@@ -287,10 +287,10 @@ def test_get_expression_set_ref_path(
 
 
 def test_get_created_rnaseq_expression_set_ref_path(
-    test_data: dict, config: dict[str, str], set_api_client: SetAPI, ctx: dict[str, str | list]
+    test_data: dict, config: dict[str, str], set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     fetched_set_with_ref_path = set_api_client.get_expression_set_v1(
-        ctx,
+        context,
         {
             "ref": test_data["fake_rnaseq_expression_set"],
             "include_item_info": 0,
@@ -311,30 +311,30 @@ def test_get_created_rnaseq_expression_set_ref_path(
 
 
 def test_get_expression_set_bad_ref(
-    set_api_client: SetAPI, ctx: dict[str, str | list]
+    set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     with pytest.raises(
         ValueError, match='"ref" parameter must be a valid workspace reference'
     ):
-        set_api_client.get_expression_set_v1(ctx, {"ref": "not_a_ref"})
+        set_api_client.get_expression_set_v1(context, {"ref": "not_a_ref"})
 
 
 def test_get_expression_set_bad_path(
-    set_api_client: SetAPI, ctx: dict[str, str | list]
+    set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     with pytest.raises(
         ServerError, match="JSONRPCError: -32500. Object 2 cannot be accessed: "
     ):
         set_api_client.get_expression_set_v1(
-            ctx, {"ref": "1/2/3", "path_to_set": ["foo", "bar"]}
+            context, {"ref": "1/2/3", "path_to_set": ["foo", "bar"]}
         )
 
 
 def test_get_expression_set_no_ref(
-    set_api_client: SetAPI, ctx: dict[str, str | list]
+    set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     with pytest.raises(
         ValueError,
         match='"ref" parameter field specifiying the expression set is required',
     ):
-        set_api_client.get_expression_set_v1(ctx, {"ref": None})
+        set_api_client.get_expression_set_v1(context, {"ref": None})
