@@ -1,17 +1,64 @@
 """
 Some utility functions to help with testing. These mainly add fake objects to use in making sets.
 """
+import json
+
 from installed_clients import FakeObjectsForTestsClient
+from installed_clients.AssemblyUtilClient import AssemblyUtil
 from installed_clients.DataFileUtilClient import DataFileUtil
 
 
-def info_to_ref(info):
+def log_this(config: dict[str, str], file_name: str, output_obj: dict | list) -> None:
+    """Utility function for printing JSON data to a file.
+
+    :param config: configuration object
+    :type config: dict[str, str]
+    :param file_name: file to log to
+    :type file_name: string
+    :param output_obj: object to log. Must be a JSON-dumpable object.
+    :type output_obj: dict|list
+    """
+    output_file = f"{config['scratch']}/{file_name}"
+    with open(output_file, "w") as f:
+        f.write(json.dumps(output_obj, indent=2, sort_keys=True))
+
+
+def info_to_ref(info: list[str]) -> str:
     """
     Just a one liner that converts the usual Workspace ObjectInfo list into an object reference
     string.
     (Honestly, I just got sick of rewriting this everywhere and forgetting the indices - Bill).
     """
     return f"{info[6]}/{info[0]}/{info[4]}"
+
+
+def make_assembly_refs(fna_path: str, ws_name: str, au: AssemblyUtil) -> list[str]:
+    """Create two assemblies and return the refs.
+
+    :param fna_path: path to an fna file
+    :type fna_path: str
+    :param ws_name: workspace name
+    :type ws_name: str
+    :param au: AssemblyUtil client
+    :type au: AssemblyUtil
+    :return: list of KBase UPAs
+    :rtype: list[str]
+    """
+    assembly1ref = au.save_assembly_from_fasta(
+        {
+            "file": {"path": fna_path},
+            "workspace_name": ws_name,
+            "assembly_name": "assembly_obj_1",
+        }
+    )
+    assembly2ref = au.save_assembly_from_fasta(
+        {
+            "file": {"path": fna_path},
+            "workspace_name": ws_name,
+            "assembly_name": "assembly_obj_2",
+        }
+    )
+    return [assembly1ref, assembly2ref]
 
 
 def make_genome_refs(foft: FakeObjectsForTestsClient, ws_name: str) -> list[str]:
@@ -45,7 +92,6 @@ def make_reads_refs(foft: FakeObjectsForTestsClient, ws_name: str) -> list[str]:
         {"ws_name": ws_name, "obj_names": ["reads1", "reads2", "reads3"]}
     )
     return [info_to_ref(info) for info in fake_reads_list]
-
 
 
 def make_fake_alignment(
