@@ -7,7 +7,7 @@ import pytest
 from SetAPI.SetAPIImpl import SetAPI
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def sampleset_ref(reads_refs: list[str], ws_name: str, clients: dict[str, Any]) -> str:
     return make_fake_sampleset(
         "test_sampleset",

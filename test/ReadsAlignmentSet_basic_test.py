@@ -20,7 +20,7 @@ N_READS = 3
 DEBUG = False
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def test_data(
     genome_refs: list[str],
     reads_refs: list[str],
