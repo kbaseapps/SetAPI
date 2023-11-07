@@ -8,11 +8,11 @@ class BaseTestClass(unittest.TestCase):
     def setUpClass(cls: unittest.TestCase) -> None:
         props = get_test_config()
         for prop in [
-            "cfg",
+            "config",
             "ctx",
-            "serviceImpl",
-            "wsClient",
-            "wsName",
+            "set_api_client",
+            "ws_client",
+            "ws_name",
             "au",
             "dfu",
             "foft",
@@ -32,6 +32,6 @@ class BaseTestClass(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls: unittest.TestCase) -> None:
-        if hasattr(cls, "wsName"):
-            cls.wsClient.delete_workspace({"workspace": cls.wsName})
+        if hasattr(cls, "ws_name"):
+            cls.ws_client.delete_workspace({"workspace": cls.ws_name})
             print("Test workspace was deleted")

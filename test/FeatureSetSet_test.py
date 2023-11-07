@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import unittest
 from test.base_class import BaseTestClass
-from test.util import info_to_ref, make_fake_feature_set
+from test.util import info_to_ref, make_fake_feature_set, make_genome_refs
 
 import pytest
 from installed_clients.baseclient import ServerError
 
+N_FEATURESET_REFS = 3
 
 class FeatureSetSetAPITest(BaseTestClass):
     @classmethod
@@ -16,27 +17,24 @@ class FeatureSetSetAPITest(BaseTestClass):
         :type cls: BaseTestClass
         """
         # Make fake genomes
-        [fake_genome, fake_genome2] = cls.foft.create_fake_genomes(
-            {"ws_name": cls.wsName, "obj_names": ["fake_genome", "fake_genome2"]}
-        )
-        cls.genome_refs = [info_to_ref(fake_genome), info_to_ref(fake_genome2)]
+        genome_refs = make_genome_refs(cls.foft, cls.ws_name)
 
         # Make some fake feature sets
         cls.featureset_refs = [
             make_fake_feature_set(
-                f"feature_set_{i}", cls.genome_refs[0], cls.wsName, cls.wsClient
+                f"feature_set_{i}", genome_refs[0], cls.ws_name, cls.ws_client
             )
-            for i in range(3)
+            for i in range(N_FEATURESET_REFS)
         ]
 
     def test_save_feature_set_set(self):
         set_name = "test_feature_set_set"
         set_items = [{"label": "foo", "ref": ref} for ref in self.featureset_refs]
         expression_set = {"description": "test_expressions", "items": set_items}
-        result = self.serviceImpl.save_feature_set_set_v1(
+        result = self.set_api_client.save_feature_set_set_v1(
             self.ctx,
             {
-                "workspace": self.wsName,
+                "workspace": self.ws_name,
                 "output_object_name": set_name,
                 "data": expression_set,
             },
@@ -52,10 +50,10 @@ class FeatureSetSetAPITest(BaseTestClass):
         with pytest.raises(
             ValueError, match='"data" parameter field required to save a FeatureSetSet'
         ):
-            self.serviceImpl.save_feature_set_set_v1(
+            self.set_api_client.save_feature_set_set_v1(
                 self.ctx,
                 {
-                    "workspace": self.wsName,
+                    "workspace": self.ws_name,
                     "output_object_name": "foo",
                     "data": None,
                 },
@@ -67,10 +65,10 @@ class FeatureSetSetAPITest(BaseTestClass):
             ValueError,
             match="At least one FeatureSet is required to save a FeatureSetSet.",
         ):
-            self.serviceImpl.save_feature_set_set_v1(
+            self.set_api_client.save_feature_set_set_v1(
                 self.ctx,
                 {
-                    "workspace": self.wsName,
+                    "workspace": self.ws_name,
                     "output_object_name": "foo",
                     "data": {"description": "empty_set", "items": []},
                 },
@@ -80,22 +78,22 @@ class FeatureSetSetAPITest(BaseTestClass):
         set_name = "test_featureset_set2"
         set_items = [{"label": "wt", "ref": ref} for ref in self.featureset_refs]
         featureset_set = {"description": "test_alignments", "items": set_items}
-        featureset_set_ref = self.serviceImpl.save_feature_set_set_v1(
+        featureset_set_ref = self.set_api_client.save_feature_set_set_v1(
             self.ctx,
             {
-                "workspace": self.wsName,
+                "workspace": self.ws_name,
                 "output_object_name": set_name,
                 "data": featureset_set,
             },
         )[0]["set_ref"]
 
-        fetched_set = self.serviceImpl.get_feature_set_set_v1(
+        fetched_set = self.set_api_client.get_feature_set_set_v1(
             self.ctx, {"ref": featureset_set_ref, "include_item_info": 0}
         )[0]
         assert fetched_set is not None
         assert "data" in fetched_set
         assert "info" in fetched_set
-        assert len(fetched_set["data"]["items"]) == 3
+        assert len(fetched_set["data"]["items"]) == N_FEATURESET_REFS
         assert featureset_set_ref == info_to_ref(fetched_set["info"])
         for item in fetched_set["data"]["items"]:
             assert "info" not in item
@@ -103,7 +101,7 @@ class FeatureSetSetAPITest(BaseTestClass):
             assert "ref" in item
             assert "label" in item
 
-        fetched_set_with_info = self.serviceImpl.get_feature_set_set_v1(
+        fetched_set_with_info = self.set_api_client.get_feature_set_set_v1(
             self.ctx,
             {
                 "ref": featureset_set_ref,
@@ -124,13 +122,13 @@ class FeatureSetSetAPITest(BaseTestClass):
         with pytest.raises(
             ValueError, match='"ref" parameter must be a valid workspace reference'
         ):
-            self.serviceImpl.get_feature_set_set_v1(self.ctx, {"ref": "not_a_ref"})
+            self.set_api_client.get_feature_set_set_v1(self.ctx, {"ref": "not_a_ref"})
 
     def test_get_feature_set_set_bad_path(self):
         with pytest.raises(
             ServerError, match="JSONRPCError: -32500. Object 2 cannot be accessed:"
         ):
-            self.serviceImpl.get_feature_set_set_v1(
+            self.set_api_client.get_feature_set_set_v1(
                 self.ctx, {"ref": "1/2/3", "path_to_set": ["foo", "bar"]}
             )
 
@@ -139,4 +137,4 @@ class FeatureSetSetAPITest(BaseTestClass):
             ValueError,
             match='"ref" parameter field specifiying the FeatureSet set is required',
         ):
-            self.serviceImpl.get_feature_set_set_v1(self.ctx, {"ref": None})
+            self.set_api_client.get_feature_set_set_v1(self.ctx, {"ref": None})
