@@ -10,7 +10,7 @@ N_READS = 3
 DESCRIPTION = "first pass at testing something or other"
 DEBUG = False
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def create_sampleset_params(ws_name: str) -> dict[str]:
     return {
         "ws_id": ws_name,
@@ -24,12 +24,12 @@ def create_sampleset_params(ws_name: str) -> dict[str]:
     }
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def conditions() -> list[str]:
     return ["WT", "Cond1", "HY"]
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def condition_set_ref(
     clients: dict[str, Any], ws_id: int, conditions: list[str]
 ) -> str:
