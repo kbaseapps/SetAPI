@@ -123,7 +123,7 @@ def test_data(
 def test_save_alignment_set(
     test_data: dict[str, Any],
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
     ws_name: str,
 ) -> None:
     alignment_set_name = "test_alignment_set"
@@ -132,7 +132,7 @@ def test_save_alignment_set(
     ]
     alignment_set = {"description": "test_alignments", "items": alignment_items}
     result = set_api_client.save_reads_alignment_set_v1(
-        ctx,
+        context,
         {
             "workspace": ws_name,
             "output_object_name": alignment_set_name,
@@ -150,7 +150,7 @@ def test_save_alignment_set(
 def test_save_alignment_set_mismatched_genomes(
     test_data: dict[str, Any],
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
     ws_name: str,
     clients: dict[str, Any],
 ) -> None:
@@ -179,7 +179,7 @@ def test_save_alignment_set_mismatched_genomes(
         "the same genome reference",
     ):
         set_api_client.save_reads_alignment_set_v1(
-            ctx,
+            context,
             {
                 "workspace": ws_name,
                 "output_object_name": alignment_set_name,
@@ -189,14 +189,14 @@ def test_save_alignment_set_mismatched_genomes(
 
 
 def test_save_alignment_set_no_data(
-    set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     with pytest.raises(
         ValueError,
         match='"data" parameter field required to save a ReadsAlignmentSet',
     ):
         set_api_client.save_reads_alignment_set_v1(
-            ctx,
+            context,
             {
                 "workspace": ws_name,
                 "output_object_name": "foo",
@@ -206,14 +206,14 @@ def test_save_alignment_set_no_data(
 
 
 def test_save_alignment_set_no_alignments(
-    set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     with pytest.raises(
         ValueError,
         match="A ReadsAlignmentSet must contain at least one ReadsAlignment reference.",
     ):
         set_api_client.save_reads_alignment_set_v1(
-            ctx,
+            context,
             {
                 "workspace": ws_name,
                 "output_object_name": "foo",
@@ -223,14 +223,14 @@ def test_save_alignment_set_no_alignments(
 
 
 def test_get_old_alignment_set(
-    test_data: dict[str, Any], set_api_client: SetAPI, ctx: dict[str, str | list]
+    test_data: dict[str, Any], set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     for ref in [
         test_data["fake_rnaseq_alignment_set1"],
         test_data["fake_rnaseq_alignment_set2"],
     ]:
         fetched_set = set_api_client.get_reads_alignment_set_v1(
-            ctx, {"ref": ref, "include_item_info": 0}
+            context, {"ref": ref, "include_item_info": 0}
         )[0]
         assert fetched_set is not None
         assert "data" in fetched_set
@@ -243,7 +243,7 @@ def test_get_old_alignment_set(
             assert "label" in item
 
         fetched_set_with_info = set_api_client.get_reads_alignment_set_v1(
-            ctx,
+            context,
             {"ref": ref, "include_item_info": 1, "include_set_item_ref_paths": 1},
         )[0]
         assert fetched_set_with_info is not None
@@ -257,13 +257,13 @@ def test_get_old_alignment_set(
 
 
 def test_get_old_alignment_set_ref_path_to_set(
-    test_data: dict[str, Any], config: dict[str, str], set_api_client: SetAPI, ctx: dict[str, str | list]
+    test_data: dict[str, Any], config: dict[str, str], set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     alignment_ref = test_data["fake_rnaseq_alignment_set1"]
     ref_path_to_set = [test_data["fake_rnaseq_expression_set"], alignment_ref]
 
     fetched_set = set_api_client.get_reads_alignment_set_v1(
-        ctx,
+        context,
         {
             "ref": alignment_ref,
             "ref_path_to_set": ref_path_to_set,
@@ -290,7 +290,7 @@ def test_get_old_alignment_set_ref_path_to_set(
 def test_get_alignment_set(
     test_data: dict[str, Any],
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
     ws_name: str,
 ) -> None:
     alignment_set_name = "test_alignment_set"
@@ -299,7 +299,7 @@ def test_get_alignment_set(
     ]
     alignment_set = {"description": "test_alignments", "items": alignment_items}
     alignment_set_ref = set_api_client.save_reads_alignment_set_v1(
-        ctx,
+        context,
         {
             "workspace": ws_name,
             "output_object_name": alignment_set_name,
@@ -308,7 +308,7 @@ def test_get_alignment_set(
     )[0]["set_ref"]
 
     fetched_set = set_api_client.get_reads_alignment_set_v1(
-        ctx, {"ref": alignment_set_ref, "include_item_info": 0}
+        context, {"ref": alignment_set_ref, "include_item_info": 0}
     )[0]
     assert fetched_set is not None
     assert "data" in fetched_set
@@ -321,7 +321,7 @@ def test_get_alignment_set(
         assert "label" in item
 
     fetched_set_with_info = set_api_client.get_reads_alignment_set_v1(
-        ctx, {"ref": alignment_set_ref, "include_item_info": 1}
+        context, {"ref": alignment_set_ref, "include_item_info": 1}
     )[0]
     assert fetched_set_with_info is not None
     assert "data" in fetched_set_with_info
@@ -334,7 +334,7 @@ def test_get_alignment_set(
 def test_get_alignment_set_ref_path(
     test_data: dict[str, Any],
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
     ws_name: str,
 ) -> None:
     alignment_set_name = "test_alignment_set_ref_path"
@@ -343,7 +343,7 @@ def test_get_alignment_set_ref_path(
     ]
     alignment_set = {"description": "test_alignments", "items": alignment_items}
     alignment_set_ref = set_api_client.save_reads_alignment_set_v1(
-        ctx,
+        context,
         {
             "workspace": ws_name,
             "output_object_name": alignment_set_name,
@@ -352,7 +352,7 @@ def test_get_alignment_set_ref_path(
     )[0]["set_ref"]
 
     fetched_set = set_api_client.get_reads_alignment_set_v1(
-        ctx,
+        context,
         {
             "ref": alignment_set_ref,
             "include_item_info": 0,
@@ -373,30 +373,30 @@ def test_get_alignment_set_ref_path(
 
 
 def test_get_alignment_set_bad_ref(
-    set_api_client: SetAPI, ctx: dict[str, str | list]
+    set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     with pytest.raises(
         ValueError, match='"ref" parameter must be a valid workspace reference'
     ):
-        set_api_client.get_reads_alignment_set_v1(ctx, {"ref": "not_a_ref"})
+        set_api_client.get_reads_alignment_set_v1(context, {"ref": "not_a_ref"})
 
 
 def test_get_alignment_set_bad_path(
-    set_api_client: SetAPI, ctx: dict[str, str | list]
+    set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     with pytest.raises(
         ServerError, match="JSONRPCError: -32500. Object 2 cannot be accessed:"
     ):
         set_api_client.get_reads_alignment_set_v1(
-            ctx, {"ref": "1/2/3", "path_to_set": ["foo", "bar"]}
+            context, {"ref": "1/2/3", "path_to_set": ["foo", "bar"]}
         )
 
 
 def test_get_alignment_set_no_ref(
-    set_api_client: SetAPI, ctx: dict[str, str | list]
+    set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     with pytest.raises(
         ValueError,
         match='"ref" parameter field specifiying the reads alignment set is required',
     ):
-        set_api_client.get_reads_alignment_set_v1(ctx, {"ref": None})
+        set_api_client.get_reads_alignment_set_v1(context, {"ref": None})

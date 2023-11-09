@@ -15,33 +15,33 @@ def compare_samples(s1: dict[str, Any], s2: dict[str, Any]) -> None:
 
 
 def test_param_error_conditions(
-    set_api_client: SetAPI, ctx: dict[str, str | list]
+    set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     # test without ref argument
     with pytest.raises(
         ValueError, match="Argument 'ref' must be specified, 'ref' = 'None'"
     ):
-        set_api_client.sample_set_to_samples_info(ctx, {"start": 0, "limit": 10})
+        set_api_client.sample_set_to_samples_info(context, {"start": 0, "limit": 10})
 
 
 def test_param_error_conditions_empty_params(
-    set_api_client: SetAPI, ctx: dict[str, str | list]
+    set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     with pytest.raises(
         ValueError, match="Argument 'ref' must be specified, 'ref' = 'None'"
     ):
-        set_api_client.sample_set_to_samples_info(ctx, {})
+        set_api_client.sample_set_to_samples_info(context, {})
 
 
 @pytest.mark.skip("only particular users have permission to search")
 def test_sample_set_to_sample_info(
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
     samples_test_data: dict[str, Any],
 ) -> None:
     # test defaults of "start" and "limit" variables
     ret = set_api_client.sample_set_to_samples_info(
-        ctx,
+        context,
         {
             "ref": SAMPLE_SET_REF,
         },
@@ -52,11 +52,11 @@ def test_sample_set_to_sample_info(
 @pytest.mark.skip("only particular users have permission to search")
 def test_query_search(
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
     samples_test_data: dict[str, Any],
 ) -> None:
     ret = set_api_client.sample_set_to_samples_info(
-        ctx,
+        context,
         {"ref": SAMPLE_SET_REF, "start": 0, "limit": 10, "query": "Georgia"},
     )[0]
 
@@ -74,11 +74,11 @@ def test_query_search(
 @pytest.mark.skip("only particular users have permission to search")
 def test_prefix_query_search(
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
     samples_test_data: dict[str, Any],
 ) -> None:
     ret = set_api_client.sample_set_to_samples_info(
-        ctx, {"ref": SAMPLE_SET_REF, "query": "Germa"}
+        context, {"ref": SAMPLE_SET_REF, "query": "Germa"}
     )[0]
 
     # get the samples with country 'Germany' only
@@ -95,11 +95,11 @@ def test_prefix_query_search(
 @pytest.mark.skip("only particular users have permission to search")
 def test_prefix_query_search_2(
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
     samples_test_data: dict[str, Any],
 ) -> None:
     ret = set_api_client.sample_set_to_samples_info(
-        ctx, {"ref": SAMPLE_SET_REF, "query": "Ge"}
+        context, {"ref": SAMPLE_SET_REF, "query": "Ge"}
     )[0]
 
     # get the samples with country 'Germany' or state 'Georgia'

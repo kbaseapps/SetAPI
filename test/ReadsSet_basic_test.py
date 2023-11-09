@@ -21,7 +21,7 @@ def sampleset_ref(reads_refs: list[str], ws_name: str, clients: dict[str, Any]) 
 def test_basic_save_and_get(
     reads_refs: list[str],
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
     ws_name: str,
 ) -> None:
     set_name = "set_o_reads"
@@ -39,7 +39,7 @@ def test_basic_save_and_get(
 
     # test a save
     res = set_api_client.save_reads_set_v1(
-        ctx,
+        context,
         {
             "data": set_data,
             "output_object_name": set_name,
@@ -55,7 +55,7 @@ def test_basic_save_and_get(
     assert res["set_info"][10]["item_count"] == str(n_items_in_set)
 
     # test get of that object
-    d1 = set_api_client.get_reads_set_v1(ctx, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_reads_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
     assert "data" in d1
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
@@ -81,7 +81,7 @@ def test_basic_save_and_get(
 
     # test the call to make sure we get info for each item
     d2 = set_api_client.get_reads_set_v1(
-        ctx,
+        context,
         {
             "ref": res["set_ref"],
             "include_item_info": 1,
@@ -108,7 +108,7 @@ def test_basic_save_and_get(
 
 
 def test_save_and_get_of_empty_set(
-    set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     set_name = "nada_set"
     set_description = "nothing to see here"
@@ -119,7 +119,7 @@ def test_save_and_get_of_empty_set(
 
     # test a save
     res = set_api_client.save_reads_set_v1(
-        ctx,
+        context,
         {
             "data": set_data,
             "output_object_name": set_name,
@@ -135,7 +135,7 @@ def test_save_and_get_of_empty_set(
     assert res["set_info"][10]["item_count"] == str(n_items_in_set)
 
     # test get of that object
-    d1 = set_api_client.get_reads_set_v1(ctx, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_reads_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
     assert "data" in d1
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
@@ -146,7 +146,7 @@ def test_save_and_get_of_empty_set(
     assert len(d1["data"]["items"]) == 0
 
     d2 = set_api_client.get_reads_set_v1(
-        ctx, {"ref": res["set_ref"], "include_item_info": 1}
+        context, {"ref": res["set_ref"], "include_item_info": 1}
     )[0]
 
     assert "data" in d2
@@ -160,7 +160,7 @@ def test_save_and_get_of_empty_set(
 
 
 def test_get_sampleset_as_readsset(
-    sampleset_ref: str, set_api_client: SetAPI, ctx: dict[str, str | list]
+    sampleset_ref: str, set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     param_set = [
         {"ref": sampleset_ref},
@@ -169,7 +169,7 @@ def test_get_sampleset_as_readsset(
     ]
     n_items_in_set = len(param_set)
     for params in param_set:
-        res = set_api_client.get_reads_set_v1(ctx, params)[0]
+        res = set_api_client.get_reads_set_v1(context, params)[0]
         assert "data" in res
         assert "items" in res["data"]
         assert "info" in res
@@ -186,16 +186,16 @@ def test_get_sampleset_as_readsset(
 
 
 def test_get_reads_set_bad_ref(
-    set_api_client: SetAPI, ctx: dict[str, str | list]
+    set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     with pytest.raises(
         ValueError, match='"ref" parameter must be a valid workspace reference'
     ):
-        set_api_client.get_reads_set_v1(ctx, {"ref": "not_a_ref"})
+        set_api_client.get_reads_set_v1(context, {"ref": "not_a_ref"})
 
 
 def test_get_reads_set_bad_type(
-    reads_refs: list[str], set_api_client: SetAPI, ctx: dict[str, str | list]
+    reads_refs: list[str], set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     with pytest.raises(ValueError, match="is invalid for get_reads_set_v1"):
-        set_api_client.get_reads_set_v1(ctx, {"ref": reads_refs[0]})
+        set_api_client.get_reads_set_v1(context, {"ref": reads_refs[0]})

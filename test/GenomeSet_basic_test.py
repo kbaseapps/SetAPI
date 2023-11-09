@@ -9,7 +9,7 @@ N_GENOME_REFS = 2
 def test_basic_save_and_get(
     genome_refs: list[str],
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
     ws_name: str,
 ) -> None:
     set_name = "set_of_genomes"
@@ -26,7 +26,7 @@ def test_basic_save_and_get(
 
     # test a save
     res = set_api_client.save_genome_set_v1(
-        ctx,
+        context,
         {
             "data": set_data,
             "output_object_name": set_name,
@@ -42,7 +42,7 @@ def test_basic_save_and_get(
     assert res["set_info"][10]["item_count"] == str(N_GENOME_REFS)
 
     # test get of that object
-    d1 = set_api_client.get_genome_set_v1(ctx, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_genome_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
     assert "data" in d1
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
@@ -61,7 +61,7 @@ def test_basic_save_and_get(
 
     # test the call to make sure we get info for each item
     d2 = set_api_client.get_reads_set_v1(
-        ctx,
+        context,
         {
             "ref": res["set_ref"],
             "include_item_info": 1,
@@ -90,7 +90,7 @@ def test_basic_save_and_get(
 def test_save_and_get_kbasesearch_genome(
     genome_refs: list[str],
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
     ws_name: str,
 ) -> None:
     set_name = "set_of_kbasesearch_genomes"
@@ -112,7 +112,7 @@ def test_save_and_get_kbasesearch_genome(
 
     # test a save
     res = set_api_client.save_genome_set_v1(
-        ctx,
+        context,
         {
             "data": set_data,
             "output_object_name": set_name,
@@ -129,7 +129,7 @@ def test_save_and_get_kbasesearch_genome(
     assert "KBaseSearch.GenomeSet" in res["set_info"][2]
 
     # test get of that object
-    d1 = set_api_client.get_genome_set_v1(ctx, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_genome_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
     assert "data" in d1
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
@@ -149,7 +149,7 @@ def test_save_and_get_kbasesearch_genome(
 
 
 def test_save_and_get_of_empty_set(
-    set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     set_name = "nada_set"
     set_description = "nothing to see here"
@@ -158,7 +158,7 @@ def test_save_and_get_of_empty_set(
     set_data = {"description": set_description, "items": []}
     # test a save
     res = set_api_client.save_genome_set_v1(
-        ctx,
+        context,
         {
             "data": set_data,
             "output_object_name": set_name,
@@ -174,7 +174,7 @@ def test_save_and_get_of_empty_set(
     assert res["set_info"][10]["item_count"] == "0"
 
     # test get of that object
-    d1 = set_api_client.get_genome_set_v1(ctx, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_genome_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
     assert "data" in d1
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
@@ -185,7 +185,7 @@ def test_save_and_get_of_empty_set(
     assert len(d1["data"]["items"]) == 0
 
     d2 = set_api_client.get_genome_set_v1(
-        ctx, {"ref": res["set_ref"], "include_item_info": 1}
+        context, {"ref": res["set_ref"], "include_item_info": 1}
     )[0]
 
     assert "data" in d2

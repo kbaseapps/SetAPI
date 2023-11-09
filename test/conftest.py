@@ -45,7 +45,7 @@ def config() -> dict[str, str]:
 
 
 @pytest.fixture(scope="session")
-def ctx(config: dict[str, str]) -> dict[str, str | list]:
+def context(config: dict[str, str]) -> dict[str, str | list]:
     """Generate the context that is sent with API requests.
 
     :param config: SetAPI config
@@ -61,8 +61,8 @@ def ctx(config: dict[str, str]) -> dict[str, str | list]:
     )
 
     # set up the context
-    ctx = MethodContext(None)
-    ctx.update(
+    context = MethodContext(None)
+    context.update(
         {
             "token": TOKEN,
             "user_id": auth_client.get_user(TOKEN),
@@ -76,12 +76,12 @@ def ctx(config: dict[str, str]) -> dict[str, str | list]:
             "authenticated": 1,
         }
     )
-    return ctx
+    return context
 
 
 @pytest.fixture(scope="session")
 def test_workspace(
-    config: dict[str, str], ctx: dict[str, str | list]
+    config: dict[str, str], context: dict[str, str | list]
 ) -> dict[str, Any]:
     """Set up the workspace-related variables.
 
@@ -90,8 +90,8 @@ def test_workspace(
 
     :param config: SetAPI config
     :type config: dict[str, str]
-    :param ctx: context object
-    :type ctx: dict[str, str|list]
+    :param context: context object
+    :type context: dict[str, str|list]
     :yield: dict containing ws name, ws ID, and a workspace client.
     :rtype: dict[str, Any]
     """
@@ -105,7 +105,7 @@ def test_workspace(
     log_this(
         config,
         "ws_results",
-        {"ws_create": result, "config": config, "ctx": ctx, "ws_delete": deletion},
+        {"ws_create": result, "config": config, "context": context, "ws_delete": deletion},
     )
 
 

@@ -35,13 +35,13 @@ def test_data(ws_name: str, clients: dict[str, Any], genome_refs: list[str]) -> 
 
 
 def test_save_diff_exp_matrix_set(
-    test_data: dict, set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     set_name = "test_diff_exp_matrix_set"
     set_items = [{"label": "foo", "ref": ref} for ref in test_data["diff_exps_genome"]]
     matrix_set = {"description": "test_matrix_set", "items": set_items}
     result = set_api_client.save_differential_expression_matrix_set_v1(
-        ctx,
+        context,
         {
             "workspace": ws_name,
             "output_object_name": set_name,
@@ -57,7 +57,7 @@ def test_save_diff_exp_matrix_set(
 
 
 def test_save_diff_exp_matrix_set_no_genome(
-    test_data: dict, set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     set_name = "test_de_matrix_set_no_genome"
     set_items = [
@@ -65,7 +65,7 @@ def test_save_diff_exp_matrix_set_no_genome(
     ]
     matrix_set = {"description": "test_matrix_set", "items": set_items}
     result = set_api_client.save_differential_expression_matrix_set_v1(
-        ctx,
+        context,
         {
             "workspace": ws_name,
             "output_object_name": set_name,
@@ -83,7 +83,7 @@ def test_save_diff_exp_matrix_set_no_genome(
 def test_save_dem_set_mismatched_genomes(
     test_data: dict,
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
     clients: dict[str, Any],
     ws_name: str,
 ) -> None:
@@ -108,7 +108,7 @@ def test_save_dem_set_mismatched_genomes(
         match="All Differential Expression Matrix objects in the set must use the same genome reference.",
     ):
         set_api_client.save_differential_expression_matrix_set_v1(
-            ctx,
+            context,
             {
                 "workspace": ws_name,
                 "output_object_name": set_name,
@@ -118,14 +118,14 @@ def test_save_dem_set_mismatched_genomes(
 
 
 def test_save_dem_set_no_data(
-    set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     with pytest.raises(
         ValueError,
         match='"data" parameter field required to save a DifferentialExpressionMatrixSet',
     ):
         set_api_client.save_differential_expression_matrix_set_v1(
-            ctx,
+            context,
             {
                 "workspace": ws_name,
                 "output_object_name": "foo",
@@ -135,14 +135,14 @@ def test_save_dem_set_no_data(
 
 
 def test_save_dem_set_no_dem(
-    set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     with pytest.raises(
         ValueError,
         match="A DifferentialExpressionMatrixSet must contain at least one DifferentialExpressionMatrix object reference.",
     ):
         set_api_client.save_differential_expression_matrix_set_v1(
-            ctx,
+            context,
             {
                 "workspace": ws_name,
                 "output_object_name": "foo",
@@ -152,7 +152,7 @@ def test_save_dem_set_no_dem(
 
 
 def test_get_dem_set(
-    test_data: dict, set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     set_name = "test_expression_set"
     set_items = [
@@ -160,7 +160,7 @@ def test_get_dem_set(
     ]
     dem_set = {"description": "test_test_diffExprMatrixSet", "items": set_items}
     dem_set_ref = set_api_client.save_differential_expression_matrix_set_v1(
-        ctx,
+        context,
         {
             "workspace": ws_name,
             "output_object_name": set_name,
@@ -169,7 +169,7 @@ def test_get_dem_set(
     )[0]["set_ref"]
 
     fetched_set = set_api_client.get_differential_expression_matrix_set_v1(
-        ctx, {"ref": dem_set_ref, "include_item_info": 0}
+        context, {"ref": dem_set_ref, "include_item_info": 0}
     )[0]
     assert fetched_set is not None
     assert "data" in fetched_set
@@ -183,7 +183,7 @@ def test_get_dem_set(
         assert "label" in item
 
     fetched_set_with_info = set_api_client.get_differential_expression_matrix_set_v1(
-        ctx, {"ref": dem_set_ref, "include_item_info": 1}
+        context, {"ref": dem_set_ref, "include_item_info": 1}
     )[0]
     assert fetched_set_with_info is not None
     assert "data" in fetched_set_with_info
@@ -194,7 +194,7 @@ def test_get_dem_set(
 
 
 def test_get_dem_set_ref_path(
-    test_data: dict, set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     set_name = "test_diff_expression_set_ref_path"
     set_items = [
@@ -202,7 +202,7 @@ def test_get_dem_set_ref_path(
     ]
     dem_set = {"description": "test_diffExprMatrixSet_ref_path", "items": set_items}
     dem_set_ref = set_api_client.save_differential_expression_matrix_set_v1(
-        ctx,
+        context,
         {
             "workspace": ws_name,
             "output_object_name": set_name,
@@ -212,7 +212,7 @@ def test_get_dem_set_ref_path(
 
     fetched_set_with_ref_path = (
         set_api_client.get_differential_expression_matrix_set_v1(
-            ctx,
+            context,
             {
                 "ref": dem_set_ref,
                 "include_item_info": 0,
@@ -234,30 +234,30 @@ def test_get_dem_set_ref_path(
 
 
 def test_get_dem_set_bad_ref(
-    set_api_client: SetAPI, ctx: dict[str, str | list]
+    set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     with pytest.raises(
         ValueError, match='"ref" parameter must be a valid workspace reference'
     ):
         set_api_client.get_differential_expression_matrix_set_v1(
-            ctx, {"ref": "not_a_ref"}
+            context, {"ref": "not_a_ref"}
         )
 
 
 def test_get_dem_set_bad_path(
-    set_api_client: SetAPI, ctx: dict[str, str | list]
+    set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     with pytest.raises(
         ServerError, match="JSONRPCError: -32500. Object 2 cannot be accessed: "
     ):
         set_api_client.get_differential_expression_matrix_set_v1(
-            ctx, {"ref": "1/2/3", "path_to_set": ["foo", "bar"]}
+            context, {"ref": "1/2/3", "path_to_set": ["foo", "bar"]}
         )
 
 
-def test_get_dem_set_no_ref(set_api_client: SetAPI, ctx: dict[str, str | list]) -> None:
+def test_get_dem_set_no_ref(set_api_client: SetAPI, context: dict[str, str | list]) -> None:
     with pytest.raises(
         ValueError,
         match='"ref" parameter field specifiying the DifferentialExpressionMatrix set is required',
     ):
-        set_api_client.get_differential_expression_matrix_set_v1(ctx, {"ref": None})
+        set_api_client.get_differential_expression_matrix_set_v1(context, {"ref": None})

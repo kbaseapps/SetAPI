@@ -25,14 +25,14 @@ def featureset_refs(
 def test_save_feature_set_set(
     featureset_refs: list,
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
     ws_name: str,
 ) -> None:
     set_name = "test_feature_set_set"
     set_items = [{"label": "foo", "ref": ref} for ref in featureset_refs]
     expression_set = {"description": "test_expressions", "items": set_items}
     result = set_api_client.save_feature_set_set_v1(
-        ctx,
+        context,
         {
             "workspace": ws_name,
             "output_object_name": set_name,
@@ -48,13 +48,13 @@ def test_save_feature_set_set(
 
 
 def test_save_feature_set_set_no_data(
-    set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     with pytest.raises(
         ValueError, match='"data" parameter field required to save a FeatureSetSet'
     ):
         set_api_client.save_feature_set_set_v1(
-            ctx,
+            context,
             {
                 "workspace": ws_name,
                 "output_object_name": "foo",
@@ -65,14 +65,14 @@ def test_save_feature_set_set_no_data(
 
 @pytest.mark.skip("Currently allow empty FeatureSetSets")
 def test_save_feature_set_set_empty(
-    set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     with pytest.raises(
         ValueError,
         match="At least one FeatureSet is required to save a FeatureSetSet.",
     ):
         set_api_client.save_feature_set_set_v1(
-            ctx,
+            context,
             {
                 "workspace": ws_name,
                 "output_object_name": "foo",
@@ -82,13 +82,13 @@ def test_save_feature_set_set_empty(
 
 
 def test_get_feature_set_set(
-    featureset_refs: list, set_api_client: SetAPI, ctx: dict[str, str | list], ws_name: str
+    featureset_refs: list, set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
 ) -> None:
     set_name = "test_featureset_set2"
     set_items = [{"label": "wt", "ref": ref} for ref in featureset_refs]
     featureset_set = {"description": "test_alignments", "items": set_items}
     featureset_set_ref = set_api_client.save_feature_set_set_v1(
-        ctx,
+        context,
         {
             "workspace": ws_name,
             "output_object_name": set_name,
@@ -97,7 +97,7 @@ def test_get_feature_set_set(
     )[0]["set_ref"]
 
     fetched_set = set_api_client.get_feature_set_set_v1(
-        ctx, {"ref": featureset_set_ref, "include_item_info": 0}
+        context, {"ref": featureset_set_ref, "include_item_info": 0}
     )[0]
     assert fetched_set is not None
     assert "data" in fetched_set
@@ -111,7 +111,7 @@ def test_get_feature_set_set(
         assert "label" in item
 
     fetched_set_with_info = set_api_client.get_feature_set_set_v1(
-        ctx,
+        context,
         {
             "ref": featureset_set_ref,
             "include_item_info": 1,
@@ -129,30 +129,30 @@ def test_get_feature_set_set(
 
 
 def test_get_feature_set_set_bad_ref(
-    set_api_client: SetAPI, ctx: dict[str, str | list]
+    set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     with pytest.raises(
         ValueError, match='"ref" parameter must be a valid workspace reference'
     ):
-        set_api_client.get_feature_set_set_v1(ctx, {"ref": "not_a_ref"})
+        set_api_client.get_feature_set_set_v1(context, {"ref": "not_a_ref"})
 
 
 def test_get_feature_set_set_bad_path(
-    set_api_client: SetAPI, ctx: dict[str, str | list]
+    set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     with pytest.raises(
         ServerError, match="JSONRPCError: -32500. Object 2 cannot be accessed:"
     ):
         set_api_client.get_feature_set_set_v1(
-            ctx, {"ref": "1/2/3", "path_to_set": ["foo", "bar"]}
+            context, {"ref": "1/2/3", "path_to_set": ["foo", "bar"]}
         )
 
 
 def test_get_feature_set_set_no_ref(
-    set_api_client: SetAPI, ctx: dict[str, str | list]
+    set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     with pytest.raises(
         ValueError,
         match='"ref" parameter field specifiying the FeatureSet set is required',
     ):
-        set_api_client.get_feature_set_set_v1(ctx, {"ref": None})
+        set_api_client.get_feature_set_set_v1(context, {"ref": None})

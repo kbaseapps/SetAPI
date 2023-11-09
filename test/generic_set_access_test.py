@@ -14,7 +14,7 @@ DEBUG = False
 def create_sets(
     reads_refs: list[str],
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
     ws_name: str,
 ) -> dict:
     set_names = ["set_o_reads1", "set_o_reads2", "set_o_reads3"]
@@ -30,7 +30,7 @@ def create_sets(
         }
         # test a save - makes a new ReadsSet object in the workspace.
         res = set_api_client.save_reads_set_v1(
-            ctx,
+            context,
             {"data": set_data, "output_object_name": s, "workspace": ws_name},
         )[0]
         set_refs.append(res["set_ref"])
@@ -39,19 +39,19 @@ def create_sets(
 
 
 def test_list_sets_bad_input(
-    set_api_client: SetAPI, ctx: dict[str, str | list]
+    set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     with pytest.raises(
         ValueError,
         match='One of "workspace" or "workspaces" field required to list sets',
     ):
-        set_api_client.list_sets(ctx, {"include_set_item_info": 1})
+        set_api_client.list_sets(context, {"include_set_item_info": 1})
 
     with pytest.raises(
         ValueError, match='"include_set_item_info" field must be set to 0 or 1'
     ):
         set_api_client.list_sets(
-            ctx, {"workspace": 12345, "include_set_item_info": "foo"}
+            context, {"workspace": 12345, "include_set_item_info": "foo"}
         )
 
 
@@ -59,7 +59,7 @@ def test_list_sets(
     reads_refs: list[str],
     config: dict[str, str],
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
     ws_name: str,
     clients: dict[str, Any],
 ) -> None:
@@ -68,16 +68,16 @@ def test_list_sets(
 
     # make sure we can see an empty list of sets before WS has any
     res = set_api_client.list_sets(
-        ctx, {"workspace": list_sets_ws_name, "include_set_item_info": 1}
+        context, {"workspace": list_sets_ws_name, "include_set_item_info": 1}
     )[0]
     assert len(res["sets"]) == 0
 
     # create the test sets, adds a ReadsSet object in the workspace
-    set_data = create_sets(reads_refs, set_api_client, ctx, list_sets_ws_name)
+    set_data = create_sets(reads_refs, set_api_client, context, list_sets_ws_name)
 
     # Get the sets in the workspace along with their item info.
     res = set_api_client.list_sets(
-        ctx, {"workspace": list_sets_ws_name, "include_set_item_info": 1}
+        context, {"workspace": list_sets_ws_name, "include_set_item_info": 1}
     )[0]
     assert "sets" in res
     assert len(res["sets"]) == len(set_data["set_names"])
@@ -93,7 +93,7 @@ def test_list_sets(
             assert len(item["info"]) == INFO_LENGTH
 
     # Get the sets in a workspace without their item info (just the refs)
-    res2 = set_api_client.list_sets(ctx, {"workspace": list_sets_ws_name})[0]
+    res2 = set_api_client.list_sets(context, {"workspace": list_sets_ws_name})[0]
     assert "sets" in res2
     assert len(res2["sets"]) == len(set_data["set_names"])
     for s in res2["sets"]:
@@ -108,7 +108,7 @@ def test_list_sets(
 
     # Get the sets with their reference paths
     res3 = set_api_client.list_sets(
-        ctx, {"workspace": list_sets_ws_name, "include_set_item_ref_paths": 1}
+        context, {"workspace": list_sets_ws_name, "include_set_item_ref_paths": 1}
     )[0]
 
     if DEBUG:
@@ -128,11 +128,11 @@ def test_list_sets(
             assert "ref_path" in item
             assert item["ref_path"] == s["ref"] + ";" + item["ref"]
 
-    unit_test_get_set_items(set_data, config, set_api_client, ctx)
+    unit_test_get_set_items(set_data, config, set_api_client, context)
 
 
 def test_bulk_list_sets(
-    config: dict[str, str], clients: dict[str, Any], set_api_client: SetAPI, ctx: dict[str, str | list]
+    config: dict[str, str], clients: dict[str, Any], set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     magic_number = 1000
     try:
@@ -149,13 +149,13 @@ def test_bulk_list_sets(
         debug_lines.append("Number of workspaces for bulk list_sets: " + str(len(ids)))
         if len(ids) > 0:
             ret = set_api_client.list_sets(
-                ctx,
+                context,
                 {"workspaces": [ids[0]], "include_set_item_info": 1},
             )[0]
         GenericSetNavigator.DEBUG = True
         t1 = time.time()
         ret = set_api_client.list_sets(
-            ctx, {"workspaces": ids, "include_set_item_info": 1}
+            context, {"workspaces": ids, "include_set_item_info": 1}
         )[0]
 
         debug_lines.append(f"Objects found: {len(ret['sets'])}, time={time.time() - t1}")
@@ -167,10 +167,10 @@ def test_bulk_list_sets(
 
 
 def unit_test_get_set_items(
-    set_data: dict, config: dict[str, str], set_api_client: SetAPI, ctx: dict[str, str | list]
+    set_data: dict, config: dict[str, str], set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     res = set_api_client.get_set_items(
-        ctx,
+        context,
         {
             "set_refs": [
                 {"ref": set_data["set_refs"][0]},
