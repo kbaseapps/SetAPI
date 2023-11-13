@@ -82,7 +82,7 @@ def test_basic_save_and_get(
     conditions: list[str],
     config: dict[str, str],
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
     ws_name: str,
 ) -> None:
     set_name = "micromonas_rnaseq_test1_sampleset"
@@ -101,7 +101,7 @@ def test_basic_save_and_get(
     }
 
     # test a save
-    res = set_api_client.create_sample_set(ctx, create_ss_params)[0]
+    res = set_api_client.create_sample_set(context, create_ss_params)[0]
     if DEBUG:
         log_this(config, "create_sample_set", res)
 
@@ -114,7 +114,7 @@ def test_basic_save_and_get(
     assert res["set_info"][10]["num_samples"] == str(N_READS)
 
     # test get of that object
-    d1 = set_api_client.get_reads_set_v1(ctx, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_reads_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
     assert "data" in d1
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
@@ -140,7 +140,7 @@ def test_basic_save_and_get(
 
     # test the call to make sure we get info for each item
     d2 = set_api_client.get_reads_set_v1(
-        ctx,
+        context,
         {
             "ref": res["set_ref"],
             "include_item_info": 1,
@@ -173,7 +173,7 @@ def test_basic_save_and_get_condition_in_list(
     config: dict[str, str],
     ws_name: str,
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
 ) -> None:
     set_name = "micromonas_rnaseq_test1_sampleset"
 
@@ -191,7 +191,7 @@ def test_basic_save_and_get_condition_in_list(
     }
 
     # test a save
-    res = set_api_client.create_sample_set(ctx, create_ss_params)[0]
+    res = set_api_client.create_sample_set(context, create_ss_params)[0]
 
     if DEBUG:
         log_this(config, "create_sample_set_with_conditions", res)
@@ -205,7 +205,7 @@ def test_basic_save_and_get_condition_in_list(
     assert res["set_info"][10]["num_samples"] == str(N_READS)
 
     # test get of that object
-    d1 = set_api_client.get_reads_set_v1(ctx, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_reads_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
     assert "data" in d1
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
@@ -231,7 +231,7 @@ def test_basic_save_and_get_condition_in_list(
 
     # test the call to make sure we get info for each item
     d2 = set_api_client.get_reads_set_v1(
-        ctx,
+        context,
         {
             "ref": res["set_ref"],
             "include_item_info": 1,
@@ -264,7 +264,7 @@ def test_unmatched_conditions(
     conditions: list[str],
     condition_set_ref: str,
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
 ) -> None:
     # create the set object with unmatching conditions
     create_ss_params = {
@@ -282,14 +282,14 @@ def test_unmatched_conditions(
 
     # test a save
     with pytest.raises(ValueError, match="ERROR: Given conditions"):
-        set_api_client.create_sample_set(ctx, create_ss_params)
+        set_api_client.create_sample_set(context, create_ss_params)
 
 
 def test_non_list_string_conditions(
     create_sampleset_params: dict[str, str],
     reads_refs: list[str],
     set_api_client: SetAPI,
-    ctx: dict[str, str | list],
+    context: dict[str, str | list],
 ) -> None:
     digital_condition = 10
     # create the set object with unmatching conditions
@@ -305,4 +305,4 @@ def test_non_list_string_conditions(
     with pytest.raises(
         ValueError, match="ERROR: condition should be either a list or a string"
     ):
-        set_api_client.create_sample_set(ctx, create_ss_params)
+        set_api_client.create_sample_set(context, create_ss_params)
