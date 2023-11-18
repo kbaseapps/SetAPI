@@ -1,7 +1,6 @@
 """Basic ReadsAlignmentSet tests."""
 import os
 from test.util import (
-    info_to_ref,
     log_this,
     make_fake_alignment,
     make_fake_annotation,
@@ -15,16 +14,18 @@ from typing import Any
 import pytest
 from installed_clients.baseclient import ServerError
 from SetAPI.SetAPIImpl import SetAPI
+from SetAPI.util import info_to_ref
 
 N_READS = 3
 DEBUG = False
+SET_TYPE = "KBaseSets.ReadsAlignmentSet"
 
 
 @pytest.fixture(scope="module")
 def test_data(
     genome_refs: list[str],
     reads_refs: list[str],
-    ws_name: str,
+    ws_id: int,
     clients: dict[str, Any],
     scratch_dir: str,
 ) -> dict[str, Any]:
@@ -39,16 +40,14 @@ def test_data(
             f"fake_alignment_{idx}",
             reads_ref,
             genome_refs[0],
-            ws_name,
+            ws_id,
             clients["ws"],
         )
         for idx, reads_ref in enumerate(reads_refs)
     ]
 
     # Make a fake RNASeqSampleSet
-    sampleset_ref = make_fake_sampleset(
-        "fake_sampleset", [], [], ws_name, clients["ws"]
-    )
+    sampleset_ref = make_fake_sampleset("fake_sampleset", [], [], ws_id, clients["ws"])
 
     # Finally, make a couple fake RNASeqAlignmentSts objects from those alignments
     fake_rnaseq_alignment_set1 = make_fake_old_alignment_set(
@@ -57,7 +56,7 @@ def test_data(
         genome_refs[0],
         sampleset_ref,
         alignment_refs,
-        ws_name,
+        ws_id,
         clients["ws"],
     )
     fake_rnaseq_alignment_set2 = make_fake_old_alignment_set(
@@ -66,7 +65,7 @@ def test_data(
         genome_refs[0],
         sampleset_ref,
         alignment_refs,
-        ws_name,
+        ws_id,
         clients["ws"],
         include_sample_alignments=True,
     )
@@ -76,12 +75,11 @@ def test_data(
         os.environ["SDK_CALLBACK_URL"],
         dummy_path,
         "fake_annotation",
-        ws_name,
+        ws_id,
         clients["ws"],
     )
 
     # Now we can phony up some expression objects to build sets out of.
-    # name, genome_ref, annotation_ref, alignment_ref, ws_name: str, clients["ws"]
     expression_refs = [
         make_fake_expression(
             os.environ["SDK_CALLBACK_URL"],
@@ -90,7 +88,7 @@ def test_data(
             genome_refs[0],
             annotation_ref,
             alignment_ref,
-            ws_name,
+            ws_id,
             clients["ws"],
         )
         for idx, alignment_ref in enumerate(alignment_refs)
@@ -104,7 +102,7 @@ def test_data(
         alignment_refs,
         fake_rnaseq_alignment_set1,
         expression_refs,
-        ws_name,
+        ws_id,
         clients["ws"],
         True,
     )
@@ -124,17 +122,18 @@ def test_save_alignment_set(
     test_data: dict[str, Any],
     set_api_client: SetAPI,
     context: dict[str, str | list],
-    ws_name: str,
+    ws_id: int,
 ) -> None:
     alignment_set_name = "test_alignment_set"
+    alignment_set_description = "test_alignments"
     alignment_items = [
         {"label": "wt", "ref": ref} for ref in test_data["alignment_refs"]
     ]
-    alignment_set = {"description": "test_alignments", "items": alignment_items}
+    alignment_set = {"description": alignment_set_description, "items": alignment_items}
     result = set_api_client.save_reads_alignment_set_v1(
         context,
         {
-            "workspace": ws_name,
+            "workspace_id": ws_id,
             "output_object_name": alignment_set_name,
             "data": alignment_set,
         },
@@ -151,7 +150,7 @@ def test_save_alignment_set_mismatched_genomes(
     test_data: dict[str, Any],
     set_api_client: SetAPI,
     context: dict[str, str | list],
-    ws_name: str,
+    ws_id: int,
     clients: dict[str, Any],
 ) -> None:
     alignment_set_name = "alignment_set_bad_genomes"
@@ -165,7 +164,7 @@ def test_save_alignment_set_mismatched_genomes(
                     "odd_alignment",
                     test_data["reads_refs"][0],
                     test_data["genome_refs"][1],
-                    ws_name,
+                    ws_id,
                     clients["ws"],
                 ),
                 "label": "odd_alignment",
@@ -181,7 +180,7 @@ def test_save_alignment_set_mismatched_genomes(
         set_api_client.save_reads_alignment_set_v1(
             context,
             {
-                "workspace": ws_name,
+                "workspace_id": ws_id,
                 "output_object_name": alignment_set_name,
                 "data": alignment_set,
             },
@@ -189,7 +188,7 @@ def test_save_alignment_set_mismatched_genomes(
 
 
 def test_save_alignment_set_no_data(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
 ) -> None:
     with pytest.raises(
         ValueError,
@@ -198,7 +197,7 @@ def test_save_alignment_set_no_data(
         set_api_client.save_reads_alignment_set_v1(
             context,
             {
-                "workspace": ws_name,
+                "workspace_id": ws_id,
                 "output_object_name": "foo",
                 "data": None,
             },
@@ -206,7 +205,7 @@ def test_save_alignment_set_no_data(
 
 
 def test_save_alignment_set_no_alignments(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
 ) -> None:
     with pytest.raises(
         ValueError,
@@ -215,7 +214,7 @@ def test_save_alignment_set_no_alignments(
         set_api_client.save_reads_alignment_set_v1(
             context,
             {
-                "workspace": ws_name,
+                "workspace_id": ws_id,
                 "output_object_name": "foo",
                 "data": {"items": []},
             },
@@ -226,17 +225,17 @@ def test_get_old_alignment_set(
     test_data: dict[str, Any], set_api_client: SetAPI, context: dict[str, str | list]
 ) -> None:
     for ref in [
-        test_data["fake_rnaseq_alignment_set1"],
-        test_data["fake_rnaseq_alignment_set2"],
+        "fake_rnaseq_alignment_set1",
+        "fake_rnaseq_alignment_set2",
     ]:
         fetched_set = set_api_client.get_reads_alignment_set_v1(
-            context, {"ref": ref, "include_item_info": 0}
+            context, {"ref": test_data[ref], "include_item_info": 0}
         )[0]
         assert fetched_set is not None
         assert "data" in fetched_set
         assert "info" in fetched_set
         assert len(fetched_set["data"]["items"]) == N_READS
-        assert ref == info_to_ref(fetched_set["info"])
+        assert test_data[ref] == info_to_ref(fetched_set["info"])
         for item in fetched_set["data"]["items"]:
             assert "info" not in item
             assert "ref" in item
@@ -244,7 +243,11 @@ def test_get_old_alignment_set(
 
         fetched_set_with_info = set_api_client.get_reads_alignment_set_v1(
             context,
-            {"ref": ref, "include_item_info": 1, "include_set_item_ref_paths": 1},
+            {
+                "ref": test_data[ref],
+                "include_item_info": 1,
+                "include_set_item_ref_paths": 1,
+            },
         )[0]
         assert fetched_set_with_info is not None
         assert "data" in fetched_set_with_info
@@ -253,11 +256,14 @@ def test_get_old_alignment_set(
             assert "ref" in item
             assert "label" in item
             assert "ref_path" in item
-            assert item["ref_path"] == ref + ";" + item["ref"]
+            assert item["ref_path"] == test_data[ref] + ";" + item["ref"]
 
 
 def test_get_old_alignment_set_ref_path_to_set(
-    test_data: dict[str, Any], config: dict[str, str], set_api_client: SetAPI, context: dict[str, str | list]
+    test_data: dict[str, Any],
+    config: dict[str, str],
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
 ) -> None:
     alignment_ref = test_data["fake_rnaseq_alignment_set1"]
     ref_path_to_set = [test_data["fake_rnaseq_expression_set"], alignment_ref]
@@ -291,7 +297,7 @@ def test_get_alignment_set(
     test_data: dict[str, Any],
     set_api_client: SetAPI,
     context: dict[str, str | list],
-    ws_name: str,
+    ws_id: int,
 ) -> None:
     alignment_set_name = "test_alignment_set"
     alignment_items = [
@@ -301,7 +307,7 @@ def test_get_alignment_set(
     alignment_set_ref = set_api_client.save_reads_alignment_set_v1(
         context,
         {
-            "workspace": ws_name,
+            "workspace_id": ws_id,
             "output_object_name": alignment_set_name,
             "data": alignment_set,
         },
@@ -335,7 +341,7 @@ def test_get_alignment_set_ref_path(
     test_data: dict[str, Any],
     set_api_client: SetAPI,
     context: dict[str, str | list],
-    ws_name: str,
+    ws_id: int,
 ) -> None:
     alignment_set_name = "test_alignment_set_ref_path"
     alignment_items = [
@@ -345,7 +351,7 @@ def test_get_alignment_set_ref_path(
     alignment_set_ref = set_api_client.save_reads_alignment_set_v1(
         context,
         {
-            "workspace": ws_name,
+            "workspace_id": ws_id,
             "output_object_name": alignment_set_name,
             "data": alignment_set,
         },

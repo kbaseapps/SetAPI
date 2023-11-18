@@ -1,53 +1,39 @@
 """Basic tests for the AssemblySet class."""
 import os
-from test.conftest import INFO_LENGTH
+from test.util import make_assembly_refs, INFO_LENGTH
 from typing import Any
-
 import pytest
 from SetAPI.SetAPIImpl import SetAPI
 
+
 N_ASSEMBLIES = 2
+SET_TYPE = "KBaseSets.AssemblySet"
 
 
 @pytest.fixture()
-def assembly_refs(
-    ws_name: str, clients: dict[str, Any], scratch_dir: str
-) -> list[str]:
+def assembly_refs(ws_id: int, clients: dict[str, Any], scratch_dir: str) -> list[str]:
     # use the seq.fna file that was copied to the scratch dir
     fna_path = os.path.join(scratch_dir, "seq.fna")
-
-    assembly1ref = clients["au"].save_assembly_from_fasta(
-        {
-            "file": {"path": fna_path},
-            "workspace_name": ws_name,
-            "assembly_name": "assembly_obj_1",
-        }
-    )
-    assembly2ref = clients["au"].save_assembly_from_fasta(
-        {
-            "file": {"path": fna_path},
-            "workspace_name": ws_name,
-            "assembly_name": "assembly_obj_2",
-        }
-    )
-    return [assembly1ref, assembly2ref]
+    return make_assembly_refs(fna_path, ws_id, clients["au"])
 
 
 def test_basic_save_and_get(
     set_api_client: SetAPI,
     context: dict[str, str | list],
+    ws_id: int,
     ws_name: str,
     assembly_refs: list[str],
 ) -> None:
     set_name = "set_of_assemblies"
     set_description = "my first assembly set"
+    second_item_data = {"ref": assembly_refs[1], "label": "assembly2"}
 
     # create the set object
     set_data = {
         "description": set_description,
         "items": [
             {"ref": assembly_refs[0], "label": "assembly1"},
-            {"ref": assembly_refs[1], "label": "assembly2"},
+            second_item_data,
         ],
     }
 
@@ -57,7 +43,7 @@ def test_basic_save_and_get(
         {
             "data": set_data,
             "output_object_name": set_name,
-            "workspace": ws_name,
+            "workspace_id": ws_id,
         },
     )[0]
     assert "set_ref" in res
@@ -69,7 +55,9 @@ def test_basic_save_and_get(
     assert res["set_info"][10]["item_count"] == str(N_ASSEMBLIES)
 
     # test get of that object
-    d1 = set_api_client.get_assembly_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_assembly_set_v1(context, {"ref": ws_name + "/" + set_name})[
+        0
+    ]
     assert "data" in d1
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
@@ -132,10 +120,11 @@ def check_empty_set(obj: dict, description: str) -> None:
 
 
 def test_save_and_get_of_empty_set(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int, ws_name: str
 ) -> None:
     set_name = "nada_set"
     set_description = "nothing to see here"
+    n_items = 0
 
     # create the set object
     set_data = {"description": set_description, "items": []}
@@ -145,7 +134,7 @@ def test_save_and_get_of_empty_set(
         {
             "data": set_data,
             "output_object_name": set_name,
-            "workspace": ws_name,
+            "workspace_id": ws_id,
         },
     )[0]
     assert "set_ref" in res
@@ -154,10 +143,12 @@ def test_save_and_get_of_empty_set(
 
     assert res["set_info"][1] == set_name
     assert "item_count" in res["set_info"][10]
-    assert res["set_info"][10]["item_count"] == "0"
+    assert res["set_info"][10]["item_count"] == str(n_items)
 
     # test get of that object
-    d1 = set_api_client.get_assembly_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_assembly_set_v1(context, {"ref": ws_name + "/" + set_name})[
+        0
+    ]
     check_empty_set(d1, set_description)
 
     d2 = set_api_client.get_assembly_set_v1(

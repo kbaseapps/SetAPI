@@ -2,10 +2,13 @@
 An interface for handling sets of ReadsAlignments.
 """
 
-from pprint import pprint
-
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
-from SetAPI import util
+from SetAPI.util import (
+    populate_item_object_ref_paths,
+    check_reference,
+    build_ws_obj_selector,
+    info_to_ref,
+)
 
 
 class ReadsAlignmentSetInterfaceV1:
@@ -26,7 +29,7 @@ class ReadsAlignmentSetInterfaceV1:
         )
         info = save_result[0]
         return {
-            "set_ref": str(info[6]) + "/" + str(info[0]) + "/" + str(info[4]),
+            "set_ref": info_to_ref(info),
             "set_info": info,
         }
 
@@ -131,7 +134,7 @@ class ReadsAlignmentSetInterfaceV1:
             If include_set_item_ref_paths is set, then add a field ref_path in alignment items
             """
             if include_set_item_ref_paths:
-                util.populate_item_object_ref_paths(alignment_items, obj_spec)
+                populate_item_object_ref_paths(alignment_items, obj_spec)
 
             return {
                 "data": {"items": alignment_items, "description": ""},
@@ -143,7 +146,7 @@ class ReadsAlignmentSetInterfaceV1:
             raise ValueError(
                 '"ref" parameter field specifiying the reads alignment set is required'
             )
-        elif not util.check_reference(params["ref"]):
+        if not check_reference(params["ref"]):
             raise ValueError('"ref" parameter must be a valid workspace reference')
         if "include_item_info" in params:
             if params["include_item_info"] not in [0, 1]:
@@ -151,7 +154,7 @@ class ReadsAlignmentSetInterfaceV1:
                     '"include_item_info" parameter field can only be set to 0 or 1'
                 )
 
-        obj_spec = util.build_ws_obj_selector(
+        obj_spec = build_ws_obj_selector(
             params.get("ref"), params.get("ref_path_to_set", [])
         )
 

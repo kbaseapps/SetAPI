@@ -2,7 +2,7 @@
 An interface for handling sets of Expression objects.
 """
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
-from SetAPI.util import check_reference
+from SetAPI.util import check_reference, info_to_ref
 
 
 class DifferentialExpressionMatrixSetInterfaceV1:
@@ -23,7 +23,7 @@ class DifferentialExpressionMatrixSetInterfaceV1:
         )
         info = save_result[0]
         return {
-            "set_ref": str(info[6]) + "/" + str(info[0]) + "/" + str(info[4]),
+            "set_ref": info_to_ref(info),
             "set_info": info,
         }
 
@@ -90,10 +90,9 @@ class DifferentialExpressionMatrixSetInterfaceV1:
             raise ValueError(
                 '"ref" parameter field specifiying the DifferentialExpressionMatrix set is required'
             )
-        elif not check_reference(params["ref"]):
+        if not check_reference(params["ref"]):
             raise ValueError('"ref" parameter must be a valid workspace reference')
-        if "include_item_info" in params:
-            if params["include_item_info"] not in [0, 1]:
-                raise ValueError(
-                    '"include_item_info" parameter field can only be set to 0 or 1'
-                )
+        if "include_item_info" in params and params["include_item_info"] not in [0, 1]:
+            raise ValueError(
+                '"include_item_info" parameter field can only be set to 0 or 1'
+            )

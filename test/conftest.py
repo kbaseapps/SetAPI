@@ -23,7 +23,6 @@ CONFIG_FILE = os.environ.get(
 
 TOKEN = os.environ.get("KB_AUTH_TOKEN", None)
 SDK_CALLBACK_URL = os.environ["SDK_CALLBACK_URL"]
-INFO_LENGTH = 11
 
 
 @pytest.fixture(scope="session")
@@ -105,7 +104,12 @@ def test_workspace(
     log_this(
         config,
         "ws_results",
-        {"ws_create": result, "config": config, "context": context, "ws_delete": deletion},
+        {
+            "ws_create": result,
+            "config": config,
+            "context": context,
+            "ws_delete": deletion,
+        },
     )
 
 
@@ -146,20 +150,22 @@ def clients(test_workspace: dict[str, Any]) -> dict[str, Any]:
 
 
 @pytest.fixture(scope="session")
-def reads_refs(clients: dict[str, Any], ws_name: str) -> list[str]:
-    return make_reads_refs(clients["foft"], ws_name)
-
-
-@pytest.fixture(scope="session")
 def scratch_dir(config: dict[str, str]) -> str:
     scratch_dir = config["scratch"]
-    shutil.copytree(os.path.join(TEST_BASE_DIR, "data"), scratch_dir, dirs_exist_ok=True)
+    shutil.copytree(
+        os.path.join(TEST_BASE_DIR, "data"), scratch_dir, dirs_exist_ok=True
+    )
     return scratch_dir
 
 
 @pytest.fixture(scope="session")
-def genome_refs(clients: dict[str, Any], ws_name: str) -> list[str]:
-    return make_genome_refs(clients["foft"], ws_name)
+def genome_refs(clients: dict[str, Any], ws_id: str) -> list[str]:
+    return make_genome_refs(clients["foft"], ws_id)
+
+
+@pytest.fixture(scope="session")
+def reads_refs(clients: dict[str, Any], ws_id: str) -> list[str]:
+    return make_reads_refs(clients["foft"], ws_id)
 
 
 @pytest.fixture(scope="session")

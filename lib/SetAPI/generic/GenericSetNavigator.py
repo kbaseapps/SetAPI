@@ -2,8 +2,12 @@
 
 import time
 
-from SetAPI import util
 from SetAPI.generic.WorkspaceListObjectsIterator import WorkspaceListObjectsIterator
+from SetAPI.util import (
+    info_to_ref,
+    build_ws_obj_selector,
+    populate_item_object_ref_paths,
+)
 
 
 class GenericSetNavigator:
@@ -110,16 +114,16 @@ class GenericSetNavigator:
             print(("Time of ws_info listing: " + str(time.time() - t1)))
 
         t2 = time.time()
-        sets = []
-        processed_refs = {}
-        for t in GenericSetNavigator.SET_TYPES:
-            list_params = {"includeMetadata": include_metadata, "type": t}
+        sets = [
+            {"ref": info_to_ref(s), "info": s}
+            for t in GenericSetNavigator.SET_TYPES
             for s in WorkspaceListObjectsIterator(
-                self.ws, list_objects_params=list_params, ws_info_list=ws_info_list
-            ):
-                ref = self._build_obj_ref(s)
-                sets.append({"ref": ref, "info": s})
-                processed_refs[ref] = True
+                self.ws,
+                list_objects_params={"includeMetadata": include_metadata, "type": t},
+                ws_info_list=ws_info_list,
+            )
+        ]
+
         if self.DEBUG:
             print(("Time of object info listing: " + str(time.time() - t2)))
         return sets
@@ -207,7 +211,7 @@ class GenericSetNavigator:
             # build info lookup
             item_info = {}
             for o in obj_info_list:
-                item_info[self._build_obj_ref(o)] = o
+                item_info[info_to_ref(o)] = o
 
             for s in set_list:
                 for item in s["items"]:
@@ -218,15 +222,10 @@ class GenericSetNavigator:
 
     def _populate_set_item_ref_path(self, set_list):
         for s in set_list:
-            obj_spec = util.build_ws_obj_selector(
-                s["ref"], s.get("ref_path_to_set", [])
-            )
-            util.populate_item_object_ref_paths(s["items"], obj_spec)
+            obj_spec = build_ws_obj_selector(s["ref"], s.get("ref_path_to_set", []))
+            populate_item_object_ref_paths(s["items"], obj_spec)
 
         return set_list
-
-    def _build_obj_ref(self, obj_info):
-        return str(obj_info[6]) + "/" + str(obj_info[0]) + "/" + str(obj_info[4])
 
     # typedef structure {
     #     ws_obj_id ref;
@@ -286,17 +285,13 @@ class GenericSetNavigator:
                 )
 
     def _get_set_info(self, set_refs):
-        objects = []
-        for s in set_refs:
-            objects.append(
-                util.build_ws_obj_selector(s["ref"], s.get("path_to_set", []))
-            )
+        objects = [
+            build_ws_obj_selector(s["ref"], s.get("path_to_set", [])) for s in set_refs
+        ]
 
-        if len(objects) > 0:
+        if objects:
             obj_info_list = self.ws.get_object_info_new(
                 {"objects": objects, "includeMetadata": 1}
             )
-            set_list = []
-            for o in obj_info_list:
-                set_list.append({"ref": self._build_obj_ref(o), "info": o})
+            set_list = [{"ref": info_to_ref(o), "info": o} for o in obj_info_list]
         return set_list

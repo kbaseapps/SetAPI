@@ -1,19 +1,22 @@
 """Basic tests of the SampleSet API."""
-from test.conftest import INFO_LENGTH
-from test.util import info_to_ref, log_this
+from test.util import info_to_name, log_this, INFO_LENGTH
 from typing import Any
+from copy import deepcopy
 
 import pytest
 from SetAPI.SetAPIImpl import SetAPI
+from SetAPI.util import info_to_ref
 
 N_READS = 3
 DESCRIPTION = "first pass at testing something or other"
 DEBUG = False
 
+
 @pytest.fixture(scope="module")
-def create_sampleset_params(ws_name: str) -> dict[str]:
+def create_sampleset_params(ws_id: int, ws_name: str) -> dict[str]:
     return {
-        "ws_id": ws_name,
+        "ws_id": ws_id,
+        "ws_name": ws_name,
         "sampleset_desc": DESCRIPTION,
         "domain": "euk",
         "platform": "Illumina",
@@ -35,6 +38,12 @@ def condition_set_ref(
 ) -> str:
     # create a condition set
     condition_set_object_name = "test_Condition_Set"
+    common_factor_data = {
+        "factor_ont_id": "Custom:Term",
+        "factor_ont_ref": "KbaseOntologies/Custom",
+        "unit_ont_id": "Custom:Unit",
+        "unit_ont_ref": "KbaseOntologies/Custom",
+    }
     condition_set_data = {
         "conditions": {
             conditions[0]: ["0", "0"],
@@ -42,21 +51,11 @@ def condition_set_ref(
             conditions[2]: ["0", "0"],
         },
         "factors": [
-            {
-                "factor": "Time series design",
-                "factor_ont_id": "Custom:Term",
-                "factor_ont_ref": "KbaseOntologies/Custom",
-                "unit": "Hour",
-                "unit_ont_id": "Custom:Unit",
-                "unit_ont_ref": "KbaseOntologies/Custom",
-            },
+            {"factor": "Time series design", "unit": "Hour", **common_factor_data},
             {
                 "factor": "Treatment with Sirolimus",
-                "factor_ont_id": "Custom:Term",
-                "factor_ont_ref": "KbaseOntologies/Custom",
                 "unit": "nanogram per milliliter",
-                "unit_ont_id": "Custom:Unit",
-                "unit_ont_ref": "KbaseOntologies/Custom",
+                **common_factor_data,
             },
         ],
         "ontology_mapping_method": "User Curation",
@@ -138,6 +137,12 @@ def test_basic_save_and_get(
     assert item3["label"] == conditions[1]
     assert item3["ref"] == reads_refs[2]
 
+    # same call, but use the set ref
+    d1_via_set_ref = set_api_client.get_reads_set_v1(context, {"ref": res["set_ref"]})[
+        0
+    ]
+    assert d1 == d1_via_set_ref
+
     # test the call to make sure we get info for each item
     d2 = set_api_client.get_reads_set_v1(
         context,
@@ -166,12 +171,67 @@ def test_basic_save_and_get(
     assert item2["ref_path"] == res["set_ref"] + ";" + item2["ref"]
 
 
+def test_create_sample_set_workspace_param(
+    create_sampleset_params: dict[str, str],
+    reads_refs: list[str],
+    conditions: list[str],
+    config: dict[str, str],
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    ws_id: int,
+    ws_name: str,
+) -> None:
+    """Check that we can use either a workspace ID or the workspace name as the 'ws_id' param."""
+    set_name = "test_workspace_param_sampleset"
+    ss_params = {
+        **create_sampleset_params,
+        "sampleset_id": set_name,
+        "sample_n_conditions": [
+            {"sample_id": [reads_refs[0]], "condition": conditions[0]},
+            {
+                "sample_id": [reads_refs[1], reads_refs[2]],
+                "condition": conditions[1],
+            },
+        ],
+    }
+    for param in ["ws_id", "ws_name"]:
+        del ss_params[param]
+
+    # workspace ID string in ws_id field
+    sampleset_ws_id = set_api_client.create_sample_set(
+        context, {**deepcopy(ss_params), **{"ws_id": str(ws_id)}}
+    )[0]
+    assert sampleset_ws_id["set_info"][6] == ws_id
+    assert info_to_name(sampleset_ws_id["set_info"]) == set_name
+    sampleset_obj_id = sampleset_ws_id["set_info"][0]
+    sampleset_ver_id = sampleset_ws_id["set_info"][4]
+
+    # workspace ID as integers in ws_id field
+    # this will create a new version of the previous sampleset
+    sampleset_int_ws_id = set_api_client.create_sample_set(
+        context, {**deepcopy(ss_params), **{"ws_id": int(ws_id)}}
+    )[0]
+    assert sampleset_int_ws_id["set_info"][6] == sampleset_ws_id["set_info"][6]
+    assert info_to_name(sampleset_int_ws_id["set_info"]) == set_name
+    assert sampleset_int_ws_id["set_info"][0] == sampleset_obj_id
+    assert sampleset_int_ws_id["set_info"][4] == sampleset_ver_id + 1
+
+    # workspace name in ws_id field
+    # version 3 of the sampleset
+    sampleset_ws_name = set_api_client.create_sample_set(
+        context, {**deepcopy(ss_params), **{"ws_id": ws_name}}
+    )[0]
+    assert sampleset_ws_name["set_info"][6] == sampleset_ws_id["set_info"][6]
+    assert info_to_name(sampleset_ws_name["set_info"]) == set_name
+    assert sampleset_ws_name["set_info"][0] == sampleset_obj_id
+    assert sampleset_ws_name["set_info"][4] == sampleset_ver_id + 2
+
+
 def test_basic_save_and_get_condition_in_list(
     create_sampleset_params: dict[str, str],
     reads_refs: list[str],
     conditions: list[str],
     config: dict[str, str],
-    ws_name: str,
     set_api_client: SetAPI,
     context: dict[str, str | list],
 ) -> None:
@@ -205,7 +265,7 @@ def test_basic_save_and_get_condition_in_list(
     assert res["set_info"][10]["num_samples"] == str(N_READS)
 
     # test get of that object
-    d1 = set_api_client.get_reads_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_reads_set_v1(context, {"ref": res["set_ref"]})[0]
     assert "data" in d1
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH

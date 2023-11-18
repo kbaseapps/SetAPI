@@ -1,5 +1,5 @@
 """Basic GenomeSet tests."""
-from test.conftest import INFO_LENGTH
+from test.util import INFO_LENGTH
 
 from SetAPI.SetAPIImpl import SetAPI
 
@@ -10,7 +10,7 @@ def test_basic_save_and_get(
     genome_refs: list[str],
     set_api_client: SetAPI,
     context: dict[str, str | list],
-    ws_name: str,
+    ws_id: int,
 ) -> None:
     set_name = "set_of_genomes"
     set_description = "my first genome set"
@@ -30,7 +30,7 @@ def test_basic_save_and_get(
         {
             "data": set_data,
             "output_object_name": set_name,
-            "workspace": ws_name,
+            "workspace_id": ws_id,
         },
     )[0]
     assert "set_ref" in res
@@ -42,7 +42,7 @@ def test_basic_save_and_get(
     assert res["set_info"][10]["item_count"] == str(N_GENOME_REFS)
 
     # test get of that object
-    d1 = set_api_client.get_genome_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_genome_set_v1(context, {"ref": res["set_ref"]})[0]
     assert "data" in d1
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
@@ -91,7 +91,7 @@ def test_save_and_get_kbasesearch_genome(
     genome_refs: list[str],
     set_api_client: SetAPI,
     context: dict[str, str | list],
-    ws_name: str,
+    ws_id: int,
 ) -> None:
     set_name = "set_of_kbasesearch_genomes"
 
@@ -116,7 +116,7 @@ def test_save_and_get_kbasesearch_genome(
         {
             "data": set_data,
             "output_object_name": set_name,
-            "workspace": ws_name,
+            "workspace_id": ws_id,
             "save_search_set": True,
         },
     )[0]
@@ -129,7 +129,7 @@ def test_save_and_get_kbasesearch_genome(
     assert "KBaseSearch.GenomeSet" in res["set_info"][2]
 
     # test get of that object
-    d1 = set_api_client.get_genome_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_genome_set_v1(context, {"ref": res["set_ref"]})[0]
     assert "data" in d1
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
@@ -149,7 +149,7 @@ def test_save_and_get_kbasesearch_genome(
 
 
 def test_save_and_get_of_empty_set(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
 ) -> None:
     set_name = "nada_set"
     set_description = "nothing to see here"
@@ -162,7 +162,7 @@ def test_save_and_get_of_empty_set(
         {
             "data": set_data,
             "output_object_name": set_name,
-            "workspace": ws_name,
+            "workspace_id": ws_id,
         },
     )[0]
     assert "set_ref" in res
@@ -174,7 +174,7 @@ def test_save_and_get_of_empty_set(
     assert res["set_info"][10]["item_count"] == "0"
 
     # test get of that object
-    d1 = set_api_client.get_genome_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_genome_set_v1(context, {"ref": res["set_ref"]})[0]
     assert "data" in d1
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
