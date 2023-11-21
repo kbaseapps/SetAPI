@@ -210,6 +210,19 @@ def scratch_dir(config: dict[str, str]) -> str:
 
 
 @pytest.fixture(scope="session")
+def samples_test_data() -> dict[str, Any]:
+    """Read and return the samples test data.
+
+    :return: samples test data in all its glory
+    :rtype: dict[str, Any]
+    """
+    with open(
+        os.path.join(TEST_BASE_DIR, "data", "sample_set_search_compare.json")
+    ) as f:
+        return json.load(f)
+
+
+@pytest.fixture(scope="session")
 def dummy_shock_file_handle(clients: dict[str, Any], scratch_dir: str) -> str:
     """Upload a (tiny!) file to shock and return the resulting file.
 
@@ -264,7 +277,7 @@ def alignment_refs(
 
 
 @pytest.fixture(scope="session")
-def mismatched_alignment_refs(
+def alignment_mismatched_genome_refs(
     clients: dict[str, Any],
     ws_id: int,
     genome_refs: list[str],
@@ -528,7 +541,7 @@ def expression_refs(
 
 
 @pytest.fixture(scope="session")
-def mismatched_expression_refs(
+def expression_mismatched_genome_refs(
     clients: dict[str, Any],
     ws_id: int,
     dummy_shock_file_handle: str,
@@ -623,28 +636,6 @@ def reads_refs(clients: dict[str, Any], ws_id: int) -> list[str]:
 
 
 @pytest.fixture(scope="session")
-def sampleset_ref(clients: dict[str, Any], ws_id: int, reads_refs: list[str]) -> str:
-    """Create a sampleset and return the reference.
-
-    :param clients: clients dictionary
-    :type clients: dict[str, Any]
-    :param ws_id: workspace ID
-    :type ws_id: int
-    :param reads_refs: reads refs (see fixture)
-    :type reads_refs: list[str]
-    :return: KBase UPA for the object
-    :rtype: str
-    """
-    return make_fake_sampleset(
-        "test_sampleset",
-        reads_refs,
-        [f"cond_{n}" for n in range(len(reads_refs))],
-        ws_id,
-        clients["ws"],
-    )
-
-
-@pytest.fixture(scope="session")
 def rnaseq_alignment_sets(
     clients: dict[str, Any],
     ws_id: int,
@@ -728,13 +719,22 @@ def rnaseq_expression_set(
 
 
 @pytest.fixture(scope="session")
-def samples_test_data() -> dict[str, Any]:
-    """Read and return the samples test data.
+def sampleset_ref(clients: dict[str, Any], ws_id: int, reads_refs: list[str]) -> str:
+    """Create a sampleset and return the reference.
 
-    :return: samples test data in all its glory
-    :rtype: dict[str, Any]
+    :param clients: clients dictionary
+    :type clients: dict[str, Any]
+    :param ws_id: workspace ID
+    :type ws_id: int
+    :param reads_refs: reads refs (see fixture)
+    :type reads_refs: list[str]
+    :return: KBase UPA for the object
+    :rtype: str
     """
-    with open(
-        os.path.join(TEST_BASE_DIR, "data", "sample_set_search_compare.json")
-    ) as f:
-        return json.load(f)
+    return make_fake_sampleset(
+        "test_sampleset",
+        reads_refs,
+        [f"cond_{n}" for n in range(len(reads_refs))],
+        ws_id,
+        clients["ws"],
+    )

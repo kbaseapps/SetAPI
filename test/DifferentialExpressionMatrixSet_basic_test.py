@@ -64,8 +64,7 @@ def test_save_dem_set_mismatched_genomes(
     set_name = "dem_set_bad_genomes"
     set_description = "this_better_fail"
     set_items = [
-        {"ref": dem_ref, "label": "label_for_dem_ref"}
-        for dem_ref in diff_exp_matrix_mismatched_genome_refs
+        {"label": "dem", "ref": ref} for ref in diff_exp_matrix_mismatched_genome_refs
     ]
     matrix_set = {
         "description": set_description,

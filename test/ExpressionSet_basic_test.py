@@ -38,13 +38,12 @@ def test_save_expression_set_mismatched_genomes(
     set_api_client: SetAPI,
     context: dict[str, str | list],
     ws_id: int,
-    mismatched_expression_refs: list[str],
+    expression_mismatched_genome_refs: list[str],
 ) -> None:
     set_name = "expression_set_mismatched_genomes"
     set_description = "this_better_fail"
     set_items = [
-        {"ref": expression_ref, "label": "label_for_expression_ref"}
-        for expression_ref in mismatched_expression_refs
+        {"label": "foo", "ref": ref} for ref in expression_mismatched_genome_refs
     ]
     expression_set = {
         "description": set_description,

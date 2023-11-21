@@ -40,13 +40,12 @@ def test_save_alignment_set_mismatched_genomes(
     set_api_client: SetAPI,
     context: dict[str, str | list],
     ws_id: int,
-    mismatched_alignment_refs: list[str],
+    alignment_mismatched_genome_refs: list[str],
 ) -> None:
     set_name = "alignment_set_mismatched_genomes"
     set_description = "this_better_fail"
     set_items = [
-        {"ref": alignment_ref, "label": "label_for_alignment"}
-        for alignment_ref in mismatched_alignment_refs
+        {"label": "al", "ref": ref} for ref in alignment_mismatched_genome_refs
     ]
     alignment_set = {
         "description": set_description,
