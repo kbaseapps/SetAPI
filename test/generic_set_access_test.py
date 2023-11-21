@@ -59,28 +59,24 @@ def test_list_sets(
     config: dict[str, str],
     set_api_client: SetAPI,
     context: dict[str, str | list],
-    ws_name: str,
-    clients: dict[str, Any],
+    list_all_sets_ws_id: int,
+    list_all_sets_ws_name: str,
 ) -> None:
-    list_sets_ws_name = f"{ws_name}_list_sets"
-    result = clients["ws"].create_workspace({"workspace": list_sets_ws_name})
-    list_sets_ws_id = result[0]
-
     # make sure we can see an empty list of sets before WS has any
     res = set_api_client.list_sets(
-        context, {"workspace": list_sets_ws_id, "include_set_item_info": 1}
+        context, {"workspace": list_all_sets_ws_id, "include_set_item_info": 1}
     )[0]
     assert len(res["sets"]) == 0
 
     # create the test sets, adds a ReadsSet object in the workspace
-    set_data = create_sets(reads_refs, set_api_client, context, list_sets_ws_id)
+    set_data = create_sets(reads_refs, set_api_client, context, list_all_sets_ws_id)
 
     # Get the sets in the workspace along with their item info.
     res = set_api_client.list_sets(
-        context, {"workspace": list_sets_ws_id, "include_set_item_info": 1}
+        context, {"workspace": list_all_sets_ws_id, "include_set_item_info": 1}
     )[0]
     res_name = set_api_client.list_sets(
-        context, {"workspace": list_sets_ws_name, "include_set_item_info": 1}
+        context, {"workspace": list_all_sets_ws_name, "include_set_item_info": 1}
     )[0]
     assert res == res_name
     assert "sets" in res
@@ -97,7 +93,7 @@ def test_list_sets(
             assert len(item["info"]) == INFO_LENGTH
 
     # Get the sets in a workspace without their item info (just the refs)
-    res2 = set_api_client.list_sets(context, {"workspace": list_sets_ws_id})[0]
+    res2 = set_api_client.list_sets(context, {"workspace": list_all_sets_ws_id})[0]
     assert "sets" in res2
     assert len(res2["sets"]) == len(set_data["set_names"])
     for s in res2["sets"]:
@@ -112,7 +108,7 @@ def test_list_sets(
 
     # Get the sets with their reference paths
     res3 = set_api_client.list_sets(
-        context, {"workspace": list_sets_ws_name, "include_set_item_ref_paths": 1}
+        context, {"workspace": list_all_sets_ws_name, "include_set_item_ref_paths": 1}
     )[0]
 
     if DEBUG:

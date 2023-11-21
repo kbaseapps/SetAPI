@@ -1,20 +1,8 @@
 """Basic ReadsSet tests."""
-from test.util import make_fake_sampleset, INFO_LENGTH
-from typing import Any
+from test.util import INFO_LENGTH
 
 import pytest
 from SetAPI.SetAPIImpl import SetAPI
-
-
-@pytest.fixture(scope="module")
-def sampleset_ref(reads_refs: list[str], ws_id: int, clients: dict[str, Any]) -> str:
-    return make_fake_sampleset(
-        "test_sampleset",
-        reads_refs,
-        ["wt", "cond1", "cond2"],
-        ws_id,
-        clients["ws"],
-    )
 
 
 def test_basic_save_and_get(
@@ -159,14 +147,19 @@ def test_save_and_get_of_empty_set(
 
 
 def test_get_sampleset_as_readsset(
-    sampleset_ref: str, set_api_client: SetAPI, context: dict[str, str | list]
+    sampleset_ref: str,
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    reads_refs: list[str],
 ) -> None:
     param_set = [
         {"ref": sampleset_ref},
         {"ref": sampleset_ref, "include_item_info": 0},
         {"ref": sampleset_ref, "include_item_info": 1},
     ]
-    n_items_in_set = len(param_set)
+    n_items_in_set = len(
+        reads_refs
+    )  # sampleset_ref is created using all the reads_refs as samples
     for params in param_set:
         res = set_api_client.get_reads_set_v1(context, params)[0]
         assert "data" in res

@@ -1,24 +1,8 @@
 """Basic FeatureSet tests."""
-from test.util import make_fake_feature_set
-from typing import Any
-
 import pytest
 from installed_clients.baseclient import ServerError
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.util import info_to_ref
-
-N_FEATURESET_REFS = 3
-
-
-@pytest.fixture(scope="module")
-def featureset_refs(
-    genome_refs: list[str], ws_id: int, clients: dict[str, Any]
-) -> list:
-    # Make some fake feature sets
-    return [
-        make_fake_feature_set(f"feature_set_{i}", genome_refs[0], ws_id, clients["ws"])
-        for i in range(N_FEATURESET_REFS)
-    ]
 
 
 def test_save_feature_set_set(
@@ -88,6 +72,7 @@ def test_get_feature_set_set(
 ) -> None:
     set_name = "test_featureset_set2"
     set_items = [{"label": "wt", "ref": ref} for ref in featureset_refs]
+    n_items = len(featureset_refs)
     featureset_set = {"description": "test_alignments", "items": set_items}
     featureset_set_ref = set_api_client.save_feature_set_set_v1(
         context,
@@ -104,7 +89,7 @@ def test_get_feature_set_set(
     assert fetched_set is not None
     assert "data" in fetched_set
     assert "info" in fetched_set
-    assert len(fetched_set["data"]["items"]) == N_FEATURESET_REFS
+    assert len(fetched_set["data"]["items"]) == n_items
     assert featureset_set_ref == info_to_ref(fetched_set["info"])
     for item in fetched_set["data"]["items"]:
         assert "info" not in item

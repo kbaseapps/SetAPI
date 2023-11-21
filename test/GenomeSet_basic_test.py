@@ -3,8 +3,6 @@ from test.util import INFO_LENGTH
 
 from SetAPI.SetAPIImpl import SetAPI
 
-N_GENOME_REFS = 2
-
 
 def test_basic_save_and_get(
     genome_refs: list[str],
@@ -23,6 +21,7 @@ def test_basic_save_and_get(
             {"ref": genome_refs[1], "label": "genome2"},
         ],
     }
+    n_items = len(set_data["items"])
 
     # test a save
     res = set_api_client.save_genome_set_v1(
@@ -39,7 +38,7 @@ def test_basic_save_and_get(
 
     assert res["set_info"][1] == set_name
     assert "item_count" in res["set_info"][10]
-    assert res["set_info"][10]["item_count"] == str(N_GENOME_REFS)
+    assert res["set_info"][10]["item_count"] == str(n_items)
 
     # test get of that object
     d1 = set_api_client.get_genome_set_v1(context, {"ref": res["set_ref"]})[0]
@@ -47,10 +46,10 @@ def test_basic_save_and_get(
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
     assert "item_count" in d1["info"][10]
-    assert d1["info"][10]["item_count"] == str(N_GENOME_REFS)
+    assert d1["info"][10]["item_count"] == str(n_items)
 
     assert d1["data"]["description"] == set_description
-    assert len(d1["data"]["items"]) == N_GENOME_REFS
+    assert len(d1["data"]["items"]) == n_items
 
     item2 = d1["data"]["items"][1]
     assert "info" not in item2
@@ -72,10 +71,10 @@ def test_basic_save_and_get(
     assert "info" in d2
     assert len(d2["info"]) == INFO_LENGTH
     assert "item_count" in d2["info"][10]
-    assert d2["info"][10]["item_count"] == str(N_GENOME_REFS)
+    assert d2["info"][10]["item_count"] == str(n_items)
 
     assert d2["data"]["description"] == set_description
-    assert len(d2["data"]["items"]) == N_GENOME_REFS
+    assert len(d2["data"]["items"]) == n_items
 
     item2 = d2["data"]["items"][1]
     assert "info" in item2
@@ -94,10 +93,11 @@ def test_save_and_get_kbasesearch_genome(
     ws_id: int,
 ) -> None:
     set_name = "set_of_kbasesearch_genomes"
+    set_description = "my kbasesearch genome set"
 
     # create the set object
     set_data = {
-        "description": "my kbasesearch genome set",
+        "description": set_description,
         "elements": {
             genome_refs[0]: {
                 "ref": genome_refs[0],
@@ -109,6 +109,7 @@ def test_save_and_get_kbasesearch_genome(
             },
         },
     }
+    n_items = len(set_data["elements"])
 
     # test a save
     res = set_api_client.save_genome_set_v1(
@@ -136,7 +137,7 @@ def test_save_and_get_kbasesearch_genome(
     assert "KBaseSearch.GenomeSet" in res["set_info"][2]
 
     assert d1["data"]["description"] == "my kbasesearch genome set"
-    assert len(d1["data"]["elements"]) == N_GENOME_REFS
+    assert len(d1["data"]["elements"]) == n_items
 
     elements = d1["data"]["elements"]
     assert genome_refs[0] in elements
