@@ -1,6 +1,5 @@
 """Basic ReadsSet tests."""
-from test.conftest import INFO_LENGTH
-from test.util import make_fake_sampleset
+from test.util import make_fake_sampleset, INFO_LENGTH
 from typing import Any
 
 import pytest
@@ -8,12 +7,12 @@ from SetAPI.SetAPIImpl import SetAPI
 
 
 @pytest.fixture(scope="module")
-def sampleset_ref(reads_refs: list[str], ws_name: str, clients: dict[str, Any]) -> str:
+def sampleset_ref(reads_refs: list[str], ws_id: int, clients: dict[str, Any]) -> str:
     return make_fake_sampleset(
         "test_sampleset",
         reads_refs,
         ["wt", "cond1", "cond2"],
-        ws_name,
+        ws_id,
         clients["ws"],
     )
 
@@ -22,7 +21,7 @@ def test_basic_save_and_get(
     reads_refs: list[str],
     set_api_client: SetAPI,
     context: dict[str, str | list],
-    ws_name: str,
+    ws_id: int,
 ) -> None:
     set_name = "set_o_reads"
     set_description = "my first reads"
@@ -43,7 +42,7 @@ def test_basic_save_and_get(
         {
             "data": set_data,
             "output_object_name": set_name,
-            "workspace": ws_name,
+            "workspace_id": ws_id,
         },
     )[0]
     assert "set_ref" in res
@@ -55,7 +54,7 @@ def test_basic_save_and_get(
     assert res["set_info"][10]["item_count"] == str(n_items_in_set)
 
     # test get of that object
-    d1 = set_api_client.get_reads_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_reads_set_v1(context, {"ref": res["set_ref"]})[0]
     assert "data" in d1
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
@@ -108,7 +107,7 @@ def test_basic_save_and_get(
 
 
 def test_save_and_get_of_empty_set(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
 ) -> None:
     set_name = "nada_set"
     set_description = "nothing to see here"
@@ -123,7 +122,7 @@ def test_save_and_get_of_empty_set(
         {
             "data": set_data,
             "output_object_name": set_name,
-            "workspace": ws_name,
+            "workspace_id": ws_id,
         },
     )[0]
     assert "set_ref" in res
@@ -135,7 +134,7 @@ def test_save_and_get_of_empty_set(
     assert res["set_info"][10]["item_count"] == str(n_items_in_set)
 
     # test get of that object
-    d1 = set_api_client.get_reads_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_reads_set_v1(context, {"ref": res["set_ref"]})[0]
     assert "data" in d1
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH

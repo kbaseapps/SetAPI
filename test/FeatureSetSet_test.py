@@ -1,23 +1,22 @@
 """Basic FeatureSet tests."""
-from test.util import info_to_ref, make_fake_feature_set
+from test.util import make_fake_feature_set
 from typing import Any
 
 import pytest
 from installed_clients.baseclient import ServerError
 from SetAPI.SetAPIImpl import SetAPI
+from SetAPI.util import info_to_ref
 
 N_FEATURESET_REFS = 3
 
 
 @pytest.fixture(scope="module")
 def featureset_refs(
-    genome_refs: list[str], ws_name: str, clients: dict[str, Any]
+    genome_refs: list[str], ws_id: int, clients: dict[str, Any]
 ) -> list:
     # Make some fake feature sets
     return [
-        make_fake_feature_set(
-            f"feature_set_{i}", genome_refs[0], ws_name, clients["ws"]
-        )
+        make_fake_feature_set(f"feature_set_{i}", genome_refs[0], ws_id, clients["ws"])
         for i in range(N_FEATURESET_REFS)
     ]
 
@@ -26,7 +25,7 @@ def test_save_feature_set_set(
     featureset_refs: list,
     set_api_client: SetAPI,
     context: dict[str, str | list],
-    ws_name: str,
+    ws_id: int,
 ) -> None:
     set_name = "test_feature_set_set"
     set_items = [{"label": "foo", "ref": ref} for ref in featureset_refs]
@@ -34,7 +33,7 @@ def test_save_feature_set_set(
     result = set_api_client.save_feature_set_set_v1(
         context,
         {
-            "workspace": ws_name,
+            "workspace_id": ws_id,
             "output_object_name": set_name,
             "data": expression_set,
         },
@@ -48,7 +47,7 @@ def test_save_feature_set_set(
 
 
 def test_save_feature_set_set_no_data(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
 ) -> None:
     with pytest.raises(
         ValueError, match='"data" parameter field required to save a FeatureSetSet'
@@ -56,7 +55,7 @@ def test_save_feature_set_set_no_data(
         set_api_client.save_feature_set_set_v1(
             context,
             {
-                "workspace": ws_name,
+                "workspace_id": ws_id,
                 "output_object_name": "foo",
                 "data": None,
             },
@@ -65,7 +64,7 @@ def test_save_feature_set_set_no_data(
 
 @pytest.mark.skip("Currently allow empty FeatureSetSets")
 def test_save_feature_set_set_empty(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
 ) -> None:
     with pytest.raises(
         ValueError,
@@ -74,7 +73,7 @@ def test_save_feature_set_set_empty(
         set_api_client.save_feature_set_set_v1(
             context,
             {
-                "workspace": ws_name,
+                "workspace_id": ws_id,
                 "output_object_name": "foo",
                 "data": {"description": "empty_set", "items": []},
             },
@@ -82,7 +81,10 @@ def test_save_feature_set_set_empty(
 
 
 def test_get_feature_set_set(
-    featureset_refs: list, set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    featureset_refs: list,
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    ws_id: int,
 ) -> None:
     set_name = "test_featureset_set2"
     set_items = [{"label": "wt", "ref": ref} for ref in featureset_refs]
@@ -90,7 +92,7 @@ def test_get_feature_set_set(
     featureset_set_ref = set_api_client.save_feature_set_set_v1(
         context,
         {
-            "workspace": ws_name,
+            "workspace_id": ws_id,
             "output_object_name": set_name,
             "data": featureset_set,
         },

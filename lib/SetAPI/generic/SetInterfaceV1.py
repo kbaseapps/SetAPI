@@ -40,17 +40,8 @@ class SetInterfaceV1:
                 }
             ]
         }
-        if "workspace" in params:
-            if str(params["workspace"]).isdigit():
-                save_params["id"] = int(params["workspace"])
-            else:
-                save_params["workspace"] = params["workspace"]
-        elif "workspace_name" in params:
-            save_params["workspace"] = params["workspace_name"]
-        elif "workspace_id" in params:
-            save_params["id"] = params["workspace_id"]
-
-        return save_params
+        ws_params = util.convert_workspace_param(params)
+        return {**save_params, **ws_params}
 
     def get_set(
         self,
@@ -83,10 +74,7 @@ class SetInterfaceV1:
 
         ws_data = self.ws.get_objects2({"objects": [selector]})
 
-        data = ws_data["data"][0]["data"]
-        info = ws_data["data"][0]["info"]
-
-        return {"data": data, "info": info}
+        return {"data": ws_data["data"][0]["data"], "info": ws_data["data"][0]["info"]}
 
     def _populate_item_object_info(self, set, ref_path_to_set):
         items = set["data"]["items"]

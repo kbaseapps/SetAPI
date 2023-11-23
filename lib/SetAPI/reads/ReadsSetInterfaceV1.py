@@ -1,11 +1,16 @@
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
-from SetAPI import util
+from SetAPI.util import (
+    populate_item_object_ref_paths,
+    check_reference,
+    build_ws_obj_selector,
+    info_to_ref,
+)
 
 
 class ReadsSetInterfaceV1:
     def __init__(self, workspace_client):
         self.ws = workspace_client
-        self.setInterface = SetInterfaceV1(workspace_client)
+        self.set_interface = SetInterfaceV1(workspace_client)
 
     def save_reads_set(self, ctx, params):
         if "data" in params:
@@ -13,12 +18,12 @@ class ReadsSetInterfaceV1:
         else:
             raise ValueError('"data" parameter field required to save a ReadsSet')
 
-        save_result = self.setInterface.save_set(
+        save_result = self.set_interface.save_set(
             "KBaseSets.ReadsSet", ctx["provenance"], params
         )
         info = save_result[0]
         return {
-            "set_ref": str(info[6]) + "/" + str(info[0]) + "/" + str(info[4]),
+            "set_ref": info_to_ref(info),
             "set_info": info,
         }
 
@@ -54,7 +59,7 @@ class ReadsSetInterfaceV1:
 
         # If this is a KBaseSets.ReadsSet, do as normal.
         if "KBaseSets" in set_type:
-            set_data = self.setInterface.get_set(
+            set_data = self.set_interface.get_set(
                 params["ref"],
                 include_item_info,
                 ref_path_to_set,
@@ -95,7 +100,7 @@ class ReadsSetInterfaceV1:
             If include_set_item_ref_paths is set, then add a field ref_path in alignment items
             """
             if include_set_item_ref_paths:
-                util.populate_item_object_ref_paths(reads_items, obj_spec)
+                populate_item_object_ref_paths(reads_items, obj_spec)
 
             set_data["data"]["items"] = reads_items
             return set_data
@@ -110,7 +115,7 @@ class ReadsSetInterfaceV1:
             raise ValueError(
                 '"ref" parameter field specifiying the reads set is required'
             )
-        elif not util.check_reference(params["ref"]):
+        if not check_reference(params["ref"]):
             raise ValueError('"ref" parameter must be a valid workspace reference')
         if "include_item_info" in params:
             if params["include_item_info"] not in [0, 1]:
@@ -118,7 +123,7 @@ class ReadsSetInterfaceV1:
                     '"include_item_info" parameter field can only be set to 0 or 1'
                 )
 
-        obj_spec = util.build_ws_obj_selector(
+        obj_spec = build_ws_obj_selector(
             params.get("ref"), params.get("ref_path_to_set", [])
         )
 

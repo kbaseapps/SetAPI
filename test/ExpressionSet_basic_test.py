@@ -1,7 +1,6 @@
 """Basic ExpressionSet tests."""
 import os
 from test.util import (
-    info_to_ref,
     log_this,
     make_fake_alignment,
     make_fake_annotation,
@@ -15,6 +14,7 @@ from typing import Any
 import pytest
 from installed_clients.baseclient import ServerError
 from SetAPI.SetAPIImpl import SetAPI
+from SetAPI.util import info_to_ref
 
 N_READS_ALIGNMENTS_EXPRESSIONS = 3
 DEBUG = False
@@ -24,7 +24,7 @@ DEBUG = False
 def test_data(
     genome_refs: list[str],
     reads_refs: list[str],
-    ws_name: str,
+    ws_id: int,
     clients: dict[str, Any],
     scratch_dir: str,
 ) -> dict[str, Any]:
@@ -39,7 +39,7 @@ def test_data(
             f"fake_alignment_{idx}",
             reads_ref,
             genome_refs[0],
-            ws_name,
+            ws_id,
             clients["ws"],
         )
         for idx, reads_ref in enumerate(reads_refs)
@@ -50,7 +50,7 @@ def test_data(
         os.environ["SDK_CALLBACK_URL"],
         dummy_path,
         "fake_annotation",
-        ws_name,
+        ws_id,
         clients["ws"],
     )
 
@@ -63,7 +63,7 @@ def test_data(
             genome_refs[0],
             annotation_ref,
             alignment_ref,
-            ws_name,
+            ws_id,
             clients["ws"],
         )
         for idx, alignment_ref in enumerate(alignment_refs)
@@ -71,9 +71,7 @@ def test_data(
 
     # Make a fake RNASeq Alignment Set object
     # Make a fake RNASeqSampleSet
-    sampleset_ref = make_fake_sampleset(
-        "fake_sampleset", [], [], ws_name, clients["ws"]
-    )
+    sampleset_ref = make_fake_sampleset("fake_sampleset", [], [], ws_id, clients["ws"])
 
     # Finally, make a couple fake RNASeqAlignmentSts objects from those alignments
     fake_rnaseq_alignment_set = make_fake_old_alignment_set(
@@ -82,7 +80,7 @@ def test_data(
         genome_refs[0],
         sampleset_ref,
         alignment_refs,
-        ws_name,
+        ws_id,
         clients["ws"],
     )
 
@@ -94,7 +92,7 @@ def test_data(
         alignment_refs,
         fake_rnaseq_alignment_set,
         expression_refs,
-        ws_name,
+        ws_id,
         clients["ws"],
         True,
     )
@@ -110,7 +108,7 @@ def test_data(
 
 
 def test_save_expression_set(
-    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
 ) -> None:
     expression_set_name = "test_expression_set"
     expression_items = [
@@ -120,7 +118,7 @@ def test_save_expression_set(
     result = set_api_client.save_expression_set_v1(
         context,
         {
-            "workspace": ws_name,
+            "workspace_id": ws_id,
             "output_object_name": expression_set_name,
             "data": expression_set,
         },
@@ -135,7 +133,7 @@ def test_save_expression_set(
 
 def test_save_expression_set_mismatched_genomes(
     test_data: dict,
-    ws_name: str,
+    ws_id: int,
     clients: dict[str, Any],
     set_api_client: SetAPI,
     context: dict[str, str | list],
@@ -152,7 +150,7 @@ def test_save_expression_set_mismatched_genomes(
                     test_data["genome_refs"][1],
                     test_data["annotation_ref"],
                     test_data["alignment_refs"][0],
-                    ws_name,
+                    ws_id,
                     clients["ws"],
                 ),
                 "label": "odd_alignment",
@@ -167,7 +165,7 @@ def test_save_expression_set_mismatched_genomes(
         set_api_client.save_expression_set_v1(
             context,
             {
-                "workspace": ws_name,
+                "workspace_id": ws_id,
                 "output_object_name": expression_set_name,
                 "data": expression_set,
             },
@@ -175,7 +173,7 @@ def test_save_expression_set_mismatched_genomes(
 
 
 def test_save_expression_set_no_data(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
 ) -> None:
     with pytest.raises(
         ValueError, match='"data" parameter field required to save an ExpressionSet'
@@ -183,7 +181,7 @@ def test_save_expression_set_no_data(
         set_api_client.save_expression_set_v1(
             context,
             {
-                "workspace": ws_name,
+                "workspace_id": ws_id,
                 "output_object_name": "foo",
                 "data": None,
             },
@@ -191,7 +189,7 @@ def test_save_expression_set_no_data(
 
 
 def test_save_expression_set_no_expressions(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
 ) -> None:
     with pytest.raises(
         ValueError,
@@ -200,7 +198,7 @@ def test_save_expression_set_no_expressions(
         set_api_client.save_expression_set_v1(
             context,
             {
-                "workspace": ws_name,
+                "workspace_id": ws_id,
                 "output_object_name": "foo",
                 "data": {"items": []},
             },
@@ -208,7 +206,7 @@ def test_save_expression_set_no_expressions(
 
 
 def test_get_expression_set(
-    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
 ) -> None:
     expression_set_name = "test_expression_set"
     expression_items = [
@@ -218,7 +216,7 @@ def test_get_expression_set(
     expression_set_ref = set_api_client.save_expression_set_v1(
         context,
         {
-            "workspace": ws_name,
+            "workspace_id": ws_id,
             "output_object_name": expression_set_name,
             "data": expression_set,
         },
@@ -251,7 +249,7 @@ def test_get_expression_set(
 
 
 def test_get_expression_set_ref_path(
-    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
 ) -> None:
     expression_set_name = "test_expression_set_ref_path"
     expression_items = [
@@ -261,7 +259,7 @@ def test_get_expression_set_ref_path(
     expression_set_ref = set_api_client.save_expression_set_v1(
         context,
         {
-            "workspace": ws_name,
+            "workspace_id": ws_id,
             "output_object_name": expression_set_name,
             "data": expression_set,
         },
@@ -287,7 +285,10 @@ def test_get_expression_set_ref_path(
 
 
 def test_get_created_rnaseq_expression_set_ref_path(
-    test_data: dict, config: dict[str, str], set_api_client: SetAPI, context: dict[str, str | list]
+    test_data: dict,
+    config: dict[str, str],
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
 ) -> None:
     fetched_set_with_ref_path = set_api_client.get_expression_set_v1(
         context,
@@ -307,7 +308,11 @@ def test_get_created_rnaseq_expression_set_ref_path(
             == f"{test_data['fake_rnaseq_expression_set']};{item['ref']}"
         )
     if DEBUG:
-        log_this(config, "get_created_rnaseq_expression_set_ref_path", fetched_set_with_ref_path)
+        log_this(
+            config,
+            "get_created_rnaseq_expression_set_ref_path",
+            fetched_set_with_ref_path,
+        )
 
 
 def test_get_expression_set_bad_ref(

@@ -1,10 +1,11 @@
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
+from SetAPI.util import info_to_ref
 
 
 class AssemblySetInterfaceV1:
     def __init__(self, workspace_client):
         self.ws = workspace_client
-        self.setInterface = SetInterfaceV1(workspace_client)
+        self.set_interface = SetInterfaceV1(workspace_client)
 
     def save_assembly_set(self, ctx, params):
         if "data" in params:
@@ -12,12 +13,12 @@ class AssemblySetInterfaceV1:
         else:
             raise ValueError('"data" parameter field required to save an AssemblySet')
 
-        save_result = self.setInterface.save_set(
+        save_result = self.set_interface.save_set(
             "KBaseSets.AssemblySet", ctx["provenance"], params
         )
         info = save_result[0]
         return {
-            "set_ref": str(info[6]) + "/" + str(info[0]) + "/" + str(info[4]),
+            "set_ref": info_to_ref(info),
             "set_info": info,
         }
 
@@ -53,7 +54,7 @@ class AssemblySetInterfaceV1:
             if params["include_set_item_ref_paths"] == 1:
                 include_set_item_ref_paths = True
 
-        set_data = self.setInterface.get_set(
+        set_data = self.set_interface.get_set(
             params["ref"],
             include_item_info,
             ref_path_to_set,

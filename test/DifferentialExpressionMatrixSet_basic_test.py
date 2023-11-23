@@ -1,26 +1,27 @@
 """Basic DifferentialExpressionMatrixSet tests."""
-from test.util import info_to_ref, make_fake_diff_exp_matrix
+from test.util import make_fake_diff_exp_matrix
 from typing import Any
 
 import pytest
 from installed_clients.baseclient import ServerError
 from SetAPI.SetAPIImpl import SetAPI
+from SetAPI.util import info_to_ref
 
 N_MATRICES = 3
 
 
 @pytest.fixture(scope="class")
-def test_data(ws_name: str, clients: dict[str, Any], genome_refs: list[str]) -> dict:
+def test_data(ws_id: int, clients: dict[str, Any], genome_refs: list[str]) -> dict:
     # Make fake diff exp matrices
     diff_exps_no_genome = [
-        make_fake_diff_exp_matrix(f"fake_mat_no_genome_{i}", ws_name, clients["ws"])
+        make_fake_diff_exp_matrix(f"fake_mat_no_genome_{i}", ws_id, clients["ws"])
         for i in range(N_MATRICES)
     ]
 
     diff_exps_genome = [
         make_fake_diff_exp_matrix(
             f"fake_mat_genome_{i}",
-            ws_name,
+            ws_id,
             clients["ws"],
             genome_ref=genome_refs[0],
         )
@@ -35,7 +36,7 @@ def test_data(ws_name: str, clients: dict[str, Any], genome_refs: list[str]) -> 
 
 
 def test_save_diff_exp_matrix_set(
-    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
 ) -> None:
     set_name = "test_diff_exp_matrix_set"
     set_items = [{"label": "foo", "ref": ref} for ref in test_data["diff_exps_genome"]]
@@ -43,7 +44,7 @@ def test_save_diff_exp_matrix_set(
     result = set_api_client.save_differential_expression_matrix_set_v1(
         context,
         {
-            "workspace": ws_name,
+            "workspace_id": ws_id,
             "output_object_name": set_name,
             "data": matrix_set,
         },
@@ -57,7 +58,7 @@ def test_save_diff_exp_matrix_set(
 
 
 def test_save_diff_exp_matrix_set_no_genome(
-    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
 ) -> None:
     set_name = "test_de_matrix_set_no_genome"
     set_items = [
@@ -67,7 +68,7 @@ def test_save_diff_exp_matrix_set_no_genome(
     result = set_api_client.save_differential_expression_matrix_set_v1(
         context,
         {
-            "workspace": ws_name,
+            "workspace_id": ws_id,
             "output_object_name": set_name,
             "data": matrix_set,
         },
@@ -85,7 +86,7 @@ def test_save_dem_set_mismatched_genomes(
     set_api_client: SetAPI,
     context: dict[str, str | list],
     clients: dict[str, Any],
-    ws_name: str,
+    ws_id: int,
 ) -> None:
     set_name = "dem_set_bad_genomes"
     dem_set = {
@@ -94,7 +95,7 @@ def test_save_dem_set_mismatched_genomes(
             {
                 "ref": make_fake_diff_exp_matrix(
                     "odd_dem",
-                    ws_name,
+                    ws_id,
                     clients["ws"],
                     genome_ref=test_data["genome_refs"][1],
                 ),
@@ -110,7 +111,7 @@ def test_save_dem_set_mismatched_genomes(
         set_api_client.save_differential_expression_matrix_set_v1(
             context,
             {
-                "workspace": ws_name,
+                "workspace_id": ws_id,
                 "output_object_name": set_name,
                 "data": dem_set,
             },
@@ -118,7 +119,7 @@ def test_save_dem_set_mismatched_genomes(
 
 
 def test_save_dem_set_no_data(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
 ) -> None:
     with pytest.raises(
         ValueError,
@@ -127,7 +128,7 @@ def test_save_dem_set_no_data(
         set_api_client.save_differential_expression_matrix_set_v1(
             context,
             {
-                "workspace": ws_name,
+                "workspace_id": ws_id,
                 "output_object_name": "foo",
                 "data": None,
             },
@@ -135,7 +136,7 @@ def test_save_dem_set_no_data(
 
 
 def test_save_dem_set_no_dem(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
 ) -> None:
     with pytest.raises(
         ValueError,
@@ -144,7 +145,7 @@ def test_save_dem_set_no_dem(
         set_api_client.save_differential_expression_matrix_set_v1(
             context,
             {
-                "workspace": ws_name,
+                "workspace_id": ws_id,
                 "output_object_name": "foo",
                 "data": {"items": []},
             },
@@ -152,7 +153,7 @@ def test_save_dem_set_no_dem(
 
 
 def test_get_dem_set(
-    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
 ) -> None:
     set_name = "test_expression_set"
     set_items = [
@@ -162,7 +163,7 @@ def test_get_dem_set(
     dem_set_ref = set_api_client.save_differential_expression_matrix_set_v1(
         context,
         {
-            "workspace": ws_name,
+            "workspace_id": ws_id,
             "output_object_name": set_name,
             "data": dem_set,
         },
@@ -194,7 +195,7 @@ def test_get_dem_set(
 
 
 def test_get_dem_set_ref_path(
-    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_name: str
+    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
 ) -> None:
     set_name = "test_diff_expression_set_ref_path"
     set_items = [
@@ -204,7 +205,7 @@ def test_get_dem_set_ref_path(
     dem_set_ref = set_api_client.save_differential_expression_matrix_set_v1(
         context,
         {
-            "workspace": ws_name,
+            "workspace_id": ws_id,
             "output_object_name": set_name,
             "data": dem_set,
         },
@@ -255,7 +256,9 @@ def test_get_dem_set_bad_path(
         )
 
 
-def test_get_dem_set_no_ref(set_api_client: SetAPI, context: dict[str, str | list]) -> None:
+def test_get_dem_set_no_ref(
+    set_api_client: SetAPI, context: dict[str, str | list]
+) -> None:
     with pytest.raises(
         ValueError,
         match='"ref" parameter field specifiying the DifferentialExpressionMatrix set is required',

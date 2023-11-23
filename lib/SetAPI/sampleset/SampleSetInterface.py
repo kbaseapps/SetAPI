@@ -3,30 +3,16 @@ An interface for handling sample sets
 """
 
 import traceback
-import os
 from pprint import pprint
-from SetAPI import util
+from SetAPI.util import dfu_get_obj_data, convert_workspace_param, info_to_ref
 
 
 class SampleSetInterface:
     def __init__(self, workspace_client):
         self.ws_client = workspace_client
 
-    def _ws_get_ref(self, ws_id, obj_id):
-        if "/" in obj_id:
-            return obj_id
-
-        info = self.ws_client.get_object_info_new(
-            {"objects": [{"name": obj_id, "workspace": ws_id}]}
-        )[0]
-        return f"{info[6]}/{info[0]}/{info[4]}"
-
-    def _ws_get_obj_name(self, obj_id):
-        info = self.ws_client.get_object_info_new({"objects": [{"ref": obj_id}]})[0]
-        return info[1]
-
     def _check_condition_matching(self, conditionset_ref, matching_conditions):
-        conditionset_data = util.dfu_get_obj_data(conditionset_ref)
+        conditionset_data = dfu_get_obj_data(conditionset_ref)
         conditions = list(conditionset_data.get("conditions").keys())
 
         if not all([x in conditions for x in matching_conditions]):
@@ -37,6 +23,10 @@ class SampleSetInterface:
             raise ValueError(error_msg)
 
     def create_sample_set(self, ctx, params):
+        # check the ws_id param to see if it is actually a ws_name to ensure
+        # we use the right form of workspace identifier when saving
+        ws_params = convert_workspace_param({"workspace": params.get("ws_id")})
+
         params["sample_ids"] = []
         params["condition"] = []
         for item in params.get("sample_n_conditions", []):
@@ -56,11 +46,6 @@ class SampleSetInterface:
 
         pprint(params)
 
-        # conditionset_ref = params.get('conditionset_ref')
-        # if conditionset_ref:
-        #     self._check_condition_matching(conditionset_ref, params["condition"])
-        # else:
-        #     del params['conditionset_ref']
         try:
             ### Create the working dir for the method; change it to a function call
             out_obj = {k: v for k, v in params.items() if k not in ("ws_id",)}
@@ -93,32 +78,30 @@ class SampleSetInterface:
                     "KBaseAssembly.SingleEndLibrary",
                     "KBaseFile.SingleEndLibrary",
                 ]
+            sample_refs = []
             for reads_ref in sample_ids:
+                # TODO: batch the ws calls instead of doing one sample at a time
                 reads_info = self.ws_client.get_object_info3(
                     {"objects": [{"ref": reads_ref}]}
-                )
-                obj_type = reads_info["infos"][0][2].split("-")[0]
+                )["infos"][0]
+                sample_refs.append(info_to_ref(reads_info))
+                obj_type = reads_info[2].split("-")[0]
                 if obj_type not in lib_type:
                     raise ValueError(
-                        "Library_type mentioned : {0}. Please add only {1} typed objects in Reads fields".format(
-                            params["Library_type"], params["Library_type"]
-                        )
+                        f"Library_type mentioned: {params['Library_type']}. Please add only {params['Library_type']} typed objects in Reads fields"
                     )
 
             ## Code to Update the Provenance; make it a function later
-            provenance = [{}]
-            if "provenance" in ctx:
-                provenance = ctx["provenance"]
+            provenance = ctx.get("provenance", [{}])
             # add additional info to provenance here, in this case the input data object reference
-            provenance[0]["input_ws_objects"] = [
-                self._ws_get_ref(params["ws_id"], sample) for sample in sample_ids
-            ]
+            provenance[0]["input_ws_objects"] = sample_refs
 
             # Saving RNASeqSampleSet to Workspace
             print(f"Saving {params['sampleset_id']} object to workspace")
+
             res = self.ws_client.save_objects(
                 {
-                    "workspace": params["ws_id"],
+                    **ws_params,
                     "objects": [
                         {
                             "type": "KBaseRNASeq.RNASeqSampleSet",
@@ -129,20 +112,20 @@ class SampleSetInterface:
                     ],
                 }
             )[0]
-            """
-            out_obj['sample_ids'] = [self._ws_get_obj_name(sample_id) for
-                                     sample_id in params['sample_ids']]
-            """
-            result = {}
-            result["set_ref"] = "{0}/{1}/{2}".format(res[6], res[0], res[4])
-            result["set_info"] = res
 
-            pprint(result)
-            return result
+            pprint(
+                {
+                    "set_ref": info_to_ref(res),
+                    "set_info": res,
+                }
+            )
+
+            return {
+                "set_ref": info_to_ref(res),
+                "set_info": res,
+            }
 
         except Exception as e:
-            raise Exception(
-                "Error Saving the object to workspace {0},{1}".format(
-                    out_obj["sampleset_id"], "".join(traceback.format_exc())
-                )
-            )
+            err_msg = f"Error saving the object to workspace {out_obj['sampleset_id']},{''.join(traceback.format_exc())}"
+
+            raise Exception(err_msg) from e

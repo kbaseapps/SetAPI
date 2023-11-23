@@ -3,9 +3,14 @@ Some utility functions to help with testing. These mainly add fake objects to us
 """
 import json
 
-from installed_clients import FakeObjectsForTestsClient
+from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 from installed_clients.AssemblyUtilClient import AssemblyUtil
 from installed_clients.DataFileUtilClient import DataFileUtil
+from installed_clients.WorkspaceClient import Workspace
+
+from SetAPI.util import info_to_ref
+
+INFO_LENGTH = 11
 
 
 def log_this(config: dict[str, str], file_name: str, output_obj: dict | list) -> None:
@@ -23,79 +28,109 @@ def log_this(config: dict[str, str], file_name: str, output_obj: dict | list) ->
         f.write(json.dumps(output_obj, indent=2, sort_keys=True))
 
 
-def info_to_ref(info: list[str]) -> str:
+def info_to_name(info: list[int | str | dict[str, str]]) -> str:
+    """Gets the obj name from a KBase info list.
+
+    :param info: info list
+    :type info: list[int | str | dict[str, str]]
+    :return: object name
+    :rtype: str
     """
-    Just a one liner that converts the usual Workspace ObjectInfo list into an object reference
-    string.
-    (Honestly, I just got sick of rewriting this everywhere and forgetting the indices - Bill).
-    """
-    return f"{info[6]}/{info[0]}/{info[4]}"
+    return info[1]
 
 
-def make_assembly_refs(fna_path: str, ws_name: str, au: AssemblyUtil) -> list[str]:
+def info_to_type(info: list[int | str | dict[str, str]]) -> str:
+    """Gets the object type from a KBase info list.
+
+    :param info: info list
+    :type info: list[int | str | dict[str, str]]
+    :return: object type
+    :rtype: str
+    """
+    return info[2]
+
+
+def info_to_usermeta(info: list[int | str | dict[str, str]]) -> dict[str, str]:
+    """Gets the user-entered metadata from a KBase info list.
+
+    :param info: info list
+    :type info: list[int | str | dict[str, str]]
+    :return: the metadata (if it exists)
+    :rtype: None | dict[str, Any]
+    """
+    return info[10]
+
+
+def make_assembly_refs(fna_path: str, ws_id: int, au: AssemblyUtil) -> list[str]:
     """Create two assemblies and return the refs.
 
     :param fna_path: path to an fna file
     :type fna_path: str
-    :param ws_name: workspace name
-    :type ws_name: str
+    :param ws_id: workspace ID
+    :type ws_id: int
     :param au: AssemblyUtil client
     :type au: AssemblyUtil
     :return: list of KBase UPAs
     :rtype: list[str]
     """
-    assembly1ref = au.save_assembly_from_fasta(
+    assembly1ref = au.save_assembly_from_fasta2(
         {
             "file": {"path": fna_path},
-            "workspace_name": ws_name,
+            "workspace_id": ws_id,
             "assembly_name": "assembly_obj_1",
         }
     )
-    assembly2ref = au.save_assembly_from_fasta(
+    assembly2ref = au.save_assembly_from_fasta2(
         {
             "file": {"path": fna_path},
-            "workspace_name": ws_name,
+            "workspace_id": ws_id,
             "assembly_name": "assembly_obj_2",
         }
     )
-    return [assembly1ref, assembly2ref]
+    return [assembly1ref["upa"], assembly2ref["upa"]]
 
 
-def make_genome_refs(foft: FakeObjectsForTestsClient, ws_name: str) -> list[str]:
+def make_genome_refs(foft: FakeObjectsForTests, ws_id: int) -> list[str]:
     """Create two fake genome references.
 
     :param foft: fake objects for tests client
-    :type foft: FakeObjectsForTestsClient
-    :param ws_name: workspace name
-    :type ws_name: str
+    :type foft: FakeObjectsForTests
+    :param ws_id: workspace name
+    :type ws_id: int
     :return: list of KBase UPAs for the objects
     :rtype: list[str]
     """
     genome_info = foft.create_fake_genomes(
-        {"ws_name": ws_name, "obj_names": ["genome_obj_1", "genome_obj_2"]}
+        {"ws_id": ws_id, "obj_names": ["genome_obj_1", "genome_obj_2"]}
     )
     return [info_to_ref(info) for info in genome_info]
 
 
-def make_reads_refs(foft: FakeObjectsForTestsClient, ws_name: str) -> list[str]:
+def make_reads_refs(foft: FakeObjectsForTests, ws_id: int) -> list[str]:
     """Create three fake reads refs.
 
     :param foft: fake objects for tests client
-    :type foft: FakeObjectsForTestsClient
-    :param ws_name: workspace name
-    :type ws_name: str
+    :type foft: FakeObjectsForTests
+    :param ws_id: workspace name
+    :type ws_id: int
     :return: list of KBase UPAs for the fake reads.
     :rtype: list[str]
     """
     # Make some fake reads objects
     fake_reads_list = foft.create_fake_reads(
-        {"ws_name": ws_name, "obj_names": ["reads1", "reads2", "reads3"]}
+        {"ws_id": ws_id, "obj_names": ["reads1", "reads2", "reads3"]}
     )
     return [info_to_ref(info) for info in fake_reads_list]
 
 
 def make_fake_alignment(
-    callback_url, dummy_file, name, reads_ref, genome_ref, ws_name, ws_client
+    callback_url,
+    dummy_file: str,
+    name: str,
+    reads_ref,
+    genome_ref,
+    ws_id: int,
+    ws_client: Workspace,
 ):
     """
     Makes a Fake KBaseRNASeq.RNASeqAlignment object and returns a ref to it.
@@ -117,117 +152,13 @@ def make_fake_alignment(
         "genome_id": genome_ref,
     }
     return make_fake_object(
-        fake_alignment, "KBaseRNASeq.RNASeqAlignment", name, ws_name, ws_client
+        fake_alignment, "KBaseRNASeq.RNASeqAlignment", name, ws_id, ws_client
     )
 
 
-def make_fake_sampleset(name, reads_refs, conditions, ws_name, ws_client):
-    """
-    Make a fake KBaseRNASeq.RNASeqSampleSet object.
-    reads_refs and conditions are expected to be the same length, and that length can be 0.
-    """
-    if len(reads_refs) != len(conditions):
-        raise ValueError("reads_refs and conditions must be the same length!")
-    fake_sampleset = {
-        "sampleset_id": "fake",
-        "sampleset_desc": "fake",
-        "domain": "fake",
-        "num_samples": len(reads_refs),
-        "condition": conditions,
-        "sample_ids": reads_refs,
-        "Library_type": "fake",
-    }
-    return make_fake_object(
-        fake_sampleset, "KBaseRNASeq.RNASeqSampleSet", name, ws_name, ws_client
-    )
-
-
-def make_fake_old_alignment_set(
-    name,
-    reads_refs,
-    genome_ref,
-    sampleset_ref,
-    alignments_refs,
-    ws_name,
-    ws_client,
-    include_sample_alignments=False,
+def make_fake_annotation(
+    callback_url, dummy_file: str, name: str, ws_id: int, ws_client: Workspace
 ):
-    """
-    Make a fake set object for KBaseRNASeq.RNASeqAlignmentSet objects
-    Needs a whole bunch of stuff:
-        list of reads_refs
-        list of alignments_refs
-        genome_ref
-        sampleset_ref (can be dummied up with make_fake_sampleset)
-    Setting include_sample_alignments to True will include the optional "sample_alignments"
-    attribute of the object.
-    """
-    mapped_alignments_ids = [
-        {ref: alignments_refs[idx]} for idx, ref in enumerate(reads_refs)
-    ]
-
-    fake_rnaseq_alignment_set = {
-        "sampleset_id": sampleset_ref,
-        "genome_id": genome_ref,
-        "read_sample_ids": reads_refs,
-        "mapped_rnaseq_alignments": mapped_alignments_ids,
-        "mapped_alignments_ids": mapped_alignments_ids,
-    }
-    if include_sample_alignments:
-        fake_rnaseq_alignment_set["sample_alignments"] = alignments_refs
-    return make_fake_object(
-        fake_rnaseq_alignment_set,
-        "KBaseRNASeq.RNASeqAlignmentSet",
-        name,
-        ws_name,
-        ws_client,
-    )
-
-
-def make_fake_old_expression_set(
-    name,
-    genome_ref,
-    sampleset_ref,
-    alignments_refs,
-    alignmentset_ref,
-    expressions_refs,
-    ws_name,
-    ws_client,
-    include_sample_expressions=False,
-):
-    """
-    Make a fake set object for KBaseRNASeq.RNASeqAlignmentSet objects
-    Needs a whole bunch of stuff:
-        list of reads_refs
-        list of alignments_refs
-        genome_ref
-        sampleset_ref (can be dummied up with make_fake_sampleset)
-    Setting include_sample_alignments to True will include the optional "sample_alignments"
-    attribute of the object.
-    """
-    mapped_expression_ids = [
-        {ref: expressions_refs[idx]} for idx, ref in enumerate(alignments_refs)
-    ]
-
-    fake_rnaseq_expression_set = {
-        "sampleset_id": sampleset_ref,
-        "genome_id": genome_ref,
-        "mapped_expression_ids": mapped_expression_ids,
-        "mapped_expression_objects": [],
-        "alignmentSet_id": alignmentset_ref,
-    }
-    if include_sample_expressions:
-        fake_rnaseq_expression_set["sample_expression_ids"] = expressions_refs
-    return make_fake_object(
-        fake_rnaseq_expression_set,
-        "KBaseRNASeq.RNASeqExpressionSet",
-        name,
-        ws_name,
-        ws_client,
-    )
-
-
-def make_fake_annotation(callback_url, dummy_file, name, ws_name, ws_client):
     dfu = DataFileUtil(callback_url)
     dummy_shock_info = dfu.file_to_shock({"file_path": dummy_file, "make_handle": 1})
     annotation = {
@@ -237,19 +168,19 @@ def make_fake_annotation(callback_url, dummy_file, name, ws_name, ws_client):
         "genome_scientific_name": "Genomus falsus",
     }
     return make_fake_object(
-        annotation, "KBaseRNASeq.GFFAnnotation", name, ws_name, ws_client
+        annotation, "KBaseRNASeq.GFFAnnotation", name, ws_id, ws_client
     )
 
 
 def make_fake_expression(
     callback_url,
-    dummy_file,
-    name,
+    dummy_file: str,
+    name: str,
     genome_ref,
     annotation_ref,
     alignment_ref,
-    ws_name,
-    ws_client,
+    ws_id: int,
+    ws_client: Workspace,
 ):
     """
     Makes a Fake KBaseRNASeq.RNASeqExpression object and returns a ref to it.
@@ -266,18 +197,16 @@ def make_fake_expression(
         "expression_levels": {"feature_1": 0, "feature_2": 1, "feature_3": 2},
         "genome_id": genome_ref,
         "annotation_id": annotation_ref,
-        "mapped_rnaseq_alignment": {"id1": alignment_ref},
+        "mapped_rnaseq_alignment": {"iobj": alignment_ref},
         "condition": "",
         "tool_used": "none",
         "tool_version": "0.0.0",
         "file": dummy_shock_info["handle"],
     }
-    return make_fake_object(
-        exp, "KBaseRNASeq.RNASeqExpression", name, ws_name, ws_client
-    )
+    return make_fake_object(exp, "KBaseRNASeq.RNASeqExpression", name, ws_id, ws_client)
 
 
-def make_fake_feature_set(name, genome_ref, ws_name, ws_client):
+def make_fake_feature_set(name: str, genome_ref, ws_id: int, ws_client: Workspace):
     """
     Makes a fake KBaseCollections.FeatureSet object and returns a ref to it.
     KBaseCollections.FeatureSet type:
@@ -297,11 +226,13 @@ def make_fake_feature_set(name, genome_ref, ws_name, ws_client):
         },
     }
     return make_fake_object(
-        feature_set, "KBaseCollections.FeatureSet", name, ws_name, ws_client
+        feature_set, "KBaseCollections.FeatureSet", name, ws_id, ws_client
     )
 
 
-def make_fake_diff_exp_matrix(name, ws_name, ws_client, genome_ref=None):
+def make_fake_diff_exp_matrix(
+    name: str, ws_id: int, ws_client: Workspace, genome_ref=None
+):
     """
     Makes a fake KBaseFeatureValues.DifferentialExpressionMatrix object and returns a ref ot it.
     * = optional (so, left out of this fake stuff)
@@ -339,14 +270,124 @@ def make_fake_diff_exp_matrix(name, ws_name, ws_client, genome_ref=None):
         diff_exp_matrix,
         "KBaseFeatureValues.DifferentialExpressionMatrix",
         name,
-        ws_name,
+        ws_id,
         ws_client,
     )
 
 
-def make_fake_object(obj, obj_type, name, workspace_name, workspace_client):
+def make_fake_old_expression_set(
+    name: str,
+    genome_ref,
+    sampleset_ref,
+    alignments_refs,
+    alignmentset_ref,
+    expressions_refs,
+    ws_id: int,
+    ws_client: Workspace,
+    include_sample_expressions=False,
+):
     """
-    Saves a dummy object (obj) of given type obj_type and name to the given workspace_name using the
+    Make a fake set object for KBaseRNASeq.RNASeqAlignmentSet objects
+    Needs a whole bunch of stuff:
+        list of reads_refs
+        list of alignments_refs
+        genome_ref
+        sampleset_ref (can be dummied up with make_fake_sampleset)
+    Setting include_sample_alignments to True will include the optional "sample_alignments"
+    attribute of the object.
+    """
+    mapped_expression_ids = [
+        {ref: expressions_refs[idx]} for idx, ref in enumerate(alignments_refs)
+    ]
+
+    fake_rnaseq_expression_set = {
+        "sampleset_id": sampleset_ref,
+        "genome_id": genome_ref,
+        "mapped_expression_ids": mapped_expression_ids,
+        "mapped_expression_objects": [],
+        "alignmentSet_id": alignmentset_ref,
+    }
+    if include_sample_expressions:
+        fake_rnaseq_expression_set["sample_expression_ids"] = expressions_refs
+    return make_fake_object(
+        fake_rnaseq_expression_set,
+        "KBaseRNASeq.RNASeqExpressionSet",
+        name,
+        ws_id,
+        ws_client,
+    )
+
+
+def make_fake_sampleset(
+    name: str, reads_refs, conditions, ws_id: int, ws_client: Workspace
+):
+    """
+    Make a fake KBaseRNASeq.RNASeqSampleSet object.
+    reads_refs and conditions are expected to be the same length, and that length can be 0.
+    """
+    if len(reads_refs) != len(conditions):
+        raise ValueError("reads_refs and conditions must be the same length!")
+    fake_sampleset = {
+        "sampleset_id": "fake",
+        "sampleset_desc": "fake",
+        "domain": "fake",
+        "num_samples": len(reads_refs),
+        "condition": conditions,
+        "sample_ids": reads_refs,
+        "Library_type": "fake",
+    }
+    return make_fake_object(
+        fake_sampleset, "KBaseRNASeq.RNASeqSampleSet", name, ws_id, ws_client
+    )
+
+
+def make_fake_old_alignment_set(
+    name: str,
+    reads_refs,
+    genome_ref,
+    sampleset_ref,
+    alignments_refs,
+    ws_id: int,
+    ws_client: Workspace,
+    include_sample_alignments=False,
+):
+    """
+    Make a fake set object for KBaseRNASeq.RNASeqAlignmentSet objects
+    Needs a whole bunch of stuff:
+        list of reads_refs
+        list of alignments_refs
+        genome_ref
+        sampleset_ref (can be dummied up with make_fake_sampleset)
+    Setting include_sample_alignments to True will include the optional "sample_alignments"
+    attribute of the object.
+    """
+    mapped_alignments_ids = [
+        {ref: alignments_refs[idx]} for idx, ref in enumerate(reads_refs)
+    ]
+
+    fake_rnaseq_alignment_set = {
+        "sampleset_id": sampleset_ref,
+        "genome_id": genome_ref,
+        "read_sample_ids": reads_refs,
+        "mapped_rnaseq_alignments": mapped_alignments_ids,
+        "mapped_alignments_ids": mapped_alignments_ids,
+    }
+    if include_sample_alignments:
+        fake_rnaseq_alignment_set["sample_alignments"] = alignments_refs
+    return make_fake_object(
+        fake_rnaseq_alignment_set,
+        "KBaseRNASeq.RNASeqAlignmentSet",
+        name,
+        ws_id,
+        ws_client,
+    )
+
+
+def make_fake_object(
+    obj, obj_type: str, name: str, ws_id: int, workspace_client: Workspace
+):
+    """
+    Saves a dummy object (obj) of given type obj_type and name to the given workspace ID using the
     provided workspace client.
 
     Returns a reference to that object.
@@ -354,7 +395,7 @@ def make_fake_object(obj, obj_type, name, workspace_name, workspace_client):
     return info_to_ref(
         workspace_client.save_objects(
             {
-                "workspace": workspace_name,
+                "id": ws_id,
                 "objects": [{"type": obj_type, "meta": {}, "data": obj, "name": name}],
             }
         )[0]

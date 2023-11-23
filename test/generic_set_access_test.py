@@ -1,7 +1,6 @@
 """Generic set functionality tests."""
 import time
-from test.conftest import INFO_LENGTH
-from test.util import log_this
+from test.util import log_this, INFO_LENGTH
 from typing import Any
 
 import pytest
@@ -15,7 +14,7 @@ def create_sets(
     reads_refs: list[str],
     set_api_client: SetAPI,
     context: dict[str, str | list],
-    ws_name: str,
+    ws_id: int,
 ) -> dict:
     set_names = ["set_o_reads1", "set_o_reads2", "set_o_reads3"]
     set_refs = []
@@ -31,7 +30,7 @@ def create_sets(
         # test a save - makes a new ReadsSet object in the workspace.
         res = set_api_client.save_reads_set_v1(
             context,
-            {"data": set_data, "output_object_name": s, "workspace": ws_name},
+            {"data": set_data, "output_object_name": s, "workspace_id": ws_id},
         )[0]
         set_refs.append(res["set_ref"])
 
@@ -64,21 +63,26 @@ def test_list_sets(
     clients: dict[str, Any],
 ) -> None:
     list_sets_ws_name = f"{ws_name}_list_sets"
-    clients["ws"].create_workspace({"workspace": list_sets_ws_name})
+    result = clients["ws"].create_workspace({"workspace": list_sets_ws_name})
+    list_sets_ws_id = result[0]
 
     # make sure we can see an empty list of sets before WS has any
     res = set_api_client.list_sets(
-        context, {"workspace": list_sets_ws_name, "include_set_item_info": 1}
+        context, {"workspace": list_sets_ws_id, "include_set_item_info": 1}
     )[0]
     assert len(res["sets"]) == 0
 
     # create the test sets, adds a ReadsSet object in the workspace
-    set_data = create_sets(reads_refs, set_api_client, context, list_sets_ws_name)
+    set_data = create_sets(reads_refs, set_api_client, context, list_sets_ws_id)
 
     # Get the sets in the workspace along with their item info.
     res = set_api_client.list_sets(
+        context, {"workspace": list_sets_ws_id, "include_set_item_info": 1}
+    )[0]
+    res_name = set_api_client.list_sets(
         context, {"workspace": list_sets_ws_name, "include_set_item_info": 1}
     )[0]
+    assert res == res_name
     assert "sets" in res
     assert len(res["sets"]) == len(set_data["set_names"])
     for s in res["sets"]:
@@ -93,7 +97,7 @@ def test_list_sets(
             assert len(item["info"]) == INFO_LENGTH
 
     # Get the sets in a workspace without their item info (just the refs)
-    res2 = set_api_client.list_sets(context, {"workspace": list_sets_ws_name})[0]
+    res2 = set_api_client.list_sets(context, {"workspace": list_sets_ws_id})[0]
     assert "sets" in res2
     assert len(res2["sets"]) == len(set_data["set_names"])
     for s in res2["sets"]:
@@ -132,7 +136,10 @@ def test_list_sets(
 
 
 def test_bulk_list_sets(
-    config: dict[str, str], clients: dict[str, Any], set_api_client: SetAPI, context: dict[str, str | list]
+    config: dict[str, str],
+    clients: dict[str, Any],
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
 ) -> None:
     magic_number = 1000
     try:
@@ -144,7 +151,9 @@ def test_bulk_list_sets(
             if ws_info[4] < magic_number:
                 ids.append(str(ws_info[0]))
             else:
-                debug_lines.append(f"Workspace: {ws_info[1]}, size={ws_info[4]} skipped")
+                debug_lines.append(
+                    f"Workspace: {ws_info[1]}, size={ws_info[4]} skipped"
+                )
 
         debug_lines.append("Number of workspaces for bulk list_sets: " + str(len(ids)))
         if len(ids) > 0:
@@ -158,7 +167,9 @@ def test_bulk_list_sets(
             context, {"workspaces": ids, "include_set_item_info": 1}
         )[0]
 
-        debug_lines.append(f"Objects found: {len(ret['sets'])}, time={time.time() - t1}")
+        debug_lines.append(
+            f"Objects found: {len(ret['sets'])}, time={time.time() - t1}"
+        )
         if DEBUG:
             log_this(config, "test_bulk_list_sets", debug_lines)
 
@@ -167,7 +178,10 @@ def test_bulk_list_sets(
 
 
 def unit_test_get_set_items(
-    set_data: dict, config: dict[str, str], set_api_client: SetAPI, context: dict[str, str | list]
+    set_data: dict,
+    config: dict[str, str],
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
 ) -> None:
     res = set_api_client.get_set_items(
         context,
