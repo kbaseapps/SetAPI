@@ -1,20 +1,9 @@
 """Basic tests for the AssemblySet class."""
-import os
-from test.util import make_assembly_refs, INFO_LENGTH
-from typing import Any
-import pytest
+from test.util import INFO_LENGTH
 from SetAPI.SetAPIImpl import SetAPI
 
 
-N_ASSEMBLIES = 2
 SET_TYPE = "KBaseSets.AssemblySet"
-
-
-@pytest.fixture()
-def assembly_refs(ws_id: int, clients: dict[str, Any], scratch_dir: str) -> list[str]:
-    # use the seq.fna file that was copied to the scratch dir
-    fna_path = os.path.join(scratch_dir, "seq.fna")
-    return make_assembly_refs(fna_path, ws_id, clients["au"])
 
 
 def test_basic_save_and_get(
@@ -26,13 +15,13 @@ def test_basic_save_and_get(
 ) -> None:
     set_name = "set_of_assemblies"
     set_description = "my first assembly set"
-    second_item_data = {"ref": assembly_refs[1], "label": "assembly2"}
-
+    second_item_data = {"ref": assembly_refs[1], "label": "assembly_ref[1]"}
+    n_items = len(assembly_refs)
     # create the set object
     set_data = {
         "description": set_description,
         "items": [
-            {"ref": assembly_refs[0], "label": "assembly1"},
+            {"ref": assembly_refs[0], "label": "assembly_ref[0]"},
             second_item_data,
         ],
     }
@@ -52,7 +41,7 @@ def test_basic_save_and_get(
 
     assert res["set_info"][1] == set_name
     assert "item_count" in res["set_info"][10]
-    assert res["set_info"][10]["item_count"] == str(N_ASSEMBLIES)
+    assert res["set_info"][10]["item_count"] == str(n_items)
 
     # test get of that object
     d1 = set_api_client.get_assembly_set_v1(context, {"ref": ws_name + "/" + set_name})[
@@ -62,17 +51,17 @@ def test_basic_save_and_get(
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
     assert "item_count" in d1["info"][10]
-    assert d1["info"][10]["item_count"] == str(N_ASSEMBLIES)
+    assert d1["info"][10]["item_count"] == str(n_items)
 
     assert d1["data"]["description"] == set_description
-    assert len(d1["data"]["items"]) == N_ASSEMBLIES
+    assert len(d1["data"]["items"]) == n_items
 
     item2 = d1["data"]["items"][1]
     assert "info" not in item2
     assert "ref_path" not in item2
     assert "ref" in item2
     assert "label" in item2
-    assert item2["label"] == "assembly2"
+    assert item2["label"] == second_item_data["label"]
     assert item2["ref"] == assembly_refs[1]
 
     # test the call to make sure we get info for each item
@@ -88,9 +77,9 @@ def test_basic_save_and_get(
     assert "info" in d2
     assert len(d2["info"]) == INFO_LENGTH
     assert "item_count" in d2["info"][10]
-    assert d2["info"][10]["item_count"] == str(N_ASSEMBLIES)
+    assert d2["info"][10]["item_count"] == str(n_items)
     assert d2["data"]["description"] == set_description
-    assert len(d2["data"]["items"]) == N_ASSEMBLIES
+    assert len(d2["data"]["items"]) == n_items
 
     item2 = d2["data"]["items"][1]
     assert "info" in item2

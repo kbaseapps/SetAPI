@@ -1,45 +1,18 @@
 """Basic DifferentialExpressionMatrixSet tests."""
-from test.util import make_fake_diff_exp_matrix
-from typing import Any
-
 import pytest
 from installed_clients.baseclient import ServerError
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.util import info_to_ref
 
-N_MATRICES = 3
-
-
-@pytest.fixture(scope="class")
-def test_data(ws_id: int, clients: dict[str, Any], genome_refs: list[str]) -> dict:
-    # Make fake diff exp matrices
-    diff_exps_no_genome = [
-        make_fake_diff_exp_matrix(f"fake_mat_no_genome_{i}", ws_id, clients["ws"])
-        for i in range(N_MATRICES)
-    ]
-
-    diff_exps_genome = [
-        make_fake_diff_exp_matrix(
-            f"fake_mat_genome_{i}",
-            ws_id,
-            clients["ws"],
-            genome_ref=genome_refs[0],
-        )
-        for i in range(N_MATRICES)
-    ]
-
-    return {
-        "genome_refs": genome_refs,
-        "diff_exps_no_genome": diff_exps_no_genome,
-        "diff_exps_genome": diff_exps_genome,
-    }
-
 
 def test_save_diff_exp_matrix_set(
-    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    ws_id: int,
+    diff_exp_matrix_genome_refs: list[str],
 ) -> None:
     set_name = "test_diff_exp_matrix_set"
-    set_items = [{"label": "foo", "ref": ref} for ref in test_data["diff_exps_genome"]]
+    set_items = [{"label": "foo", "ref": ref} for ref in diff_exp_matrix_genome_refs]
     matrix_set = {"description": "test_matrix_set", "items": set_items}
     result = set_api_client.save_differential_expression_matrix_set_v1(
         context,
@@ -58,12 +31,13 @@ def test_save_diff_exp_matrix_set(
 
 
 def test_save_diff_exp_matrix_set_no_genome(
-    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    ws_id: int,
+    diff_exp_matrix_no_genome_refs: list[str],
 ) -> None:
     set_name = "test_de_matrix_set_no_genome"
-    set_items = [
-        {"label": "foo", "ref": ref} for ref in test_data["diff_exps_no_genome"]
-    ]
+    set_items = [{"label": "foo", "ref": ref} for ref in diff_exp_matrix_no_genome_refs]
     matrix_set = {"description": "test_matrix_set", "items": set_items}
     result = set_api_client.save_differential_expression_matrix_set_v1(
         context,
@@ -82,27 +56,19 @@ def test_save_diff_exp_matrix_set_no_genome(
 
 
 def test_save_dem_set_mismatched_genomes(
-    test_data: dict,
     set_api_client: SetAPI,
     context: dict[str, str | list],
-    clients: dict[str, Any],
     ws_id: int,
+    diff_exp_matrix_mismatched_genome_refs: list[str],
 ) -> None:
     set_name = "dem_set_bad_genomes"
-    dem_set = {
-        "description": "this_better_fail",
-        "items": [
-            {
-                "ref": make_fake_diff_exp_matrix(
-                    "odd_dem",
-                    ws_id,
-                    clients["ws"],
-                    genome_ref=test_data["genome_refs"][1],
-                ),
-                "label": "odd_alignment",
-            },
-            {"ref": test_data["diff_exps_genome"][0], "label": "not_so_odd"},
-        ],
+    set_description = "this_better_fail"
+    set_items = [
+        {"label": "dem", "ref": ref} for ref in diff_exp_matrix_mismatched_genome_refs
+    ]
+    matrix_set = {
+        "description": set_description,
+        "items": set_items,
     }
     with pytest.raises(
         ValueError,
@@ -113,7 +79,7 @@ def test_save_dem_set_mismatched_genomes(
             {
                 "workspace_id": ws_id,
                 "output_object_name": set_name,
-                "data": dem_set,
+                "data": matrix_set,
             },
         )
 
@@ -153,12 +119,13 @@ def test_save_dem_set_no_dem(
 
 
 def test_get_dem_set(
-    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    ws_id: int,
+    diff_exp_matrix_no_genome_refs: list[str],
 ) -> None:
     set_name = "test_expression_set"
-    set_items = [
-        {"label": "wt", "ref": ref} for ref in test_data["diff_exps_no_genome"]
-    ]
+    set_items = [{"label": "wt", "ref": ref} for ref in diff_exp_matrix_no_genome_refs]
     dem_set = {"description": "test_test_diffExprMatrixSet", "items": set_items}
     dem_set_ref = set_api_client.save_differential_expression_matrix_set_v1(
         context,
@@ -175,7 +142,7 @@ def test_get_dem_set(
     assert fetched_set is not None
     assert "data" in fetched_set
     assert "info" in fetched_set
-    assert len(fetched_set["data"]["items"]) == N_MATRICES
+    assert len(fetched_set["data"]["items"]) == len(diff_exp_matrix_no_genome_refs)
     assert dem_set_ref == info_to_ref(fetched_set["info"])
     for item in fetched_set["data"]["items"]:
         assert "info" not in item
@@ -195,12 +162,13 @@ def test_get_dem_set(
 
 
 def test_get_dem_set_ref_path(
-    test_data: dict, set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    ws_id: int,
+    diff_exp_matrix_no_genome_refs: list[str],
 ) -> None:
     set_name = "test_diff_expression_set_ref_path"
-    set_items = [
-        {"label": "wt", "ref": ref} for ref in test_data["diff_exps_no_genome"]
-    ]
+    set_items = [{"label": "wt", "ref": ref} for ref in diff_exp_matrix_no_genome_refs]
     dem_set = {"description": "test_diffExprMatrixSet_ref_path", "items": set_items}
     dem_set_ref = set_api_client.save_differential_expression_matrix_set_v1(
         context,
@@ -224,7 +192,9 @@ def test_get_dem_set_ref_path(
     assert fetched_set_with_ref_path is not None
     assert "data" in fetched_set_with_ref_path
     assert "info" in fetched_set_with_ref_path
-    assert len(fetched_set_with_ref_path["data"]["items"]) == N_MATRICES
+    assert len(fetched_set_with_ref_path["data"]["items"]) == len(
+        diff_exp_matrix_no_genome_refs
+    )
     assert dem_set_ref == info_to_ref(fetched_set_with_ref_path["info"])
     for item in fetched_set_with_ref_path["data"]["items"]:
         assert "info" not in item

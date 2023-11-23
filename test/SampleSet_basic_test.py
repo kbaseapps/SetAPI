@@ -1,19 +1,16 @@
 """Basic tests of the SampleSet API."""
 from test.util import info_to_name, log_this, INFO_LENGTH
-from typing import Any
 from copy import deepcopy
 
 import pytest
 from SetAPI.SetAPIImpl import SetAPI
-from SetAPI.util import info_to_ref
 
-N_READS = 3
 DESCRIPTION = "first pass at testing something or other"
 DEBUG = False
 
 
 @pytest.fixture(scope="module")
-def create_sampleset_params(ws_id: int, ws_name: str) -> dict[str]:
+def create_sampleset_params(ws_id: int, ws_name: str) -> dict[str, int | str]:
     return {
         "ws_id": ws_id,
         "ws_name": ws_name,
@@ -27,56 +24,8 @@ def create_sampleset_params(ws_id: int, ws_name: str) -> dict[str]:
     }
 
 
-@pytest.fixture(scope="session")
-def conditions() -> list[str]:
-    return ["WT", "Cond1", "HY"]
-
-
-@pytest.fixture(scope="module")
-def condition_set_ref(
-    clients: dict[str, Any], ws_id: int, conditions: list[str]
-) -> str:
-    # create a condition set
-    condition_set_object_name = "test_Condition_Set"
-    common_factor_data = {
-        "factor_ont_id": "Custom:Term",
-        "factor_ont_ref": "KbaseOntologies/Custom",
-        "unit_ont_id": "Custom:Unit",
-        "unit_ont_ref": "KbaseOntologies/Custom",
-    }
-    condition_set_data = {
-        "conditions": {
-            conditions[0]: ["0", "0"],
-            conditions[1]: ["0", "0"],
-            conditions[2]: ["0", "0"],
-        },
-        "factors": [
-            {"factor": "Time series design", "unit": "Hour", **common_factor_data},
-            {
-                "factor": "Treatment with Sirolimus",
-                "unit": "nanogram per milliliter",
-                **common_factor_data,
-            },
-        ],
-        "ontology_mapping_method": "User Curation",
-    }
-    save_object_params = {
-        "id": ws_id,
-        "objects": [
-            {
-                "type": "KBaseExperiments.ConditionSet",
-                "data": condition_set_data,
-                "name": condition_set_object_name,
-            }
-        ],
-    }
-
-    dfu_oi = clients["dfu"].save_objects(save_object_params)[0]
-    return info_to_ref(dfu_oi)
-
-
 def test_basic_save_and_get(
-    create_sampleset_params: dict[str, str],
+    create_sampleset_params: dict[str, int | str],
     reads_refs: list[str],
     conditions: list[str],
     config: dict[str, str],
@@ -85,7 +34,7 @@ def test_basic_save_and_get(
     ws_name: str,
 ) -> None:
     set_name = "micromonas_rnaseq_test1_sampleset"
-
+    n_items = 3  # three different reads_refs used
     # create the set object
     create_ss_params = {
         **create_sampleset_params,
@@ -110,7 +59,7 @@ def test_basic_save_and_get(
 
     assert res["set_info"][1] == set_name
     assert "num_samples" in res["set_info"][10]
-    assert res["set_info"][10]["num_samples"] == str(N_READS)
+    assert res["set_info"][10]["num_samples"] == str(n_items)
 
     # test get of that object
     d1 = set_api_client.get_reads_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
@@ -118,10 +67,10 @@ def test_basic_save_and_get(
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
     assert "item_count" in d1["info"][10]
-    assert d1["info"][10]["item_count"] == N_READS
+    assert d1["info"][10]["item_count"] == n_items
 
     assert d1["data"]["description"] == DESCRIPTION
-    assert len(d1["data"]["items"]) == N_READS
+    assert len(d1["data"]["items"]) == n_items
 
     item2 = d1["data"]["items"][1]
     assert "info" not in item2
@@ -156,10 +105,10 @@ def test_basic_save_and_get(
     assert "info" in d2
     assert len(d2["info"]) == INFO_LENGTH
     assert "item_count" in d2["info"][10]
-    assert d2["info"][10]["item_count"] == N_READS
+    assert d2["info"][10]["item_count"] == n_items
 
     assert d2["data"]["description"] == DESCRIPTION
-    assert len(d2["data"]["items"]) == N_READS
+    assert len(d2["data"]["items"]) == n_items
 
     item2 = d2["data"]["items"][1]
     assert "info" in item2
@@ -175,7 +124,6 @@ def test_create_sample_set_workspace_param(
     create_sampleset_params: dict[str, str],
     reads_refs: list[str],
     conditions: list[str],
-    config: dict[str, str],
     set_api_client: SetAPI,
     context: dict[str, str | list],
     ws_id: int,
@@ -236,6 +184,7 @@ def test_basic_save_and_get_condition_in_list(
     context: dict[str, str | list],
 ) -> None:
     set_name = "micromonas_rnaseq_test1_sampleset"
+    n_items = 3  # 3 reads_refs used
 
     # create the set object
     create_ss_params = {
@@ -262,7 +211,7 @@ def test_basic_save_and_get_condition_in_list(
 
     assert res["set_info"][1] == set_name
     assert "num_samples" in res["set_info"][10]
-    assert res["set_info"][10]["num_samples"] == str(N_READS)
+    assert res["set_info"][10]["num_samples"] == str(n_items)
 
     # test get of that object
     d1 = set_api_client.get_reads_set_v1(context, {"ref": res["set_ref"]})[0]
@@ -270,10 +219,10 @@ def test_basic_save_and_get_condition_in_list(
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
     assert "item_count" in d1["info"][10]
-    assert d1["info"][10]["item_count"] == N_READS
+    assert d1["info"][10]["item_count"] == n_items
 
     assert d1["data"]["description"] == DESCRIPTION
-    assert len(d1["data"]["items"]) == N_READS
+    assert len(d1["data"]["items"]) == n_items
 
     item2 = d1["data"]["items"][1]
     assert "info" not in item2
@@ -302,10 +251,10 @@ def test_basic_save_and_get_condition_in_list(
     assert "info" in d2
     assert len(d2["info"]) == INFO_LENGTH
     assert "item_count" in d2["info"][10]
-    assert d2["info"][10]["item_count"] == N_READS
+    assert d2["info"][10]["item_count"] == n_items
 
     assert d2["data"]["description"] == DESCRIPTION
-    assert len(d2["data"]["items"]) == N_READS
+    assert len(d2["data"]["items"]) == n_items
 
     item2 = d2["data"]["items"][1]
     assert "info" in item2
