@@ -4,6 +4,7 @@ from copy import deepcopy
 
 import pytest
 from SetAPI.SetAPIImpl import SetAPI
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS
 
 DESCRIPTION = "first pass at testing something or other"
 DEBUG = False
@@ -97,8 +98,8 @@ def test_basic_save_and_get(
         context,
         {
             "ref": res["set_ref"],
-            "include_item_info": 1,
-            "include_set_item_ref_paths": 1,
+            INC_ITEM_INFO: 1,
+            INC_ITEM_REF_PATHS: 1,
         },
     )[0]
     assert "data" in d2
@@ -243,8 +244,8 @@ def test_basic_save_and_get_condition_in_list(
         context,
         {
             "ref": res["set_ref"],
-            "include_item_info": 1,
-            "include_set_item_ref_paths": 1,
+            INC_ITEM_INFO: 1,
+            INC_ITEM_REF_PATHS: 1,
         },
     )[0]
     assert "data" in d2

@@ -1,10 +1,8 @@
-"""
-Some utility functions to help with testing. These mainly add fake objects to use in making sets.
-"""
+"""Some utility functions to help with testing. These mainly add fake objects to use in making sets."""
 import json
+from typing import Any
 
 from installed_clients.WorkspaceClient import Workspace
-
 from SetAPI.util import info_to_ref
 
 INFO_LENGTH = 11
@@ -53,7 +51,7 @@ def info_to_usermeta(info: list[int | str | dict[str, str]]) -> dict[str, str]:
     :param info: info list
     :type info: list[int | str | dict[str, str]]
     :return: the metadata (if it exists)
-    :rtype: None | dict[str, Any]
+    :rtype: dict[str, Any]
     """
     return info[10]
 
@@ -61,20 +59,19 @@ def info_to_usermeta(info: list[int | str | dict[str, str]]) -> dict[str, str]:
 def make_fake_alignment(
     dummy_file_shock_handle: str,
     name: str,
-    reads_ref,
-    genome_ref,
+    reads_ref: str,
+    genome_ref: str,
     ws_id: int,
     ws_client: Workspace,
-):
-    """
-    Makes a Fake KBaseRNASeq.RNASeqAlignment object and returns a ref to it.
-    dfu: DataFileUtil client
+) -> str:
+    """Makes a Fake KBaseRNASeq.RNASeqAlignment object and returns a ref to it.
+
     dummy_file_shock_handle: shock handle for a dummy file
     name: the name of the object
     reads_ref: a reference to a valid (probably fake) reads library
     genome_ref: a reference to a valid (also probably fake) genome
-    workspace_name: the name of the workspace to save this object
-    workspace_client: a Workspace client tuned to the server of your choice
+    ws_id: the ID of the workspace to save this object
+    ws_client: a Workspace client tuned to the server of your choice.
     """
     alignment = {
         "file": dummy_file_shock_handle,
@@ -93,7 +90,7 @@ def make_fake_annotation(
     name: str,
     ws_id: int,
     ws_client: Workspace,
-):
+) -> str:
     annotation = {
         "handle": dummy_file_shock_handle,
         "size": 0,
@@ -106,8 +103,8 @@ def make_fake_annotation(
 
 
 def make_fake_diff_exp_matrix(
-    name: str, ws_id: int, ws_client: Workspace, genome_ref=None
-):
+    name: str, ws_id: int, ws_client: Workspace, genome_ref: None | str = None
+) -> str:
     """
     Makes a fake KBaseFeatureValues.DifferentialExpressionMatrix object and returns a ref ot it.
     * = optional (so, left out of this fake stuff)
@@ -153,14 +150,15 @@ def make_fake_diff_exp_matrix(
 def make_fake_expression(
     dummy_file_shock_handle: str,
     name: str,
-    genome_ref,
-    annotation_ref,
-    alignment_ref,
+    genome_ref: str,
+    annotation_ref: str,
+    alignment_ref: str,
     ws_id: int,
     ws_client: Workspace,
-):
+) -> str:
     """
     Makes a Fake KBaseRNASeq.RNASeqExpression object and returns a ref to it.
+
     genome_ref: reference to a genome object
     annotation_ref: reference to a KBaseRNASeq.GFFAnnotation
     alignment_ref: reference to a KBaseRNASeq.RNASeqAlignment
@@ -181,9 +179,12 @@ def make_fake_expression(
     return make_fake_object(exp, "KBaseRNASeq.RNASeqExpression", name, ws_id, ws_client)
 
 
-def make_fake_feature_set(name: str, genome_ref, ws_id: int, ws_client: Workspace):
+def make_fake_feature_set(
+    name: str, genome_ref: str, ws_id: int, ws_client: Workspace
+) -> str:
     """
     Makes a fake KBaseCollections.FeatureSet object and returns a ref to it.
+
     KBaseCollections.FeatureSet type:
     typedef structure {
         string description;
@@ -205,16 +206,16 @@ def make_fake_feature_set(name: str, genome_ref, ws_id: int, ws_client: Workspac
     )
 
 
-def make_fake_old_alignment_set(
+def make_fake_rnaseq_alignment_set(
     name: str,
-    reads_refs,
-    genome_ref,
-    sampleset_ref,
-    alignments_refs,
+    reads_refs: list[str],
+    genome_ref: str,
+    sampleset_ref: str,
+    alignments_refs: list[str],
     ws_id: int,
     ws_client: Workspace,
-    include_sample_alignments=False,
-):
+    include_sample_alignments: bool = False,
+) -> str:
     """
     Make a fake set object for KBaseRNASeq.RNASeqAlignmentSet objects
     Needs a whole bunch of stuff:
@@ -247,17 +248,17 @@ def make_fake_old_alignment_set(
     )
 
 
-def make_fake_old_expression_set(
+def make_fake_rnaseq_expression_set(
     name: str,
-    genome_ref,
-    sampleset_ref,
-    alignments_refs,
-    alignmentset_ref,
-    expressions_refs,
+    genome_ref: str,
+    sampleset_ref: str,
+    alignments_refs: list[str],
+    alignmentset_ref: str,
+    expressions_refs: list[str],
     ws_id: int,
     ws_client: Workspace,
-    include_sample_expressions=False,
-):
+    include_sample_expressions: bool = False,
+) -> str:
     """
     Make a fake set object for KBaseRNASeq.RNASeqAlignmentSet objects
     Needs a whole bunch of stuff:
@@ -291,8 +292,12 @@ def make_fake_old_expression_set(
 
 
 def make_fake_sampleset(
-    name: str, reads_refs, conditions, ws_id: int, ws_client: Workspace
-):
+    name: str,
+    reads_refs: list[str],
+    conditions: list[str],
+    ws_id: int,
+    ws_client: Workspace,
+) -> str:
     """
     Make a fake KBaseRNASeq.RNASeqSampleSet object.
     reads_refs and conditions are expected to be the same length, and that length can be 0.
@@ -314,8 +319,12 @@ def make_fake_sampleset(
 
 
 def make_fake_object(
-    obj, obj_type: str, name: str, ws_id: int, workspace_client: Workspace
-):
+    obj: dict[str, Any],
+    obj_type: str,
+    name: str,
+    ws_id: int,
+    workspace_client: Workspace,
+) -> str:
     """
     Saves a dummy object (obj) of given type obj_type and name to the given workspace ID using the
     provided workspace client.

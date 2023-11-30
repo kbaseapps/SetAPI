@@ -5,6 +5,7 @@ from SetAPI.util import (
     build_ws_obj_selector,
     info_to_ref,
 )
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
 
 
 class ReadsSetInterfaceV1:
@@ -44,18 +45,13 @@ class ReadsSetInterfaceV1:
     def get_reads_set(self, ctx, params):
         set_type, obj_spec = self._check_get_reads_set_params(params)
 
-        include_item_info = False
-        if params.get("include_item_info", 0) == 1:
-            include_item_info = True
+        include_item_info = True if params.get(INC_ITEM_INFO, 0) == 1 else False
 
-        include_set_item_ref_paths = False
-        if "include_set_item_ref_paths" in params:
-            if params["include_set_item_ref_paths"] == 1:
-                include_set_item_ref_paths = True
+        include_set_item_ref_paths = (
+            True if params.get(INC_ITEM_REF_PATHS, 0) == 1 else False
+        )
 
-        ref_path_to_set = []
-        if "ref_path_to_set" in params and len(params["ref_path_to_set"]) > 0:
-            ref_path_to_set = params["ref_path_to_set"]
+        ref_path_to_set = params.get(REF_PATH_TO_SET, [])
 
         # If this is a KBaseSets.ReadsSet, do as normal.
         if "KBaseSets" in set_type:
@@ -113,18 +109,18 @@ class ReadsSetInterfaceV1:
     def _check_get_reads_set_params(self, params):
         if "ref" not in params:
             raise ValueError(
-                '"ref" parameter field specifiying the reads set is required'
+                '"ref" parameter field specifying the reads set is required'
             )
         if not check_reference(params["ref"]):
             raise ValueError('"ref" parameter must be a valid workspace reference')
-        if "include_item_info" in params:
-            if params["include_item_info"] not in [0, 1]:
+        if INC_ITEM_INFO in params:
+            if params[INC_ITEM_INFO] not in [0, 1]:
                 raise ValueError(
                     '"include_item_info" parameter field can only be set to 0 or 1'
                 )
 
         obj_spec = build_ws_obj_selector(
-            params.get("ref"), params.get("ref_path_to_set", [])
+            params.get("ref"), params.get(REF_PATH_TO_SET, [])
         )
 
         info = self.ws.get_object_info3({"objects": [obj_spec]})

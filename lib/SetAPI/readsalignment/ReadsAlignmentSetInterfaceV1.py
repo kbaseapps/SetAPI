@@ -2,6 +2,17 @@
 An interface for handling sets of ReadsAlignments.
 """
 
+from SetAPI.error_messages import (
+    data_required,
+    include_params_valid,
+    items_list_required,
+    no_items,
+    ref_must_be_valid,
+    ref_path_must_be_valid,
+    ref_required,
+    same_ref,
+)
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
 from SetAPI.util import (
     populate_item_object_ref_paths,
@@ -9,23 +20,46 @@ from SetAPI.util import (
     build_ws_obj_selector,
     info_to_ref,
 )
+from typing import Any
 
 
 class ReadsAlignmentSetInterfaceV1:
-    def __init__(self, workspace_client):
+    def __init__(self: "ReadsAlignmentSetInterfaceV1", workspace_client):
         self.workspace_client = workspace_client
         self.set_interface = SetInterfaceV1(workspace_client)
 
-    def save_reads_alignment_set(self, ctx, params):
-        if "data" in params and params["data"] is not None:
-            self._validate_reads_alignment_set_data(params["data"])
-        else:
-            raise ValueError(
-                '"data" parameter field required to save a ReadsAlignmentSet'
-            )
+    @staticmethod
+    def set_type() -> str:
+        return "KBaseSets.ReadsAlignmentSet"
+
+    @staticmethod
+    def set_items_type() -> str:
+        return "ReadsAlignment"
+
+    @staticmethod
+    def allows_empty_set() -> bool:
+        return False
+
+    def save_reads_alignment_set(
+        self: "ReadsAlignmentSetInterfaceV1",
+        ctx: dict[str, Any],
+        params: dict[str, Any],
+    ) -> dict[str, str | list[str | int | dict[str, Any]]]:
+        """Save new assembly sets.
+
+        :param self: this class
+        :type self: ReadsAlignmentSetInterfaceV1
+        :param ctx: KBase context
+        :type ctx: dict[str, Any]
+        :param params: parameters for the new ReadsAlignmentSet
+        :type params: dict[str, Any]
+        :return: dict containing the new set reference and the set info
+        :rtype: dict[str, str | list[str | int | dict[str, Any]]]
+        """
+        self._validate_save_set_params(params)
 
         save_result = self.set_interface.save_set(
-            "KBaseSets.ReadsAlignmentSet", ctx["provenance"], params
+            self.set_type(), ctx["provenance"], params
         )
         info = save_result[0]
         return {
@@ -33,131 +67,172 @@ class ReadsAlignmentSetInterfaceV1:
             "set_info": info,
         }
 
-    def _validate_reads_alignment_set_data(self, data):
-        # Normalize the object, make empty strings where necessary
-        if "description" not in data:
-            data["description"] = ""
+    def _validate_save_set_params(
+        self: "ReadsAlignmentSetInterfaceV1", params: dict[str, Any]
+    ) -> None:
+        """Perform basic validation on the save set parameters.
 
-        if "items" not in data or len(data.get("items", [])) == 0:
-            raise ValueError(
-                "A ReadsAlignmentSet must contain at "
-                "least one ReadsAlignment reference."
-            )
+        :param self: this class
+        :type self: AssemblySetInterfaceV1
+        :param params: parameters to the save_set function
+        :type params: dict[str, Any]
+        """
+        if params.get("data", None) is None:
+            err_msg = data_required(self.set_items_type())
+            raise ValueError(err_msg)
 
-        refs = []
-        for item in data["items"]:
-            refs.append(item["ref"])
+        if "items" not in params["data"]:
+            raise ValueError(items_list_required(self.set_items_type()))
+
+        if not params["data"].get("items", None):
+            raise ValueError(no_items(self.set_items_type()))
+
+        # add 'description' and 'label' fields if not present in data:
+        if "description" not in params["data"]:
+            params["data"]["description"] = ""
+
+        for item in params["data"]["items"]:
             if "label" not in item:
                 item["label"] = ""
-
-        ref_list = list([{"ref": r} for r in refs])
 
         # Get all the genome ids from our ReadsAlignment references (it's the genome_id key in
         # the object metadata). Make a set out of them.
         # If there's 0 or more than 1 item in the set, then either those items are bad, or they're
         # aligned against different genomes.
+        ref_list = [{"ref": item["ref"]} for item in params["data"]["items"]]
         info = self.workspace_client.get_object_info3(
             {"objects": ref_list, "includeMetadata": 1}
         )
         num_genomes = len(set([item[10]["genome_id"] for item in info["infos"]]))
-        if num_genomes == 0 or num_genomes > 1:
-            raise ValueError(
-                "All ReadsAlignments in the set must be aligned "
-                "against the same genome reference."
-            )
+        if num_genomes != 1:
+            raise ValueError(same_ref(self.set_items_type()))
 
-    def get_reads_alignment_set(self, ctx, params):
-        """
+    def get_reads_alignment_set(
+        self: "ReadsAlignmentSetInterfaceV1", _, params: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Retrieve reads alignment sets.
+
         If the set is a KBaseSets.ReadsAlignmentSet, it gets returned as-is.
         If it's a KBaseRNASeq.RNASeqAlignmentSet, a few things get juggled.
         1. We try to figure out the object references for the alignments (which are optional)
         2. From each ref, we try to figure out the condition, and apply those as labels (also
            might be optional)
+
+        :param self: this class
+        :type self: ReadsAlignmentSetInterfaceV1
+        :param _: unused (KBase context)
+        :type ctx: dict[str, Any]
+        :param params: dictionary of parameters
+        :type params: dict[str, Any]
+        :return: results of the get_set query
+        :rtype: dict[str, Any]
         """
-        set_type, obj_spec = self._check_get_reads_alignment_set_params(params)
+        checked_params = self._check_get_set_params(params)
 
-        include_item_info = False
-        if "include_item_info" in params:
-            if params["include_item_info"] == 1:
-                include_item_info = True
+        # check the type of the set itself
+        obj_ref_dict = build_ws_obj_selector(
+            checked_params["ref"], checked_params[REF_PATH_TO_SET]
+        )
 
-        include_set_item_ref_paths = False
-        if "include_set_item_ref_paths" in params:
-            if params["include_set_item_ref_paths"] == 1:
-                include_set_item_ref_paths = True
-
-        ref_path_to_set = []
-        if "ref_path_to_set" in params and len(params["ref_path_to_set"]) > 0:
-            ref_path_to_set = params["ref_path_to_set"]
+        info = self.workspace_client.get_object_info3({"objects": [obj_ref_dict]})
+        set_type = info["infos"][0][2]
 
         if "KBaseSets" in set_type:
             # If it's a KBaseSets type, then we know the usual interface will work...
-            return self.set_interface.get_set(
-                params["ref"],
-                include_item_info,
-                ref_path_to_set,
-                include_set_item_ref_paths,
-            )
-        else:
-            # ...otherwise, we need to fetch it directly from the workspace and tweak it into the
-            # expected return object
+            return self.set_interface.get_set(**checked_params)
 
-            obj_data = self.workspace_client.get_objects2({"objects": [obj_spec]})[
-                "data"
-            ][0]
-
-            obj = obj_data["data"]
-            obj_info = obj_data["info"]
-            alignment_ref_list = []
-            if "sample_alignments" in obj:
-                alignment_ref_list = obj["sample_alignments"]
-            else:
-                # this is a list of dicts of random strings -> alignment refs
-                # need them all as a set, then emit as a list.
-                reads_to_alignments = obj["mapped_alignments_ids"]
-                refs = set()
-                for mapping in reads_to_alignments:
-                    refs.update(list(mapping.values()))
-                alignment_ref_list = list(refs)
-            alignment_items = [{"ref": i} for i in alignment_ref_list]
-
-            item_infos = self.workspace_client.get_object_info3(
-                {"objects": alignment_items, "includeMetadata": 1}
-            )["infos"]
-            for idx, ref in enumerate(alignment_items):
-                alignment_items[idx]["label"] = item_infos[idx][10].get(
-                    "condition", None
-                )
-                if include_item_info:
-                    alignment_items[idx]["info"] = item_infos[idx]
-            """
-            If include_set_item_ref_paths is set, then add a field ref_path in alignment items
-            """
-            if include_set_item_ref_paths:
-                populate_item_object_ref_paths(alignment_items, obj_spec)
-
-            return {
-                "data": {"items": alignment_items, "description": ""},
-                "info": obj_info,
-            }
-
-    def _check_get_reads_alignment_set_params(self, params):
-        if "ref" not in params or params["ref"] is None:
-            raise ValueError(
-                '"ref" parameter field specifiying the reads alignment set is required'
-            )
-        if not check_reference(params["ref"]):
-            raise ValueError('"ref" parameter must be a valid workspace reference')
-        if "include_item_info" in params:
-            if params["include_item_info"] not in [0, 1]:
-                raise ValueError(
-                    '"include_item_info" parameter field can only be set to 0 or 1'
-                )
-
-        obj_spec = build_ws_obj_selector(
-            params.get("ref"), params.get("ref_path_to_set", [])
+        # ...otherwise, we need to fetch it directly from the workspace and tweak it into the
+        # expected return object
+        return self.get_rnaseq_alignment_set(
+            obj_ref_dict,
+            checked_params[INC_ITEM_INFO],
+            checked_params[INC_ITEM_REF_PATHS],
         )
 
-        info = self.workspace_client.get_object_info3({"objects": [obj_spec]})
+    def get_rnaseq_alignment_set(
+        self: "ReadsAlignmentSetInterfaceV1",
+        obj_ref_dict: dict[str, str],
+        include_item_info: bool = False,
+        include_set_item_ref_paths: bool = False,
+    ) -> dict[str, Any]:
+        """Retrieve and reconstitute a KBase RNASeqAlignmentSet from the workspace.
 
-        return info["infos"][0][2], obj_spec
+        :param self: this class
+        :type self: ReadsAlignmentSetInterfaceV1
+        :param obj_ref_dict: dictionary with key "ref" and value reference for the set
+        :type obj_ref_dict: dict[str, str]
+        :param include_item_info: whether info should be included for each set item
+        :type include_item_info: bool, defaults to False
+        :param include_set_item_ref_paths: whether the item ref paths should be included
+        :type include_set_item_ref_paths: bool, defaults to False
+        :return: standard set output structure
+        :rtype: dict[str, Any]
+        """
+        obj_data = self.workspace_client.get_objects2({"objects": [obj_ref_dict]})[
+            "data"
+        ][0]
+
+        obj = obj_data["data"]
+        alignment_ref_list = []
+        if "sample_alignments" in obj:
+            alignment_ref_list = obj["sample_alignments"]
+        else:
+            # this is a list of dicts of random strings -> alignment refs
+            # need them all as a set, then emit as a list.
+            reads_to_alignments = obj["mapped_alignments_ids"]
+            refs = set()
+            for mapping in reads_to_alignments:
+                refs.update(list(mapping.values()))
+            alignment_ref_list = list(refs)
+        alignment_items = [{"ref": i} for i in alignment_ref_list]
+
+        item_infos = self.workspace_client.get_object_info3(
+            {"objects": alignment_items, "includeMetadata": 1}
+        )["infos"]
+        for idx, _ in enumerate(alignment_items):
+            alignment_items[idx]["label"] = item_infos[idx][10].get("condition", None)
+            if include_item_info:
+                alignment_items[idx]["info"] = item_infos[idx]
+
+        # If include_set_item_ref_paths is set, then add a field ref_path in alignment items
+        if include_set_item_ref_paths:
+            populate_item_object_ref_paths(alignment_items, obj_ref_dict)
+
+        return {
+            "data": {"items": alignment_items, "description": ""},
+            "info": obj_data["info"],
+        }
+
+    def _check_get_set_params(
+        self: "ReadsAlignmentSetInterfaceV1", params: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Perform basic validation on the get_set parameters.
+
+        :param params: this class
+        :type params: dict[str, Any]
+        :return: validated parameters
+        :rtype: dict[str, str | bool | list[str]]
+        """
+        if not params.get("ref", None):
+            raise ValueError(ref_required(self.set_items_type()))
+
+        if not check_reference(params["ref"]):
+            raise ValueError(ref_must_be_valid())
+
+        ref_path_to_set = params.get(REF_PATH_TO_SET, [])
+        for path in ref_path_to_set:
+            if not check_reference(path):
+                raise ValueError(ref_path_must_be_valid())
+
+        for param in [INC_ITEM_INFO, INC_ITEM_REF_PATHS]:
+            if param in params and params[param] not in [0, 1]:
+                raise ValueError(include_params_valid(param))
+
+        return {
+            "ref": params["ref"],
+            INC_ITEM_INFO: True if params.get(INC_ITEM_INFO, 0) == 1 else False,
+            INC_ITEM_REF_PATHS: True
+            if params.get(INC_ITEM_REF_PATHS, 0) == 1
+            else False,
+            REF_PATH_TO_SET: ref_path_to_set,
+        }

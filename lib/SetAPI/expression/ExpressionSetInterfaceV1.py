@@ -4,6 +4,7 @@ An interface for handling sets of Expression objects.
 from SetAPI import util
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
 from SetAPI.util import info_to_ref
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
 
 
 class ExpressionSetInterfaceV1:
@@ -62,19 +63,13 @@ class ExpressionSetInterfaceV1:
     def get_expression_set(self, ctx, params):
         set_type, obj_spec = self._check_get_expression_set_params(params)
 
-        include_item_info = False
-        if "include_item_info" in params:
-            if params["include_item_info"] == 1:
-                include_item_info = True
+        include_item_info = True if params.get(INC_ITEM_INFO, 0) == 1 else False
 
-        include_set_item_ref_paths = False
-        if "include_set_item_ref_paths" in params:
-            if params["include_set_item_ref_paths"] == 1:
-                include_set_item_ref_paths = True
+        include_set_item_ref_paths = (
+            True if params.get(INC_ITEM_REF_PATHS, 0) == 1 else False
+        )
 
-        ref_path_to_set = []
-        if "ref_path_to_set" in params:
-            ref_path_to_set = params["ref_path_to_set"]
+        ref_path_to_set = params.get(REF_PATH_TO_SET, [])
 
         if "KBaseSets" in set_type:
             # If it's a KBaseSets type, then we know the usual interface will work...
@@ -130,16 +125,16 @@ class ExpressionSetInterfaceV1:
     def _check_get_expression_set_params(self, params):
         if "ref" not in params or params["ref"] is None:
             raise ValueError(
-                '"ref" parameter field specifiying the expression set is required'
+                '"ref" parameter field specifying the expression set is required'
             )
         if not util.check_reference(params["ref"]):
             raise ValueError('"ref" parameter must be a valid workspace reference')
-        if "include_item_info" in params and params["include_item_info"] not in [0, 1]:
+        if INC_ITEM_INFO in params and params[INC_ITEM_INFO] not in [0, 1]:
             raise ValueError(
                 '"include_item_info" parameter field can only be set to 0 or 1'
             )
         obj_spec = util.build_ws_obj_selector(
-            params.get("ref"), params.get("ref_path_to_set", [])
+            params.get("ref"), params.get(REF_PATH_TO_SET, [])
         )
         info = self.workspace_client.get_object_info3({"objects": [obj_spec]})
 

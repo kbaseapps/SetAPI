@@ -1,146 +1,207 @@
 """Basic tests for the AssemblySet class."""
-from test.util import INFO_LENGTH
 from SetAPI.SetAPIImpl import SetAPI
+from SetAPI.assembly.AssemblySetInterfaceV1 import AssemblySetInterfaceV1
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
+from typing import Any
+
+from test.util import log_this
+import pytest
+from test.common_checks import (
+    check_get_set_output,
+    check_save_set_output,
+    check_get_set_bad_path,
+    check_get_set_no_ref,
+    check_get_set_bad_ref,
+    check_save_set_no_data,
+    check_save_set_no_items_list,
+)
 
 
-SET_TYPE = "KBaseSets.AssemblySet"
+API_CLASS = AssemblySetInterfaceV1
 
 
-def test_basic_save_and_get(
+@pytest.fixture(scope="module")
+def assembly_set(
+    assembly_refs: list[str],
     set_api_client: SetAPI,
     context: dict[str, str | list],
     ws_id: int,
-    ws_name: str,
-    assembly_refs: list[str],
-) -> None:
-    set_name = "set_of_assemblies"
-    set_description = "my first assembly set"
-    second_item_data = {"ref": assembly_refs[1], "label": "assembly_ref[1]"}
-    n_items = len(assembly_refs)
-    # create the set object
+) -> dict[str, int | str | dict[str, Any]]:
+    set_name = "test_assembly_set"
+    set_description = "test_assemblies"
+    set_items = [{"label": "some_label", "ref": ref} for ref in assembly_refs]
     set_data = {
         "description": set_description,
-        "items": [
-            {"ref": assembly_refs[0], "label": "assembly_ref[0]"},
-            second_item_data,
-        ],
+        "items": set_items,
     }
 
-    # test a save
-    res = set_api_client.save_assembly_set_v1(
+    result = set_api_client.save_assembly_set_v1(
         context,
         {
-            "data": set_data,
-            "output_object_name": set_name,
             "workspace_id": ws_id,
+            "output_object_name": set_name,
+            "data": set_data,
         },
     )[0]
-    assert "set_ref" in res
-    assert "set_info" in res
-    assert len(res["set_info"]) == INFO_LENGTH
+    return {
+        "obj": result,
+        "set_name": set_name,
+        "set_type": API_CLASS.set_type(),
+        "set_description": set_description,
+        "n_items": len(assembly_refs),
+        "second_set_item": set_items[1],
+    }
 
-    assert res["set_info"][1] == set_name
-    assert "item_count" in res["set_info"][10]
-    assert res["set_info"][10]["item_count"] == str(n_items)
 
-    # test get of that object
-    d1 = set_api_client.get_assembly_set_v1(context, {"ref": ws_name + "/" + set_name})[
-        0
-    ]
-    assert "data" in d1
-    assert "info" in d1
-    assert len(d1["info"]) == INFO_LENGTH
-    assert "item_count" in d1["info"][10]
-    assert d1["info"][10]["item_count"] == str(n_items)
+@pytest.fixture(scope="module")
+def empty_assembly_set(
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    ws_id: int,
+) -> dict[str, int | str | dict[str, Any]]:
+    set_name = "empty_assembly_set"
+    set_description = "no_test_assemblies"
+    set_items = []
+    set_data = {
+        "description": set_description,
+        "items": set_items,
+    }
 
-    assert d1["data"]["description"] == set_description
-    assert len(d1["data"]["items"]) == n_items
-
-    item2 = d1["data"]["items"][1]
-    assert "info" not in item2
-    assert "ref_path" not in item2
-    assert "ref" in item2
-    assert "label" in item2
-    assert item2["label"] == second_item_data["label"]
-    assert item2["ref"] == assembly_refs[1]
-
-    # test the call to make sure we get info for each item
-    d2 = set_api_client.get_reads_set_v1(
+    result = set_api_client.save_assembly_set_v1(
         context,
         {
-            "ref": res["set_ref"],
-            "include_item_info": 1,
-            "include_set_item_ref_paths": 1,
+            "workspace_id": ws_id,
+            "output_object_name": set_name,
+            "data": set_data,
         },
     )[0]
-    assert "data" in d2
-    assert "info" in d2
-    assert len(d2["info"]) == INFO_LENGTH
-    assert "item_count" in d2["info"][10]
-    assert d2["info"][10]["item_count"] == str(n_items)
-    assert d2["data"]["description"] == set_description
-    assert len(d2["data"]["items"]) == n_items
-
-    item2 = d2["data"]["items"][1]
-    assert "info" in item2
-    assert len(item2["info"]), INFO_LENGTH
-    assert "ref" in item2
-    assert item2["ref"] == assembly_refs[1]
-
-    assert "ref_path" in item2
-    assert item2["ref_path"] == res["set_ref"] + ";" + item2["ref"]
+    return {
+        "obj": result,
+        "set_name": set_name,
+        "set_type": API_CLASS.set_type(),
+        "set_description": set_description,
+        "n_items": 0,
+    }
 
 
-def check_empty_set(obj: dict, description: str) -> None:
-    """Check that a set object has zero items in it.
-
-    :param obj: set data as returned by the SetAPI
-    :type obj: dict
-    :param description: description parameter of the set
-    :type description: str
-    """
-    assert "data" in obj
-    assert "info" in obj
-    assert len(obj["info"]) == INFO_LENGTH
-    assert "item_count" in obj["info"][10]
-    assert obj["info"][10]["item_count"] == "0"
-    assert obj["data"]["description"] == description
-    assert len(obj["data"]["items"]) == 0
-
-
-def test_save_and_get_of_empty_set(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int, ws_name: str
+def test_save_assembly_set(
+    assembly_set,
 ) -> None:
-    set_name = "nada_set"
-    set_description = "nothing to see here"
-    n_items = 0
+    check_save_set_output(**assembly_set)
 
-    # create the set object
-    set_data = {"description": set_description, "items": []}
-    # test a save
-    res = set_api_client.save_assembly_set_v1(
+
+def test_save_assembly_set_no_data(
+    set_api_client: SetAPI, context: dict[str, str | list]
+) -> None:
+    check_save_set_no_data(
         context,
-        {
-            "data": set_data,
-            "output_object_name": set_name,
-            "workspace_id": ws_id,
-        },
-    )[0]
-    assert "set_ref" in res
-    assert "set_info" in res
-    assert len(res["set_info"]) == INFO_LENGTH
+        set_api_client.save_assembly_set_v1,
+        API_CLASS.set_items_type(),
+    )
 
-    assert res["set_info"][1] == set_name
-    assert "item_count" in res["set_info"][10]
-    assert res["set_info"][10]["item_count"] == str(n_items)
 
-    # test get of that object
-    d1 = set_api_client.get_assembly_set_v1(context, {"ref": ws_name + "/" + set_name})[
-        0
-    ]
-    check_empty_set(d1, set_description)
+def test_save_assembly_set_no_items_list(
+    set_api_client: SetAPI, context: dict[str, str | list]
+) -> None:
+    check_save_set_no_items_list(
+        context,
+        set_api_client.save_assembly_set_v1,
+        API_CLASS.set_items_type(),
+    )
 
-    d2 = set_api_client.get_assembly_set_v1(
-        context, {"ref": res["set_ref"], "include_item_info": 1}
-    )[0]
-    check_empty_set(d2, set_description)
+
+# it's possible to create an empty assembly set, so let's test it!
+def test_save_assembly_set_no_assemblies(
+    empty_assembly_set: dict[str, Any],
+) -> None:
+    check_save_set_output(**empty_assembly_set)
+
+
+@pytest.mark.parametrize(
+    "ref_args",
+    [
+        pytest.param("__SET_REF__", id="set_ref"),
+        pytest.param("__WS_NAME__SET_NAME__", id="ws_name_set_name"),
+    ],
+)
+@pytest.mark.parametrize(
+    "get_method_args",
+    [
+        pytest.param({}, id="empty"),
+        pytest.param({INC_ITEM_INFO: 1}, id="inc_item_info"),
+        pytest.param(
+            {INC_ITEM_REF_PATHS: 1},
+            id="inc_ref_path",
+        ),
+        pytest.param(
+            {
+                INC_ITEM_INFO: 1,
+                INC_ITEM_REF_PATHS: 1,
+            },
+            id="inc_item_info_ref_path",
+        ),
+        pytest.param(
+            {INC_ITEM_INFO: 1, INC_ITEM_REF_PATHS: 1, REF_PATH_TO_SET: ["YES"]},
+            id="inc_item_info_ref_path_w_ref_path",
+        ),
+        pytest.param(
+            {
+                INC_ITEM_INFO: 0,
+                INC_ITEM_REF_PATHS: 0,
+            },
+            id="no_incs",
+        ),
+    ],
+)
+def test_get_assembly_set(
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    ws_name: str,
+    assembly_set: dict[str, int | str | dict[str, Any]],
+    ref_args: str,
+    get_method_args: dict[str, str | int],
+    config: dict[str, Any],
+) -> None:
+    assembly_set_ref = assembly_set["obj"]["set_ref"]
+    params = {}
+    if ref_args == "__SET_REF__":
+        params["ref"] = assembly_set_ref
+    else:
+        params["ref"] = f"{ws_name}/{assembly_set['set_name']}"
+
+    for param in [INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET]:
+        if param in get_method_args:
+            params[param] = get_method_args[param]
+
+    if params.get(REF_PATH_TO_SET, []) != []:
+        # add in a value for the REF_PATH_TO_SET
+        params[REF_PATH_TO_SET] = [assembly_set_ref]
+
+    fetched_set = set_api_client.get_reads_alignment_set_v1(context, params)[0]
+
+    args_to_check_get_set_output = {
+        **{arg: assembly_set[arg] for arg in assembly_set if arg != "obj"},
+        **params,
+        "obj": fetched_set,
+    }
+    check_get_set_output(**args_to_check_get_set_output)
+
+
+def test_get_assembly_set_bad_ref(
+    set_api_client: SetAPI, context: dict[str, str | list]
+) -> None:
+    check_get_set_bad_ref(context, set_api_client.get_assembly_set_v1)
+
+
+def test_get_assembly_set_bad_path(
+    set_api_client: SetAPI, context: dict[str, str | list]
+) -> None:
+    check_get_set_bad_path(context, set_api_client.get_assembly_set_v1)
+
+
+def test_get_assembly_set_no_ref(
+    set_api_client: SetAPI, context: dict[str, str | list]
+) -> None:
+    check_get_set_no_ref(
+        context, set_api_client.get_assembly_set_v1, API_CLASS.set_items_type()
+    )

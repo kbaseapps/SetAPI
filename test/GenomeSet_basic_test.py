@@ -2,6 +2,7 @@
 from test.util import INFO_LENGTH
 
 from SetAPI.SetAPIImpl import SetAPI
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS
 
 
 def test_basic_save_and_get(
@@ -63,8 +64,8 @@ def test_basic_save_and_get(
         context,
         {
             "ref": res["set_ref"],
-            "include_item_info": 1,
-            "include_set_item_ref_paths": 1,
+            INC_ITEM_INFO: 1,
+            INC_ITEM_REF_PATHS: 1,
         },
     )[0]
     assert "data" in d2
@@ -186,7 +187,7 @@ def test_save_and_get_of_empty_set(
     assert len(d1["data"]["items"]) == 0
 
     d2 = set_api_client.get_genome_set_v1(
-        context, {"ref": res["set_ref"], "include_item_info": 1}
+        context, {"ref": res["set_ref"], INC_ITEM_INFO: 1}
     )[0]
 
     assert "data" in d2

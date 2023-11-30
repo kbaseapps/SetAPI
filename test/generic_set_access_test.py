@@ -6,6 +6,7 @@ from typing import Any
 import pytest
 from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
 from SetAPI.SetAPIImpl import SetAPI
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
 
 DEBUG = False
 
@@ -108,7 +109,7 @@ def test_list_sets(
 
     # Get the sets with their reference paths
     res3 = set_api_client.list_sets(
-        context, {"workspace": list_all_sets_ws_name, "include_set_item_ref_paths": 1}
+        context, {"workspace": list_all_sets_ws_name, INC_ITEM_REF_PATHS: 1}
     )[0]
 
     if DEBUG:
@@ -187,7 +188,7 @@ def unit_test_get_set_items(
                 {"ref": set_data["set_refs"][1]},
                 {"ref": set_data["set_refs"][2]},
             ],
-            "include_set_item_ref_paths": 1,
+            INC_ITEM_REF_PATHS: 1,
         },
     )[0]
     if DEBUG:

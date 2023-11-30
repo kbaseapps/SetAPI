@@ -1,20 +1,55 @@
+from SetAPI.error_messages import (
+    data_required,
+    include_params_valid,
+    items_list_required,
+    ref_must_be_valid,
+    ref_path_must_be_valid,
+    ref_required,
+)
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
-from SetAPI.util import info_to_ref
+from SetAPI.util import (
+    check_reference,
+    info_to_ref,
+)
+from typing import Any
 
 
 class AssemblySetInterfaceV1:
-    def __init__(self, workspace_client):
+    def __init__(self: "AssemblySetInterfaceV1", workspace_client):
         self.ws = workspace_client
         self.set_interface = SetInterfaceV1(workspace_client)
 
-    def save_assembly_set(self, ctx, params):
-        if "data" in params:
-            self._validate_assembly_set_data(params["data"])
-        else:
-            raise ValueError('"data" parameter field required to save an AssemblySet')
+    @staticmethod
+    def set_type() -> str:
+        return "KBaseSets.AssemblySet"
+
+    @staticmethod
+    def set_items_type() -> str:
+        return "Assembly"
+
+    @staticmethod
+    def allows_empty_set() -> bool:
+        return True
+
+    def save_assembly_set(
+        self: "AssemblySetInterfaceV1", ctx: dict[str, Any], params: dict[str, Any]
+    ) -> dict[str, str | list[str | int | dict[str, Any]]]:
+        """Save new assembly sets.
+
+        :param self: this class
+        :type self: AssemblySetInterfaceV1
+        :param ctx: KBase context
+        :type ctx: dict[str, Any]
+        :param params: parameters for the new AssemblySet
+        :type params: dict[str, Any]
+        :return: dict containing the new set reference and the set info
+        :rtype: dict[str, str | list[str | int | dict[str, Any]]]
+        """
+        self._validate_save_set_params(params)
 
         save_result = self.set_interface.save_set(
-            "KBaseSets.AssemblySet", ctx["provenance"], params
+            self.set_type(), ctx["provenance"], params
         )
         info = save_result[0]
         return {
@@ -22,61 +57,82 @@ class AssemblySetInterfaceV1:
             "set_info": info,
         }
 
-    def _validate_assembly_set_data(self, data):
-        # TODO: add checks that only one copy of each assembly data is in the set
+    def _validate_save_set_params(
+        self: "AssemblySetInterfaceV1", params: dict[str, Any]
+    ) -> None:
+        """Perform basic validation on the save set parameters.
 
-        if "items" not in data:
-            raise ValueError(
-                '"items" list must be defined in data to save an AssemblySet'
-            )
+        :param self: this class
+        :type self: AssemblySetInterfaceV1
+        :param params: parameters to the save_set function
+        :type params: dict[str, Any]
+        """
+        # TODO: add checks that only one copy of each assembly is in the set
 
-        # add 'description' and 'label' fields if not present in data:
-        for item in data["items"]:
+        if params.get("data", None) is None:
+            err_msg = data_required(self.set_items_type())
+            raise ValueError(err_msg)
+
+        # N.b. AssemblySets allow an empty items list so we don't check that
+        # params["data"]["items"] is populated
+        if "items" not in params["data"]:
+            raise ValueError(items_list_required(self.set_items_type()))
+
+        # add 'description' and item 'label' fields if not present:
+        if "description" not in params["data"]:
+            params["data"]["description"] = ""
+
+        for item in params["data"]["items"]:
             if "label" not in item:
                 item["label"] = ""
-        if "description" not in data:
-            data["description"] = ""
 
-    def get_assembly_set(self, ctx, params):
-        self._check_get_assembly_set_params(params)
+    def get_assembly_set(
+        self: "AssemblySetInterfaceV1", _, params: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Retrieve assembly sets.
 
-        include_item_info = False
-        if "include_item_info" in params:
-            if params["include_item_info"] == 1:
-                include_item_info = True
+        :param self: this class
+        :type self: AssemblySetInterfaceV1
+        :param _: unused (KBase context)
+        :type ctx: dict[str, Any]
+        :param params: dictionary of parameters
+        :type params: dict[str, Any]
+        :return: results of the get_set query
+        :rtype: dict[str, Any]
+        """
+        checked_params = self._check_get_set_params(params)
+        return self.set_interface.get_set(checked_params)
 
-        ref_path_to_set = []
-        if "ref_path_to_set" in params:
-            ref_path_to_set = params["ref_path_to_set"]
+    def _check_get_set_params(
+        self: "AssemblySetInterfaceV1", params: dict[str, Any]
+    ) -> dict[str, str | bool | list[str]]:
+        """Perform basic validation on the get_set parameters.
 
-        include_set_item_ref_paths = False
-        if "include_set_item_ref_paths" in params:
-            if params["include_set_item_ref_paths"] == 1:
-                include_set_item_ref_paths = True
+        :param params: this class
+        :type params: dict[str, Any]
+        :return: validated parameters
+        :rtype: dict[str, str | bool | list[str]]
+        """
+        if not params.get("ref", None):
+            raise ValueError(ref_required(self.set_items_type()))
 
-        set_data = self.set_interface.get_set(
-            params["ref"],
-            include_item_info,
-            ref_path_to_set,
-            include_set_item_ref_paths,
-        )
-        set_data = self._normalize_assembly_set_data(set_data)
+        if not check_reference(params["ref"]):
+            raise ValueError(ref_must_be_valid())
 
-        return set_data
+        ref_path_to_set = params.get(REF_PATH_TO_SET, [])
+        for path in ref_path_to_set:
+            if not check_reference(path):
+                raise ValueError(ref_path_must_be_valid())
 
-    def _check_get_assembly_set_params(self, params):
-        if "ref" not in params:
-            raise ValueError(
-                '"ref" parameter field specifiying the assembly set is required'
-            )
-        if "include_item_info" in params:
-            if params["include_item_info"] not in [0, 1]:
-                raise ValueError(
-                    '"include_item_info" parameter field can only be set to 0 or 1'
-                )
+        for param in [INC_ITEM_INFO, INC_ITEM_REF_PATHS]:
+            if param in params and params[param] not in [0, 1]:
+                raise ValueError(include_params_valid(param))
 
-    def _normalize_assembly_set_data(self, set_data):
-        # make sure that optional/missing fields are filled in or are defined
-        # TODO: populate empty description field
-        # TODO?: populate empty label fields
-        return set_data
+        return {
+            "ref": params["ref"],
+            INC_ITEM_INFO: True if params.get(INC_ITEM_INFO, 0) == 1 else False,
+            INC_ITEM_REF_PATHS: True
+            if params.get(INC_ITEM_REF_PATHS, 0) == 1
+            else False,
+            REF_PATH_TO_SET: ref_path_to_set,
+        }

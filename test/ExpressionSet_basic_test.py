@@ -5,6 +5,7 @@ import pytest
 from installed_clients.baseclient import ServerError
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.util import info_to_ref
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS
 
 DEBUG = False
 
@@ -117,7 +118,7 @@ def test_get_expression_set(
     )[0]["set_ref"]
 
     fetched_set = set_api_client.get_expression_set_v1(
-        context, {"ref": expression_set_ref, "include_item_info": 0}
+        context, {"ref": expression_set_ref, INC_ITEM_INFO: 0}
     )[0]
     assert fetched_set is not None
     assert "data" in fetched_set
@@ -131,7 +132,7 @@ def test_get_expression_set(
         assert "label" in item
 
     fetched_set_with_info = set_api_client.get_expression_set_v1(
-        context, {"ref": expression_set_ref, "include_item_info": 1}
+        context, {"ref": expression_set_ref, INC_ITEM_INFO: 1}
     )[0]
     assert fetched_set_with_info is not None
     assert "data" in fetched_set_with_info
@@ -164,8 +165,8 @@ def test_get_expression_set_ref_path(
         context,
         {
             "ref": expression_set_ref,
-            "include_item_info": 1,
-            "include_set_item_ref_paths": 1,
+            INC_ITEM_INFO: 1,
+            INC_ITEM_REF_PATHS: 1,
         },
     )[0]
     assert fetched_set_with_info is not None
@@ -189,8 +190,8 @@ def test_get_created_rnaseq_expression_set_ref_path(
         context,
         {
             "ref": rnaseq_expression_set,
-            "include_item_info": 0,
-            "include_set_item_ref_paths": 1,
+            INC_ITEM_INFO: 0,
+            INC_ITEM_REF_PATHS: 1,
         },
     )[0]
 
@@ -232,6 +233,6 @@ def test_get_expression_set_no_ref(
 ) -> None:
     with pytest.raises(
         ValueError,
-        match='"ref" parameter field specifiying the expression set is required',
+        match='"ref" parameter field specifying the expression set is required',
     ):
         set_api_client.get_expression_set_v1(context, {"ref": None})

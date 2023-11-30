@@ -3,6 +3,7 @@ An interface for handling sets of Expression objects.
 """
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
 from SetAPI.util import check_reference, info_to_ref
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
 
 
 class DifferentialExpressionMatrixSetInterfaceV1:
@@ -63,19 +64,13 @@ class DifferentialExpressionMatrixSetInterfaceV1:
     def get_differential_expression_matrix_set(self, ctx, params):
         self._check_get_differential_expression_matrix_set_params(params)
 
-        include_item_info = False
-        if "include_item_info" in params:
-            if params["include_item_info"] == 1:
-                include_item_info = True
+        include_item_info = True if params.get(INC_ITEM_INFO, 0) == 1 else False
 
-        include_set_item_ref_paths = False
-        if "include_set_item_ref_paths" in params:
-            if params["include_set_item_ref_paths"] == 1:
-                include_set_item_ref_paths = True
+        include_set_item_ref_paths = (
+            True if params.get(INC_ITEM_REF_PATHS, 0) == 1 else False
+        )
 
-        ref_path_to_set = []
-        if "ref_path_to_set" in params:
-            ref_path_to_set = params["ref_path_to_set"]
+        ref_path_to_set = params.get(REF_PATH_TO_SET, [])
 
         set_data = self.set_interface.get_set(
             params["ref"],
@@ -88,11 +83,11 @@ class DifferentialExpressionMatrixSetInterfaceV1:
     def _check_get_differential_expression_matrix_set_params(self, params):
         if "ref" not in params or params["ref"] is None:
             raise ValueError(
-                '"ref" parameter field specifiying the DifferentialExpressionMatrix set is required'
+                '"ref" parameter field specifying the DifferentialExpressionMatrix set is required'
             )
         if not check_reference(params["ref"]):
             raise ValueError('"ref" parameter must be a valid workspace reference')
-        if "include_item_info" in params and params["include_item_info"] not in [0, 1]:
+        if INC_ITEM_INFO in params and params[INC_ITEM_INFO] not in [0, 1]:
             raise ValueError(
                 '"include_item_info" parameter field can only be set to 0 or 1'
             )
