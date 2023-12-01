@@ -31,9 +31,6 @@ def check_reference(ref: str | None) -> bool:
         return False
 
     parts = ref.split("/")
-    if len(parts) < 2 or len(parts) > 3 or any(len(item) == 0 for item in parts):
-        return False
-
     # do we have a KBase UPA (\d+/\d+ or \d+/\d+/\d+)?
     could_be_ints = sum(1 for item in parts if item.isdigit())
     if could_be_ints == len(parts):
@@ -42,10 +39,6 @@ def check_reference(ref: str | None) -> bool:
     # otherwise, we have a ws name and object name, so there should only be two parts
     # none of the remaining parts should be integers
     if len(parts) == 3 or could_be_ints != 0:
-        return False
-
-    # check whether there's a ":" present
-    if ":" in parts[1]:
         return False
 
     # make sure that if there's a ":" in the first part, the stuff on either side isn't an int

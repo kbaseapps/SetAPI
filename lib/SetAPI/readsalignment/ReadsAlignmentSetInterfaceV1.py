@@ -1,11 +1,12 @@
-"""
-An interface for handling sets of ReadsAlignments.
-"""
+"""An interface for handling sets of ReadsAlignments."""
+from typing import Any
+
+from installed_clients.WorkspaceClient import Workspace
 
 from SetAPI.error_messages import (
     data_required,
     include_params_valid,
-    items_list_required,
+    list_required,
     no_items,
     ref_must_be_valid,
     ref_path_must_be_valid,
@@ -15,29 +16,31 @@ from SetAPI.error_messages import (
 from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
 from SetAPI.util import (
-    populate_item_object_ref_paths,
-    check_reference,
     build_ws_obj_selector,
+    check_reference,
     info_to_ref,
+    populate_item_object_ref_paths,
 )
-from typing import Any
 
 
 class ReadsAlignmentSetInterfaceV1:
-    def __init__(self: "ReadsAlignmentSetInterfaceV1", workspace_client):
+    def __init__(self: "ReadsAlignmentSetInterfaceV1", workspace_client: Workspace):
         self.workspace_client = workspace_client
         self.set_interface = SetInterfaceV1(workspace_client)
 
     @staticmethod
     def set_type() -> str:
+        """The set type saved by this class."""
         return "KBaseSets.ReadsAlignmentSet"
 
     @staticmethod
     def set_items_type() -> str:
+        """The type of object in the sets."""
         return "ReadsAlignment"
 
     @staticmethod
     def allows_empty_set() -> bool:
+        """Whether or not the class allows the creation of empty sets."""
         return False
 
     def save_reads_alignment_set(
@@ -82,7 +85,7 @@ class ReadsAlignmentSetInterfaceV1:
             raise ValueError(err_msg)
 
         if "items" not in params["data"]:
-            raise ValueError(items_list_required(self.set_items_type()))
+            raise ValueError(list_required(self.set_items_type()))
 
         if not params["data"].get("items", None):
             raise ValueError(no_items(self.set_items_type()))
@@ -103,7 +106,7 @@ class ReadsAlignmentSetInterfaceV1:
         info = self.workspace_client.get_object_info3(
             {"objects": ref_list, "includeMetadata": 1}
         )
-        num_genomes = len(set([item[10]["genome_id"] for item in info["infos"]]))
+        num_genomes = len({item[10]["genome_id"] for item in info["infos"]})
         if num_genomes != 1:
             raise ValueError(same_ref(self.set_items_type()))
 
@@ -208,10 +211,12 @@ class ReadsAlignmentSetInterfaceV1:
     ) -> dict[str, Any]:
         """Perform basic validation on the get_set parameters.
 
-        :param params: this class
+        :param self: this class
+        :type self: ReadsAlignmentSetInterfaceV1
+        :param params: parameters for the get_set query
         :type params: dict[str, Any]
         :return: validated parameters
-        :rtype: dict[str, str | bool | list[str]]
+        :rtype: dict[str, Any]
         """
         if not params.get("ref", None):
             raise ValueError(ref_required(self.set_items_type()))
@@ -230,9 +235,7 @@ class ReadsAlignmentSetInterfaceV1:
 
         return {
             "ref": params["ref"],
-            INC_ITEM_INFO: True if params.get(INC_ITEM_INFO, 0) == 1 else False,
-            INC_ITEM_REF_PATHS: True
-            if params.get(INC_ITEM_REF_PATHS, 0) == 1
-            else False,
+            INC_ITEM_INFO: params.get(INC_ITEM_INFO, 0) == 1,
+            INC_ITEM_REF_PATHS: params.get(INC_ITEM_REF_PATHS, 0) == 1,
             REF_PATH_TO_SET: ref_path_to_set,
         }

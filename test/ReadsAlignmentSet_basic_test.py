@@ -1,10 +1,4 @@
 """Basic ReadsAlignmentSet tests."""
-from typing import Any
-from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
-from SetAPI.readsalignment.ReadsAlignmentSetInterfaceV1 import (
-    ReadsAlignmentSetInterfaceV1,
-)
-from SetAPI.SetAPIImpl import SetAPI
 from test.common_checks import (
     check_get_set_bad_path,
     check_get_set_bad_ref,
@@ -16,7 +10,14 @@ from test.common_checks import (
     check_save_set_no_objects,
     check_save_set_output,
 )
+from typing import Any
+
 import pytest
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
+from SetAPI.readsalignment.ReadsAlignmentSetInterfaceV1 import (
+    ReadsAlignmentSetInterfaceV1,
+)
+from SetAPI.SetAPIImpl import SetAPI
 
 API_CLASS = ReadsAlignmentSetInterfaceV1
 
@@ -152,10 +153,8 @@ def test_get_reads_alignment_set(
     set_api_client: SetAPI,
     context: dict[str, str | list],
     ws_name: str,
-    reads_refs: list[str],
     ref_args: str,
     get_method_args: dict[str, str | int],
-    config,
 ) -> None:
     alignment_set_ref = alignment_set["obj"]["set_ref"]
     params = {}
@@ -224,14 +223,12 @@ def test_get_reads_alignment_set(
 )
 def test_get_rnaseq_alignment_set(
     rnaseq_alignment_sets: list[str],
-    rnaseq_expression_set: str,
     set_api_client: SetAPI,
     context: dict[str, str | list],
     ws_name: str,
     reads_refs: list[str],
     ref_args: str,
     get_method_args: dict[str, str | int],
-    config,
 ) -> None:
     params = {}
     for param in [INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET]:

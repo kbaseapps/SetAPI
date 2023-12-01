@@ -1,21 +1,19 @@
 """Basic tests for the AssemblySet class."""
-from SetAPI.SetAPIImpl import SetAPI
-from SetAPI.assembly.AssemblySetInterfaceV1 import AssemblySetInterfaceV1
-from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
-from typing import Any
-
-from test.util import log_this
-import pytest
 from test.common_checks import (
-    check_get_set_output,
-    check_save_set_output,
     check_get_set_bad_path,
-    check_get_set_no_ref,
     check_get_set_bad_ref,
+    check_get_set_no_ref,
+    check_get_set_output,
     check_save_set_no_data,
     check_save_set_no_items_list,
+    check_save_set_output,
 )
+from typing import Any
 
+import pytest
+from SetAPI.assembly.AssemblySetInterfaceV1 import AssemblySetInterfaceV1
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
+from SetAPI.SetAPIImpl import SetAPI
 
 API_CLASS = AssemblySetInterfaceV1
 

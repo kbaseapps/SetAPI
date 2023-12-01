@@ -9,8 +9,8 @@ def include_params_valid(param_name) -> str:
     return f'The "{param_name}" parameter can only be set to 0 or 1'
 
 
-def items_list_required(set_items_type: str) -> str:
-    return f'An "items" list must be defined in the "data" parameter to save {set_items_type}Sets'
+def list_required(set_items_type: str, list_type: str = "items") -> str:
+    return f'An "{list_type}" list must be defined in the "data" parameter to save {set_items_type}Sets'
 
 
 def no_items(set_items_type: str) -> str:

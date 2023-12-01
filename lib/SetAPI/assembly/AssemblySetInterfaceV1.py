@@ -1,7 +1,12 @@
+"""An interface for handling sets of Assemblies."""
+from typing import Any
+
+from installed_clients.WorkspaceClient import Workspace
+
 from SetAPI.error_messages import (
     data_required,
     include_params_valid,
-    items_list_required,
+    list_required,
     ref_must_be_valid,
     ref_path_must_be_valid,
     ref_required,
@@ -12,24 +17,26 @@ from SetAPI.util import (
     check_reference,
     info_to_ref,
 )
-from typing import Any
 
 
 class AssemblySetInterfaceV1:
-    def __init__(self: "AssemblySetInterfaceV1", workspace_client):
+    def __init__(self: "AssemblySetInterfaceV1", workspace_client: Workspace):
         self.ws = workspace_client
         self.set_interface = SetInterfaceV1(workspace_client)
 
     @staticmethod
     def set_type() -> str:
+        """The set type saved by this class."""
         return "KBaseSets.AssemblySet"
 
     @staticmethod
     def set_items_type() -> str:
+        """The type of object in the sets."""
         return "Assembly"
 
     @staticmethod
     def allows_empty_set() -> bool:
+        """Whether or not the class allows the creation of empty sets."""
         return True
 
     def save_assembly_set(
@@ -73,10 +80,10 @@ class AssemblySetInterfaceV1:
             err_msg = data_required(self.set_items_type())
             raise ValueError(err_msg)
 
-        # N.b. AssemblySets allow an empty items list so we don't check that
-        # params["data"]["items"] is populated
+        # N.b. AssemblySets allow an empty items list so we don't
+        # need to check that params["data"]["items"] is populated
         if "items" not in params["data"]:
-            raise ValueError(items_list_required(self.set_items_type()))
+            raise ValueError(list_required(self.set_items_type()))
 
         # add 'description' and item 'label' fields if not present:
         if "description" not in params["data"]:
@@ -108,7 +115,9 @@ class AssemblySetInterfaceV1:
     ) -> dict[str, str | bool | list[str]]:
         """Perform basic validation on the get_set parameters.
 
-        :param params: this class
+        :param self: this class
+        :type self: AssemblySetInterfaceV1
+        :param params: parameters to the get_set function
         :type params: dict[str, Any]
         :return: validated parameters
         :rtype: dict[str, str | bool | list[str]]
@@ -130,9 +139,7 @@ class AssemblySetInterfaceV1:
 
         return {
             "ref": params["ref"],
-            INC_ITEM_INFO: True if params.get(INC_ITEM_INFO, 0) == 1 else False,
-            INC_ITEM_REF_PATHS: True
-            if params.get(INC_ITEM_REF_PATHS, 0) == 1
-            else False,
+            INC_ITEM_INFO: params.get(INC_ITEM_INFO, 0) == 1,
+            INC_ITEM_REF_PATHS: params.get(INC_ITEM_REF_PATHS, 0) == 1,
             REF_PATH_TO_SET: ref_path_to_set,
         }
