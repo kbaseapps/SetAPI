@@ -1,6 +1,17 @@
-from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
-from SetAPI.util import info_to_ref
+"""An interface for handling genome sets."""
+from typing import Any
+
+from SetAPI.error_messages import (
+    include_params_valid,
+    list_required,
+    no_dupes,
+    param_required,
+    ref_must_be_valid,
+    ref_path_must_be_valid,
+)
 from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
+from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
+from SetAPI.util import check_reference, info_to_ref
 
 
 class GenomeSetInterfaceV1:
@@ -8,21 +19,27 @@ class GenomeSetInterfaceV1:
         self.ws = workspace_client
         self.set_interface = SetInterfaceV1(workspace_client)
 
+    @staticmethod
+    def set_type() -> str:
+        return "KBaseSets.GenomeSet"
+
+    @staticmethod
+    def set_items_type() -> str:
+        return "Genome"
+
+    @staticmethod
+    def allows_empty_set() -> bool:
+        return True
+
     def save_genome_set(self, ctx, params):
         """
         by default save 'KBaseSets.GenomeSet'
         save 'KBaseSearch.GenomeSet' by setting save_search_set
         """
         save_search_set = params.get("save_search_set", False)
+        self._validate_save_set_params(params, save_search_set)
 
-        if "data" in params:
-            self._validate_genome_set_data(params["data"], save_search_set)
-        else:
-            raise ValueError('"data" parameter field required to save an GenomeSet')
-
-        genome_type = "KBaseSets.GenomeSet"
-        if save_search_set:
-            genome_type = "KBaseSearch.GenomeSet"
+        genome_type = "KBaseSearch.GenomeSet" if save_search_set else self.set_type()
 
         save_result = self.set_interface.save_set(
             genome_type, ctx["provenance"], params
@@ -33,62 +50,73 @@ class GenomeSetInterfaceV1:
             "set_info": info,
         }
 
-    def _validate_genome_set_data(self, data, save_search_set):
-        # TODO: add checks that only one copy of each genome data is in the set
-        if save_search_set:
-            if "elements" not in data:
-                raise ValueError(
-                    '"elements" list must be defined in data to save a KBaseSearch.GenomeSet'
-                )
+    def _validate_save_set_params(
+        self: "GenomeSetInterfaceV1", params: dict[str, Any], save_search_set: bool
+    ) -> None:
+        """Perform basic validation on the save set parameters.
 
-            if "description" not in data:
-                data["description"] = ""
-        else:
-            if "items" not in data:
-                raise ValueError(
-                    '"items" list must be defined in data to save a KBaseSets.GenomeSet'
-                )
+        :param self: this class
+        :type self: ReadsSetInterfaceV1
+        :param params: parameters to the save_set function
+        :type params: dict[str, Any]
+        :param save_search_set: whether the set type should be a search set or a set set
+        :type save_search_set: bool
+        """
+        # TODO: add checks that only one copy of each genome is in the set
+        if params.get("data", None) is None:
+            err_msg = param_required("data")
+            raise ValueError(err_msg)
 
-            # add 'description' and 'label' fields if not present in data:
-            for item in data["items"]:
-                if "label" not in item:
-                    item["label"] = ""
-            if "description" not in data:
-                data["description"] = ""
+        list_item_type = "elements" if save_search_set else "items"
+        if list_item_type not in params["data"]:
+            raise ValueError(list_required(list_item_type))
+
+        # add 'description' and 'label' fields if not present in data:
+        if "description" not in params["data"]:
+            params["data"]["description"] = ""
+
+        seen_refs = set()
+        for item in params["data"].get("items", []):
+            if "label" not in item:
+                item["label"] = ""
+            if item["ref"] in seen_refs:
+                raise ValueError(no_dupes())
+            seen_refs.add(item["ref"])
 
     def get_genome_set(self, ctx, params):
-        self._check_get_genome_set_params(params)
+        checked_params = self._check_get_set_params(params)
+        return self.set_interface.get_set(**checked_params)
 
-        include_item_info = True if params.get(INC_ITEM_INFO, 0) == 1 else False
+    def _check_get_set_params(
+        self: "GenomeSetInterfaceV1", params: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Perform basic validation on the get_set parameters.
 
-        include_set_item_ref_paths = (
-            True if params.get(INC_ITEM_REF_PATHS, 0) == 1 else False
-        )
+        :param self: this class
+        :type self: ReadsSetInterfaceV1
+        :param params: method params
+        :type params: dict[str, Any]
+        :return: validated parameters
+        :rtype: dict[str, str | bool | list[str]]
+        """
+        if not params.get("ref", None):
+            raise ValueError(param_required("ref"))
+
+        if not check_reference(params["ref"]):
+            raise ValueError(ref_must_be_valid())
 
         ref_path_to_set = params.get(REF_PATH_TO_SET, [])
+        for path in ref_path_to_set:
+            if not check_reference(path):
+                raise ValueError(ref_path_must_be_valid())
 
-        set_data = self.set_interface.get_set(
-            params["ref"],
-            include_item_info,
-            ref_path_to_set,
-            include_set_item_ref_paths,
-        )
-        set_data = self._normalize_genome_set_data(set_data)
+        for param in [INC_ITEM_INFO, INC_ITEM_REF_PATHS]:
+            if param in params and params[param] not in [0, 1]:
+                raise ValueError(include_params_valid(param))
 
-        return set_data
-
-    def _check_get_genome_set_params(self, params):
-        if "ref" not in params:
-            raise ValueError(
-                '"ref" parameter field specifying the genome  set is required'
-            )
-        if INC_ITEM_INFO in params and params[INC_ITEM_INFO] not in [0, 1]:
-            raise ValueError(
-                '"include_item_info" parameter field can only be set to 0 or 1'
-            )
-
-    def _normalize_genome_set_data(self, set_data):
-        # make sure that optional/missing fields are filled in or are defined
-        # TODO: populate empty description field
-        # TODO?: populate empty label fields
-        return set_data
+        return {
+            "ref": params["ref"],
+            INC_ITEM_INFO: params.get(INC_ITEM_INFO, 0) == 1,
+            INC_ITEM_REF_PATHS: params.get(INC_ITEM_REF_PATHS, 0) == 1,
+            REF_PATH_TO_SET: ref_path_to_set,
+        }

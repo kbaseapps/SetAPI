@@ -1,13 +1,7 @@
 """Basic ReadsAlignmentSet tests."""
-from test.common_checks import (
-    check_get_set_bad_path,
-    check_get_set_bad_ref,
-    check_get_set_no_ref,
+from test.common_test import (
     check_get_set_output,
     check_save_set_mismatched_genomes,
-    check_save_set_no_data,
-    check_save_set_no_items_list,
-    check_save_set_no_objects,
     check_save_set_output,
 )
 from typing import Any
@@ -56,7 +50,7 @@ def alignment_set(
 
 
 def test_save_reads_alignment_set(
-    alignment_set,
+    alignment_set: dict[str, Any],
 ) -> None:
     check_save_set_output(**alignment_set)
 
@@ -64,7 +58,6 @@ def test_save_reads_alignment_set(
 def test_save_reads_alignment_set_mismatched_genomes(
     set_api_client: SetAPI,
     context: dict[str, str | list],
-    ws_id: int,
     alignment_mismatched_genome_refs: list[str],
 ) -> None:
     alignment_set_items = [
@@ -72,39 +65,10 @@ def test_save_reads_alignment_set_mismatched_genomes(
     ]
     check_save_set_mismatched_genomes(
         context=context,
-        save_method=set_api_client.save_reads_alignment_set_v1,
+        set_api_client=set_api_client,
+        set_type="reads_alignment",
         set_items=alignment_set_items,
         set_items_type=API_CLASS.set_items_type(),
-    )
-
-
-def test_save_reads_alignment_set_no_data(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
-) -> None:
-    check_save_set_no_data(
-        context,
-        set_api_client.save_reads_alignment_set_v1,
-        API_CLASS.set_items_type(),
-    )
-
-
-def test_save_reads_alignment_set_no_items_list(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
-) -> None:
-    check_save_set_no_items_list(
-        context,
-        set_api_client.save_reads_alignment_set_v1,
-        API_CLASS.set_items_type(),
-    )
-
-
-def test_save_reads_alignment_set_no_alignments(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
-) -> None:
-    check_save_set_no_objects(
-        context,
-        set_api_client.save_reads_alignment_set_v1,
-        API_CLASS.set_items_type(),
     )
 
 
@@ -263,23 +227,3 @@ def test_get_rnaseq_alignment_set(
             **params,
             is_fake_set=True,
         )
-
-
-def test_get_reads_alignment_set_bad_ref(
-    set_api_client: SetAPI, context: dict[str, str | list]
-) -> None:
-    check_get_set_bad_ref(context, set_api_client.get_reads_alignment_set_v1)
-
-
-def test_get_reads_alignment_set_bad_path(
-    set_api_client: SetAPI, context: dict[str, str | list]
-) -> None:
-    check_get_set_bad_path(context, set_api_client.get_reads_alignment_set_v1)
-
-
-def test_get_reads_alignment_set_no_ref(
-    set_api_client: SetAPI, context: dict[str, str | list]
-) -> None:
-    check_get_set_no_ref(
-        context, set_api_client.get_reads_alignment_set_v1, API_CLASS.set_items_type()
-    )

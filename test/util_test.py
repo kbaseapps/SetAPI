@@ -1,10 +1,12 @@
+"""Tests for the various SetAPI utils."""
 from typing import Any
+
 import pytest
 from SetAPI.util import (
-    check_reference,
     build_ws_obj_selector,
-    populate_item_object_ref_paths,
+    check_reference,
     convert_workspace_param,
+    populate_item_object_ref_paths,
 )
 
 bad_upas = [
@@ -46,7 +48,7 @@ bad_upas = [
 
 
 @pytest.mark.parametrize("upa", [pytest.param(upa) for upa in bad_upas])
-def test_check_reference_fail(upa):
+def test_check_reference_fail(upa: None | str):
     assert check_reference(upa) is False
 
 
@@ -62,7 +64,7 @@ good_upas = [
 
 
 @pytest.mark.parametrize("upa", [pytest.param(upa) for upa in good_upas])
-def test_check_reference_good_refs(upa) -> None:
+def test_check_reference_good_refs(upa: str) -> None:
     assert check_reference(upa) is True
 
 
@@ -106,9 +108,7 @@ WS_NAME = "some_string"
         ),
     ],
 )
-def test_convert_workspace_param(
-    params_key: str, args: dict[str, dict[str, int | str]]
-) -> None:
+def test_convert_workspace_param(params_key: str, args: dict[str, Any]) -> None:
     assert convert_workspace_param({params_key: args["value"]}) == args["expected"]
 
 
@@ -145,9 +145,7 @@ def test_convert_workspace_param(
         ),
     ],
 )
-def test_convert_workspace_param_ws_name(
-    params_key: str, args: dict[str, str | int | dict[str, int | str]]
-) -> None:
+def test_convert_workspace_param_ws_name(params_key: str, args: dict[str, Any]) -> None:
     assert convert_workspace_param({params_key: args["value"]}) == args["expected"]
 
 

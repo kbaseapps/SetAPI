@@ -3,21 +3,21 @@ import json
 import os
 import shutil
 import time
+from collections.abc import Generator
 from configparser import ConfigParser
 from test import TEST_BASE_DIR
 from test.util import (
     log_this,
     make_fake_alignment,
     make_fake_annotation,
+    make_fake_diff_exp_matrix,
     make_fake_expression,
+    make_fake_feature_set,
     make_fake_rnaseq_alignment_set,
     make_fake_rnaseq_expression_set,
     make_fake_sampleset,
-    make_fake_feature_set,
-    make_fake_diff_exp_matrix,
 )
 from typing import Any
-from collections.abc import Generator
 
 import pytest
 from installed_clients.AssemblyUtilClient import AssemblyUtil
@@ -176,6 +176,7 @@ def set_api_client(config: dict[str, str]) -> SetAPI:
 @pytest.fixture(scope="session", autouse=True)
 def clients(test_workspaces: dict[str, Any]) -> dict[str, Any]:
     """Set up other clients needed during the tests.
+
     The workspace client is included here because the WS needs to be
     set up before any of the other clients can be used -- otherwise,
     they will attempt to access a workspace that does not exist.
@@ -350,7 +351,6 @@ def assembly_refs(clients: dict[str, Any], ws_id: int, scratch_dir: str) -> list
     :return: list of KBase UPAs
     :rtype: list[str]
     """
-
     # use the seq.fna file that was copied to the scratch dir
     fna_path = os.path.join(scratch_dir, "seq.fna")
     assembly_refs = [

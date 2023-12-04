@@ -1,9 +1,8 @@
 """Basic ReadsSet tests."""
 from test.util import INFO_LENGTH
 
-import pytest
-from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS
+from SetAPI.SetAPIImpl import SetAPI
 
 
 def test_basic_save_and_get(
@@ -176,19 +175,3 @@ def test_get_sampleset_as_readsset(
                 assert len(item["info"]) == INFO_LENGTH
             else:
                 assert "info" not in item
-
-
-def test_get_reads_set_bad_ref(
-    set_api_client: SetAPI, context: dict[str, str | list]
-) -> None:
-    with pytest.raises(
-        ValueError, match='"ref" parameter must be a valid workspace reference'
-    ):
-        set_api_client.get_reads_set_v1(context, {"ref": "not_a_ref"})
-
-
-def test_get_reads_set_bad_type(
-    reads_refs: list[str], set_api_client: SetAPI, context: dict[str, str | list]
-) -> None:
-    with pytest.raises(ValueError, match="is invalid for get_reads_set_v1"):
-        set_api_client.get_reads_set_v1(context, {"ref": reads_refs[0]})

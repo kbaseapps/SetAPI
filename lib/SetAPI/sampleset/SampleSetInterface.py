@@ -1,10 +1,9 @@
-"""
-An interface for handling sample sets
-"""
+"""An interface for handling sample sets."""
 
 import traceback
 from pprint import pprint
-from SetAPI.util import dfu_get_obj_data, convert_workspace_param, info_to_ref
+
+from SetAPI.util import convert_workspace_param, dfu_get_obj_data, info_to_ref
 
 
 class SampleSetInterface:
@@ -15,11 +14,8 @@ class SampleSetInterface:
         conditionset_data = dfu_get_obj_data(conditionset_ref)
         conditions = list(conditionset_data.get("conditions").keys())
 
-        if not all([x in conditions for x in matching_conditions]):
-            error_msg = "ERROR: Given conditions ({}) ".format(matching_conditions)
-            error_msg += "are not matching ConditionSet conditions: {}".format(
-                conditions
-            )
+        if not all(x in conditions for x in matching_conditions):
+            error_msg = f"ERROR: Given conditions ({matching_conditions}) are not matching ConditionSet conditions: {conditions}"
             raise ValueError(error_msg)
 
     def create_sample_set(self, ctx, params):
@@ -32,13 +28,15 @@ class SampleSetInterface:
         for item in params.get("sample_n_conditions", []):
             item_condition = item["condition"]
             if not isinstance(item_condition, (str | list)):
-                raise ValueError("ERROR: condition should be either a list or a string")
+                err_msg = "ERROR: condition should be either a list or a string"
+                raise ValueError(err_msg)
 
             if isinstance(
                 item_condition, list
             ):  # Auto populate UI puts input into an array
                 if len(item_condition) > 1:
-                    raise ValueError("ERROR: please only select 1 condition per Reads")
+                    err_msg = "ERROR: please only select 1 condition per Reads"
+                    raise ValueError(err_msg)
                 item["condition"] = item_condition[0]
 
             params["sample_ids"].extend(item["sample_id"])

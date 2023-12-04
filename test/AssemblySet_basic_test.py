@@ -1,11 +1,6 @@
 """Basic tests for the AssemblySet class."""
-from test.common_checks import (
-    check_get_set_bad_path,
-    check_get_set_bad_ref,
-    check_get_set_no_ref,
+from test.common_test import (
     check_get_set_output,
-    check_save_set_no_data,
-    check_save_set_no_items_list,
     check_save_set_output,
 )
 from typing import Any
@@ -16,6 +11,25 @@ from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH
 from SetAPI.SetAPIImpl import SetAPI
 
 API_CLASS = AssemblySetInterfaceV1
+SET_TYPE = "assembly"
+
+
+def save_assembly_set(
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    ws_id: int,
+    set_name: str,
+    set_data: dict[str, Any],
+) -> dict[str, Any]:
+    """Given a set_name and set_data, save an assembly set."""
+    return set_api_client.save_assembly_set_v1(
+        context,
+        {
+            "workspace_id": ws_id,
+            "output_object_name": set_name,
+            "data": set_data,
+        },
+    )[0]
 
 
 @pytest.fixture(scope="module")
@@ -25,6 +39,7 @@ def assembly_set(
     context: dict[str, str | list],
     ws_id: int,
 ) -> dict[str, int | str | dict[str, Any]]:
+    """A set with name, description, and items populated."""
     set_name = "test_assembly_set"
     set_description = "test_assemblies"
     set_items = [{"label": "some_label", "ref": ref} for ref in assembly_refs]
@@ -33,14 +48,8 @@ def assembly_set(
         "items": set_items,
     }
 
-    result = set_api_client.save_assembly_set_v1(
-        context,
-        {
-            "workspace_id": ws_id,
-            "output_object_name": set_name,
-            "data": set_data,
-        },
-    )[0]
+    result = save_assembly_set(set_api_client, context, ws_id, set_name, set_data)
+
     return {
         "obj": result,
         "set_name": set_name,
@@ -57,55 +66,29 @@ def empty_assembly_set(
     context: dict[str, str | list],
     ws_id: int,
 ) -> dict[str, int | str | dict[str, Any]]:
+    """A set with no description and an empty items list."""
     set_name = "empty_assembly_set"
-    set_description = "no_test_assemblies"
-    set_items = []
+    # omit the set description and make the set items an empty list
     set_data = {
-        "description": set_description,
-        "items": set_items,
+        "items": [],
     }
 
-    result = set_api_client.save_assembly_set_v1(
-        context,
-        {
-            "workspace_id": ws_id,
-            "output_object_name": set_name,
-            "data": set_data,
-        },
-    )[0]
+    result = save_assembly_set(set_api_client, context, ws_id, set_name, set_data)
+
     return {
         "obj": result,
         "set_name": set_name,
         "set_type": API_CLASS.set_type(),
-        "set_description": set_description,
+        # the class fills in the missing description field
+        "set_description": "",
         "n_items": 0,
     }
 
 
 def test_save_assembly_set(
-    assembly_set,
+    assembly_set: dict[str, int | str | dict[str, Any]],
 ) -> None:
     check_save_set_output(**assembly_set)
-
-
-def test_save_assembly_set_no_data(
-    set_api_client: SetAPI, context: dict[str, str | list]
-) -> None:
-    check_save_set_no_data(
-        context,
-        set_api_client.save_assembly_set_v1,
-        API_CLASS.set_items_type(),
-    )
-
-
-def test_save_assembly_set_no_items_list(
-    set_api_client: SetAPI, context: dict[str, str | list]
-) -> None:
-    check_save_set_no_items_list(
-        context,
-        set_api_client.save_assembly_set_v1,
-        API_CLASS.set_items_type(),
-    )
 
 
 # it's possible to create an empty assembly set, so let's test it!
@@ -155,15 +138,14 @@ def test_get_assembly_set(
     set_api_client: SetAPI,
     context: dict[str, str | list],
     ws_name: str,
-    assembly_set: dict[str, int | str | dict[str, Any]],
+    assembly_set: dict[str, Any],
     ref_args: str,
     get_method_args: dict[str, str | int],
-    config: dict[str, Any],
 ) -> None:
-    assembly_set_ref = assembly_set["obj"]["set_ref"]
+    set_ref = assembly_set["obj"]["set_ref"]
     params = {}
     if ref_args == "__SET_REF__":
-        params["ref"] = assembly_set_ref
+        params["ref"] = set_ref
     else:
         params["ref"] = f"{ws_name}/{assembly_set['set_name']}"
 
@@ -173,9 +155,9 @@ def test_get_assembly_set(
 
     if params.get(REF_PATH_TO_SET, []) != []:
         # add in a value for the REF_PATH_TO_SET
-        params[REF_PATH_TO_SET] = [assembly_set_ref]
+        params[REF_PATH_TO_SET] = [set_ref]
 
-    fetched_set = set_api_client.get_reads_alignment_set_v1(context, params)[0]
+    fetched_set = set_api_client.get_assembly_set_v1(context, params)[0]
 
     args_to_check_get_set_output = {
         **{arg: assembly_set[arg] for arg in assembly_set if arg != "obj"},
@@ -183,23 +165,3 @@ def test_get_assembly_set(
         "obj": fetched_set,
     }
     check_get_set_output(**args_to_check_get_set_output)
-
-
-def test_get_assembly_set_bad_ref(
-    set_api_client: SetAPI, context: dict[str, str | list]
-) -> None:
-    check_get_set_bad_ref(context, set_api_client.get_assembly_set_v1)
-
-
-def test_get_assembly_set_bad_path(
-    set_api_client: SetAPI, context: dict[str, str | list]
-) -> None:
-    check_get_set_bad_path(context, set_api_client.get_assembly_set_v1)
-
-
-def test_get_assembly_set_no_ref(
-    set_api_client: SetAPI, context: dict[str, str | list]
-) -> None:
-    check_get_set_no_ref(
-        context, set_api_client.get_assembly_set_v1, API_CLASS.set_items_type()
-    )

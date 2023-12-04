@@ -1,10 +1,10 @@
 """Basic tests of the SampleSet API."""
-from test.util import info_to_name, log_this, INFO_LENGTH
 from copy import deepcopy
+from test.util import INFO_LENGTH, info_to_name, log_this
 
 import pytest
-from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS
+from SetAPI.SetAPIImpl import SetAPI
 
 DESCRIPTION = "first pass at testing something or other"
 DEBUG = False

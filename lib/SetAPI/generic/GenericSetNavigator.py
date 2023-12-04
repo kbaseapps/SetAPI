@@ -1,14 +1,13 @@
-# -*- coding: utf-8 -*-
-
+"""Generic set-related actions."""
 import time
 
+from SetAPI.generic.constants import INC_ITEM_REF_PATHS, REF_PATH_TO_SET
 from SetAPI.generic.WorkspaceListObjectsIterator import WorkspaceListObjectsIterator
 from SetAPI.util import (
-    info_to_ref,
     build_ws_obj_selector,
+    info_to_ref,
     populate_item_object_ref_paths,
 )
-from SetAPI.generic.constants import INC_ITEM_REF_PATHS, REF_PATH_TO_SET
 
 
 class GenericSetNavigator:
@@ -284,7 +283,8 @@ class GenericSetNavigator:
 
     def _get_set_info(self, set_refs):
         objects = [
-            build_ws_obj_selector(s["ref"], s.get("path_to_set", [])) for s in set_refs
+            build_ws_obj_selector(s["ref"], s.get(REF_PATH_TO_SET, []))
+            for s in set_refs
         ]
 
         if objects:

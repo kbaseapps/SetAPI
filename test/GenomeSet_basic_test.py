@@ -1,8 +1,8 @@
 """Basic GenomeSet tests."""
 from test.util import INFO_LENGTH
 
-from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS
+from SetAPI.SetAPIImpl import SetAPI
 
 
 def test_basic_save_and_get(
