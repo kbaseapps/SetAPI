@@ -10,8 +10,8 @@ from test.util import (
     make_fake_alignment,
     make_fake_annotation,
     make_fake_expression,
-    make_fake_old_alignment_set,
-    make_fake_old_expression_set,
+    make_fake_rnaseq_alignment_set,
+    make_fake_rnaseq_expression_set,
     make_fake_sampleset,
     make_fake_feature_set,
     make_fake_diff_exp_matrix,
@@ -126,7 +126,7 @@ def test_workspaces(
     }
 
     # check what is in the workspaces
-    all_objs_default = ws_client.list_objects({"ids": [ws_id]})
+    all_objs_default = ws_client.list_objects({"ids": [ws_id], "includeMetadata": 1})
     all_objs_list_all_sets = ws_client.list_objects({"ids": [list_all_sets_ws_id]})
 
     # delete the test workspaces
@@ -401,11 +401,7 @@ def condition_set_ref(
         "unit_ont_ref": "KbaseOntologies/Custom",
     }
     condition_set_data = {
-        "conditions": {
-            conditions[0]: ["0", "0"],
-            conditions[1]: ["0", "0"],
-            conditions[2]: ["0", "0"],
-        },
+        "conditions": {conditions[ix]: ["0", "0"] for ix in range(2)},
         "factors": [
             {"factor": "Time series design", "unit": "Hour", **common_factor_data},
             {
@@ -416,19 +412,20 @@ def condition_set_ref(
         ],
         "ontology_mapping_method": "User Curation",
     }
-    save_object_params = {
-        "id": ws_id,
-        "objects": [
-            {
-                "type": "KBaseExperiments.ConditionSet",
-                "data": condition_set_data,
-                "name": condition_set_object_name,
-            }
-        ],
-    }
 
-    dfu_oi = clients["dfu"].save_objects(save_object_params)[0]
-    return info_to_ref(dfu_oi)
+    saved_condition_set_info = clients["dfu"].save_objects(
+        {
+            "id": ws_id,
+            "objects": [
+                {
+                    "type": "KBaseExperiments.ConditionSet",
+                    "data": condition_set_data,
+                    "name": condition_set_object_name,
+                }
+            ],
+        }
+    )[0]
+    return info_to_ref(saved_condition_set_info)
 
 
 @pytest.fixture(scope="session")
@@ -662,7 +659,7 @@ def rnaseq_alignment_sets(
     :rtype: list[str]
     """
     return [
-        make_fake_old_alignment_set(
+        make_fake_rnaseq_alignment_set(
             f"fake_rnaseq_alignment_set_{i}",
             reads_refs,
             genome_refs[0],
@@ -704,8 +701,7 @@ def rnaseq_expression_set(
     :return: KBase UPA
     :rtype: str
     """
-    # Make a fake RNASeq Expression Set object
-    return make_fake_old_expression_set(
+    return make_fake_rnaseq_expression_set(
         "fake_rnaseq_expression_set",
         genome_refs[0],
         sampleset_ref,

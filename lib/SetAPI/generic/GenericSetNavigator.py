@@ -8,6 +8,7 @@ from SetAPI.util import (
     build_ws_obj_selector,
     populate_item_object_ref_paths,
 )
+from SetAPI.generic.constants import INC_ITEM_REF_PATHS, REF_PATH_TO_SET
 
 
 class GenericSetNavigator:
@@ -55,7 +56,7 @@ class GenericSetNavigator:
         if params.get("include_set_item_info", 0) == 1:
             top_level_sets = self._populate_set_item_info(top_level_sets)
 
-        if params.get("include_set_item_ref_paths", 0) == 1:
+        if params.get(INC_ITEM_REF_PATHS, 0) == 1:
             top_level_sets = self._populate_set_item_ref_path(top_level_sets)
 
         if self.DEBUG:
@@ -222,7 +223,7 @@ class GenericSetNavigator:
 
     def _populate_set_item_ref_path(self, set_list):
         for s in set_list:
-            obj_spec = build_ws_obj_selector(s["ref"], s.get("ref_path_to_set", []))
+            obj_spec = build_ws_obj_selector(s["ref"], s.get(REF_PATH_TO_SET, []))
             populate_item_object_ref_paths(s["items"], obj_spec)
 
         return set_list
@@ -265,10 +266,7 @@ class GenericSetNavigator:
         # add the info for each set item in the list
         set_list = self._populate_set_item_info(set_list)
 
-        if (
-            "include_set_item_ref_paths" in params
-            and params["include_set_item_ref_paths"] == 1
-        ):
+        if INC_ITEM_REF_PATHS in params and params[INC_ITEM_REF_PATHS] == 1:
             set_list = self._populate_set_item_ref_path(set_list)
 
         return {"sets": set_list}

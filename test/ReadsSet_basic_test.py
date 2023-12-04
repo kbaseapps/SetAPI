@@ -3,6 +3,7 @@ from test.util import INFO_LENGTH
 
 import pytest
 from SetAPI.SetAPIImpl import SetAPI
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS
 
 
 def test_basic_save_and_get(
@@ -71,8 +72,8 @@ def test_basic_save_and_get(
         context,
         {
             "ref": res["set_ref"],
-            "include_item_info": 1,
-            "include_set_item_ref_paths": 1,
+            INC_ITEM_INFO: 1,
+            INC_ITEM_REF_PATHS: 1,
         },
     )[0]
     assert "data" in d2
@@ -133,7 +134,7 @@ def test_save_and_get_of_empty_set(
     assert len(d1["data"]["items"]) == 0
 
     d2 = set_api_client.get_reads_set_v1(
-        context, {"ref": res["set_ref"], "include_item_info": 1}
+        context, {"ref": res["set_ref"], INC_ITEM_INFO: 1}
     )[0]
 
     assert "data" in d2
@@ -154,8 +155,8 @@ def test_get_sampleset_as_readsset(
 ) -> None:
     param_set = [
         {"ref": sampleset_ref},
-        {"ref": sampleset_ref, "include_item_info": 0},
-        {"ref": sampleset_ref, "include_item_info": 1},
+        {"ref": sampleset_ref, INC_ITEM_INFO: 0},
+        {"ref": sampleset_ref, INC_ITEM_INFO: 1},
     ]
     n_items_in_set = len(
         reads_refs
@@ -170,7 +171,7 @@ def test_get_sampleset_as_readsset(
         assert res["info"][10]["item_count"] == n_items_in_set
         for item in res["data"]["items"]:
             assert "ref" in item
-            if params.get("include_item_info", 0) == 1:
+            if params.get(INC_ITEM_INFO, 0) == 1:
                 assert "info" in item
                 assert len(item["info"]) == INFO_LENGTH
             else:

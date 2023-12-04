@@ -3,6 +3,7 @@ import pytest
 from installed_clients.baseclient import ServerError
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.util import info_to_ref
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS
 
 
 def test_save_diff_exp_matrix_set(
@@ -137,7 +138,7 @@ def test_get_dem_set(
     )[0]["set_ref"]
 
     fetched_set = set_api_client.get_differential_expression_matrix_set_v1(
-        context, {"ref": dem_set_ref, "include_item_info": 0}
+        context, {"ref": dem_set_ref, INC_ITEM_INFO: 0}
     )[0]
     assert fetched_set is not None
     assert "data" in fetched_set
@@ -151,7 +152,7 @@ def test_get_dem_set(
         assert "label" in item
 
     fetched_set_with_info = set_api_client.get_differential_expression_matrix_set_v1(
-        context, {"ref": dem_set_ref, "include_item_info": 1}
+        context, {"ref": dem_set_ref, INC_ITEM_INFO: 1}
     )[0]
     assert fetched_set_with_info is not None
     assert "data" in fetched_set_with_info
@@ -184,8 +185,8 @@ def test_get_dem_set_ref_path(
             context,
             {
                 "ref": dem_set_ref,
-                "include_item_info": 0,
-                "include_set_item_ref_paths": 1,
+                INC_ITEM_INFO: 0,
+                INC_ITEM_REF_PATHS: 1,
             },
         )[0]
     )
@@ -231,6 +232,6 @@ def test_get_dem_set_no_ref(
 ) -> None:
     with pytest.raises(
         ValueError,
-        match='"ref" parameter field specifiying the DifferentialExpressionMatrix set is required',
+        match='"ref" parameter field specifying the DifferentialExpressionMatrix set is required',
     ):
         set_api_client.get_differential_expression_matrix_set_v1(context, {"ref": None})

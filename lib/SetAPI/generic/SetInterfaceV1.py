@@ -16,7 +16,7 @@ class SetInterfaceV1:
 
     def _check_save_set_params(self, params):
         if "data" not in params:
-            raise ValueError('"data" parameter field specifiying the set is required')
+            raise ValueError('"data" parameter field specifying the set is required')
         if (
             "workspace" not in params
             and "workspace_id" not in params
