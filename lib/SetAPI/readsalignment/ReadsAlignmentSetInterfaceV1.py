@@ -80,14 +80,14 @@ class ReadsAlignmentSetInterfaceV1:
         :param params: parameters to the save_set function
         :type params: dict[str, Any]
         """
-        if params.get("data", None) is None:
+        if params.get("data") is None:
             err_msg = param_required("data")
             raise ValueError(err_msg)
 
         if "items" not in params["data"]:
             raise ValueError(list_required("items"))
 
-        if not params["data"].get("items", None):
+        if not params["data"].get("items"):
             raise ValueError(no_items(self.set_items_type()))
 
         # add 'description' and 'label' fields if not present in data:
@@ -197,7 +197,7 @@ class ReadsAlignmentSetInterfaceV1:
             {"objects": alignment_items, "includeMetadata": 1}
         )["infos"]
         for idx, _ in enumerate(alignment_items):
-            alignment_items[idx]["label"] = item_infos[idx][10].get("condition", None)
+            alignment_items[idx]["label"] = item_infos[idx][10].get("condition")
             if include_item_info:
                 alignment_items[idx]["info"] = item_infos[idx]
 
@@ -222,7 +222,7 @@ class ReadsAlignmentSetInterfaceV1:
         :return: validated parameters
         :rtype: dict[str, Any]
         """
-        if not params.get("ref", None):
+        if not params.get("ref"):
             raise ValueError(param_required("ref"))
 
         if not check_reference(params["ref"]):

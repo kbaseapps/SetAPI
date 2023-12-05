@@ -72,7 +72,7 @@ def convert_workspace_param(params: dict[str, int | str]) -> dict[str, int | str
     if params:
         # check the workspace_id, ws_id, and workspace fields for potential IDs or names
         ws_id_like = params.get(
-            "workspace_id", params.get("ws_id", params.get("workspace", None))
+            "workspace_id", params.get("ws_id", params.get("workspace"))
         )
         if ws_id_like:
             if str(ws_id_like).isdigit():
@@ -80,7 +80,7 @@ def convert_workspace_param(params: dict[str, int | str]) -> dict[str, int | str
             # otherwise, we probably have a workspace name posing as a workspace ID
             return {"workspace": ws_id_like}
 
-        ws_name_like = params.get("workspace_name", params.get("ws_name", None))
+        ws_name_like = params.get("workspace_name", params.get("ws_name"))
         if ws_name_like:
             return {"workspace": str(ws_name_like)}
 

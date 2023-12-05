@@ -49,14 +49,14 @@ class ExpressionSetInterfaceV1:
         }
 
     def _validate_save_set_data(self, params):
-        if params.get("data", None) is None:
+        if params.get("data") is None:
             err_msg = param_required("data")
             raise ValueError(err_msg)
 
         if "items" not in params["data"]:
             raise ValueError(list_required("items"))
 
-        if not params["data"].get("items", None):
+        if not params["data"].get("items"):
             raise ValueError(no_items(self.set_items_type()))
 
         # add 'description' and item 'label' fields if not present:
@@ -124,7 +124,7 @@ class ExpressionSetInterfaceV1:
             {"objects": expression_items, "includeMetadata": 1}
         )["infos"]
         for idx, _ in enumerate(expression_items):
-            expression_items[idx]["label"] = item_infos[idx][10].get("condition", None)
+            expression_items[idx]["label"] = item_infos[idx][10].get("condition")
             if checked_params[INC_ITEM_INFO]:
                 expression_items[idx]["info"] = item_infos[idx]
 
@@ -137,7 +137,7 @@ class ExpressionSetInterfaceV1:
         }
 
     def _check_get_set_params(self, params):
-        if not params.get("ref", None):
+        if not params.get("ref"):
             raise ValueError(param_required("ref"))
 
         if not check_reference(params["ref"]):

@@ -156,8 +156,8 @@ def check_second_item(
     :type expected_item_data: dict[str, str]
     """
     second_item = obj["data"]["items"][1]
-    assert second_item.get("ref", None) == expected_item_data["ref"]
-    assert second_item.get("label", None) == expected_item_data["label"]
+    assert second_item.get("ref") == expected_item_data["ref"]
+    assert second_item.get("label") == expected_item_data["label"]
 
 
 def check_get_set_output(

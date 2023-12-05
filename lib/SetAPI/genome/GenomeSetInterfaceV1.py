@@ -51,7 +51,9 @@ class GenomeSetInterfaceV1:
         }
 
     def _validate_save_set_params(
-        self: "GenomeSetInterfaceV1", params: dict[str, Any], save_search_set: bool
+        self: "GenomeSetInterfaceV1",
+        params: dict[str, Any],
+        save_search_set: bool = False,
     ) -> None:
         """Perform basic validation on the save set parameters.
 
@@ -62,8 +64,7 @@ class GenomeSetInterfaceV1:
         :param save_search_set: whether the set type should be a search set or a set set
         :type save_search_set: bool
         """
-        # TODO: add checks that only one copy of each genome is in the set
-        if params.get("data", None) is None:
+        if params.get("data") is None:
             err_msg = param_required("data")
             raise ValueError(err_msg)
 
@@ -99,7 +100,7 @@ class GenomeSetInterfaceV1:
         :return: validated parameters
         :rtype: dict[str, str | bool | list[str]]
         """
-        if not params.get("ref", None):
+        if not params.get("ref"):
             raise ValueError(param_required("ref"))
 
         if not check_reference(params["ref"]):

@@ -41,7 +41,7 @@ class FeatureSetSetInterfaceV1:
         }
 
     def _validate_save_set_params(self, params):
-        if params.get("data", None) is None:
+        if params.get("data") is None:
             err_msg = param_required("data")
             raise ValueError(err_msg)
 
@@ -65,7 +65,7 @@ class FeatureSetSetInterfaceV1:
         return self.set_interface.get_set(**checked_params)
 
     def _check_get_set_params(self, params):
-        if not params.get("ref", None):
+        if not params.get("ref"):
             raise ValueError(param_required("ref"))
 
         if not check_reference(params["ref"]):

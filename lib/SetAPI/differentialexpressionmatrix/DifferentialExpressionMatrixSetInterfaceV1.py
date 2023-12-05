@@ -47,14 +47,14 @@ class DifferentialExpressionMatrixSetInterfaceV1:
         }
 
     def _validate_save_set_data(self, params):
-        if params.get("data", None) is None:
+        if params.get("data") is None:
             err_msg = param_required("data")
             raise ValueError(err_msg)
 
         if "items" not in params["data"]:
             raise ValueError(list_required("items"))
 
-        if not params["data"].get("items", None):
+        if not params["data"].get("items"):
             raise ValueError(no_items(self.set_items_type()))
 
         # add 'description' and 'label' fields if not present in data:
@@ -77,7 +77,7 @@ class DifferentialExpressionMatrixSetInterfaceV1:
         info = self.workspace_client.get_object_info3(
             {"objects": ref_list, "includeMetadata": 1}
         )
-        num_genomes = len({item[10].get("Genome", None) for item in info["infos"]})
+        num_genomes = len({item[10].get("Genome") for item in info["infos"]})
         if num_genomes != 1:
             err_msg = same_ref(self.set_items_type())
             raise ValueError(err_msg)
@@ -87,7 +87,7 @@ class DifferentialExpressionMatrixSetInterfaceV1:
         return self.set_interface.get_set(**checked_params)
 
     def _check_get_set_params(self, params):
-        if not params.get("ref", None):
+        if not params.get("ref"):
             raise ValueError(param_required("ref"))
 
         if not check_reference(params["ref"]):

@@ -58,7 +58,7 @@ class ReadsSetInterfaceV1:
         :param params: parameters to the save_set function
         :type params: dict[str, Any]
         """
-        if params.get("data", None) is None:
+        if params.get("data") is None:
             err_msg = param_required("data")
             raise ValueError(err_msg)
 
@@ -76,7 +76,6 @@ class ReadsSetInterfaceV1:
             if item["ref"] in seen_refs:
                 raise ValueError(no_dupes())
             seen_refs.add(item["ref"])
-        # TODO: add checks that only one copy of each reads data is in the set
         # TODO?: add checks that reads data list is homogenous (no mixed single/paired-end libs)
 
     def get_reads_set(self, ctx, params):
@@ -117,7 +116,7 @@ class ReadsSetInterfaceV1:
         :return: validated parameters
         :rtype: dict[str, str | bool | list[str]]
         """
-        if not params.get("ref", None):
+        if not params.get("ref"):
             raise ValueError(param_required("ref"))
 
         if not check_reference(params["ref"]):

@@ -33,7 +33,7 @@ CONFIG_FILE = os.environ.get(
     "KB_DEPLOYMENT_CONFIG", os.path.join(TEST_BASE_DIR, "./deploy.cfg")
 )
 
-TOKEN = os.environ.get("KB_AUTH_TOKEN", None)
+TOKEN = os.environ.get("KB_AUTH_TOKEN")
 SDK_CALLBACK_URL = os.environ["SDK_CALLBACK_URL"]
 
 

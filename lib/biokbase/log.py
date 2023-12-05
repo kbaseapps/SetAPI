@@ -163,7 +163,7 @@ class log(object):
         self._subsystem = str(subsystem)
         self._mlog_config_file = config
         if not self._mlog_config_file:
-            self._mlog_config_file = _os.environ.get(MLOG_ENV_FILE, None)
+            self._mlog_config_file = _os.environ.get(MLOG_ENV_FILE)
         if self._mlog_config_file:
             self._mlog_config_file = str(self._mlog_config_file)
         self._user_log_level = -1

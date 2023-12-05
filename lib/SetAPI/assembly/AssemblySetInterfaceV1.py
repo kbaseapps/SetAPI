@@ -74,7 +74,7 @@ class AssemblySetInterfaceV1:
         :param params: parameters to the save_set function
         :type params: dict[str, Any]
         """
-        if params.get("data", None) is None:
+        if params.get("data") is None:
             err_msg = param_required("data")
             raise ValueError(err_msg)
 
@@ -124,7 +124,7 @@ class AssemblySetInterfaceV1:
         :return: validated parameters
         :rtype: dict[str, str | bool | list[str]]
         """
-        if not params.get("ref", None):
+        if not params.get("ref"):
             raise ValueError(param_required("ref"))
 
         if not check_reference(params["ref"]):
