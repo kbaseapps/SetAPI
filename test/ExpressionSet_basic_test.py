@@ -2,10 +2,9 @@
 from test.util import log_this
 
 import pytest
-from installed_clients.baseclient import ServerError
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.util import info_to_ref
-from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS
 
 DEBUG = False
 
@@ -14,7 +13,7 @@ def test_save_expression_set(
     set_api_client: SetAPI,
     context: dict[str, str | list],
     ws_id: int,
-    expression_refs,
+    expression_refs: list[str],
 ) -> None:
     expression_set_name = "test_expression_set"
     expression_items = [{"label": "foo", "ref": ref} for ref in expression_refs]
@@ -61,39 +60,6 @@ def test_save_expression_set_mismatched_genomes(
                 "workspace_id": ws_id,
                 "output_object_name": set_name,
                 "data": expression_set,
-            },
-        )
-
-
-def test_save_expression_set_no_data(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
-) -> None:
-    with pytest.raises(
-        ValueError, match='"data" parameter field required to save an ExpressionSet'
-    ):
-        set_api_client.save_expression_set_v1(
-            context,
-            {
-                "workspace_id": ws_id,
-                "output_object_name": "foo",
-                "data": None,
-            },
-        )
-
-
-def test_save_expression_set_no_expressions(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
-) -> None:
-    with pytest.raises(
-        ValueError,
-        match="An ExpressionSet must contain at least one Expression object reference.",
-    ):
-        set_api_client.save_expression_set_v1(
-            context,
-            {
-                "workspace_id": ws_id,
-                "output_object_name": "foo",
-                "data": {"items": []},
             },
         )
 
@@ -206,33 +172,3 @@ def test_get_created_rnaseq_expression_set_ref_path(
             "get_created_rnaseq_expression_set_ref_path",
             fetched_set_with_ref_path,
         )
-
-
-def test_get_expression_set_bad_ref(
-    set_api_client: SetAPI, context: dict[str, str | list]
-) -> None:
-    with pytest.raises(
-        ValueError, match='"ref" parameter must be a valid workspace reference'
-    ):
-        set_api_client.get_expression_set_v1(context, {"ref": "not_a_ref"})
-
-
-def test_get_expression_set_bad_path(
-    set_api_client: SetAPI, context: dict[str, str | list]
-) -> None:
-    with pytest.raises(
-        ServerError, match="JSONRPCError: -32500. Object 2 cannot be accessed: "
-    ):
-        set_api_client.get_expression_set_v1(
-            context, {"ref": "1/2/3", "path_to_set": ["foo", "bar"]}
-        )
-
-
-def test_get_expression_set_no_ref(
-    set_api_client: SetAPI, context: dict[str, str | list]
-) -> None:
-    with pytest.raises(
-        ValueError,
-        match='"ref" parameter field specifying the expression set is required',
-    ):
-        set_api_client.get_expression_set_v1(context, {"ref": None})

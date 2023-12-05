@@ -4,13 +4,13 @@ from typing import Any
 from installed_clients.WorkspaceClient import Workspace
 
 from SetAPI.error_messages import (
-    data_required,
     include_params_valid,
     list_required,
+    no_dupes,
     no_items,
+    param_required,
     ref_must_be_valid,
     ref_path_must_be_valid,
-    ref_required,
     same_ref,
 )
 from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
@@ -80,33 +80,37 @@ class ReadsAlignmentSetInterfaceV1:
         :param params: parameters to the save_set function
         :type params: dict[str, Any]
         """
-        if params.get("data", None) is None:
-            err_msg = data_required(self.set_items_type())
+        if params.get("data") is None:
+            err_msg = param_required("data")
             raise ValueError(err_msg)
 
         if "items" not in params["data"]:
-            raise ValueError(list_required(self.set_items_type()))
+            raise ValueError(list_required("items"))
 
-        if not params["data"].get("items", None):
+        if not params["data"].get("items"):
             raise ValueError(no_items(self.set_items_type()))
 
         # add 'description' and 'label' fields if not present in data:
         if "description" not in params["data"]:
             params["data"]["description"] = ""
 
+        seen_refs = set()
         for item in params["data"]["items"]:
             if "label" not in item:
                 item["label"] = ""
+            if item["ref"] in seen_refs:
+                raise ValueError(no_dupes())
+            seen_refs.add(item["ref"])
 
         # Get all the genome ids from our ReadsAlignment references (it's the genome_id key in
         # the object metadata). Make a set out of them.
         # If there's 0 or more than 1 item in the set, then either those items are bad, or they're
         # aligned against different genomes.
-        ref_list = [{"ref": item["ref"]} for item in params["data"]["items"]]
-        info = self.workspace_client.get_object_info3(
+        ref_list = [{"ref": ref} for ref in seen_refs]
+        info_list = self.workspace_client.get_object_info3(
             {"objects": ref_list, "includeMetadata": 1}
-        )
-        num_genomes = len({item[10]["genome_id"] for item in info["infos"]})
+        )["infos"]
+        num_genomes = len({item[10]["genome_id"] for item in info_list})
         if num_genomes != 1:
             raise ValueError(same_ref(self.set_items_type()))
 
@@ -193,7 +197,7 @@ class ReadsAlignmentSetInterfaceV1:
             {"objects": alignment_items, "includeMetadata": 1}
         )["infos"]
         for idx, _ in enumerate(alignment_items):
-            alignment_items[idx]["label"] = item_infos[idx][10].get("condition", None)
+            alignment_items[idx]["label"] = item_infos[idx][10].get("condition")
             if include_item_info:
                 alignment_items[idx]["info"] = item_infos[idx]
 
@@ -218,8 +222,8 @@ class ReadsAlignmentSetInterfaceV1:
         :return: validated parameters
         :rtype: dict[str, Any]
         """
-        if not params.get("ref", None):
-            raise ValueError(ref_required(self.set_items_type()))
+        if not params.get("ref"):
+            raise ValueError(param_required("ref"))
 
         if not check_reference(params["ref"]):
             raise ValueError(ref_must_be_valid())

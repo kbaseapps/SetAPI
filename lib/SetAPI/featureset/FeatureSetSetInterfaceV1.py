@@ -1,9 +1,15 @@
-"""
-An interface for saving and retrieving Sets of FeatureSets.
-"""
+"""An interface for saving and retrieving Sets of FeatureSets."""
+from SetAPI.error_messages import (
+    include_params_valid,
+    list_required,
+    no_dupes,
+    param_required,
+    ref_must_be_valid,
+    ref_path_must_be_valid,
+)
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
 from SetAPI.util import check_reference, info_to_ref
-from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
 
 
 class FeatureSetSetInterfaceV1:
@@ -11,12 +17,20 @@ class FeatureSetSetInterfaceV1:
         self.ws = workspace_client
         self.set_interface = SetInterfaceV1(workspace_client)
 
-    def save_feature_set_set(self, ctx, params):
-        if "data" in params and params["data"] is not None:
-            self._validate_feature_set_set_data(params["data"])
-        else:
-            raise ValueError('"data" parameter field required to save a FeatureSetSet')
+    @staticmethod
+    def set_type() -> str:
+        return "KBaseSets.FeatureSetSet"
 
+    @staticmethod
+    def set_items_type() -> str:
+        return "FeatureSet"
+
+    @staticmethod
+    def allows_empty_set() -> bool:
+        return True
+
+    def save_feature_set_set(self, ctx, params):
+        self._validate_save_set_params(params)
         save_result = self.set_interface.save_set(
             "KBaseSets.FeatureSetSet", ctx["provenance"], params
         )
@@ -26,54 +40,49 @@ class FeatureSetSetInterfaceV1:
             "set_info": info,
         }
 
-    def _validate_feature_set_set_data(self, data):
-        if "items" not in data:
-            raise ValueError(
-                '"items" list must be defined in data to save a FeatureSetSet'
-            )
+    def _validate_save_set_params(self, params):
+        if params.get("data") is None:
+            err_msg = param_required("data")
+            raise ValueError(err_msg)
 
-        # add 'description' and 'label' fields if not present in data:
-        for item in data["items"]:
+        if "items" not in params["data"]:
+            raise ValueError(list_required("items"))
+
+        # add 'description' and item 'label' fields if not present:
+        if "description" not in params["data"]:
+            params["data"]["description"] = ""
+
+        seen_refs = set()
+        for item in params["data"]["items"]:
             if "label" not in item:
                 item["label"] = ""
-        if "description" not in data:
-            data["description"] = ""
+            if item["ref"] in seen_refs:
+                raise ValueError(no_dupes())
+            seen_refs.add(item["ref"])
 
     def get_feature_set_set(self, ctx, params):
-        self._check_get_feature_set_set_params(params)
+        checked_params = self._check_get_set_params(params)
+        return self.set_interface.get_set(**checked_params)
 
-        include_item_info = True if params.get(INC_ITEM_INFO, 0) == 1 else False
+    def _check_get_set_params(self, params):
+        if not params.get("ref"):
+            raise ValueError(param_required("ref"))
 
-        include_set_item_ref_paths = (
-            True if params.get(INC_ITEM_REF_PATHS, 0) == 1 else False
-        )
+        if not check_reference(params["ref"]):
+            raise ValueError(ref_must_be_valid())
 
         ref_path_to_set = params.get(REF_PATH_TO_SET, [])
+        for path in ref_path_to_set:
+            if not check_reference(path):
+                raise ValueError(ref_path_must_be_valid())
 
-        set_data = self.set_interface.get_set(
-            params["ref"],
-            include_item_info,
-            ref_path_to_set,
-            include_set_item_ref_paths,
-        )
-        set_data = self._normalize_feature_set_set_data(set_data)
+        for param in [INC_ITEM_INFO, INC_ITEM_REF_PATHS]:
+            if param in params and params[param] not in [0, 1]:
+                raise ValueError(include_params_valid(param))
 
-        return set_data
-
-    def _check_get_feature_set_set_params(self, params):
-        if "ref" not in params or params["ref"] is None:
-            raise ValueError(
-                '"ref" parameter field specifying the FeatureSet set is required'
-            )
-        if not check_reference(params["ref"]):
-            raise ValueError('"ref" parameter must be a valid workspace reference')
-        if INC_ITEM_INFO in params and params[INC_ITEM_INFO] not in [0, 1]:
-            raise ValueError(
-                '"include_item_info" parameter field can only be set to 0 or 1'
-            )
-
-    def _normalize_feature_set_set_data(self, set_data):
-        # make sure that optional/missing fields are filled in or are defined
-        # TODO: populate empty description field
-        # TODO?: populate empty label fields
-        return set_data
+        return {
+            "ref": params["ref"],
+            INC_ITEM_INFO: params.get(INC_ITEM_INFO, 0) == 1,
+            INC_ITEM_REF_PATHS: params.get(INC_ITEM_REF_PATHS, 0) == 1,
+            REF_PATH_TO_SET: ref_path_to_set,
+        }
