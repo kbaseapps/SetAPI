@@ -1,177 +1,154 @@
 """Basic ReadsSet tests."""
-from test.util import INFO_LENGTH
+from test.common_test import check_get_set, check_save_set_output
+from typing import Any
 
-from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS
+import pytest
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
+from SetAPI.reads.ReadsSetInterfaceV1 import (
+    ReadsSetInterfaceV1,
+)
 from SetAPI.SetAPIImpl import SetAPI
 
+API_CLASS = ReadsSetInterfaceV1
+SET_TYPE = "reads"
 
-def test_basic_save_and_get(
+
+def save_reads_set(
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    ws_id: int,
+    set_name: str,
+    set_data: dict[str, Any],
+) -> dict[str, Any]:
+    """Given a set_name and set_data, save a reads set."""
+    return set_api_client.save_reads_set_v1(
+        context,
+        {
+            "workspace_id": ws_id,
+            "output_object_name": set_name,
+            "data": set_data,
+        },
+    )[0]
+
+
+@pytest.fixture(scope="module")
+def reads_set(
     reads_refs: list[str],
     set_api_client: SetAPI,
     context: dict[str, str | list],
     ws_id: int,
-) -> None:
-    set_name = "set_o_reads"
-    set_description = "my first reads"
-    n_items_in_set = 3
-    # create the set object
+) -> dict[str, Any]:
+    """A set with name, description, and items populated."""
+    set_name = "test_reads_set"
+    set_description = "test_reads"
+    set_items = [{"label": "some_label", "ref": ref} for ref in reads_refs]
     set_data = {
         "description": set_description,
-        "items": [
-            {"ref": reads_refs[0], "label": "reads1"},
-            {"ref": reads_refs[1], "label": "reads2"},
-            {"ref": reads_refs[2]},
-        ],
+        "items": set_items,
     }
 
-    # test a save
-    res = set_api_client.save_reads_set_v1(
-        context,
-        {
-            "data": set_data,
-            "output_object_name": set_name,
-            "workspace_id": ws_id,
-        },
-    )[0]
-    assert "set_ref" in res
-    assert "set_info" in res
-    assert len(res["set_info"]) == INFO_LENGTH
+    result = save_reads_set(set_api_client, context, ws_id, set_name, set_data)
 
-    assert res["set_info"][1] == set_name
-    assert "item_count" in res["set_info"][10]
-    assert res["set_info"][10]["item_count"] == str(n_items_in_set)
-
-    # test get of that object
-    d1 = set_api_client.get_reads_set_v1(context, {"ref": res["set_ref"]})[0]
-    assert "data" in d1
-    assert "info" in d1
-    assert len(d1["info"]) == INFO_LENGTH
-    assert "item_count" in d1["info"][10]
-    assert d1["info"][10]["item_count"] == str(n_items_in_set)
-
-    assert d1["data"]["description"] == set_description
-    assert len(d1["data"]["items"]) == n_items_in_set
-
-    item2 = d1["data"]["items"][1]
-    assert "info" not in item2
-    assert "ref" in item2
-    assert "label" in item2
-    assert item2["label"] == "reads2"
-    assert item2["ref"] == reads_refs[1]
-
-    item3 = d1["data"]["items"][2]
-    assert "info" not in item3
-    assert "ref" in item3
-    assert "label" in item3
-    assert item3["label"] == ""
-    assert item3["ref"] == reads_refs[2]
-
-    # test the call to make sure we get info for each item
-    d2 = set_api_client.get_reads_set_v1(
-        context,
-        {
-            "ref": res["set_ref"],
-            INC_ITEM_INFO: 1,
-            INC_ITEM_REF_PATHS: 1,
-        },
-    )[0]
-    assert "data" in d2
-    assert "info" in d2
-    assert len(d2["info"]) == INFO_LENGTH
-    assert "item_count" in d2["info"][10]
-    assert d2["info"][10]["item_count"] == str(n_items_in_set)
-
-    assert d2["data"]["description"] == set_description
-    assert len(d2["data"]["items"]) == n_items_in_set
-
-    item2 = d2["data"]["items"][1]
-    assert "info" in item2
-    assert len(item2["info"]), INFO_LENGTH
-    assert "ref" in item2
-    assert item2["ref"] == reads_refs[1]
-
-    assert "ref_path" in item2
-    assert item2["ref_path"] == res["set_ref"] + ";" + item2["ref"]
+    return {
+        "obj": result,
+        "set_name": set_name,
+        "set_type": API_CLASS.set_type(),
+        "set_description": set_description,
+        "n_items": len(reads_refs),
+        "second_set_item": set_items[1],
+    }
 
 
-def test_save_and_get_of_empty_set(
-    set_api_client: SetAPI, context: dict[str, str | list], ws_id: int
-) -> None:
-    set_name = "nada_set"
-    set_description = "nothing to see here"
-    n_items_in_set = 0
-
-    # create the set object
-    set_data = {"description": set_description, "items": []}
-
-    # test a save
-    res = set_api_client.save_reads_set_v1(
-        context,
-        {
-            "data": set_data,
-            "output_object_name": set_name,
-            "workspace_id": ws_id,
-        },
-    )[0]
-    assert "set_ref" in res
-    assert "set_info" in res
-    assert len(res["set_info"]) == INFO_LENGTH
-
-    assert res["set_info"][1] == set_name
-    assert "item_count" in res["set_info"][10]
-    assert res["set_info"][10]["item_count"] == str(n_items_in_set)
-
-    # test get of that object
-    d1 = set_api_client.get_reads_set_v1(context, {"ref": res["set_ref"]})[0]
-    assert "data" in d1
-    assert "info" in d1
-    assert len(d1["info"]) == INFO_LENGTH
-    assert "item_count" in d1["info"][10]
-    assert d1["info"][10]["item_count"] == str(n_items_in_set)
-
-    assert d1["data"]["description"] == set_description
-    assert len(d1["data"]["items"]) == 0
-
-    d2 = set_api_client.get_reads_set_v1(
-        context, {"ref": res["set_ref"], INC_ITEM_INFO: 1}
-    )[0]
-
-    assert "data" in d2
-    assert "info" in d2
-    assert len(d2["info"]) == INFO_LENGTH
-    assert "item_count" in d2["info"][10]
-    assert d2["info"][10]["item_count"] == str(n_items_in_set)
-
-    assert d2["data"]["description"] == set_description
-    assert len(d2["data"]["items"]) == n_items_in_set
-
-
-def test_get_sampleset_as_readsset(
-    sampleset_ref: str,
+@pytest.fixture(scope="module")
+def empty_reads_set(
     set_api_client: SetAPI,
     context: dict[str, str | list],
-    reads_refs: list[str],
+    ws_id: int,
+) -> dict[str, Any]:
+    """A set with no description and an empty items list."""
+    set_name = "empty_reads_set"
+    # omit the set description and make the set items an empty list
+    set_data = {
+        "items": [],
+    }
+
+    result = save_reads_set(set_api_client, context, ws_id, set_name, set_data)
+
+    return {
+        "obj": result,
+        "set_name": set_name,
+        "set_type": API_CLASS.set_type(),
+        # the class fills in the missing description field
+        "set_description": "",
+        "n_items": 0,
+    }
+
+
+def test_save_reads_set(
+    reads_set: dict[str, Any],
 ) -> None:
-    param_set = [
-        {"ref": sampleset_ref},
-        {"ref": sampleset_ref, INC_ITEM_INFO: 0},
-        {"ref": sampleset_ref, INC_ITEM_INFO: 1},
-    ]
-    n_items_in_set = len(
-        reads_refs
-    )  # sampleset_ref is created using all the reads_refs as samples
-    for params in param_set:
-        res = set_api_client.get_reads_set_v1(context, params)[0]
-        assert "data" in res
-        assert "items" in res["data"]
-        assert "info" in res
-        assert len(res["info"]) == INFO_LENGTH
-        assert "item_count" in res["info"][10]
-        assert res["info"][10]["item_count"] == n_items_in_set
-        for item in res["data"]["items"]:
-            assert "ref" in item
-            if params.get(INC_ITEM_INFO, 0) == 1:
-                assert "info" in item
-                assert len(item["info"]) == INFO_LENGTH
-            else:
-                assert "info" not in item
+    check_save_set_output(**reads_set)
+
+
+# it's possible to create an empty reads set, so let's test it!
+def test_save_reads_set_no_reads(
+    empty_reads_set: dict[str, Any],
+) -> None:
+    check_save_set_output(**empty_reads_set)
+
+
+@pytest.mark.parametrize(
+    "ref_args",
+    [
+        pytest.param("__SET_REF__", id="set_ref"),
+        pytest.param("__WS_NAME__SET_NAME__", id="ws_name_set_name"),
+    ],
+)
+@pytest.mark.parametrize(
+    "get_method_args",
+    [
+        pytest.param({}, id="empty"),
+        pytest.param({INC_ITEM_INFO: 1}, id="inc_item_info"),
+        pytest.param(
+            {INC_ITEM_REF_PATHS: 1},
+            id="inc_ref_path",
+        ),
+        pytest.param(
+            {
+                INC_ITEM_INFO: 1,
+                INC_ITEM_REF_PATHS: 1,
+            },
+            id="inc_item_info_ref_path",
+        ),
+        pytest.param(
+            {INC_ITEM_INFO: 1, INC_ITEM_REF_PATHS: 1, REF_PATH_TO_SET: ["YES"]},
+            id="inc_item_info_ref_path_w_ref_path",
+        ),
+        pytest.param(
+            {
+                INC_ITEM_INFO: 0,
+                INC_ITEM_REF_PATHS: 0,
+            },
+            id="no_incs",
+        ),
+    ],
+)
+def test_get_genome_set(
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    ws_name: str,
+    ref_args: str,
+    get_method_args: dict[str, str | int],
+    reads_set: dict[str, Any],
+    empty_reads_set: dict[str, Any],
+) -> None:
+    for saved_set in [reads_set, empty_reads_set]:
+        check_get_set(
+            set_to_get=saved_set,
+            set_type=SET_TYPE,
+            set_api_client=set_api_client,
+            context=context,
+            ws_name=ws_name,
+            ref_args=ref_args,
+            get_method_args=get_method_args,
+        )

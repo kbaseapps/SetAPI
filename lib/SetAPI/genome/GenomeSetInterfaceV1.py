@@ -58,7 +58,7 @@ class GenomeSetInterfaceV1:
         """Perform basic validation on the save set parameters.
 
         :param self: this class
-        :type self: ReadsSetInterfaceV1
+        :type self: GenomeSetInterfaceV1
         :param params: parameters to the save_set function
         :type params: dict[str, Any]
         :param save_search_set: whether the set type should be a search set or a set set

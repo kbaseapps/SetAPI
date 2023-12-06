@@ -1,37 +1,69 @@
 """Basic ExpressionSet tests."""
+from test.common_test import check_get_set, check_save_set_output
 from test.util import log_this
+from typing import Any
 
 import pytest
-from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS
+from SetAPI.expression.ExpressionSetInterfaceV1 import ExpressionSetInterfaceV1
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
 from SetAPI.SetAPIImpl import SetAPI
-from SetAPI.util import info_to_ref
 
 DEBUG = False
 
+API_CLASS = ExpressionSetInterfaceV1
+SET_TYPE = "expression"
 
-def test_save_expression_set(
+
+def save_expression_set(
     set_api_client: SetAPI,
     context: dict[str, str | list],
     ws_id: int,
-    expression_refs: list[str],
-) -> None:
-    expression_set_name = "test_expression_set"
-    expression_items = [{"label": "foo", "ref": ref} for ref in expression_refs]
-    expression_set = {"description": "test_expressions", "items": expression_items}
-    result = set_api_client.save_expression_set_v1(
+    set_name: str,
+    set_data: dict[str, Any],
+) -> dict[str, Any]:
+    """Given a set_name and set_data, save an expression set."""
+    return set_api_client.save_expression_set_v1(
         context,
         {
             "workspace_id": ws_id,
-            "output_object_name": expression_set_name,
-            "data": expression_set,
+            "output_object_name": set_name,
+            "data": set_data,
         },
     )[0]
-    assert result is not None
-    assert "set_ref" in result
-    assert "set_info" in result
-    assert result["set_ref"] == info_to_ref(result["set_info"])
-    assert result["set_info"][1] == expression_set_name
-    assert "KBaseSets.ExpressionSet" in result["set_info"][2]
+
+
+@pytest.fixture(scope="module")
+def expression_set(
+    expression_refs: list[str],
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    ws_id: int,
+) -> dict[str, Any]:
+    """A set with name, description, and items populated."""
+    set_name = "test_expression_set"
+    set_description = "test_expressions"
+    set_items = [{"label": "some_label", "ref": ref} for ref in expression_refs]
+    set_data = {
+        "description": set_description,
+        "items": set_items,
+    }
+
+    result = save_expression_set(set_api_client, context, ws_id, set_name, set_data)
+
+    return {
+        "obj": result,
+        "set_name": set_name,
+        "set_type": API_CLASS.set_type(),
+        "set_description": set_description,
+        "n_items": len(expression_refs),
+        "second_set_item": set_items[1],
+    }
+
+
+def test_save_expression_set(
+    expression_set: dict[str, Any],
+) -> None:
+    check_save_set_output(**expression_set)
 
 
 def test_save_expression_set_mismatched_genomes(
@@ -64,86 +96,59 @@ def test_save_expression_set_mismatched_genomes(
         )
 
 
+@pytest.mark.parametrize(
+    "ref_args",
+    [
+        pytest.param("__SET_REF__", id="set_ref"),
+        pytest.param("__WS_NAME__SET_NAME__", id="ws_name_set_name"),
+    ],
+)
+@pytest.mark.parametrize(
+    "get_method_args",
+    [
+        pytest.param({}, id="empty"),
+        pytest.param({INC_ITEM_INFO: 1}, id="inc_item_info"),
+        pytest.param(
+            {INC_ITEM_REF_PATHS: 1},
+            id="inc_ref_path",
+        ),
+        pytest.param(
+            {
+                INC_ITEM_INFO: 1,
+                INC_ITEM_REF_PATHS: 1,
+            },
+            id="inc_item_info_ref_path",
+        ),
+        pytest.param(
+            {INC_ITEM_INFO: 1, INC_ITEM_REF_PATHS: 1, REF_PATH_TO_SET: ["YES"]},
+            id="inc_item_info_ref_path_w_ref_path",
+        ),
+        pytest.param(
+            {
+                INC_ITEM_INFO: 0,
+                INC_ITEM_REF_PATHS: 0,
+            },
+            id="no_incs",
+        ),
+    ],
+)
 def test_get_expression_set(
     set_api_client: SetAPI,
     context: dict[str, str | list],
-    ws_id: int,
-    expression_refs: list[str],
+    ws_name: str,
+    expression_set: dict[str, Any],
+    ref_args: str,
+    get_method_args: dict[str, str | int],
 ) -> None:
-    expression_set_name = "test_expression_set"
-    expression_items = [{"label": "wt", "ref": ref} for ref in expression_refs]
-    expression_set = {"description": "test_alignments", "items": expression_items}
-    n_items = len(expression_refs)
-    expression_set_ref = set_api_client.save_expression_set_v1(
-        context,
-        {
-            "workspace_id": ws_id,
-            "output_object_name": expression_set_name,
-            "data": expression_set,
-        },
-    )[0]["set_ref"]
-
-    fetched_set = set_api_client.get_expression_set_v1(
-        context, {"ref": expression_set_ref, INC_ITEM_INFO: 0}
-    )[0]
-    assert fetched_set is not None
-    assert "data" in fetched_set
-    assert "info" in fetched_set
-    assert len(fetched_set["data"]["items"]) == n_items
-    assert expression_set_ref == info_to_ref(fetched_set["info"])
-    for item in fetched_set["data"]["items"]:
-        assert "info" not in item
-        assert "ref_path" not in item
-        assert "ref" in item
-        assert "label" in item
-
-    fetched_set_with_info = set_api_client.get_expression_set_v1(
-        context, {"ref": expression_set_ref, INC_ITEM_INFO: 1}
-    )[0]
-    assert fetched_set_with_info is not None
-    assert "data" in fetched_set_with_info
-    for item in fetched_set_with_info["data"]["items"]:
-        assert "info" in item
-        assert "ref" in item
-        assert "label" in item
-        assert "ref_path" not in item
-
-
-def test_get_expression_set_ref_path(
-    set_api_client: SetAPI,
-    context: dict[str, str | list],
-    ws_id: int,
-    expression_refs: list[str],
-) -> None:
-    expression_set_name = "test_expression_set_ref_path"
-    expression_items = [{"label": "wt", "ref": ref} for ref in expression_refs]
-    expression_set = {"description": "test_alignments", "items": expression_items}
-    expression_set_ref = set_api_client.save_expression_set_v1(
-        context,
-        {
-            "workspace_id": ws_id,
-            "output_object_name": expression_set_name,
-            "data": expression_set,
-        },
-    )[0]["set_ref"]
-
-    fetched_set_with_info = set_api_client.get_expression_set_v1(
-        context,
-        {
-            "ref": expression_set_ref,
-            INC_ITEM_INFO: 1,
-            INC_ITEM_REF_PATHS: 1,
-        },
-    )[0]
-    assert fetched_set_with_info is not None
-    assert "data" in fetched_set_with_info
-
-    for item in fetched_set_with_info["data"]["items"]:
-        assert "info" in item
-        assert "ref" in item
-        assert "label" in item
-        assert "ref_path" in item
-        assert item["ref_path"] == expression_set_ref + ";" + item["ref"]
+    check_get_set(
+        set_to_get=expression_set,
+        set_type=SET_TYPE,
+        set_api_client=set_api_client,
+        context=context,
+        ws_name=ws_name,
+        ref_args=ref_args,
+        get_method_args=get_method_args,
+    )
 
 
 def test_get_created_rnaseq_expression_set_ref_path(
