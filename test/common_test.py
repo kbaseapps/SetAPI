@@ -1,5 +1,4 @@
 """General tests to be performed on most or all classes."""
-from collections.abc import Callable
 from test.util import (
     INFO_LENGTH,
     info_to_name,
@@ -26,7 +25,7 @@ from SetAPI.error_messages import (
 )
 from SetAPI.expression.ExpressionSetInterfaceV1 import ExpressionSetInterfaceV1
 from SetAPI.featureset.FeatureSetSetInterfaceV1 import FeatureSetSetInterfaceV1
-from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
 from SetAPI.genome.GenomeSetInterfaceV1 import GenomeSetInterfaceV1
 from SetAPI.reads.ReadsSetInterfaceV1 import ReadsSetInterfaceV1
 from SetAPI.readsalignment.ReadsAlignmentSetInterfaceV1 import (
@@ -43,6 +42,8 @@ SET_TYPE_TO_CLASS = {
     "reads": ReadsSetInterfaceV1,
     "reads_alignment": ReadsAlignmentSetInterfaceV1,
 }
+
+
 SET_TYPES = list(SET_TYPE_TO_CLASS.keys())
 FAKE_WS_ID = 123456789
 KBASE_UPA = "1/2/3"
@@ -234,9 +235,23 @@ def check_save_set_mismatched_genomes(
     context: dict[str, str | list],
     set_api_client: SetAPI,
     set_type: str,
-    set_items: list[dict[str, str]],
+    set_item_refs: list[str],
     set_items_type: str,
 ) -> None:
+    """Check that objects with refs to different genomes cannot be setified.
+
+    :param context: KBase context
+    :type context: dict[str, str  |  list]
+    :param set_api_client: SetAPI client
+    :type set_api_client: SetAPI
+    :param set_type: the type of set, to insert into "save_{set_type}_set"
+    :type set_type: str
+    :param set_item_refs: the objects to be put in the set
+    :type set_item_refs: list[str]
+    :param set_items_type: shorthand KBase object type
+    :type set_items_type: str
+    """
+    set_items = [{"label": "item", "ref": ref} for ref in set_item_refs]
     save_method = getattr(set_api_client, f"save_{set_type}_set_v1")
     with pytest.raises(
         ValueError,
@@ -424,3 +439,57 @@ def test_get_set_invalid_args(
     get_method = getattr(set_api_client, f"get_{set_type}_set_v1")
     with pytest.raises(ValueError, match=include_params_valid(inc_arg)):
         get_method(context, {"ref": KBASE_UPA, inc_arg: 666})
+
+
+def check_get_set(
+    set_to_get: dict[str, Any],
+    set_type: str,
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    ws_name: str,
+    ref_args: str,
+    get_method_args: dict[str, str | int],
+) -> None:
+    """Test retrieval of the default data type for each set.
+
+    This test does not test any of those RNASeq fake sets.
+
+    :param set_to_get: the set to retrieve
+    :type set_to_get: dict[str, Any]
+    :param set_type: the type of set to be retrieved
+    :type set_type: str
+    :param set_api_client: the SetAPI client
+    :type set_api_client: SetAPI
+    :param context: KBase context
+    :type context: dict[str, str | list]
+    :param ws_name: workspace name
+    :type ws_name: str
+    :param ref_args: how the set should be referred to
+    :type ref_args: str
+    :param get_method_args: other args
+    :type get_method_args: dict[str, str | int]
+    """
+    set_ref = set_to_get["obj"]["set_ref"]
+    params = {}
+    if ref_args == "__SET_REF__":
+        params["ref"] = set_ref
+    else:
+        params["ref"] = f"{ws_name}/{set_to_get['set_name']}"
+
+    for param in [INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET]:
+        if param in get_method_args:
+            params[param] = get_method_args[param]
+
+    if params.get(REF_PATH_TO_SET, []) != []:
+        # add in a value for the REF_PATH_TO_SET
+        params[REF_PATH_TO_SET] = [set_ref]
+
+    get_method = getattr(set_api_client, f"get_{set_type}_set_v1")
+    fetched_set = get_method(context, params)[0]
+
+    args_to_check_get_set_output = {
+        **{arg: set_to_get[arg] for arg in set_to_get if arg != "obj"},
+        **params,
+        "obj": fetched_set,
+    }
+    check_get_set_output(**args_to_check_get_set_output)

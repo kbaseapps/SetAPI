@@ -1,6 +1,6 @@
 """Basic tests for the AssemblySet class."""
 from test.common_test import (
-    check_get_set_output,
+    check_get_set,
     check_save_set_output,
 )
 from typing import Any
@@ -138,30 +138,18 @@ def test_get_assembly_set(
     set_api_client: SetAPI,
     context: dict[str, str | list],
     ws_name: str,
-    assembly_set: dict[str, Any],
     ref_args: str,
     get_method_args: dict[str, str | int],
+    assembly_set,
+    empty_assembly_set,
 ) -> None:
-    set_ref = assembly_set["obj"]["set_ref"]
-    params = {}
-    if ref_args == "__SET_REF__":
-        params["ref"] = set_ref
-    else:
-        params["ref"] = f"{ws_name}/{assembly_set['set_name']}"
-
-    for param in [INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET]:
-        if param in get_method_args:
-            params[param] = get_method_args[param]
-
-    if params.get(REF_PATH_TO_SET, []) != []:
-        # add in a value for the REF_PATH_TO_SET
-        params[REF_PATH_TO_SET] = [set_ref]
-
-    fetched_set = set_api_client.get_assembly_set_v1(context, params)[0]
-
-    args_to_check_get_set_output = {
-        **{arg: assembly_set[arg] for arg in assembly_set if arg != "obj"},
-        **params,
-        "obj": fetched_set,
-    }
-    check_get_set_output(**args_to_check_get_set_output)
+    for saved_set in [assembly_set, empty_assembly_set]:
+        check_get_set(
+            set_to_get=saved_set,
+            set_type=SET_TYPE,
+            set_api_client=set_api_client,
+            context=context,
+            ws_name=ws_name,
+            ref_args=ref_args,
+            get_method_args=get_method_args,
+        )

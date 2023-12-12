@@ -1,5 +1,6 @@
 """Basic ReadsAlignmentSet tests."""
 from test.common_test import (
+    check_get_set,
     check_get_set_output,
     check_save_set_mismatched_genomes,
     check_save_set_output,
@@ -14,24 +15,18 @@ from SetAPI.readsalignment.ReadsAlignmentSetInterfaceV1 import (
 from SetAPI.SetAPIImpl import SetAPI
 
 API_CLASS = ReadsAlignmentSetInterfaceV1
+SET_TYPE = "reads_alignment"
 
 
-@pytest.fixture(scope="module")
-def alignment_set(
-    alignment_refs: list[str],
+def save_reads_alignment_set(
     set_api_client: SetAPI,
     context: dict[str, str | list],
     ws_id: int,
-) -> dict[str, int | str | dict[str, Any]]:
-    set_name = "test_alignment_set"
-    set_description = "test_alignments"
-    set_items = [{"label": "some_label", "ref": ref} for ref in alignment_refs]
-    set_data = {
-        "description": set_description,
-        "items": set_items,
-    }
-
-    result = set_api_client.save_reads_alignment_set_v1(
+    set_name: str,
+    set_data: dict[str, Any],
+) -> dict[str, Any]:
+    """Given a set name and set data, save a reads alignment set."""
+    return set_api_client.save_reads_alignment_set_v1(
         context,
         {
             "workspace_id": ws_id,
@@ -39,6 +34,27 @@ def alignment_set(
             "data": set_data,
         },
     )[0]
+
+
+@pytest.fixture(scope="module")
+def reads_alignment_set(
+    alignment_refs: list[str],
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    ws_id: int,
+) -> dict[str, int | str | dict[str, Any]]:
+    set_name = "test_reads_alignment_set"
+    set_description = "test_reads_alignments"
+    set_items = [{"label": "some_label", "ref": ref} for ref in alignment_refs]
+    set_data = {
+        "description": set_description,
+        "items": set_items,
+    }
+
+    result = save_reads_alignment_set(
+        set_api_client, context, ws_id, set_name, set_data
+    )
+
     return {
         "obj": result,
         "set_name": set_name,
@@ -50,9 +66,9 @@ def alignment_set(
 
 
 def test_save_reads_alignment_set(
-    alignment_set: dict[str, Any],
+    reads_alignment_set: dict[str, Any],
 ) -> None:
-    check_save_set_output(**alignment_set)
+    check_save_set_output(**reads_alignment_set)
 
 
 def test_save_reads_alignment_set_mismatched_genomes(
@@ -60,14 +76,11 @@ def test_save_reads_alignment_set_mismatched_genomes(
     context: dict[str, str | list],
     alignment_mismatched_genome_refs: list[str],
 ) -> None:
-    alignment_set_items = [
-        {"label": "some_label", "ref": ref} for ref in alignment_mismatched_genome_refs
-    ]
     check_save_set_mismatched_genomes(
         context=context,
         set_api_client=set_api_client,
-        set_type="reads_alignment",
-        set_items=alignment_set_items,
+        set_type=SET_TYPE,
+        set_item_refs=alignment_mismatched_genome_refs,
         set_items_type=API_CLASS.set_items_type(),
     )
 
@@ -113,36 +126,22 @@ def test_save_reads_alignment_set_mismatched_genomes(
     ],
 )
 def test_get_reads_alignment_set(
-    alignment_set: dict[str, Any],
+    reads_alignment_set: dict[str, Any],
     set_api_client: SetAPI,
     context: dict[str, str | list],
     ws_name: str,
     ref_args: str,
     get_method_args: dict[str, str | int],
 ) -> None:
-    alignment_set_ref = alignment_set["obj"]["set_ref"]
-    params = {}
-    if ref_args == "__SET_REF__":
-        params["ref"] = alignment_set_ref
-    else:
-        params["ref"] = f"{ws_name}/{alignment_set['set_name']}"
-
-    for param in [INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET]:
-        if param in get_method_args:
-            params[param] = get_method_args[param]
-
-    if params.get(REF_PATH_TO_SET, []) != []:
-        # add in a value to check REF_PATH_TO_SET
-        params[REF_PATH_TO_SET] = [alignment_set["obj"]["set_ref"]]
-
-    fetched_set = set_api_client.get_reads_alignment_set_v1(context, params)[0]
-
-    args_to_check_get_set_output = {
-        **{arg: alignment_set[arg] for arg in alignment_set if arg != "obj"},
-        **params,
-        "obj": fetched_set,
-    }
-    check_get_set_output(**args_to_check_get_set_output)
+    check_get_set(
+        set_to_get=reads_alignment_set,
+        set_type=SET_TYPE,
+        set_api_client=set_api_client,
+        context=context,
+        ws_name=ws_name,
+        ref_args=ref_args,
+        get_method_args=get_method_args,
+    )
 
 
 @pytest.mark.parametrize(
