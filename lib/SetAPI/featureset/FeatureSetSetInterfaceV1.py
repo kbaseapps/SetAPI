@@ -30,6 +30,7 @@ class FeatureSetSetInterfaceV1:
         return True
 
     def save_feature_set_set(self, ctx, params):
+        self.set_interface._check_save_set_params(params)
         self._validate_save_set_params(params)
         save_result = self.set_interface.save_set(
             "KBaseSets.FeatureSetSet", ctx["provenance"], params

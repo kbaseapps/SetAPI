@@ -59,6 +59,7 @@ class ReadsAlignmentSetInterfaceV1:
         :return: dict containing the new set reference and the set info
         :rtype: dict[str, str | list[str | int | dict[str, Any]]]
         """
+        self.set_interface._check_save_set_params(params)
         self._validate_save_set_params(params)
 
         save_result = self.set_interface.save_set(
@@ -88,7 +89,7 @@ class ReadsAlignmentSetInterfaceV1:
             raise ValueError(list_required("items"))
 
         if not params["data"].get("items"):
-            raise ValueError(no_items(self.set_items_type()))
+            raise ValueError(no_items(self.set_type()))
 
         # add 'description' and 'label' fields if not present in data:
         if "description" not in params["data"]:
@@ -112,7 +113,7 @@ class ReadsAlignmentSetInterfaceV1:
         )["infos"]
         num_genomes = len({item[10]["genome_id"] for item in info_list})
         if num_genomes != 1:
-            raise ValueError(same_ref(self.set_items_type()))
+            raise ValueError(same_ref(self.set_type()))
 
     def get_reads_alignment_set(
         self: "ReadsAlignmentSetInterfaceV1", _, params: dict[str, Any]
@@ -204,6 +205,10 @@ class ReadsAlignmentSetInterfaceV1:
         # If include_set_item_ref_paths is set, then add a field ref_path in alignment items
         if include_set_item_ref_paths:
             populate_item_object_ref_paths(alignment_items, obj_ref_dict)
+
+        # retrofit missing description / item count
+        obj_data["info"][10]["description"] = ""
+        obj_data["info"][10]["item_count"] = str(len(alignment_items))
 
         return {
             "data": {"items": alignment_items, "description": ""},

@@ -9,7 +9,12 @@ from SetAPI.error_messages import (
     ref_must_be_valid,
     ref_path_must_be_valid,
 )
-from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
+from SetAPI.generic.constants import (
+    INC_ITEM_INFO,
+    INC_ITEM_REF_PATHS,
+    REF_PATH_TO_SET,
+    SAVE_SEARCH_SET,
+)
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
 from SetAPI.util import check_reference, info_to_ref
 
@@ -36,7 +41,8 @@ class GenomeSetInterfaceV1:
         by default save 'KBaseSets.GenomeSet'
         save 'KBaseSearch.GenomeSet' by setting save_search_set
         """
-        save_search_set = params.get("save_search_set", False)
+        self.set_interface._check_save_set_params(params)
+        save_search_set = params.get(SAVE_SEARCH_SET, False)
         self._validate_save_set_params(params, save_search_set)
 
         genome_type = "KBaseSearch.GenomeSet" if save_search_set else self.set_type()

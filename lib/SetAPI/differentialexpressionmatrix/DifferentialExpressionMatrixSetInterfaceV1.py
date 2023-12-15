@@ -35,6 +35,7 @@ class DifferentialExpressionMatrixSetInterfaceV1:
         return False
 
     def save_differential_expression_matrix_set(self, ctx, params):
+        self.set_interface._check_save_set_params(params)
         self._validate_save_set_data(params)
 
         save_result = self.set_interface.save_set(
@@ -55,7 +56,7 @@ class DifferentialExpressionMatrixSetInterfaceV1:
             raise ValueError(list_required("items"))
 
         if not params["data"].get("items"):
-            raise ValueError(no_items(self.set_items_type()))
+            raise ValueError(no_items(self.set_type()))
 
         # add 'description' and 'label' fields if not present in data:
         if "description" not in params["data"]:
@@ -79,7 +80,7 @@ class DifferentialExpressionMatrixSetInterfaceV1:
         )
         num_genomes = len({item[10].get("Genome") for item in info["infos"]})
         if num_genomes != 1:
-            err_msg = same_ref(self.set_items_type())
+            err_msg = same_ref(self.set_type())
             raise ValueError(err_msg)
 
     def get_differential_expression_matrix_set(self, ctx, params):

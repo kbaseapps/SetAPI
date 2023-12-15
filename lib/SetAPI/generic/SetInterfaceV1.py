@@ -4,11 +4,14 @@ from typing import Any
 from installed_clients.WorkspaceClient import Workspace
 
 from SetAPI.error_messages import param_required
+from SetAPI.generic.constants import ASSEMBLY, FEATURE_SET, GENOME, READS
 from SetAPI.util import (
     build_ws_obj_selector,
     convert_workspace_param,
     populate_item_object_ref_paths,
 )
+
+ALLOWS_EMPTY_SETS = [ASSEMBLY, FEATURE_SET, GENOME, READS]
 
 
 class SetInterfaceV1:
@@ -44,37 +47,6 @@ class SetInterfaceV1:
         :rtype: dict[str, Any]
         """
         self._check_save_set_params(params)
-        save_params = self._build_ws_save_obj_params(set_type, provenance, params)
-        return self.ws.save_objects(save_params)
-
-    def _check_save_set_params(self: "SetInterfaceV1", params: dict[str, Any]) -> None:
-        """Validate the params for saving a set.
-
-        :param self: this class
-        :type self: SetInterfaceV1
-        :param params: set parameters
-        :type params: dict[str, Any]
-        """
-        if "data" not in params:
-            raise ValueError(param_required("data"))
-        if (
-            "workspace" not in params
-            and "workspace_id" not in params
-            and "workspace_name" not in params
-        ):
-            raise ValueError(
-                param_required('workspace" or "workspace_id" or "workspace_name')
-            )
-
-        if "output_object_name" not in params:
-            raise ValueError(param_required("object_output_name"))
-
-    def _build_ws_save_obj_params(
-        self: "SetInterfaceV1",
-        set_type: str,
-        provenance: dict[str, Any],
-        params: dict[str, Any],
-    ) -> dict[str, Any]:
         save_params = {
             "objects": [
                 {
@@ -87,7 +59,29 @@ class SetInterfaceV1:
             ]
         }
         ws_params = convert_workspace_param(params)
-        return {**save_params, **ws_params}
+
+        return self.ws.save_objects({**save_params, **ws_params})
+
+    def _check_save_set_params(self: "SetInterfaceV1", params: dict[str, Any]) -> None:
+        """Validate the params for saving a set.
+
+        :param self: this class
+        :type self: SetInterfaceV1
+        :param params: set parameters
+        :type params: dict[str, Any]
+        """
+        if (
+            not params.get("workspace")
+            and not params.get("workspace_id")
+            and not params.get("workspace_name")
+        ):
+            raise ValueError(
+                param_required('workspace" or "workspace_id" or "workspace_name')
+            )
+
+        for param in ["data", "output_object_name"]:
+            if not params.get(param):
+                raise ValueError(param_required(param))
 
     def get_set(
         self: "SetInterfaceV1",
