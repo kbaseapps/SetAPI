@@ -1,11 +1,8 @@
-"""Tests for requests that get RNASeq<whatever>Sets."""
+"""Tests for KBaseSearch.GenomeSets."""
 from test.common_test import (
-    check_get_set_output,
     check_save_set_output,
     is_info_object,
-    param_wrangle,
 )
-from test.util import log_this, save_kbase_search_set
 from typing import Any
 
 import pytest
@@ -23,6 +20,7 @@ def test_save_kbasesearch_genome(
     context: dict[str, Any],
     ws_id: int,
 ) -> None:
+    """Test the setting and getting of KBaseSearch.GenomeSets."""
     res = kbase_search_genome_set["obj"]
     check_save_set_output(
         kbase_search_genome_set["obj"],
