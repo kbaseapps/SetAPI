@@ -111,7 +111,14 @@ class SetInterfaceV1:
         if ref_path_to_set is None:
             ref_path_to_set = []
         obj_selector = build_ws_obj_selector(ref, ref_path_to_set)
-        set_data = self._get_object_from_ws(obj_selector)
+
+        # retrieve the object from the workspace
+        ws_data = self.ws.get_objects2({"objects": [obj_selector]})
+
+        set_data = {
+            "data": ws_data["data"][0]["data"],
+            "info": ws_data["data"][0]["info"],
+        }
 
         # not all sets have 'items' (e.g. KBaseSearch.GenomeSet);
         # if they don't, skip the following steps as they will error out
@@ -126,28 +133,6 @@ class SetInterfaceV1:
             populate_item_object_ref_paths(set_items, obj_selector)
 
         return set_data
-
-    def _get_object_from_ws(
-        self: "SetInterfaceV1", selector: dict[str, str]
-    ) -> dict[str, Any]:
-        """Retrieve an object from the workspace.
-
-        :param self: this class
-        :type self: SetInterfaceV1
-        :param selector: object selector
-        :type selector: dict[str, str]
-        :return: object data and info from the workspace
-        :rtype: dict[str, Any]
-        """
-        # typedef structure {
-        #     list<ObjectSpecification> objects;
-        #     boolean ignoreErrors;
-        #     boolean no_data;
-        # } GetObjects2Params;
-
-        ws_data = self.ws.get_objects2({"objects": [selector]})
-
-        return {"data": ws_data["data"][0]["data"], "info": ws_data["data"][0]["info"]}
 
     def _populate_item_object_info(
         self: "SetInterfaceV1", set_data: dict[str, Any], ref_path_to_set: list[str]

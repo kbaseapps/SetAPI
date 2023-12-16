@@ -17,13 +17,13 @@ SET_ITEM_NAME = FEATURE_SET
 
 
 @pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
-def test_save_feature_set_set(feature_set_set: dict[str, Any]) -> None:
+def test_save_feature_set_set(feature_set_set: dict[str, Any], ws_id: int) -> None:
     check_save_set_output(**feature_set_set)
 
 
 @pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
 def test_save_feature_set_set_no_feature_sets(
-    empty_feature_set_set: dict[str, Any]
+    empty_feature_set_set: dict[str, Any], ws_id: int
 ) -> None:
     check_save_set_output(**empty_feature_set_set)
 
@@ -73,6 +73,7 @@ def test_get_feature_set_set(
     get_method_args: dict[str, str | int],
     feature_set_set: dict[str, Any],
     empty_feature_set_set: dict[str, Any],
+    ws_id: int,
 ) -> None:
     for saved_set in [feature_set_set, empty_feature_set_set]:
         check_get_set(

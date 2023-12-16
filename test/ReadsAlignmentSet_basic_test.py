@@ -21,7 +21,7 @@ SET_ITEM_NAME = READS_ALIGNMENT
 
 @pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
 def test_save_reads_alignment_set(
-    reads_alignment_set: dict[str, Any],
+    reads_alignment_set: dict[str, Any], ws_id: int
 ) -> None:
     check_save_set_output(**reads_alignment_set)
 
@@ -74,6 +74,7 @@ def test_get_reads_alignment_set(
     default_ws_name: str,
     ref_args: str,
     get_method_args: dict[str, str | int],
+    ws_id: int,
 ) -> None:
     check_get_set(
         set_to_get=reads_alignment_set,

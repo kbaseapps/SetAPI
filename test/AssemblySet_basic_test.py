@@ -20,16 +20,14 @@ SET_ITEM_NAME = ASSEMBLY
 
 
 @pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
-def test_save_assembly_set(
-    assembly_set: dict[str, Any],
-) -> None:
+def test_save_assembly_set(assembly_set: dict[str, Any], ws_id: int) -> None:
     check_save_set_output(**assembly_set)
 
 
 # it's possible to create an empty assembly set, so let's test it!
 @pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
 def test_save_assembly_set_no_assemblies(
-    empty_assembly_set: dict[str, Any],
+    empty_assembly_set: dict[str, Any], ws_id: int
 ) -> None:
     check_save_set_output(**empty_assembly_set)
 
@@ -79,6 +77,7 @@ def test_get_assembly_set(
     get_method_args: dict[str, str | int],
     assembly_set,
     empty_assembly_set,
+    ws_id: int,
 ) -> None:
     for saved_set in [assembly_set, empty_assembly_set]:
         check_get_set(

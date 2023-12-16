@@ -17,16 +17,12 @@ SET_ITEM_NAME = READS
 
 
 @pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
-def test_save_reads_set(
-    reads_set: dict[str, Any],
-) -> None:
+def test_save_reads_set(reads_set: dict[str, Any], ws_id: int) -> None:
     check_save_set_output(**reads_set)
 
 
 @pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
-def test_save_reads_set_no_reads(
-    empty_reads_set: dict[str, Any],
-) -> None:
+def test_save_reads_set_no_reads(empty_reads_set: dict[str, Any], ws_id: int) -> None:
     check_save_set_output(**empty_reads_set)
 
 
@@ -75,6 +71,7 @@ def test_get_reads_set(
     get_method_args: dict[str, str | int],
     reads_set: dict[str, Any],
     empty_reads_set: dict[str, Any],
+    ws_id: int,
 ) -> None:
     for saved_set in [reads_set, empty_reads_set]:
         check_get_set(

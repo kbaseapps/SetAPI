@@ -20,9 +20,10 @@ SET_ITEM_NAME = DIFFERENTIAL_EXPRESSION_MATRIX
 
 
 @pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
-def test_save_diff_exp_matrix_set(
+def test_save_differential_expression_matrix_set(
     differential_expression_matrix_with_genome_set: dict[str, Any],
     differential_expression_matrix_no_genome_set: dict[str, Any],
+    ws_id: int,
 ) -> None:
     for saved_set in [
         differential_expression_matrix_with_genome_set,
@@ -68,7 +69,7 @@ def test_save_diff_exp_matrix_set(
         ),
     ],
 )
-def test_get_diff_exp_matrix_set(
+def test_get_differential_expression_matrix_set(
     set_api_client: SetAPI,
     context: dict[str, str | list],
     default_ws_name: str,
@@ -76,6 +77,7 @@ def test_get_diff_exp_matrix_set(
     get_method_args: dict[str, str | int],
     differential_expression_matrix_with_genome_set: dict[str, Any],
     differential_expression_matrix_no_genome_set: dict[str, Any],
+    ws_id: int,
 ) -> None:
     for saved_set in [
         differential_expression_matrix_with_genome_set,

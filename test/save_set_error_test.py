@@ -21,7 +21,7 @@ from SetAPI.SetAPIImpl import SetAPI
 # keys are the set item name, values are the names of the fixtures with
 # mismatched genome refs.
 MISMATCHED_GENOME_REFS = {
-    DIFFERENTIAL_EXPRESSION_MATRIX: "diff_exp_matrix_mismatched_genome_refs",
+    DIFFERENTIAL_EXPRESSION_MATRIX: "differential_expression_matrix_mismatched_genome_refs",
     READS_ALIGNMENT: "alignment_mismatched_genome_refs",
     EXPRESSION: "expression_mismatched_genome_refs",
 }

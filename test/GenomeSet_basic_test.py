@@ -18,12 +18,12 @@ SET_ITEM_NAME = GENOME
 
 
 @pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
-def test_save_genome_set(genome_set: dict[str, Any]) -> None:
+def test_save_genome_set(genome_set: dict[str, Any], ws_id: int) -> None:
     check_save_set_output(**genome_set)
 
 
 @pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
-def test_save_empty_genome_set(empty_genome_set: dict[str, Any]) -> None:
+def test_save_empty_genome_set(empty_genome_set: dict[str, Any], ws_id: int) -> None:
     check_save_set_output(**empty_genome_set)
 
 
@@ -72,6 +72,7 @@ def test_get_genome_set(
     get_method_args: dict[str, str | int],
     genome_set: dict[str, Any],
     empty_genome_set: dict[str, Any],
+    ws_id: int,
 ) -> None:
     for saved_set in [genome_set, empty_genome_set]:
         check_get_set(

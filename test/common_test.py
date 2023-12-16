@@ -1,4 +1,5 @@
 """General tests to be performed on most or all classes."""
+from test.conftest import SET_FIXTURE_MAP
 from test.util import (
     INFO_LENGTH,
     info_to_name,
@@ -42,8 +43,8 @@ KBASE_UPA = "1/2/3"
 sets_to_test = {
     "assembly_set": "assembly_refs",
     "empty_assembly_set": None,
-    "differential_expression_matrix_with_genome_set": "diff_exp_matrix_genome_refs",
-    "differential_expression_matrix_no_genome_set": "diff_exp_matrix_no_genome_refs",
+    "differential_expression_matrix_with_genome_set": "differential_expression_matrix_with_genome_refs",
+    "differential_expression_matrix_no_genome_set": "differential_expression_matrix_no_genome_refs",
     "expression_set": "expression_refs",
     "feature_set_set": "feature_set_refs",
     "empty_feature_set_set": None,
@@ -118,7 +119,6 @@ def is_info_object(
 def check_save_set_output(
     obj: dict[str, Any],
     set_name: str,
-    # set_item_name: str,
     kbase_set_type: str,
     set_description: str | None = None,
     n_items: int | None = None,
@@ -133,8 +133,6 @@ def check_save_set_output(
     :type obj: dict[str, Any]
     :param set_name: the set name
     :type set_name: str
-    :param set_item_name: name of the objects in the set, e.g. "genome"
-    :type set_item_name: str
     :param kbase_set_type: expected KBase object type, defaults to None
     :type kbase_set_type: str | None, optional
     :param set_description: user-entered description of the set, defaults to None
@@ -171,7 +169,6 @@ def check_get_set_output(
     obj: dict[str, Any],
     ref: str,
     set_name: str,
-    # set_item_name: str,
     kbase_set_type: str,
     set_description: str | None = None,
     n_items: int | None = None,
@@ -189,8 +186,6 @@ def check_get_set_output(
     :type ref: str
     :param set_name: set name
     :type set_name: str
-    :param set_item_name: name of the objects in the set, e.g. "genome"
-    :type set_item_name: str
     :param kbase_set_type: expected KBase object type, defaults to None
     :type kbase_set_type: str | None, optional
     :param set_description: set description, defaults to None
@@ -338,8 +333,18 @@ all_set_types = {
 
 @pytest.mark.parametrize(
     ("ws_id", "data_fixture"),
-    [("default_ws_id", set_type) for set_type in all_set_types],
+    [("default_ws_id", data_fixture) for data_fixture in SET_FIXTURE_MAP],
     indirect=["ws_id", "data_fixture"],
 )
 def test_save_set(ws_id: int, data_fixture: dict[str, Any]) -> None:
+    """Test that saving a set produces the expected output.
+
+    This saves sets in the default workspace (default_ws_id) and uses the
+    fixtures corresponding to the keys in the "all_set_types" mapping.
+
+    :param ws_id: workspace ID of the workspace that the sets are saved in
+    :type ws_id: int
+    :param data_fixture: name of the data fixture to use in the test
+    :type data_fixture: dict[str, Any]
+    """
     check_save_set_output(**data_fixture)

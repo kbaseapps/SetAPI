@@ -15,7 +15,7 @@ class SampleSetInterface:
         conditions = list(conditionset_data.get("conditions").keys())
 
         if not all(x in conditions for x in matching_conditions):
-            error_msg = f"ERROR: Given conditions ({matching_conditions}) are not matching ConditionSet conditions: {conditions}"
+            error_msg = f"ERROR: Given conditions ({matching_conditions}) do not match ConditionSet conditions: {conditions}"
             raise ValueError(error_msg)
 
     def create_sample_set(self, ctx, params):

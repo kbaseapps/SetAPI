@@ -33,6 +33,7 @@ def test_basic_save_and_get(
     set_api_client: SetAPI,
     context: dict[str, str | list],
     default_ws_name: str,
+    ws_id: int,
 ) -> None:
     set_name = "micromonas_rnaseq_test1_sampleset"
     n_items = 3  # three different reads_refs used
@@ -51,11 +52,6 @@ def test_basic_save_and_get(
 
     # test a save
     res = set_api_client.create_sample_set(context, create_ss_params)[0]
-    import json
-
-    print("result of create_sample_set")
-    print(json.dumps(res, indent=2, sort_keys=True))
-
     if DEBUG:
         log_this(config, "create_sample_set", res)
 
@@ -135,8 +131,8 @@ def test_create_sample_set_workspace_param(
     conditions: list[str],
     set_api_client: SetAPI,
     context: dict[str, str | list],
-    ws_id: int,
     default_ws_name: str,
+    ws_id: int,
 ) -> None:
     """Check that we can use either a workspace ID or the workspace name as the 'ws_id' param."""
     set_name = "test_workspace_param_sampleset"
@@ -191,6 +187,7 @@ def test_basic_save_and_get_condition_in_list(
     config: dict[str, str],
     set_api_client: SetAPI,
     context: dict[str, str | list],
+    ws_id: int,
 ) -> None:
     set_name = "micromonas_rnaseq_test1_sampleset"
     n_items = 3  # 3 reads_refs used
@@ -284,6 +281,7 @@ def test_unmatched_conditions(
     condition_set_ref: str,
     set_api_client: SetAPI,
     context: dict[str, str | list],
+    ws_id: int,
 ) -> None:
     # create the set object with unmatching conditions
     create_ss_params = {

@@ -19,9 +19,7 @@ SET_ITEM_NAME = EXPRESSION
 
 
 @pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
-def test_save_expression_set(
-    expression_set: dict[str, Any],
-) -> None:
+def test_save_expression_set(expression_set: dict[str, Any], ws_id: int) -> None:
     check_save_set_output(**expression_set)
 
 
@@ -69,6 +67,7 @@ def test_get_expression_set(
     expression_set: dict[str, Any],
     ref_args: str,
     get_method_args: dict[str, str | int],
+    ws_id: int,
 ) -> None:
     check_get_set(
         set_to_get=expression_set,
