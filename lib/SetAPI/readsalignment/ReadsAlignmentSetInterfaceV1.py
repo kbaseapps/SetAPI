@@ -61,15 +61,7 @@ class ReadsAlignmentSetInterfaceV1:
         """
         self.set_interface._check_save_set_params(params)
         self._validate_save_set_params(params)
-
-        save_result = self.set_interface.save_set(
-            self.set_type(), ctx["provenance"], params
-        )
-        info = save_result[0]
-        return {
-            "set_ref": info_to_ref(info),
-            "set_info": info,
-        }
+        return self.set_interface.save_set(self.set_type(), ctx["provenance"], params)
 
     def _validate_save_set_params(
         self: "ReadsAlignmentSetInterfaceV1", params: dict[str, Any]

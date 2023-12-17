@@ -1,63 +1,70 @@
 """An interface for handling sample sets."""
+from copy import deepcopy
+from typing import Any
 
-import traceback
-from pprint import pprint
+from installed_clients.WorkspaceClient import Workspace
 
-from SetAPI.util import convert_workspace_param, dfu_get_obj_data, info_to_ref
+from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
 
 
 class SampleSetInterface:
-    def __init__(self, workspace_client):
+    def __init__(self: "SampleSetInterface", workspace_client: Workspace):
         self.ws_client = workspace_client
+        self.set_interface = SetInterfaceV1(workspace_client)
 
-    def _check_condition_matching(self, conditionset_ref, matching_conditions):
-        conditionset_data = dfu_get_obj_data(conditionset_ref)
-        conditions = list(conditionset_data.get("conditions").keys())
+    @staticmethod
+    def set_type() -> str:
+        """The set type saved by this class."""
+        return "KBaseRNASeq.RNASeqSampleSet"
 
-        if not all(x in conditions for x in matching_conditions):
-            error_msg = f"ERROR: Given conditions ({matching_conditions}) do not match ConditionSet conditions: {conditions}"
-            raise ValueError(error_msg)
+    def create_sample_set(
+        self: "SampleSetInterface", ctx: dict[str, Any], params: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Save a sample set to the workspace.
 
-    def create_sample_set(self, ctx, params):
-        # check the ws_id param to see if it is actually a ws_name to ensure
-        # we use the right form of workspace identifier when saving
-        ws_params = convert_workspace_param({"workspace": params.get("ws_id")})
+        :param self: this class
+        :type self: SampleSetInterface
+        :param ctx: KBase context
+        :type ctx: dict[str, Any]
+        :param params: request parameters
+        :type params: dict[str, Any]
+        :return: result of saving sampleset to the workspace
+        :rtype: dict[str, Any]
+        """
+        output_object = deepcopy(params)
 
-        params["sample_ids"] = []
-        params["condition"] = []
+        # N.b. according to the spec, these are valid input params.
+        # Just hope no one is trying to use them, eh?
+        output_object["sample_ids"] = []
+        output_object["condition"] = []
         for item in params.get("sample_n_conditions", []):
             item_condition = item["condition"]
             if not isinstance(item_condition, (str | list)):
                 err_msg = "ERROR: condition should be either a list or a string"
-                raise ValueError(err_msg)
+                raise TypeError(err_msg)
 
             if isinstance(
                 item_condition, list
             ):  # Auto populate UI puts input into an array
-                if len(item_condition) > 1:
-                    err_msg = "ERROR: please only select 1 condition per reads object"
+                if len(item_condition) != 1:
+                    err_msg = "ERROR: please select 1 condition per reads object"
                     raise ValueError(err_msg)
                 item["condition"] = item_condition[0]
 
-            params["sample_ids"].extend(item["sample_id"])
+            output_object["sample_ids"].extend(item["sample_id"])
 
-            params["condition"].extend([item["condition"] for i in item["sample_id"]])
-        pprint(params)
-        ### Create the working dir for the method; change it to a function call
-        out_obj = {k: v for k, v in params.items() if k not in ("ws_id",)}
+            output_object["condition"].extend(
+                [item["condition"] for _ in item["sample_id"]]
+            )
 
-        sample_ids = params["sample_ids"]
-        out_obj["num_samples"] = len(sample_ids)
-        ## Validation to check if the Set contains more than one samples
+        sample_ids = output_object["sample_ids"]
+        output_object["num_samples"] = len(sample_ids)
+
+        # check that the sampleset contains at least two samples
         if len(sample_ids) < 2:
             err_msg = "This method takes two (2) or more RNASeq Samples. \
                 If you have only one read sample, run either 'Align Reads using Tophat' or 'Align Reads using Bowtie2' directly for getting alignment"
 
-            raise ValueError(err_msg)
-
-        ## Validation to Check if the number of samples is equal to number of condition
-        if len(params["condition"]) != out_obj["num_samples"]:
-            err_msg = "Please specify a treatment label for each sample in the RNA-seq SampleSet. Please enter the same label for the replicates in a sample type"
             raise ValueError(err_msg)
 
         ## Validation to Check if the user is loading the same type as specified above
@@ -71,54 +78,36 @@ class SampleSetInterface:
                 "KBaseAssembly.SingleEndLibrary",
                 "KBaseFile.SingleEndLibrary",
             ]
-        sample_refs = []
-        for reads_ref in sample_ids:
-            # TODO: batch the ws calls instead of doing one sample at a time
-            reads_info = self.ws_client.get_object_info3(
-                {"objects": [{"ref": reads_ref}]}
-            )["infos"][0]
-            sample_refs.append(info_to_ref(reads_info))
-            obj_type = reads_info[2].split("-")[0]
-            if obj_type not in lib_type:
-                err_msg = f"Library_type mentioned: {params['Library_type']}. Please add only {params['Library_type']} typed objects in Reads fields"
-                raise ValueError(err_msg)
 
-        ## Code to Update the Provenance; make it a function later
+        sample_refs = []
+        all_reads_info_struct = self.ws_client.get_object_info3(
+            {
+                "objects": [{"ref": reads_ref} for reads_ref in sample_ids],
+                "infostruct": 1,
+            }
+        )
+        for item in all_reads_info_struct["infostructs"]:
+            # Check that the item type contains one of the allowed types
+            if not any(allowed_type in item["type"] for allowed_type in lib_type):
+                err_msg = f"Please add only {output_object['Library_type']} typed objects in the Reads fields; you added an object of type {item['type']}."
+                raise ValueError(err_msg)
+            # add the item's UPA to the sample_refs list
+            sample_refs.append(item["path"][0])
+
+        ## Add in the Provenance, with additional info about the
+        # input data object refs
         provenance = ctx.get("provenance", [{}])
-        # add additional info to provenance here, in this case the input data object reference
         provenance[0]["input_ws_objects"] = sample_refs
 
         # Saving RNASeqSampleSet to Workspace
-        print(f"Saving {params['sampleset_id']} object to workspace")
+        print(f"Saving {output_object['sampleset_id']} object to workspace")
 
-        try:
-            res = self.ws_client.save_objects(
-                {
-                    **ws_params,
-                    "objects": [
-                        {
-                            "type": "KBaseRNASeq.RNASeqSampleSet",
-                            "data": out_obj,
-                            "name": out_obj["sampleset_id"],
-                            "provenance": provenance,
-                        }
-                    ],
-                }
-            )[0]
-
-            pprint(
-                {
-                    "set_ref": info_to_ref(res),
-                    "set_info": res,
-                }
-            )
-
-            return {
-                "set_ref": info_to_ref(res),
-                "set_info": res,
-            }
-
-        except Exception as e:
-            err_msg = f"Error saving the object to workspace {params['sampleset_id']},{''.join(traceback.format_exc())}"
-
-            raise Exception(err_msg) from e
+        return self.set_interface.save_set(
+            self.set_type(),
+            ctx["provenance"],
+            {
+                "workspace": params.get("ws_id"),
+                "data": output_object,
+                "output_object_name": output_object["sampleset_id"],
+            },
+        )
