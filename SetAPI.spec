@@ -163,7 +163,7 @@ module SetAPI {
     } GetFeatureSetSetV1Result;
 
     funcdef get_feature_set_set_v1(GetFeatureSetSetV1Params params)
-        returns (GetFeatureSetSetV1Result) authentication optional;
+        returns (GetFeatureSetSetV1Result result) authentication optional;
 
     /*
         workspace_name or workspace_id - alternative options defining
@@ -246,7 +246,7 @@ module SetAPI {
     } GetExpressionSetV1Result;
 
     funcdef get_expression_set_v1(GetExpressionSetV1Params params)
-        returns (GetExpressionSetV1Result) authentication optional;
+        returns (GetExpressionSetV1Result result) authentication optional;
 
     /*
         workspace_name or workspace_id - alternative options defining
@@ -329,7 +329,7 @@ module SetAPI {
     } GetReadsAlignmentSetV1Result;
 
     funcdef get_reads_alignment_set_v1(GetReadsAlignmentSetV1Params params)
-        returns (GetReadsAlignmentSetV1Result) authentication optional;
+        returns (GetReadsAlignmentSetV1Result result) authentication optional;
 
     /*
         workspace_name or workspace_id - alternative options defining
@@ -627,7 +627,7 @@ module SetAPI {
     } CreateRNASeqSampleSetResult;
 
     funcdef create_sample_set(CreateRNASeqSampleSetParams params)
-                      returns(CreateRNASeqSampleSetResult) authentication required;
+        returns (CreateRNASeqSampleSetResult result) authentication required;
 
 
 
@@ -661,7 +661,7 @@ module SetAPI {
     } SampleSetToSamplesInfoResult;
 
     funcdef sample_set_to_samples_info(SampleSetToSamplesInfoParams params)
-                        returns(SampleSetToSamplesInfoResult result) authentication required;
+        returns (SampleSetToSamplesInfoResult result) authentication required;
 
 
 
@@ -720,7 +720,7 @@ module SetAPI {
     one level down members of those sets.
     NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA */
     funcdef list_sets(ListSetParams params)
-              returns(ListSetResult result) authentication optional;
+        returns (ListSetResult result) authentication optional;
 
     /*
         include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
@@ -747,6 +747,6 @@ module SetAPI {
     return 'sets' list will match the position in the input ref list.
     NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA */
     funcdef get_set_items(GetSetItemsParams params)
-                  returns(GetSetItemsResult result) authentication optional;
+        returns (GetSetItemsResult result) authentication optional;
 
 };
