@@ -67,3 +67,18 @@ def test_get_set_invalid_args(
     get_method = getattr(set_api_client, f"get_{set_item_name}_set_v1")
     with pytest.raises(ValueError, match=include_params_valid(inc_arg)):
         get_method(context, {"ref": KBASE_UPA, inc_arg: 666})
+
+
+@pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=["ws_id"])
+@pytest.mark.parametrize("set_item_name", SET_ITEM_NAMES)
+def test_get_set_not_a_set_ref(
+    context: dict[str, str | list],
+    set_api_client: SetAPI,
+    set_item_name: str,
+    random_ref: str,
+    ws_id: int,
+) -> None:
+    """Check that the client throws an error if the ref is not for a set."""
+    get_method = getattr(set_api_client, f"get_{set_item_name}_set_v1")
+    with pytest.raises(TypeError, match="Unrecognised set type: "):
+        get_method(context, {"ref": random_ref})

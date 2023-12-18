@@ -4,7 +4,7 @@ import os
 import random
 import shutil
 import time
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from configparser import ConfigParser
 from test import TEST_BASE_DIR
 from test.util import (
@@ -21,7 +21,7 @@ from test.util import (
     save_kbase_search_set,
     save_set,
 )
-from typing import Any, Callable
+from typing import Any
 
 import pytest
 from _pytest.fixtures import FixtureRequest
@@ -285,7 +285,7 @@ def dummy_shock_file_handle(clients: dict[str, Any], scratch_dir: str) -> str:
 
 
 @pytest.fixture(scope="session")
-def alignment_refs(
+def reads_alignment_refs(
     clients: dict[str, Any],
     ws_id: int,
     genome_refs: list[str],
@@ -546,7 +546,7 @@ def expression_refs(
     ws_id: int,
     dummy_shock_file_handle: str,
     genome_refs: list[str],
-    alignment_refs: list[str],
+    reads_alignment_refs: list[str],
     annotation_ref: str,
 ) -> list[str]:
     """Create some expression objects and return the refs.
@@ -559,8 +559,8 @@ def expression_refs(
     :type dummy_shock_file_handle: str
     :param genome_refs: genome refs (see fixture)
     :type genome_refs: list[str]
-    :param alignment_refs: alignment refs (see fixture)
-    :type alignment_refs: list[str]
+    :param reads_alignment_refs: alignment refs (see fixture)
+    :type reads_alignment_refs: list[str]
     :param annotation_ref: annotation ref (see fixture)
     :type annotation_ref: str
     :return: list of KBase UPAs for the created expression objects
@@ -576,7 +576,7 @@ def expression_refs(
             ws_id,
             clients["ws"],
         )
-        for idx, alignment_ref in enumerate(alignment_refs)
+        for idx, alignment_ref in enumerate(reads_alignment_refs)
     ]
 
 
@@ -586,7 +586,7 @@ def expression_mismatched_genome_refs(
     ws_id: int,
     dummy_shock_file_handle: str,
     genome_refs: list[str],
-    alignment_refs: list[str],
+    reads_alignment_refs: list[str],
     annotation_ref: str,
 ) -> list[str]:
     """Create some expression objects where the genome object differs between expressions and return the refs.
@@ -599,8 +599,8 @@ def expression_mismatched_genome_refs(
     :type dummy_shock_file_handle: str
     :param genome_refs: genome refs (see fixture)
     :type genome_refs: list[str]
-    :param alignment_refs: alignment refs (see fixture)
-    :type alignment_refs: list[str]
+    :param reads_alignment_refs: alignment refs (see fixture)
+    :type reads_alignment_refs: list[str]
     :param annotation_ref: annotation ref (see fixture)
     :type annotation_ref: str
     :return: list of KBase UPAs for the created expression objects
@@ -612,7 +612,7 @@ def expression_mismatched_genome_refs(
             f"mismatched_expression_{idx}",
             genome_ref,
             annotation_ref,
-            alignment_refs[idx],
+            reads_alignment_refs[idx],
             ws_id,
             clients["ws"],
         )
@@ -681,7 +681,7 @@ def rnaseq_alignment_sets(
     ws_id: int,
     genome_refs: list[str],
     reads_refs: list[str],
-    alignment_refs: list[str],
+    reads_alignment_refs: list[str],
     sampleset_ref: str,
 ) -> list[str]:
     """Create some fun RNASeq alignment sets and return the refs.
@@ -694,8 +694,8 @@ def rnaseq_alignment_sets(
     :type genome_refs: list[str]
     :param reads_refs: reads refs (see fixture)
     :type reads_refs: list[str]
-    :param alignment_refs: alignment refs (see fixture)
-    :type alignment_refs: list[str]
+    :param reads_alignment_refs: alignment refs (see fixture)
+    :type reads_alignment_refs: list[str]
     :param sampleset_ref: sampleset ref (see fixture)
     :type sampleset_ref: str
     :return: list of KBase UPAs
@@ -707,7 +707,7 @@ def rnaseq_alignment_sets(
             reads_refs,
             genome_refs[0],
             sampleset_ref,
-            alignment_refs,
+            reads_alignment_refs,
             ws_id,
             clients["ws"],
         )
@@ -721,7 +721,7 @@ def rnaseq_expression_set(
     ws_id: int,
     genome_refs: list[str],
     sampleset_ref: str,
-    alignment_refs: list[str],
+    reads_alignment_refs: list[str],
     expression_refs: list[str],
     rnaseq_alignment_sets: list[str],
 ) -> str:
@@ -735,8 +735,8 @@ def rnaseq_expression_set(
     :type genome_refs: list[str]
     :param sampleset_ref: sampleset ref (see fixture)
     :type sampleset_ref: str
-    :param alignment_refs: alignment refs (see fixture)
-    :type alignment_refs: list[str]
+    :param reads_alignment_refs: alignment refs (see fixture)
+    :type reads_alignment_refs: list[str]
     :param expression_refs: expression refs (see fixture)
     :type expression_refs: list[str]
     :param rnaseq_alignment_sets: RNASeq alignment refs (see fixture)
@@ -748,7 +748,7 @@ def rnaseq_expression_set(
         "fake_rnaseq_expression_set",
         genome_refs[0],
         sampleset_ref,
-        alignment_refs,
+        reads_alignment_refs,
         rnaseq_alignment_sets[0],
         expression_refs,
         ws_id,
@@ -879,7 +879,7 @@ SET_FIXTURE_MAP = {
     "empty_reads_set": {"set_item_name": READS},
     "reads_alignment_set": {
         "set_item_name": READS_ALIGNMENT,
-        "refs": "alignment_refs",
+        "refs": "reads_alignment_refs",
     },
 }
 
@@ -899,22 +899,41 @@ def kbase_search_genome_set(
     return save_kbase_search_set(set_api_client, context, genome_refs, ws_id)
 
 
+TYPE_LIST = [
+    ASSEMBLY,
+    f"{DIFFERENTIAL_EXPRESSION_MATRIX}_with_genome",
+    f"{DIFFERENTIAL_EXPRESSION_MATRIX}_no_genome",
+    EXPRESSION,
+    FEATURE_SET,
+    GENOME,
+    READS_ALIGNMENT,
+    READS,
+]
+
+
 @pytest.fixture(scope="session")
 def random_fixture(request: FixtureRequest) -> dict[str, Any]:
     """Pick a random fixture to use for testing."""
-    fixtures = [
-        "assembly_set",
-        "differential_expression_matrix_with_genome_set",
-        "differential_expression_matrix_no_genome_set",
-        "expression_set",
-        "feature_set_set",
-        "genome_set",
-        "reads_alignment_set",
-        "reads_set",
-    ]
+    set_fixtures = [f"{item}_set" for item in TYPE_LIST]
 
     # Randomly select a fixture name
-    selected_fixture = random.choice(fixtures)  # noqa: S311
+    selected_fixture = random.choice(set_fixtures)  # noqa: S311
 
     # Use the request fixture to dynamically get the selected fixture
     return request.getfixturevalue(selected_fixture)
+
+
+@pytest.fixture(scope="session")
+def random_ref(request: FixtureRequest) -> str:
+    """Pick a random reference for something that isn't a set."""
+
+    non_set_refs = [f"{item}_refs" for item in TYPE_LIST]
+
+    # Randomly select a fixture name
+    selected_fixture = random.choice(non_set_refs)  # noqa: S311
+
+    # Use the request fixture to dynamically get the selected fixture
+    ref_list = request.getfixturevalue(selected_fixture)
+
+    # randomly return one of the items in the list
+    return random.choice(ref_list)  # noqa: S311

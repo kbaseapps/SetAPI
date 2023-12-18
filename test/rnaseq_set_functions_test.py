@@ -133,7 +133,7 @@ def test_get_rnaseq_expression_set_ref_path(
     context: dict[str, str | list],
     default_ws_name: str,
     ref_args: str,
-    alignment_refs: list[str],
+    reads_alignment_refs: list[str],
     get_method_args: dict[str, str | int],
     ws_id: int,
 ) -> None:
@@ -153,7 +153,7 @@ def test_get_rnaseq_expression_set_ref_path(
         set_name=set_name,
         kbase_set_type="KBaseRNASeq.RNASeqExpressionSet",
         set_description="",
-        n_items=len(alignment_refs),
+        n_items=len(reads_alignment_refs),
         second_set_item=None,
         **params,
     )

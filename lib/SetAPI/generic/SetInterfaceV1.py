@@ -287,28 +287,6 @@ class SetInterfaceV1:
             REF_PATH_TO_SET: ref_path_to_set,
         }
 
-    def _get_object_from_ws(
-        self: "SetInterfaceV1", selector: dict[str, str]
-    ) -> dict[str, Any]:
-        """Retrieve an object from the workspace.
-
-        :param self: this class
-        :type self: SetInterfaceV1
-        :param selector: object selector
-        :type selector: dict[str, str]
-        :return: object data and info from the workspace
-        :rtype: dict[str, Any]
-        """
-        # typedef structure {
-        #     list<ObjectSpecification> objects;
-        #     boolean ignoreErrors;
-        #     boolean no_data;
-        # } GetObjects2Params;
-
-        ws_data = self.ws_client.get_objects2({"objects": [selector]})
-
-        return {"data": ws_data["data"][0]["data"], "info": ws_data["data"][0]["info"]}
-
     def _populate_item_object_info(
         self: "SetInterfaceV1", set_data: dict[str, Any], ref_path_to_set: list[str]
     ) -> None:
@@ -338,7 +316,7 @@ class SetInterfaceV1:
             # this doesn't get any love, sob!
             return obj_data
 
-        if "Sample" in kbase_set_type:
+        if "RNASeqSampleSet" in kbase_set_type:
             return get_rnaseq_sample_set(
                 self.ws_client,
                 obj_selector,
@@ -347,12 +325,19 @@ class SetInterfaceV1:
                 checked_params[INC_ITEM_REF_PATHS],
             )
 
-        # RNASeqAlignmentSet, RNASeqExpressionSet
-        return get_rnaseq_set(
-            self.ws_client,
-            obj_selector,
-            kbase_set_type,
-            obj_data,
-            checked_params[INC_ITEM_INFO],
-            checked_params[INC_ITEM_REF_PATHS],
-        )
+        if (
+            "RNASeqAlignmentSet" in kbase_set_type
+            or "RNASeqExpressionSet" in kbase_set_type
+        ):
+            return get_rnaseq_set(
+                self.ws_client,
+                obj_selector,
+                kbase_set_type,
+                obj_data,
+                checked_params[INC_ITEM_INFO],
+                checked_params[INC_ITEM_REF_PATHS],
+            )
+
+        # unknown set type
+        err_msg = f"Unrecognised set type: {kbase_set_type}."
+        raise TypeError(err_msg)
