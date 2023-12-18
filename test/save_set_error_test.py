@@ -53,6 +53,7 @@ def test_save_set_mismatched_genomes(
     # get the fixture corresponding to this set_item_name
     set_items = [{"label": "item", "ref": ref} for ref in data_fixture]
     save_method = getattr(set_api_client, f"save_{set_item_name}_set_v1")
+
     with pytest.raises(
         ValueError,
         match=same_ref(SET_ITEM_NAME_TO_SET_TYPE[set_item_name]),

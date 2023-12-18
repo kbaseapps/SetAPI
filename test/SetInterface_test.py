@@ -3,6 +3,7 @@ from test.common_test import check_get_set_output
 from typing import Any
 
 import pytest
+from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
 
 STANDARD_VALUES = [None, 0, 1]
@@ -20,9 +21,17 @@ STANDARD_VALUES = [None, 0, 1]
         pytest.param("__WS_NAME__SET_NAME__", id="ws_name_set_name"),
     ],
 )
-@pytest.mark.parametrize("inc_item_info", STANDARD_VALUES)
-@pytest.mark.parametrize("inc_item_ref_paths", STANDARD_VALUES)
-@pytest.mark.parametrize("ref_path_to_set_present", STANDARD_VALUES)
+@pytest.mark.parametrize(
+    "inc_item_info", [pytest.param(val, id=f"iii={val}") for val in STANDARD_VALUES]
+)
+@pytest.mark.parametrize(
+    "inc_item_ref_paths",
+    [pytest.param(val, id=f"iirp={val}") for val in STANDARD_VALUES],
+)
+@pytest.mark.parametrize(
+    "ref_path_to_set_present",
+    [pytest.param(val, id=f"rp2s={val}") for val in STANDARD_VALUES],
+)
 def test_get_set(
     clients: dict[str, Any],
     default_ws_name: str,
@@ -49,7 +58,12 @@ def test_get_set(
 
     set_interface = SetInterfaceV1(clients["ws"])
     fetched_set = set_interface.get_set(
-        ref, bool(inc_item_info), ref_path_to_set, bool(inc_item_ref_paths)
+        {
+            "ref": ref,
+            REF_PATH_TO_SET: ref_path_to_set,
+            INC_ITEM_INFO: bool(inc_item_info),
+            INC_ITEM_REF_PATHS: bool(inc_item_ref_paths),
+        }
     )
 
     args_to_check_get_set_output = {
@@ -61,3 +75,28 @@ def test_get_set(
         "ref": ref,
     }
     check_get_set_output(**args_to_check_get_set_output)
+
+
+@pytest.mark.parametrize("set_item_name", [None, "", "piggy"])
+def test_save_set_invalid_type(
+    clients: dict[str, Any],
+    set_item_name: str,
+) -> None:
+    """Testing a situation where an invalid set_item_name has magicked itself into existence.
+
+    This cannot be tested through the API as there is no way to
+    generate this kind of combination.
+
+    :param clients: dict of relevant clients
+    :type clients: dict[str, Any]
+    """
+    set_interface = SetInterfaceV1(clients["ws"])
+    with pytest.raises(
+        ValueError,
+        match="invalid set item name",
+    ):
+        set_interface.save_set(
+            set_item_name,
+            {},
+            {"workspace": "blah", "data": "ugh", "output_object_name": "meh"},
+        )
