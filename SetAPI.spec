@@ -19,6 +19,18 @@ module SetAPI {
         ws_obj_id ref;
     } DataAttachment;
 
+    typedef structure {
+        string set_ref;
+        Workspace.object_info set_info;
+    } SaveSetV1Result;
+
+    typedef structure {
+        string ref;
+        boolean include_item_info;
+        boolean include_set_item_ref_paths;
+        list <string> ref_path_to_set;
+    } GetSetV1Params;
+
 
     /* ******* DIFFERENTIAL EXPRESSION MATRIX SET METHODS ******* */
 
@@ -66,19 +78,13 @@ module SetAPI {
                                          ref_path_to_set;item_ref  (if ref_path_to_set is given) or
                                          set_ref;item_ref  (if ref_path_to_set is not given)
     */
-    typedef structure {
-        string ref;
-        boolean include_item_info;
-        boolean include_set_item_ref_paths;
-        list <string> ref_path_to_set;
-    } GetDifferentialExpressionMatrixSetV1Params;
 
     typedef structure {
         DifferentialExpressionMatrixSet data;
         Workspace.object_info info;
     } GetDifferentialExpressionMatrixSetV1Result;
 
-    funcdef get_differential_expression_matrix_set_v1(GetDifferentialExpressionMatrixSetV1Params params)
+    funcdef get_differential_expression_matrix_set_v1(GetSetV1Params params)
         returns (GetDifferentialExpressionMatrixSetV1Result result) authentication optional;
 
     /*
@@ -93,13 +99,9 @@ module SetAPI {
         DifferentialExpressionMatrixSet data;
     } SaveDifferentialExpressionMatrixSetV1Params;
 
-    typedef structure {
-        string set_ref;
-        Workspace.object_info set_info;
-    } SaveDifferentialExpressionMatrixSetV1Result;
 
     funcdef save_differential_expression_matrix_set_v1(SaveDifferentialExpressionMatrixSetV1Params params)
-        returns (SaveDifferentialExpressionMatrixSetV1Result result) authentication required;
+        returns (SaveSetV1Result result) authentication required;
 
 
 
@@ -150,20 +152,14 @@ module SetAPI {
                                          ref_path_to_set;item_ref  (if ref_path_to_set is given) or
                                          set_ref;item_ref  (if ref_path_to_set is not given)
     */
-    typedef structure {
-        string ref;
-        boolean include_item_info;
-        boolean include_set_item_ref_paths;
-        list <string> ref_path_to_set;
-    } GetFeatureSetSetV1Params;
 
     typedef structure {
         FeatureSetSet data;
         Workspace.object_info info;
     } GetFeatureSetSetV1Result;
 
-    funcdef get_feature_set_set_v1(GetFeatureSetSetV1Params params)
-        returns (GetFeatureSetSetV1Result) authentication optional;
+    funcdef get_feature_set_set_v1(GetSetV1Params params)
+        returns (GetFeatureSetSetV1Result result) authentication optional;
 
     /*
         workspace_name or workspace_id - alternative options defining
@@ -177,13 +173,9 @@ module SetAPI {
         FeatureSetSet data;
     } SaveFeatureSetSetV1Params;
 
-    typedef structure {
-        string set_ref;
-        Workspace.object_info set_info;
-    } SaveFeatureSetSetV1Result;
 
     funcdef save_feature_set_set_v1(SaveFeatureSetSetV1Params params)
-        returns (SaveFeatureSetSetV1Result result) authentication required;
+        returns (SaveSetV1Result result) authentication required;
 
 
     /* ******* EXPRESSION SET METHODS ******** */
@@ -233,20 +225,14 @@ module SetAPI {
                                          ref_path_to_set;item_ref  (if ref_path_to_set is given) or
                                          set_ref;item_ref  (if ref_path_to_set is not given)
     */
-    typedef structure {
-        string ref;
-        boolean include_item_info;
-        boolean include_set_item_ref_paths;
-        list <string> ref_path_to_set;
-    } GetExpressionSetV1Params;
 
     typedef structure {
         ExpressionSet data;
         Workspace.object_info info;
     } GetExpressionSetV1Result;
 
-    funcdef get_expression_set_v1(GetExpressionSetV1Params params)
-        returns (GetExpressionSetV1Result) authentication optional;
+    funcdef get_expression_set_v1(GetSetV1Params params)
+        returns (GetExpressionSetV1Result result) authentication optional;
 
     /*
         workspace_name or workspace_id - alternative options defining
@@ -260,13 +246,9 @@ module SetAPI {
         ExpressionSet data;
     } SaveExpressionSetV1Params;
 
-    typedef structure {
-        string set_ref;
-        Workspace.object_info set_info;
-    } SaveExpressionSetV1Result;
 
     funcdef save_expression_set_v1(SaveExpressionSetV1Params params)
-        returns (SaveExpressionSetV1Result result) authentication required;
+        returns (SaveSetV1Result result) authentication required;
 
 
     /* ******* READS ALIGNMENT SET METHODS ******** */
@@ -316,20 +298,14 @@ module SetAPI {
                                          ref_path_to_set;item_ref  (if ref_path_to_set is given) or
                                          set_ref;item_ref  (if ref_path_to_set is not given)
     */
-    typedef structure {
-        string ref;
-        boolean include_item_info;
-        boolean include_set_item_ref_paths;
-        list <string> ref_path_to_set;
-    } GetReadsAlignmentSetV1Params;
 
     typedef structure {
         ReadsAlignmentSet data;
         Workspace.object_info info;
     } GetReadsAlignmentSetV1Result;
 
-    funcdef get_reads_alignment_set_v1(GetReadsAlignmentSetV1Params params)
-        returns (GetReadsAlignmentSetV1Result) authentication optional;
+    funcdef get_reads_alignment_set_v1(GetSetV1Params params)
+        returns (GetReadsAlignmentSetV1Result result) authentication optional;
 
     /*
         workspace_name or workspace_id - alternative options defining
@@ -343,13 +319,9 @@ module SetAPI {
         ReadsAlignmentSet data;
     } SaveReadsAlignmentSetV1Params;
 
-    typedef structure {
-        string set_ref;
-        Workspace.object_info set_info;
-    } SaveReadsAlignmentSetV1Result;
 
     funcdef save_reads_alignment_set_v1(SaveReadsAlignmentSetV1Params params)
-        returns (SaveReadsAlignmentSetV1Result result) authentication required;
+        returns (SaveSetV1Result result) authentication required;
 
 
 
@@ -398,19 +370,13 @@ module SetAPI {
                                          ref_path_to_set;item_ref  (if ref_path_to_set is given) or
                                          set_ref;item_ref  (if ref_path_to_set is not given)
     */
-    typedef structure {
-        string ref;
-        boolean include_item_info;
-        boolean include_set_item_ref_paths;
-        list <string> ref_path_to_set;
-    } GetReadsSetV1Params;
 
     typedef structure {
         ReadsSet data;
         Workspace.object_info info;
     } GetReadsSetV1Result;
 
-    funcdef get_reads_set_v1(GetReadsSetV1Params params)
+    funcdef get_reads_set_v1(GetSetV1Params params)
         returns (GetReadsSetV1Result result) authentication optional;
 
     /*
@@ -425,13 +391,9 @@ module SetAPI {
         ReadsSet data;
     } SaveReadsSetV1Params;
 
-    typedef structure {
-        string set_ref;
-        Workspace.object_info set_info;
-    } SaveReadsSetV1Result;
 
     funcdef save_reads_set_v1(SaveReadsSetV1Params params)
-        returns (SaveReadsSetV1Result result) authentication required;
+        returns (SaveSetV1Result result) authentication required;
 
 
 
@@ -480,19 +442,13 @@ module SetAPI {
                                          ref_path_to_set;item_ref  (if ref_path_to_set is given) or
                                          set_ref;item_ref  (if ref_path_to_set is not given)
     */
-    typedef structure {
-        string ref;
-        boolean include_item_info;
-        boolean include_set_item_ref_paths;
-        list <string> ref_path_to_set;
-    } GetAssemblySetV1Params;
 
     typedef structure {
         AssemblySet data;
         Workspace.object_info info;
     } GetAssemblySetV1Result;
 
-    funcdef get_assembly_set_v1(GetAssemblySetV1Params params)
+    funcdef get_assembly_set_v1(GetSetV1Params params)
         returns (GetAssemblySetV1Result result) authentication optional;
 
     /*
@@ -507,13 +463,9 @@ module SetAPI {
         AssemblySet data;
     } SaveAssemblySetV1Params;
 
-    typedef structure {
-        string set_ref;
-        Workspace.object_info set_info;
-    } SaveAssemblySetV1Result;
 
     funcdef save_assembly_set_v1(SaveAssemblySetV1Params params)
-        returns (SaveAssemblySetV1Result result) authentication required;
+        returns (SaveSetV1Result result) authentication required;
 
 
 
@@ -564,19 +516,13 @@ module SetAPI {
                                 ref_path_to_set;item_ref  (if ref_path_to_set is given) or
                                 set_ref;item_ref
     */
-    typedef structure {
-        string ref;
-        boolean include_item_info;
-        boolean include_set_item_ref_paths;
-        list <string> ref_path_to_set;
-    } GetGenomeSetV1Params;
 
     typedef structure {
         GenomeSet data;
         Workspace.object_info info;
     } GetGenomeSetV1Result;
 
-    funcdef get_genome_set_v1(GetGenomeSetV1Params params)
+    funcdef get_genome_set_v1(GetSetV1Params params)
         returns (GetGenomeSetV1Result result) authentication optional;
 
     /*
@@ -594,18 +540,14 @@ module SetAPI {
         boolean save_search_set;
     } SaveGenomeSetV1Params;
 
-    typedef structure {
-        string set_ref;
-        Workspace.object_info set_info;
-    } SaveGenomeSetV1Result;
 
     funcdef save_genome_set_v1(SaveGenomeSetV1Params params)
-        returns (SaveGenomeSetV1Result result) authentication required;
+        returns (SaveSetV1Result result) authentication required;
 
 
     /* ******* Sample SET METHODS ************ */
 
-    typedef structure{
+    typedef structure {
         string ws_id;
         string sampleset_id;
         string sampleset_desc;
@@ -621,13 +563,8 @@ module SetAPI {
         mapping<string, string> sample_n_conditions;
     } CreateRNASeqSampleSetParams;
 
-    typedef structure{
-        string set_ref;
-        Workspace.object_info set_info;
-    } CreateRNASeqSampleSetResult;
-
     funcdef create_sample_set(CreateRNASeqSampleSetParams params)
-                      returns(CreateRNASeqSampleSetResult) authentication required;
+        returns (SaveSetV1Result result) authentication required;
 
 
 
@@ -661,7 +598,7 @@ module SetAPI {
     } SampleSetToSamplesInfoResult;
 
     funcdef sample_set_to_samples_info(SampleSetToSamplesInfoParams params)
-                        returns(SampleSetToSamplesInfoResult result) authentication required;
+        returns (SampleSetToSamplesInfoResult result) authentication required;
 
 
 
@@ -720,7 +657,7 @@ module SetAPI {
     one level down members of those sets.
     NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA */
     funcdef list_sets(ListSetParams params)
-              returns(ListSetResult result) authentication optional;
+        returns (ListSetResult result) authentication optional;
 
     /*
         include_set_item_ref_paths - 1 or 0, if 1, additionally provides ref_path for each item
@@ -747,6 +684,6 @@ module SetAPI {
     return 'sets' list will match the position in the input ref list.
     NOTE: DOES NOT PRESERVE ORDERING OF ITEM LIST IN DATA */
     funcdef get_set_items(GetSetItemsParams params)
-                  returns(GetSetItemsResult result) authentication optional;
+        returns (GetSetItemsResult result) authentication optional;
 
 };
