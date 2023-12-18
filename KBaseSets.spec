@@ -44,7 +44,7 @@ module KBaseSets {
 
 
     /****************************** */
-    /* FEATURESET SET */
+    /* FEATURE_SET SET */
 
     /*
         The workspace id for a FeatureSet data object.
