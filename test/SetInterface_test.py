@@ -75,3 +75,28 @@ def test_get_set(
         "ref": ref,
     }
     check_get_set_output(**args_to_check_get_set_output)
+
+
+@pytest.mark.parametrize("set_item_name", [None, "", "piggy"])
+def test_save_set_invalid_type(
+    clients: dict[str, Any],
+    set_item_name: str,
+) -> None:
+    """Testing a situation where an invalid set_item_name has magicked itself into existence.
+
+    This cannot be tested through the API as there is no way to
+    generate this kind of combination.
+
+    :param clients: dict of relevant clients
+    :type clients: dict[str, Any]
+    """
+    set_interface = SetInterfaceV1(clients["ws"])
+    with pytest.raises(
+        ValueError,
+        match="invalid set item name",
+    ):
+        set_interface.save_set(
+            set_item_name,
+            {},
+            {"workspace": "blah", "data": "ugh", "output_object_name": "meh"},
+        )

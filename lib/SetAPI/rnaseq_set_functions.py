@@ -100,10 +100,12 @@ def get_rnaseq_sample_set(
     set_data = {"data": {"items": set_items, "description": desc}, "info": set_info}
 
     if len(obj_data.get("sample_ids")) != len(obj_data.get("condition")):
+        # this should not happen if the sample set was created through the SetAPI
         err_msg = "Invalid RNASeqSampleSet! The number of conditions doesn't match the number of reads objects."
         raise RuntimeError(err_msg)
 
     if len(obj_data.get("sample_ids", [])) == 0:
+        # this should not happen if the sample set was created through the SetAPI
         return set_data
 
     for idx, _ in enumerate(obj_data["sample_ids"]):
