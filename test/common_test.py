@@ -1,5 +1,4 @@
-"""General tests to be performed on most or all classes."""
-from test.conftest import SET_FIXTURE_MAP
+"""Sets of assertions for testing the saving and retrieval of sets."""
 from test.util import (
     INFO_LENGTH,
     info_to_name,
@@ -9,7 +8,6 @@ from test.util import (
 )
 from typing import Any
 
-import pytest
 from SetAPI.generic.constants import (
     ASSEMBLY,
     DIFFERENTIAL_EXPRESSION_MATRIX,
@@ -34,10 +32,6 @@ SET_ITEM_NAMES = [
     READS,
     READS_ALIGNMENT,
 ]
-
-
-FAKE_WS_ID = 123456789
-KBASE_UPA = "1/2/3"
 
 
 def is_info_object(
@@ -273,19 +267,6 @@ def check_get_set(
     params = param_wrangle(
         ref_args, get_method_args, set_ref, set_to_get["set_name"], ws_name
     )
-    if ref_args == "__SET_REF__":
-        params["ref"] = set_ref
-    else:
-        params["ref"] = f"{ws_name}/{set_to_get['set_name']}"
-
-    for param in [INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET]:
-        if param in get_method_args:
-            params[param] = get_method_args[param]
-
-    if params.get(REF_PATH_TO_SET, []) != []:
-        # add in a value for the REF_PATH_TO_SET
-        params[REF_PATH_TO_SET] = [set_ref]
-
     get_method = getattr(set_api_client, f"get_{set_item_name}_set_v1")
     fetched_set = get_method(context, params)[0]
 
@@ -296,23 +277,3 @@ def check_get_set(
         "obj": fetched_set,
     }
     check_get_set_output(**args_to_check_get_set_output)
-
-
-@pytest.mark.parametrize(
-    ("ws_id", "data_fixture"),
-    [("default_ws_id", data_fixture) for data_fixture in SET_FIXTURE_MAP],
-    indirect=["ws_id", "data_fixture"],
-)
-def test_save_set(ws_id: int, data_fixture: dict[str, Any]) -> None:
-    """Test that saving a set produces the expected output.
-
-    This saves sets in the default workspace (default_ws_id) and uses the
-    fixtures corresponding to the keys in the SET_FIXTURE_MAP mapping.
-    See test/conftest.py for SET_FIXTURE_MAP.
-
-    :param ws_id: workspace ID of the workspace that the sets are saved in
-    :type ws_id: int
-    :param data_fixture: name of the data fixture to use in the test
-    :type data_fixture: dict[str, Any]
-    """
-    check_save_set_output(**data_fixture)

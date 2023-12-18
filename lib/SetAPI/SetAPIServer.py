@@ -336,6 +336,10 @@ class Application(object):
         self.serverlog.set_log_level(6)
         self.rpc_service = JSONRPCServiceCustom()
         self.method_authentication = dict()
+        self.rpc_service.add(impl_SetAPI.get_set_v1,
+                             name='SetAPI.get_set_v1',
+                             types=[dict])
+        self.method_authentication['SetAPI.get_set_v1'] = 'optional'  # noqa
         self.rpc_service.add(impl_SetAPI.get_differential_expression_matrix_set_v1,
                              name='SetAPI.get_differential_expression_matrix_set_v1',
                              types=[dict])

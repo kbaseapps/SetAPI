@@ -1,5 +1,5 @@
 """General set saving error tests performed on most or all set types."""
-from test.common_test import FAKE_WS_ID, KBASE_UPA, SET_ITEM_NAMES
+from test.common_test import SET_ITEM_NAMES
 
 import pytest
 from SetAPI.error_messages import (
@@ -25,6 +25,9 @@ MISMATCHED_GENOME_REFS = {
     READS_ALIGNMENT: "alignment_mismatched_genome_refs",
     EXPRESSION: "expression_mismatched_genome_refs",
 }
+
+FAKE_WS_ID = 123456789
+KBASE_UPA = "123/45/6"
 
 
 @pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=["ws_id"])
