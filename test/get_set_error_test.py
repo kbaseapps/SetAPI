@@ -1,5 +1,5 @@
 """General set retrieval error tests to be performed on most or all set types."""
-from test.common_test import KBASE_UPA, SET_ITEM_NAMES
+from test.common_test import SET_ITEM_NAMES
 
 import pytest
 from SetAPI.error_messages import (
@@ -13,6 +13,8 @@ from SetAPI.generic.constants import (
     INC_ITEM_REF_PATHS,
 )
 from SetAPI.SetAPIImpl import SetAPI
+
+KBASE_UPA = "123/45/6"
 
 
 @pytest.mark.parametrize("set_item_name", SET_ITEM_NAMES)

@@ -3,7 +3,6 @@ from test.common_test import (
     check_get_set_output,
     param_wrangle,
 )
-from typing import Any
 
 import pytest
 from SetAPI.generic.constants import (
