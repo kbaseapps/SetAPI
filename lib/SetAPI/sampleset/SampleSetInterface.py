@@ -4,13 +4,18 @@ from typing import Any
 
 from installed_clients.WorkspaceClient import Workspace
 
+from SetAPI.generic.constants import RNASEQ_SAMPLE
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
 
-SET_ITEM_NAME = "rnaseq_sample"
+SET_ITEM_NAME = RNASEQ_SAMPLE
 
 
 class SampleSetInterface:
-    """An interface for handling sample sets."""
+    """An interface for handling sample sets.
+
+    Note that SampleSets can be retrieved through the standard `get_***_set` interface;
+    they are processed by the `get_rnaseq_sample_set` function in `rnaseq_set_functions.py`.
+    """
 
     def __init__(self: "SampleSetInterface", workspace_client: Workspace):
         self.ws_client = workspace_client
