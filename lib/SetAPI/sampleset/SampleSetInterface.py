@@ -6,16 +6,15 @@ from installed_clients.WorkspaceClient import Workspace
 
 from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
 
+SET_ITEM_NAME = "rnaseq_sample"
+
 
 class SampleSetInterface:
+    """An interface for handling sample sets."""
+
     def __init__(self: "SampleSetInterface", workspace_client: Workspace):
         self.ws_client = workspace_client
         self.set_interface = SetInterfaceV1(workspace_client)
-
-    @staticmethod
-    def set_type() -> str:
-        """The set type saved by this class."""
-        return "KBaseRNASeq.RNASeqSampleSet"
 
     def create_sample_set(
         self: "SampleSetInterface", ctx: dict[str, Any], params: dict[str, Any]
@@ -103,7 +102,7 @@ class SampleSetInterface:
         print(f"Saving {output_object['sampleset_id']} object to workspace")
 
         return self.set_interface.save_set(
-            self.set_type(),
+            SET_ITEM_NAME,
             ctx["provenance"],
             {
                 "workspace": params.get("ws_id"),

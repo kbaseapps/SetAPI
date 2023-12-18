@@ -3,18 +3,17 @@
 
 from installed_clients.WorkspaceClient import Workspace
 
-from SetAPI.assembly.AssemblySetInterfaceV1 import AssemblySetInterfaceV1
-from SetAPI.differentialexpressionmatrix.DifferentialExpressionMatrixSetInterfaceV1 import (
-    DifferentialExpressionMatrixSetInterfaceV1,
+from SetAPI.generic.constants import (
+    ASSEMBLY,
+    DIFFERENTIAL_EXPRESSION_MATRIX,
+    EXPRESSION,
+    FEATURE_SET,
+    GENOME,
+    READS,
+    READS_ALIGNMENT,
 )
-from SetAPI.expression.ExpressionSetInterfaceV1 import ExpressionSetInterfaceV1
-from SetAPI.featureset.FeatureSetSetInterfaceV1 import FeatureSetSetInterfaceV1
 from SetAPI.generic.GenericSetNavigator import GenericSetNavigator
-from SetAPI.genome.GenomeSetInterfaceV1 import GenomeSetInterfaceV1
-from SetAPI.reads.ReadsSetInterfaceV1 import ReadsSetInterfaceV1
-from SetAPI.readsalignment.ReadsAlignmentSetInterfaceV1 import (
-    ReadsAlignmentSetInterfaceV1,
-)
+from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
 from SetAPI.sampleset.SampleSearchUtils import SamplesSearchUtils
 from SetAPI.sampleset.SampleSetInterface import SampleSetInterface
 
@@ -47,8 +46,8 @@ class SetAPI:
     # be found
     def __init__(self, config):
         # BEGIN_CONSTRUCTOR
-        self.workspaceURL = config["workspace-url"]
-        self.serviceWizardURL = config["service-wizard"]
+        self.workspace_url = config["workspace-url"]
+        self.service_wizard_url = config["service-wizard"]
         if config.get("search-url"):
             self.search_url = config.get("search-url")
         else:
@@ -187,9 +186,10 @@ class SetAPI:
         # ctx is the context object
         # return variables are: result
         # BEGIN get_differential_expression_matrix_set_v1
-        ws = Workspace(self.workspaceURL, token=ctx["token"])
-        demsi = DifferentialExpressionMatrixSetInterfaceV1(ws)
-        result = demsi.get_differential_expression_matrix_set(ctx, params)
+        ws = Workspace(self.workspace_url, token=ctx["token"])
+        set_interface = SetInterfaceV1(ws)
+        result = set_interface.get_set(params)
+
         # END get_differential_expression_matrix_set_v1
 
         # At some point might do deeper type checking...
@@ -322,9 +322,11 @@ class SetAPI:
         # ctx is the context object
         # return variables are: result
         # BEGIN save_differential_expression_matrix_set_v1
-        ws = Workspace(self.workspaceURL, token=ctx["token"])
-        demsi = DifferentialExpressionMatrixSetInterfaceV1(ws)
-        result = demsi.save_differential_expression_matrix_set(ctx, params)
+        ws = Workspace(self.workspace_url, token=ctx["token"])
+        set_interface = SetInterfaceV1(ws)
+        result = set_interface.save_set(
+            DIFFERENTIAL_EXPRESSION_MATRIX, ctx["provenance"], params
+        )
         # END save_differential_expression_matrix_set_v1
 
         # At some point might do deeper type checking...
@@ -457,9 +459,9 @@ class SetAPI:
         # ctx is the context object
         # return variables are: result
         # BEGIN get_feature_set_set_v1
-        ws = Workspace(self.workspaceURL, token=ctx["token"])
-        fssi = FeatureSetSetInterfaceV1(ws)
-        result = fssi.get_feature_set_set(ctx, params)
+        ws = Workspace(self.workspace_url, token=ctx["token"])
+        set_interface = SetInterfaceV1(ws)
+        result = set_interface.get_set(params)
         # END get_feature_set_set_v1
 
         # At some point might do deeper type checking...
@@ -587,9 +589,9 @@ class SetAPI:
         # ctx is the context object
         # return variables are: result
         # BEGIN save_feature_set_set_v1
-        ws = Workspace(self.workspaceURL, token=ctx["token"])
-        fssi = FeatureSetSetInterfaceV1(ws)
-        result = fssi.save_feature_set_set(ctx, params)
+        ws = Workspace(self.workspace_url, token=ctx["token"])
+        set_interface = SetInterfaceV1(ws)
+        result = set_interface.save_set(FEATURE_SET, ctx["provenance"], params)
         # END save_feature_set_set_v1
 
         # At some point might do deeper type checking...
@@ -727,9 +729,9 @@ class SetAPI:
         # return variables are: result
         # BEGIN get_expression_set_v1
 
-        ws = Workspace(self.workspaceURL, token=ctx["token"])
-        esi = ExpressionSetInterfaceV1(ws)
-        result = esi.get_expression_set(ctx, params)
+        ws = Workspace(self.workspace_url, token=ctx["token"])
+        set_interface = SetInterfaceV1(ws)
+        result = set_interface.get_set(params)
 
         # END get_expression_set_v1
 
@@ -862,9 +864,9 @@ class SetAPI:
         # return variables are: result
         # BEGIN save_expression_set_v1
 
-        ws = Workspace(self.workspaceURL, token=ctx["token"])
-        esi = ExpressionSetInterfaceV1(ws)
-        result = esi.save_expression_set(ctx, params)
+        ws = Workspace(self.workspace_url, token=ctx["token"])
+        set_interface = SetInterfaceV1(ws)
+        result = set_interface.save_set(EXPRESSION, ctx["provenance"], params)
 
         # END save_expression_set_v1
 
@@ -1004,9 +1006,9 @@ class SetAPI:
         # return variables are: result
         # BEGIN get_reads_alignment_set_v1
 
-        ws = Workspace(self.workspaceURL, token=ctx["token"])
-        rasi = ReadsAlignmentSetInterfaceV1(ws)
-        result = rasi.get_reads_alignment_set(ctx, params)
+        ws = Workspace(self.workspace_url, token=ctx["token"])
+        set_interface = SetInterfaceV1(ws)
+        result = set_interface.get_set(params)
 
         # END get_reads_alignment_set_v1
 
@@ -1138,9 +1140,9 @@ class SetAPI:
         # ctx is the context object
         # return variables are: result
         # BEGIN save_reads_alignment_set_v1
-        ws = Workspace(self.workspaceURL, token=ctx["token"])
-        rasi = ReadsAlignmentSetInterfaceV1(ws)
-        result = rasi.save_reads_alignment_set(ctx, params)
+        ws = Workspace(self.workspace_url, token=ctx["token"])
+        set_interface = SetInterfaceV1(ws)
+        result = set_interface.save_set(READS_ALIGNMENT, ctx["provenance"], params)
         # END save_reads_alignment_set_v1
 
         # At some point might do deeper type checking...
@@ -1274,9 +1276,9 @@ class SetAPI:
         # return variables are: result
         # BEGIN get_reads_set_v1
 
-        ws = Workspace(self.workspaceURL, token=ctx["token"])
-        rsi = ReadsSetInterfaceV1(ws)
-        result = rsi.get_reads_set(ctx, params)
+        ws = Workspace(self.workspace_url, token=ctx["token"])
+        set_interface = SetInterfaceV1(ws)
+        result = set_interface.get_set(params)
 
         # END get_reads_set_v1
 
@@ -1405,9 +1407,9 @@ class SetAPI:
         # return variables are: result
         # BEGIN save_reads_set_v1
 
-        ws = Workspace(self.workspaceURL, token=ctx["token"])
-        rsi = ReadsSetInterfaceV1(ws)
-        result = rsi.save_reads_set(ctx, params)
+        ws = Workspace(self.workspace_url, token=ctx["token"])
+        set_interface = SetInterfaceV1(ws)
+        result = set_interface.save_set(READS, ctx["provenance"], params)
 
         # END save_reads_set_v1
 
@@ -1539,9 +1541,9 @@ class SetAPI:
         # return variables are: result
         # BEGIN get_assembly_set_v1
 
-        ws = Workspace(self.workspaceURL, token=ctx["token"])
-        rsi = AssemblySetInterfaceV1(ws)
-        result = rsi.get_assembly_set(ctx, params)
+        ws = Workspace(self.workspace_url, token=ctx["token"])
+        set_interface = SetInterfaceV1(ws)
+        result = set_interface.get_set(params)
 
         # END get_assembly_set_v1
 
@@ -1667,9 +1669,9 @@ class SetAPI:
         # ctx is the context object
         # return variables are: result
         # BEGIN save_assembly_set_v1
-        ws = Workspace(self.workspaceURL, token=ctx["token"])
-        rsi = AssemblySetInterfaceV1(ws)
-        result = rsi.save_assembly_set(ctx, params)
+        ws = Workspace(self.workspace_url, token=ctx["token"])
+        set_interface = SetInterfaceV1(ws)
+        result = set_interface.save_set(ASSEMBLY, ctx["provenance"], params)
 
         # END save_assembly_set_v1
 
@@ -1853,9 +1855,9 @@ class SetAPI:
         # ctx is the context object
         # return variables are: result
         # BEGIN get_genome_set_v1
-        ws = Workspace(self.workspaceURL, token=ctx["token"])
-        rsi = GenomeSetInterfaceV1(ws)
-        result = rsi.get_genome_set(ctx, params)
+        ws = Workspace(self.workspace_url, token=ctx["token"])
+        set_interface = SetInterfaceV1(ws)
+        result = set_interface.get_set(params)
         # END get_genome_set_v1
 
         # At some point might do deeper type checking...
@@ -2037,9 +2039,9 @@ class SetAPI:
         # ctx is the context object
         # return variables are: result
         # BEGIN save_genome_set_v1
-        ws = Workspace(self.workspaceURL, token=ctx["token"])
-        rsi = GenomeSetInterfaceV1(ws)
-        result = rsi.save_genome_set(ctx, params)
+        ws = Workspace(self.workspace_url, token=ctx["token"])
+        set_interface = SetInterfaceV1(ws)
+        result = set_interface.save_set(GENOME, ctx["provenance"], params)
         # END save_genome_set_v1
 
         # At some point might do deeper type checking...
@@ -2111,7 +2113,7 @@ class SetAPI:
         # ctx is the context object
         # return variables are: result
         # BEGIN create_sample_set
-        ws = Workspace(self.workspaceURL, token=ctx["token"])
+        ws = Workspace(self.workspace_url, token=ctx["token"])
         ssi = SampleSetInterface(ws)
         result = ssi.create_sample_set(ctx, params)
         # END create_sample_set
@@ -2290,7 +2292,7 @@ class SetAPI:
         # return variables are: result
         # BEGIN list_sets
 
-        ws = Workspace(self.workspaceURL, token=ctx["token"])
+        ws = Workspace(self.workspace_url, token=ctx["token"])
         gsn = GenericSetNavigator(ws, token=ctx["token"])
         result = gsn.list_sets(params)
 
@@ -2424,7 +2426,7 @@ class SetAPI:
         # return variables are: result
         # BEGIN get_set_items
 
-        ws = Workspace(self.workspaceURL, token=ctx["token"])
+        ws = Workspace(self.workspace_url, token=ctx["token"])
         gsn = GenericSetNavigator(ws)
         result = gsn.get_set_items(params)
 

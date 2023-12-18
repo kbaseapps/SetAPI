@@ -21,6 +21,8 @@ READS = "reads"
 READS_SET = "KBaseSets.ReadsSet"
 READS_ALIGNMENT = "reads_alignment"
 READS_ALIGNMENT_SET = "KBaseSets.ReadsAlignmentSet"
+RNASEQ_SAMPLE = "rnaseq_sample"
+RNASEQ_SAMPLE_SET = "KBaseRNASeq.RNASeqSampleSet"
 
 SAVE_SEARCH_SET = "save_search_set"
 
@@ -36,4 +38,6 @@ SET_ITEM_NAME_TO_SET_TYPE = {
     READS_ALIGNMENT: READS_ALIGNMENT_SET,
     # exception: this uses `save_genome_set` / `get_genome_set`
     GENOME_SEARCH: GENOME_SEARCH_SET,
+    # another exception: sample sets: `create_sample_set`, no official getter
+    RNASEQ_SAMPLE: RNASEQ_SAMPLE_SET,
 }
