@@ -1,4 +1,5 @@
 """General tests to be performed on most or all classes."""
+from test.conftest import SET_FIXTURE_MAP
 from test.util import (
     INFO_LENGTH,
     info_to_name,
@@ -9,53 +10,58 @@ from test.util import (
 from typing import Any
 
 import pytest
-from SetAPI.assembly.AssemblySetInterfaceV1 import AssemblySetInterfaceV1
-from SetAPI.differentialexpressionmatrix.DifferentialExpressionMatrixSetInterfaceV1 import (
-    DifferentialExpressionMatrixSetInterfaceV1,
-)
-from SetAPI.error_messages import (
-    include_params_valid,
-    list_required,
-    no_dupes,
-    no_items,
-    param_required,
-    ref_must_be_valid,
-    ref_path_must_be_valid,
-    same_ref,
-)
-from SetAPI.expression.ExpressionSetInterfaceV1 import ExpressionSetInterfaceV1
-from SetAPI.featureset.FeatureSetSetInterfaceV1 import FeatureSetSetInterfaceV1
-from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET
-from SetAPI.genome.GenomeSetInterfaceV1 import GenomeSetInterfaceV1
-from SetAPI.reads.ReadsSetInterfaceV1 import ReadsSetInterfaceV1
-from SetAPI.readsalignment.ReadsAlignmentSetInterfaceV1 import (
-    ReadsAlignmentSetInterfaceV1,
+from SetAPI.generic.constants import (
+    ASSEMBLY,
+    DIFFERENTIAL_EXPRESSION_MATRIX,
+    EXPRESSION,
+    FEATURE_SET,
+    GENOME,
+    INC_ITEM_INFO,
+    INC_ITEM_REF_PATHS,
+    READS,
+    READS_ALIGNMENT,
+    REF_PATH_TO_SET,
+    SET_ITEM_NAME_TO_SET_TYPE,
 )
 from SetAPI.SetAPIImpl import SetAPI
 
-SET_TYPE_TO_CLASS = {
-    "assembly": AssemblySetInterfaceV1,
-    "differential_expression_matrix": DifferentialExpressionMatrixSetInterfaceV1,
-    "expression": ExpressionSetInterfaceV1,
-    "feature_set": FeatureSetSetInterfaceV1,
-    "genome": GenomeSetInterfaceV1,
-    "reads": ReadsSetInterfaceV1,
-    "reads_alignment": ReadsAlignmentSetInterfaceV1,
-}
+SET_ITEM_NAMES = [
+    ASSEMBLY,
+    DIFFERENTIAL_EXPRESSION_MATRIX,
+    EXPRESSION,
+    FEATURE_SET,
+    GENOME,
+    READS,
+    READS_ALIGNMENT,
+]
 
 
-SET_TYPES = list(SET_TYPE_TO_CLASS.keys())
 FAKE_WS_ID = 123456789
 KBASE_UPA = "1/2/3"
+
+# standard sets to test:
+sets_to_test = {
+    "assembly_set": "assembly_refs",
+    "empty_assembly_set": None,
+    "differential_expression_matrix_with_genome_set": "differential_expression_matrix_with_genome_refs",
+    "differential_expression_matrix_no_genome_set": "differential_expression_matrix_no_genome_refs",
+    "expression_set": "expression_refs",
+    "feature_set_set": "feature_set_refs",
+    "empty_feature_set_set": None,
+    "genome_set": "genome_refs",
+    "empty_genome_set": None,
+    "reads_set": "reads_refs",
+    "empty_reads_set": None,
+    "reads_alignment_set": "reads_alignment_refs",
+}
 
 
 def is_info_object(
     obj: list[str | int | dict[str, str]],
     obj_name: str | None = None,
-    obj_type: str | None = None,
+    kbase_obj_type: str | None = None,
     obj_description: str | None = None,
     n_items: int | None = None,
-    is_fake_set: bool = False,
 ) -> None:
     """Checks whether a mysterious data structure is a KBase info list.
 
@@ -80,14 +86,12 @@ def is_info_object(
     :type info: list[str|int|dict[str, str]]
     :param obj_name: expected object name, defaults to None
     :type obj_name: str | None, optional
-    :param obj_type: expected object type, defaults to None
-    :type obj_type: str | None, optional
+    :param kbase_obj_type: expected KBase object type, defaults to None
+    :type kbase_obj_type: str | None, optional
     :param obj_description: expected description in the user metadata, defaults to None
     :type obj_description: str | None, optional
     :param n_items: how many items are expected in the user metadata, defaults to None
     :type n_items: int | None, optional
-    :param is_fake_set: whether or not the current set was created by the SetAPI, defaults to False
-    :type is_fake_set: bool, optional
     """
     assert isinstance(obj, list)
     assert len(obj) == INFO_LENGTH
@@ -102,12 +106,12 @@ def is_info_object(
     # some of these can be "falsy" values (0, empty string), so check explicitly against None
     if obj_name is not None:
         assert info_to_name(obj) == obj_name
-    if obj_type:
-        assert obj_type in info_to_type(obj)
-    if obj_description is not None and not is_fake_set:
+    if kbase_obj_type:
+        assert kbase_obj_type in info_to_type(obj)
+    if obj_description is not None:
         assert "description" in info_to_usermeta(obj)
         assert info_to_usermeta(obj)["description"] == obj_description
-    if n_items is not None and not is_fake_set:
+    if n_items is not None:
         assert "item_count" in info_to_usermeta(obj)
         assert info_to_usermeta(obj)["item_count"] == str(n_items)
 
@@ -115,7 +119,7 @@ def is_info_object(
 def check_save_set_output(
     obj: dict[str, Any],
     set_name: str,
-    set_type: str | None = None,
+    kbase_set_type: str,
     set_description: str | None = None,
     n_items: int | None = None,
     **kwargs,
@@ -129,8 +133,8 @@ def check_save_set_output(
     :type obj: dict[str, Any]
     :param set_name: the set name
     :type set_name: str
-    :param set_type: the type of the set, defaults to None
-    :type set_type: str | None, optional
+    :param kbase_set_type: expected KBase object type, defaults to None
+    :type kbase_set_type: str | None, optional
     :param set_description: user-entered description of the set, defaults to None
     :type set_description: str | None, optional
     :param n_items: number of items in the set, defaults to None
@@ -142,7 +146,7 @@ def check_save_set_output(
     assert "set_ref" in obj
     assert "set_info" in obj
     assert obj["set_ref"] == info_to_ref(obj["set_info"])
-    is_info_object(obj["set_info"], set_name, set_type, set_description, n_items)
+    is_info_object(obj["set_info"], set_name, kbase_set_type, set_description, n_items)
 
 
 def check_second_item(
@@ -165,14 +169,14 @@ def check_get_set_output(
     obj: dict[str, Any],
     ref: str,
     set_name: str,
-    set_type: str | None = None,
+    kbase_set_type: str,
     set_description: str | None = None,
     n_items: int | None = None,
     second_set_item: dict[str, str] | None = None,
     include_item_info: int = 0,
     include_set_item_ref_paths: int = 0,
     ref_path_to_set: list[str] | None = None,
-    is_fake_set: bool = False,
+    **kwargs,
 ) -> None:
     """Checks the output of a get_set command.
 
@@ -182,8 +186,8 @@ def check_get_set_output(
     :type ref: str
     :param set_name: set name
     :type set_name: str
-    :param set_type: set type, defaults to None
-    :type set_type: str | None, optional
+    :param kbase_set_type: expected KBase object type, defaults to None
+    :type kbase_set_type: str | None, optional
     :param set_description: set description, defaults to None
     :type set_description: str | None, optional
     :param n_items: how many items are expected in the set, defaults to None
@@ -196,17 +200,13 @@ def check_get_set_output(
     :type include_set_item_ref_paths: int, optional
     :param ref_path_to_set: list of references for the set, defaults to None
     :type ref_path_to_set: list[str], optional
-    :param is_fake_set: whether or not the current set was created by the SetAPI, defaults to False
-    :type is_fake_set: bool, optional
     :param kwargs: leftover params - not used
     :type kwargs: dict[str, Any], optional
     """
     assert obj is not None
     assert "data" in obj
     assert "info" in obj
-    is_info_object(
-        obj["info"], set_name, set_type, set_description, n_items, is_fake_set
-    )
+    is_info_object(obj["info"], set_name, kbase_set_type, set_description, n_items)
 
     assert obj["data"]["description"] == set_description
     assert len(obj["data"]["items"]) == n_items
@@ -231,219 +231,34 @@ def check_get_set_output(
         check_second_item(obj, second_set_item)
 
 
-def check_save_set_mismatched_genomes(
-    context: dict[str, str | list],
-    set_api_client: SetAPI,
-    set_type: str,
-    set_item_refs: list[str],
-    set_items_type: str,
-) -> None:
-    """Check that objects with refs to different genomes cannot be setified.
+def param_wrangle(
+    ref_args: str,
+    get_method_args: dict[str, str | int],
+    set_ref: str,
+    set_name: str,
+    ws_name: str,
+) -> dict[str, Any]:
+    # set up the parameters for a "get_***_set" query
+    params = {}
+    if ref_args == "__SET_REF__":
+        params["ref"] = set_ref
+    else:
+        params["ref"] = f"{ws_name}/{set_name}"
 
-    :param context: KBase context
-    :type context: dict[str, str  |  list]
-    :param set_api_client: SetAPI client
-    :type set_api_client: SetAPI
-    :param set_type: the type of set, to insert into "save_{set_type}_set"
-    :type set_type: str
-    :param set_item_refs: the objects to be put in the set
-    :type set_item_refs: list[str]
-    :param set_items_type: shorthand KBase object type
-    :type set_items_type: str
-    """
-    set_items = [{"label": "item", "ref": ref} for ref in set_item_refs]
-    save_method = getattr(set_api_client, f"save_{set_type}_set_v1")
-    with pytest.raises(
-        ValueError,
-        match=same_ref(set_items_type),
-    ):
-        save_method(
-            context,
-            {
-                "workspace_id": FAKE_WS_ID,
-                "output_object_name": "foo",
-                "data": {
-                    "description": "mismatched genome alert!",
-                    "items": set_items,
-                },
-            },
-        )
+    for param in [INC_ITEM_INFO, INC_ITEM_REF_PATHS, REF_PATH_TO_SET]:
+        if param in get_method_args:
+            params[param] = get_method_args[param]
 
+    if params.get(REF_PATH_TO_SET, []) != []:
+        # add in a value for the REF_PATH_TO_SET
+        params[REF_PATH_TO_SET] = [set_ref]
 
-@pytest.mark.parametrize("set_type", SET_TYPES)
-def test_save_set_no_data(
-    context: dict[str, str | list],
-    set_api_client: SetAPI,
-    set_type: str,
-) -> None:
-    """Check that a set cannot be created without a "data" parameter.
-
-    :param context: KBase context
-    :type context: dict[str, str  |  list]
-    :param save_method: which method we're using
-    :type save_method: Callable
-    :param set_items_type: type of item in the set
-    :type set_items_type: str
-    """
-    save_method = getattr(set_api_client, f"save_{set_type}_set_v1")
-    with pytest.raises(
-        ValueError,
-        match=param_required("data"),
-    ):
-        save_method(
-            context,
-            {
-                "workspace_id": FAKE_WS_ID,
-                "output_object_name": "foo",
-                "data": None,
-            },
-        )
-
-
-@pytest.mark.parametrize("set_type", SET_TYPES)
-def test_save_set_no_items_list(
-    context: dict[str, str | list],
-    set_api_client: SetAPI,
-    set_type: str,
-) -> None:
-    """Check that a set cannot be created without an "items" key under the "data" parameter.
-
-    :param context: context
-    :type context: dict[str, str  |  list]
-    :param save_method: SetAPI save method being tested
-    :type save_method: Callable
-    :param set_items_type: string with the item type
-    :type set_items_type: str
-    """
-    save_method = getattr(set_api_client, f"save_{set_type}_set_v1")
-    with pytest.raises(
-        ValueError,
-        match=list_required("items"),
-    ):
-        save_method(
-            context,
-            {
-                "workspace_id": FAKE_WS_ID,
-                "output_object_name": "foo",
-                "data": {},
-            },
-        )
-
-
-@pytest.mark.parametrize("set_type", SET_TYPES)
-def test_save_set_no_objects(
-    context: dict[str, str | list],
-    set_api_client: SetAPI,
-    set_type: str,
-) -> None:
-    """For classes that don't allow empty sets to be created.
-
-    :param context: context
-    :type context: dict[str, str  |  list]
-    :param save_method: SetAPI save method being tested
-    :type save_method: Callable
-    :param set_items_type: string with the item type
-    :type set_items_type: str
-    """
-    klass = SET_TYPE_TO_CLASS[set_type]
-    if klass.allows_empty_set():
-        pytest.skip(f"{klass} allows the creation of empty sets")
-
-    save_method = getattr(set_api_client, f"save_{set_type}_set_v1")
-    set_items_type = SET_TYPE_TO_CLASS[set_type].set_items_type()
-
-    with pytest.raises(
-        ValueError,
-        match=no_items(set_items_type),
-    ):
-        save_method(
-            context,
-            {
-                "workspace_id": FAKE_WS_ID,
-                "output_object_name": "foo",
-                "data": {"items": []},
-            },
-        )
-
-
-@pytest.mark.parametrize("set_type", SET_TYPES)
-def test_save_set_with_dupes(
-    context: dict[str, str | list],
-    set_api_client: SetAPI,
-    set_type: str,
-):
-    save_method = getattr(set_api_client, f"save_{set_type}_set_v1")
-    # create a set with two identical refs
-    with pytest.raises(ValueError, match=no_dupes()):
-        save_method(
-            context,
-            {
-                "workspace_id": FAKE_WS_ID,
-                "output_object_name": "foo",
-                "data": {
-                    "items": [{"ref": KBASE_UPA}, {"ref": "4/5/6"}, {"ref": KBASE_UPA}]
-                },
-            },
-        )
-
-
-@pytest.mark.parametrize("set_type", SET_TYPES)
-def test_get_set_bad_ref(
-    context: dict[str, str | list], set_api_client: SetAPI, set_type: str
-) -> None:
-    """Check that the client throws an error with a dodgy ref."""
-    get_method = getattr(set_api_client, f"get_{set_type}_set_v1")
-    with pytest.raises(ValueError, match=ref_must_be_valid()):
-        get_method(context, {"ref": "not_a_ref"})
-
-
-@pytest.mark.parametrize("set_type", SET_TYPES)
-def test_get_set_bad_path(
-    context: dict[str, str | list], set_api_client: SetAPI, set_type: str
-) -> None:
-    """Check that the client throws an error with a dodgy ref_path."""
-    get_method = getattr(set_api_client, f"get_{set_type}_set_v1")
-    with pytest.raises(
-        ValueError,
-        match=ref_path_must_be_valid(),
-    ):
-        get_method(context, {"ref": KBASE_UPA, "ref_path_to_set": ["foo", "bar"]})
-
-
-@pytest.mark.parametrize("set_type", SET_TYPES)
-@pytest.mark.parametrize("none_type", ["", None])
-def test_get_set_no_ref(
-    context: dict[str, str | list],
-    set_api_client: SetAPI,
-    set_type: str,
-    none_type: None | str,
-) -> None:
-    """Check that the client throws an error with no ref supplied."""
-    get_method = getattr(set_api_client, f"get_{set_type}_set_v1")
-    with pytest.raises(
-        ValueError,
-        match=param_required("ref"),
-    ):
-        get_method(context, {"ref": none_type})
-
-
-@pytest.mark.parametrize("set_type", SET_TYPES)
-@pytest.mark.parametrize("inc_arg", [INC_ITEM_INFO, INC_ITEM_REF_PATHS])
-def test_get_set_invalid_args(
-    context: dict[str, str | list],
-    set_api_client: SetAPI,
-    set_type: str,
-    inc_arg: str,
-) -> None:
-    """Check that the client throws an error with incorrect get args."""
-    get_method = getattr(set_api_client, f"get_{set_type}_set_v1")
-    with pytest.raises(ValueError, match=include_params_valid(inc_arg)):
-        get_method(context, {"ref": KBASE_UPA, inc_arg: 666})
+    return params
 
 
 def check_get_set(
     set_to_get: dict[str, Any],
-    set_type: str,
+    set_item_name: str,
     set_api_client: SetAPI,
     context: dict[str, str | list],
     ws_name: str,
@@ -456,8 +271,8 @@ def check_get_set(
 
     :param set_to_get: the set to retrieve
     :type set_to_get: dict[str, Any]
-    :param set_type: the type of set to be retrieved
-    :type set_type: str
+    :param set_item_name: name of the objects in the set, e.g. "genome"
+    :type set_item_name: str
     :param set_api_client: the SetAPI client
     :type set_api_client: SetAPI
     :param context: KBase context
@@ -470,7 +285,10 @@ def check_get_set(
     :type get_method_args: dict[str, str | int]
     """
     set_ref = set_to_get["obj"]["set_ref"]
-    params = {}
+
+    params = param_wrangle(
+        ref_args, get_method_args, set_ref, set_to_get["set_name"], ws_name
+    )
     if ref_args == "__SET_REF__":
         params["ref"] = set_ref
     else:
@@ -484,12 +302,49 @@ def check_get_set(
         # add in a value for the REF_PATH_TO_SET
         params[REF_PATH_TO_SET] = [set_ref]
 
-    get_method = getattr(set_api_client, f"get_{set_type}_set_v1")
+    get_method = getattr(set_api_client, f"get_{set_item_name}_set_v1")
     fetched_set = get_method(context, params)[0]
 
     args_to_check_get_set_output = {
         **{arg: set_to_get[arg] for arg in set_to_get if arg != "obj"},
         **params,
+        "kbase_set_type": SET_ITEM_NAME_TO_SET_TYPE[set_item_name],
         "obj": fetched_set,
     }
     check_get_set_output(**args_to_check_get_set_output)
+
+
+# mapping of fixture names to the set_item_name of the contents
+all_set_types = {
+    "assembly_set": ASSEMBLY,
+    "empty_assembly_set": ASSEMBLY,
+    "differential_expression_matrix_no_genome_set": DIFFERENTIAL_EXPRESSION_MATRIX,
+    "differential_expression_matrix_with_genome_set": DIFFERENTIAL_EXPRESSION_MATRIX,
+    "expression_set": EXPRESSION,
+    "feature_set_set": FEATURE_SET,
+    "empty_feature_set_set": FEATURE_SET,
+    "genome_set": GENOME,
+    "empty_genome_set": GENOME,
+    "reads_set": READS,
+    "empty_reads_set": READS,
+    "reads_alignment_set": READS_ALIGNMENT,
+}
+
+
+@pytest.mark.parametrize(
+    ("ws_id", "data_fixture"),
+    [("default_ws_id", data_fixture) for data_fixture in SET_FIXTURE_MAP],
+    indirect=["ws_id", "data_fixture"],
+)
+def test_save_set(ws_id: int, data_fixture: dict[str, Any]) -> None:
+    """Test that saving a set produces the expected output.
+
+    This saves sets in the default workspace (default_ws_id) and uses the
+    fixtures corresponding to the keys in the "all_set_types" mapping.
+
+    :param ws_id: workspace ID of the workspace that the sets are saved in
+    :type ws_id: int
+    :param data_fixture: name of the data fixture to use in the test
+    :type data_fixture: dict[str, Any]
+    """
+    check_save_set_output(**data_fixture)

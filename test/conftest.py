@@ -1,6 +1,7 @@
 """Fixtures and global settings for the tests."""
 import json
 import os
+import random
 import shutil
 import time
 from collections.abc import Generator
@@ -16,15 +17,28 @@ from test.util import (
     make_fake_rnaseq_alignment_set,
     make_fake_rnaseq_expression_set,
     make_fake_sampleset,
+    save_empty_set,
+    save_kbase_search_set,
+    save_set,
 )
-from typing import Any
+from typing import Any, Callable
 
 import pytest
+from _pytest.fixtures import FixtureRequest
 from installed_clients.AssemblyUtilClient import AssemblyUtil
 from installed_clients.authclient import KBaseAuth
 from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.FakeObjectsForTestsClient import FakeObjectsForTests
 from installed_clients.WorkspaceClient import Workspace
+from SetAPI.generic.constants import (
+    ASSEMBLY,
+    DIFFERENTIAL_EXPRESSION_MATRIX,
+    EXPRESSION,
+    FEATURE_SET,
+    GENOME,
+    READS,
+    READS_ALIGNMENT,
+)
 from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.SetAPIServer import MethodContext
 from SetAPI.util import info_to_ref
@@ -38,9 +52,20 @@ SDK_CALLBACK_URL = os.environ["SDK_CALLBACK_URL"]
 
 
 @pytest.fixture(scope="session")
+def data_fixture(request: FixtureRequest, ws_id: int) -> list[Any] | dict[str, Any]:
+    """Request a data fixture by name using the magic of pytest.
+
+    :param request: magic pytest request object
+    :type request: FixtureRequest
+    :return: the fixture requested
+    :rtype: list[Any] | dict[str, Any]
+    """
+    return request.getfixturevalue(request.param)
+
+
+@pytest.fixture(scope="session")
 def config() -> dict[str, str]:
-    """Parses the configuration file and retrieves the values
-    under the SetAPI header.
+    """Parses the configuration file and retrieves the values under the SetAPI header.
 
     :return: dictionary of key-value pairs
     :rtype: dict[str, Any]
@@ -106,31 +131,33 @@ def test_workspaces(
     :yield: dict containing a workspace client, and ws name and ws ID for the default and list all sets workspaces.
     :rtype: dict[str, Any]
     """
-    ws_name = f"test_SetAPI_{int(time.time() * 1000)}"
-    list_all_sets_ws_name = f"list_all_sets_{ws_name}"
+    default_ws_name = f"test_SetAPI_{int(time.time() * 1000)}"
+    list_all_sets_ws_name = f"list_all_sets_{default_ws_name}"
     ws_client = Workspace(config["workspace-url"], token=TOKEN)
     # create workspaces for the tests
-    default_ws_info = ws_client.create_workspace({"workspace": ws_name})
+    default_ws_info = ws_client.create_workspace({"workspace": default_ws_name})
     list_all_sets_ws_info = ws_client.create_workspace(
         {"workspace": list_all_sets_ws_name}
     )
 
-    ws_id = default_ws_info[0]
+    default_ws_id = default_ws_info[0]
     list_all_sets_ws_id = list_all_sets_ws_info[0]
     yield {
         "ws_client": ws_client,
-        "ws_name": ws_name,
-        "ws_id": ws_id,
-        "list_all_sets_ws_name": list_all_sets_ws_name,
+        "default_ws_id": default_ws_id,
+        "default_ws_name": default_ws_name,
         "list_all_sets_ws_id": list_all_sets_ws_id,
+        "list_all_sets_ws_name": list_all_sets_ws_name,
     }
 
     # check what is in the workspaces
-    all_objs_default = ws_client.list_objects({"ids": [ws_id], "includeMetadata": 1})
+    all_objs_default = ws_client.list_objects(
+        {"ids": [default_ws_id], "includeMetadata": 1}
+    )
     all_objs_list_all_sets = ws_client.list_objects({"ids": [list_all_sets_ws_id]})
 
     # delete the test workspaces
-    ws_client.delete_workspace({"workspace": ws_name})
+    ws_client.delete_workspace({"workspace": default_ws_name})
     ws_client.delete_workspace({"workspace": list_all_sets_ws_name})
 
     log_this(
@@ -147,33 +174,49 @@ def test_workspaces(
     )
 
 
-@pytest.fixture(scope="session", autouse=True)
-def ws_id(test_workspaces: dict[str, Any]) -> int:
-    return test_workspaces["ws_id"]
+@pytest.fixture(scope="session")
+def default_ws_id(test_workspaces: dict[str, Any]) -> int:
+    """ID for the default test workspace."""
+    return test_workspaces["default_ws_id"]
 
 
-@pytest.fixture(scope="session", autouse=True)
-def ws_name(test_workspaces: dict[str, Any]) -> str:
-    return test_workspaces["ws_name"]
+@pytest.fixture(scope="session")
+def default_ws_name(test_workspaces: dict[str, Any]) -> str:
+    """Name of the default test workspace."""
+    return test_workspaces["default_ws_name"]
 
 
 @pytest.fixture(scope="session")
 def list_all_sets_ws_name(test_workspaces: dict[str, Any]) -> int:
+    """Name of the 'list_all_sets' test workspace."""
     return test_workspaces["list_all_sets_ws_name"]
 
 
 @pytest.fixture(scope="session")
 def list_all_sets_ws_id(test_workspaces: dict[str, Any]) -> int:
+    """ID for the 'list_all_sets' test workspace."""
     return test_workspaces["list_all_sets_ws_id"]
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session", params=["default_ws_id", "list_all_sets_ws_id"])
+def ws_id(request: FixtureRequest) -> int:
+    """Magical pytest function to choose the appropriate ws_id value."""
+    return request.getfixturevalue(request.param)
+
+
+@pytest.fixture(scope="session", params=["default_ws_name", "list_all_sets_ws_name"])
+def ws_name(request: FixtureRequest) -> str:
+    """Magical pytest function to choose the corresponding ws name."""
+    return request.getfixturevalue(request.param)
+
+
+@pytest.fixture(scope="session")
 def set_api_client(config: dict[str, str]) -> SetAPI:
-    # set up the SetAPI implementation
+    """Set up the SetAPI implementation."""
     return SetAPI(config)
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def clients(test_workspaces: dict[str, Any]) -> dict[str, Any]:
     """Set up other clients needed during the tests.
 
@@ -429,7 +472,7 @@ def condition_set_ref(
 
 
 @pytest.fixture(scope="session")
-def diff_exp_matrix_genome_refs(
+def differential_expression_matrix_with_genome_refs(
     clients: dict[str, Any], ws_id: int, genome_refs: list[str]
 ) -> list[str]:
     """Create some differential expression matrix objects with genome refs and return the refs.
@@ -455,7 +498,7 @@ def diff_exp_matrix_genome_refs(
 
 
 @pytest.fixture(scope="session")
-def diff_exp_matrix_mismatched_genome_refs(
+def differential_expression_matrix_mismatched_genome_refs(
     clients: dict[str, Any], ws_id: int, genome_refs: list[str]
 ) -> list[str]:
     """Create some DEM objects with genome refs, where the two DEMs have different ref genomes, and return the refs.
@@ -481,7 +524,7 @@ def diff_exp_matrix_mismatched_genome_refs(
 
 
 @pytest.fixture(scope="session")
-def diff_exp_matrix_no_genome_refs(clients, ws_id):
+def differential_expression_matrix_no_genome_refs(clients: dict[str, Any], ws_id: int):
     """Create differential expression matrix objects without genome refs and return the refs.
 
     :param clients: clients dictionary, including the fake objects for tests client
@@ -578,10 +621,10 @@ def expression_mismatched_genome_refs(
 
 
 @pytest.fixture(scope="session")
-def featureset_refs(
+def feature_set_refs(
     clients: dict[str, Any], ws_id: int, genome_refs: list[str]
 ) -> list[str]:
-    """Create some featuresets and return the refs.
+    """Create some feature_sets and return the refs.
 
     :param clients: clients dictionary
     :type client: dict[str, Any]
@@ -734,3 +777,144 @@ def sampleset_ref(clients: dict[str, Any], ws_id: int, reads_refs: list[str]) ->
         ws_id,
         clients["ws"],
     )
+
+
+# A factory function to generate sets
+def set_factory(
+    set_item_name: str,
+    refs: list[str] | None,
+    set_api_client: SetAPI,
+    context: dict[str, Any],
+    ws_id: int,
+    name_qualifier: str | None = None,
+) -> dict[str, Any]:
+    """Factory function to create a set from a list of parameters.
+
+    :param set_item_name: name of the objects in the set, e.g. "genome"
+    :type set_item_name: str
+    :param refs: list of items to go in the set
+    :type refs: list[str] | None
+    :param set_api_client: the SetAPI client
+    :type set_api_client: SetAPI
+    :param context: KBase context
+    :type context: dict[str, Any]
+    :param ws_id: workspace ID
+    :type ws_id: int
+    :param name_qualifier: extra qualifier to go in the set name, defaults to None
+    :type name_qualifier: str | None, optional
+    :return: output of save_set / save_empty_set
+    :rtype: dict[str, Any]
+    """
+    if not refs:
+        return save_empty_set(set_item_name, set_api_client, context, ws_id)
+
+    return save_set(set_item_name, set_api_client, context, refs, ws_id, name_qualifier)
+
+
+# Factory function to create fixtures
+def create_set_fixture(set_name: str, fixture_info: dict[str, str]) -> Callable:
+    """Function to return a function that creates fixtures."""
+
+    @pytest.fixture(scope="session", name=set_name)
+    def set_fixture(
+        request: FixtureRequest,
+        set_api_client: SetAPI,
+        context: dict[str, Any],
+        ws_id: int,
+    ) -> dict[str, Any]:
+        """Create named fixtures; the name is denoted by the `set_name`.
+
+        :param request: fixture parameters
+        :type request: FixtureRequest
+        :param set_api_client: SetAPI client
+        :type set_api_client: SetAPI
+        :param context: KBase context
+        :type context: dict[str, Any]
+        :param ws_id: workspace ID
+        :type ws_id: int
+        :return: output of save_set / save_empty_set
+        :rtype: dict[str, Any]
+        """
+        refs = None
+        # if "refs" is populated, use request.getfixturevalue to retrieve the fixture by name
+        if fixture_info.get("refs"):
+            refs = request.getfixturevalue(fixture_info["refs"])
+
+        return set_factory(
+            fixture_info["set_item_name"],
+            refs,
+            set_api_client,
+            context,
+            ws_id,
+            fixture_info.get("name_qualifier"),
+        )
+
+    return set_fixture
+
+
+# mapping of fixture names to the details of the fixture; these include
+# - set_item_name of the contents (for inserting into 'save_***_set_v1' when saving the set)
+# - refs (where appropriate; the items to go in the set)
+# - name_qualifier (to differentiate between sets of the same type with different contents)
+
+SET_FIXTURE_MAP = {
+    "assembly_set": {"set_item_name": ASSEMBLY, "refs": "assembly_refs"},
+    "empty_assembly_set": {"set_item_name": ASSEMBLY},
+    "differential_expression_matrix_no_genome_set": {
+        "set_item_name": DIFFERENTIAL_EXPRESSION_MATRIX,
+        "refs": "differential_expression_matrix_no_genome_refs",
+        "name_qualifier": "no_genome",
+    },
+    "differential_expression_matrix_with_genome_set": {
+        "set_item_name": DIFFERENTIAL_EXPRESSION_MATRIX,
+        "refs": "differential_expression_matrix_with_genome_refs",
+        "name_qualifier": "with_genome",
+    },
+    "expression_set": {"set_item_name": EXPRESSION, "refs": "expression_refs"},
+    "feature_set_set": {"set_item_name": FEATURE_SET, "refs": "feature_set_refs"},
+    "empty_feature_set_set": {"set_item_name": FEATURE_SET},
+    "genome_set": {"set_item_name": GENOME, "refs": "genome_refs"},
+    "empty_genome_set": {"set_item_name": GENOME},
+    "reads_set": {"set_item_name": READS, "refs": "reads_refs"},
+    "empty_reads_set": {"set_item_name": READS},
+    "reads_alignment_set": {
+        "set_item_name": READS_ALIGNMENT,
+        "refs": "alignment_refs",
+    },
+}
+
+# Create a fixture for each set type in the fixture map
+for set_name, fixture_info in SET_FIXTURE_MAP.items():
+    globals()[set_name] = create_set_fixture(set_name, fixture_info)
+
+
+@pytest.fixture(scope="session")
+def kbase_search_genome_set(
+    genome_refs: list[str],
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    ws_id: int,
+) -> dict[str, Any]:
+    """Set of KBaseSearch genomes."""
+    return save_kbase_search_set(set_api_client, context, genome_refs, ws_id)
+
+
+@pytest.fixture(scope="session")
+def random_fixture(request: FixtureRequest) -> dict[str, Any]:
+    """Pick a random fixture to use for testing."""
+    fixtures = [
+        "assembly_set",
+        "differential_expression_matrix_with_genome_set",
+        "differential_expression_matrix_no_genome_set",
+        "expression_set",
+        "feature_set_set",
+        "genome_set",
+        "reads_alignment_set",
+        "reads_set",
+    ]
+
+    # Randomly select a fixture name
+    selected_fixture = random.choice(fixtures)  # noqa: S311
+
+    # Use the request fixture to dynamically get the selected fixture
+    return request.getfixturevalue(selected_fixture)

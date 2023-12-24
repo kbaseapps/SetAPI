@@ -1,8 +1,16 @@
 """Some utility functions to help with testing. These mainly add fake objects to use in making sets."""
 import json
+from collections.abc import Callable
 from typing import Any
 
 from installed_clients.WorkspaceClient import Workspace
+from SetAPI.generic.constants import (
+    GENOME,
+    GENOME_SEARCH,
+    SAVE_SEARCH_SET,
+    SET_ITEM_NAME_TO_SET_TYPE,
+)
+from SetAPI.SetAPIImpl import SetAPI
 from SetAPI.util import info_to_ref
 
 INFO_LENGTH = 11
@@ -54,6 +62,160 @@ def info_to_usermeta(info: list[int | str | dict[str, str]]) -> dict[str, str]:
     :rtype: dict[str, Any]
     """
     return info[10]
+
+
+def _save_set(
+    set_item_name: str,
+    set_name: str,
+    set_description: str,
+    set_data: dict[str, Any],
+    save_method: Callable,
+    context: dict[str, Any],
+    ws_id: int,
+    n_items: int,
+    second_set_item: dict[str, Any] | None,
+    kwargs: dict[str, str | bool | int] | None = None,
+) -> dict[str, Any]:
+    """Save a set to the workspace.
+
+    :param set_item_name: name of the objects in the set, e.g. "genome"
+    :type set_item_name: str
+    :param set_name: set name
+    :type set_name: str
+    :param set_description: description for the set; may be an empty string
+    :type set_description: str
+    :param set_data: the items in the set plus the description
+    :type set_data: dict[str, Any]
+    :param save_method: API function to be called
+    :type save_method: Callable
+    :param context: KBase context
+    :type context: dict[str, Any]
+    :param ws_id: workspace ID
+    :type ws_id: int
+    :param n_items: how many items in the set
+    :type n_items: int
+    :param second_set_item: second item in the set, if available
+    :type second_set_item: dict[str, Any] | None
+    :param kwargs: any extra fun and games to be added to the WS save params, defaults to None
+    :type kwargs: dict[str, str  |  bool  |  int] | None, optional
+    :return: dictionary with the various pieces of info required to test the output of the save command
+    :rtype: dict[str, Any]
+    """
+    if not kwargs:
+        kwargs = {}
+
+    result = save_method(
+        context,
+        {
+            "workspace_id": ws_id,
+            "output_object_name": set_name,
+            "data": set_data,
+            **kwargs,
+        },
+    )[0]
+
+    return {
+        "obj": result,
+        "set_name": set_name,
+        "set_item_name": set_item_name,
+        "kbase_set_type": SET_ITEM_NAME_TO_SET_TYPE[set_item_name],
+        "set_description": set_description,
+        "n_items": n_items,
+        "second_set_item": second_set_item,
+    }
+
+
+def save_set(
+    set_item_name: str,
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    refs: list[str],
+    ws_id: int,
+    name_qualifier: str | None = None,
+) -> dict[str, Any]:
+    """A set with name, description, and items populated."""
+    set_name = f"test_{set_item_name}_set"
+    if name_qualifier:
+        set_name = f"test_{set_item_name}_{name_qualifier}_set"
+    set_description = "a set comprised of {set_item_name} objects"
+    set_items = [{"label": "some_label", "ref": ref} for ref in refs]
+    set_data = {
+        "items": set_items,
+        "description": set_description,
+    }
+    save_method = getattr(set_api_client, f"save_{set_item_name}_set_v1")
+
+    return _save_set(
+        set_item_name=set_item_name,
+        set_name=set_name,
+        set_description=set_description,
+        set_data=set_data,
+        save_method=save_method,
+        context=context,
+        ws_id=ws_id,
+        n_items=len(set_items),
+        second_set_item=set_items[1],
+    )
+
+
+def save_empty_set(
+    set_item_name: str,
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    ws_id: int,
+) -> dict[str, Any]:
+    """A set with no description and an empty items list."""
+    set_name = f"test_empty_{set_item_name}_set"
+    # omit the set description and make the set items an empty list
+    set_data = {
+        "items": [],
+    }
+    save_method = getattr(set_api_client, f"save_{set_item_name}_set_v1")
+
+    return _save_set(
+        set_item_name=set_item_name,
+        set_name=set_name,
+        set_description="",
+        set_data=set_data,
+        save_method=save_method,
+        context=context,
+        ws_id=ws_id,
+        n_items=0,
+        second_set_item=None,
+    )
+
+
+def save_kbase_search_set(
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    refs: list[str],
+    ws_id: int,
+) -> dict[str, Any]:
+    """A KBaseSearch genome set."""
+    set_item_name = GENOME_SEARCH
+    set_name = f"test_{set_item_name}_set"
+    set_description = f"a set comprised of {set_item_name} objects"
+    set_items = {
+        ref: {"ref": ref, "metadata": {"some": "thing", "or": "other"}} for ref in refs
+    }
+    set_data = {
+        "elements": set_items,
+        "description": set_description,
+    }
+    save_method = getattr(set_api_client, f"save_{GENOME}_set_v1")
+
+    return _save_set(
+        set_item_name=set_item_name,
+        set_name=set_name,
+        set_description=set_description,
+        set_data=set_data,
+        save_method=save_method,
+        context=context,
+        ws_id=ws_id,
+        n_items=len(refs),
+        second_set_item=set_items[refs[1]],
+        kwargs={SAVE_SEARCH_SET: True},
+    )
 
 
 def make_fake_alignment(

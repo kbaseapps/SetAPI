@@ -11,10 +11,9 @@ DEBUG = False
 
 
 @pytest.fixture(scope="module")
-def create_sampleset_params(ws_id: int, ws_name: str) -> dict[str, int | str]:
+def create_sampleset_params(ws_id: int) -> dict[str, int | str]:
     return {
         "ws_id": ws_id,
-        "ws_name": ws_name,
         "sampleset_desc": DESCRIPTION,
         "domain": "euk",
         "platform": "Illumina",
@@ -25,6 +24,7 @@ def create_sampleset_params(ws_id: int, ws_name: str) -> dict[str, int | str]:
     }
 
 
+@pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
 def test_basic_save_and_get(
     create_sampleset_params: dict[str, int | str],
     reads_refs: list[str],
@@ -32,7 +32,8 @@ def test_basic_save_and_get(
     config: dict[str, str],
     set_api_client: SetAPI,
     context: dict[str, str | list],
-    ws_name: str,
+    default_ws_name: str,
+    ws_id: int,
 ) -> None:
     set_name = "micromonas_rnaseq_test1_sampleset"
     n_items = 3  # three different reads_refs used
@@ -63,7 +64,9 @@ def test_basic_save_and_get(
     assert res["set_info"][10]["num_samples"] == str(n_items)
 
     # test get of that object
-    d1 = set_api_client.get_reads_set_v1(context, {"ref": ws_name + "/" + set_name})[0]
+    d1 = set_api_client.get_reads_set_v1(
+        context, {"ref": default_ws_name + "/" + set_name}
+    )[0]
     assert "data" in d1
     assert "info" in d1
     assert len(d1["info"]) == INFO_LENGTH
@@ -121,14 +124,15 @@ def test_basic_save_and_get(
     assert item2["ref_path"] == res["set_ref"] + ";" + item2["ref"]
 
 
+@pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
 def test_create_sample_set_workspace_param(
     create_sampleset_params: dict[str, str],
     reads_refs: list[str],
     conditions: list[str],
     set_api_client: SetAPI,
     context: dict[str, str | list],
+    default_ws_name: str,
     ws_id: int,
-    ws_name: str,
 ) -> None:
     """Check that we can use either a workspace ID or the workspace name as the 'ws_id' param."""
     set_name = "test_workspace_param_sampleset"
@@ -143,12 +147,11 @@ def test_create_sample_set_workspace_param(
             },
         ],
     }
-    for param in ["ws_id", "ws_name"]:
-        del ss_params[param]
+    del ss_params["ws_id"]
 
     # workspace ID string in ws_id field
     sampleset_ws_id = set_api_client.create_sample_set(
-        context, {**deepcopy(ss_params), **{"ws_id": str(ws_id)}}
+        context, {**deepcopy(ss_params), "ws_id": str(ws_id)}
     )[0]
     assert sampleset_ws_id["set_info"][6] == ws_id
     assert info_to_name(sampleset_ws_id["set_info"]) == set_name
@@ -158,7 +161,7 @@ def test_create_sample_set_workspace_param(
     # workspace ID as integers in ws_id field
     # this will create a new version of the previous sampleset
     sampleset_int_ws_id = set_api_client.create_sample_set(
-        context, {**deepcopy(ss_params), **{"ws_id": int(ws_id)}}
+        context, {**deepcopy(ss_params), "ws_id": int(ws_id)}
     )[0]
     assert sampleset_int_ws_id["set_info"][6] == sampleset_ws_id["set_info"][6]
     assert info_to_name(sampleset_int_ws_id["set_info"]) == set_name
@@ -168,7 +171,7 @@ def test_create_sample_set_workspace_param(
     # workspace name in ws_id field
     # version 3 of the sampleset
     sampleset_ws_name = set_api_client.create_sample_set(
-        context, {**deepcopy(ss_params), **{"ws_id": ws_name}}
+        context, {**deepcopy(ss_params), "ws_id": default_ws_name}
     )[0]
     assert sampleset_ws_name["set_info"][6] == sampleset_ws_id["set_info"][6]
     assert info_to_name(sampleset_ws_name["set_info"]) == set_name
@@ -176,6 +179,7 @@ def test_create_sample_set_workspace_param(
     assert sampleset_ws_name["set_info"][4] == sampleset_ver_id + 2
 
 
+@pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
 def test_basic_save_and_get_condition_in_list(
     create_sampleset_params: dict[str, str],
     reads_refs: list[str],
@@ -183,6 +187,7 @@ def test_basic_save_and_get_condition_in_list(
     config: dict[str, str],
     set_api_client: SetAPI,
     context: dict[str, str | list],
+    ws_id: int,
 ) -> None:
     set_name = "micromonas_rnaseq_test1_sampleset"
     n_items = 3  # 3 reads_refs used
@@ -268,6 +273,7 @@ def test_basic_save_and_get_condition_in_list(
 
 
 @pytest.mark.skip("conditionset_ref not supported")
+@pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
 def test_unmatched_conditions(
     create_sampleset_params: dict[str, str],
     reads_refs: list[str],
@@ -275,6 +281,7 @@ def test_unmatched_conditions(
     condition_set_ref: str,
     set_api_client: SetAPI,
     context: dict[str, str | list],
+    ws_id: int,
 ) -> None:
     # create the set object with unmatching conditions
     create_ss_params = {
@@ -295,9 +302,9 @@ def test_unmatched_conditions(
         set_api_client.create_sample_set(context, create_ss_params)
 
 
+@pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
 def test_non_list_string_conditions(
     create_sampleset_params: dict[str, str],
-    reads_refs: list[str],
     set_api_client: SetAPI,
     context: dict[str, str | list],
 ) -> None:
@@ -307,12 +314,31 @@ def test_non_list_string_conditions(
         **create_sampleset_params,
         "sampleset_id": "some name",
         "sample_n_conditions": [
-            {"sample_id": [reads_refs[0]], "condition": digital_condition}
+            {"sample_id": ["some_id"], "condition": digital_condition}
         ],
     }
 
-    # test a save
     with pytest.raises(
         ValueError, match="ERROR: condition should be either a list or a string"
+    ):
+        set_api_client.create_sample_set(context, create_ss_params)
+
+
+@pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
+def test_list_too_long_conditions(
+    create_sampleset_params: dict[str, str],
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+) -> None:
+    create_ss_params = {
+        **create_sampleset_params,
+        "sampleset_id": "some name",
+        "sample_n_conditions": [
+            {"sample_id": ["some_id"], "condition": ["condition_1", "condition_2"]}
+        ],
+    }
+
+    with pytest.raises(
+        ValueError, match="ERROR: please only select 1 condition per reads object"
     ):
         set_api_client.create_sample_set(context, create_ss_params)

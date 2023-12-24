@@ -53,6 +53,7 @@ class AssemblySetInterfaceV1:
         :return: dict containing the new set reference and the set info
         :rtype: dict[str, str | list[str | int | dict[str, Any]]]
         """
+        self.set_interface._check_save_set_params(params)
         self._validate_save_set_params(params)
 
         save_result = self.set_interface.save_set(
