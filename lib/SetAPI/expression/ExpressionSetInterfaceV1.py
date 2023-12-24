@@ -14,7 +14,6 @@ from SetAPI.generic.SetInterfaceV1 import SetInterfaceV1
 from SetAPI.util import (
     build_ws_obj_selector,
     check_reference,
-    info_to_ref,
     populate_item_object_ref_paths,
 )
 
@@ -39,15 +38,7 @@ class ExpressionSetInterfaceV1:
     def save_expression_set(self, ctx, params):
         self.set_interface._check_save_set_params(params)
         self._validate_save_set_data(params)
-
-        save_result = self.set_interface.save_set(
-            "KBaseSets.ExpressionSet", ctx["provenance"], params
-        )
-        info = save_result[0]
-        return {
-            "set_ref": info_to_ref(info),
-            "set_info": info,
-        }
+        return self.set_interface.save_set(self.set_type(), ctx["provenance"], params)
 
     def _validate_save_set_data(self, params):
         if params.get("data") is None:

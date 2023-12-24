@@ -8,6 +8,7 @@ from SetAPI.generic.constants import ASSEMBLY, FEATURE_SET, GENOME, READS
 from SetAPI.util import (
     build_ws_obj_selector,
     convert_workspace_param,
+    info_to_ref,
     populate_item_object_ref_paths,
 )
 
@@ -60,7 +61,12 @@ class SetInterfaceV1:
         }
         ws_params = convert_workspace_param(params)
 
-        return self.ws.save_objects({**save_params, **ws_params})
+        save_result = self.ws.save_objects({**save_params, **ws_params})
+        info = save_result[0]
+        return {
+            "set_ref": info_to_ref(info),
+            "set_info": info,
+        }
 
     def _check_save_set_params(self: "SetInterfaceV1", params: dict[str, Any]) -> None:
         """Validate the params for saving a set.

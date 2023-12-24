@@ -46,15 +46,7 @@ class GenomeSetInterfaceV1:
         self._validate_save_set_params(params, save_search_set)
 
         genome_type = "KBaseSearch.GenomeSet" if save_search_set else self.set_type()
-
-        save_result = self.set_interface.save_set(
-            genome_type, ctx["provenance"], params
-        )
-        info = save_result[0]
-        return {
-            "set_ref": info_to_ref(info),
-            "set_info": info,
-        }
+        return self.set_interface.save_set(genome_type, ctx["provenance"], params)
 
     def _validate_save_set_params(
         self: "GenomeSetInterfaceV1",

@@ -39,22 +39,6 @@ SET_ITEM_NAMES = [
 FAKE_WS_ID = 123456789
 KBASE_UPA = "1/2/3"
 
-# standard sets to test:
-sets_to_test = {
-    "assembly_set": "assembly_refs",
-    "empty_assembly_set": None,
-    "differential_expression_matrix_with_genome_set": "differential_expression_matrix_with_genome_refs",
-    "differential_expression_matrix_no_genome_set": "differential_expression_matrix_no_genome_refs",
-    "expression_set": "expression_refs",
-    "feature_set_set": "feature_set_refs",
-    "empty_feature_set_set": None,
-    "genome_set": "genome_refs",
-    "empty_genome_set": None,
-    "reads_set": "reads_refs",
-    "empty_reads_set": None,
-    "reads_alignment_set": "reads_alignment_refs",
-}
-
 
 def is_info_object(
     obj: list[str | int | dict[str, str]],
@@ -314,23 +298,6 @@ def check_get_set(
     check_get_set_output(**args_to_check_get_set_output)
 
 
-# mapping of fixture names to the set_item_name of the contents
-all_set_types = {
-    "assembly_set": ASSEMBLY,
-    "empty_assembly_set": ASSEMBLY,
-    "differential_expression_matrix_no_genome_set": DIFFERENTIAL_EXPRESSION_MATRIX,
-    "differential_expression_matrix_with_genome_set": DIFFERENTIAL_EXPRESSION_MATRIX,
-    "expression_set": EXPRESSION,
-    "feature_set_set": FEATURE_SET,
-    "empty_feature_set_set": FEATURE_SET,
-    "genome_set": GENOME,
-    "empty_genome_set": GENOME,
-    "reads_set": READS,
-    "empty_reads_set": READS,
-    "reads_alignment_set": READS_ALIGNMENT,
-}
-
-
 @pytest.mark.parametrize(
     ("ws_id", "data_fixture"),
     [("default_ws_id", data_fixture) for data_fixture in SET_FIXTURE_MAP],
@@ -340,7 +307,8 @@ def test_save_set(ws_id: int, data_fixture: dict[str, Any]) -> None:
     """Test that saving a set produces the expected output.
 
     This saves sets in the default workspace (default_ws_id) and uses the
-    fixtures corresponding to the keys in the "all_set_types" mapping.
+    fixtures corresponding to the keys in the SET_FIXTURE_MAP mapping.
+    See test/conftest.py for SET_FIXTURE_MAP.
 
     :param ws_id: workspace ID of the workspace that the sets are saved in
     :type ws_id: int

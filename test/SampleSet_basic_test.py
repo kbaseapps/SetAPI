@@ -1,26 +1,45 @@
 """Basic tests of the SampleSet API."""
 from copy import deepcopy
 from test.util import INFO_LENGTH, info_to_name, log_this
+from typing import Any
 
 import pytest
 from SetAPI.generic.constants import INC_ITEM_INFO, INC_ITEM_REF_PATHS
 from SetAPI.SetAPIImpl import SetAPI
 
+SET_NAME = "test_sample_set"
 DESCRIPTION = "first pass at testing something or other"
 DEBUG = False
 
 
 @pytest.fixture(scope="module")
-def create_sampleset_params(ws_id: int) -> dict[str, int | str]:
+def create_sampleset_params() -> dict[str, int | str]:
+    # some fake sampleset parameters
     return {
-        "ws_id": ws_id,
         "sampleset_desc": DESCRIPTION,
         "domain": "euk",
         "platform": "Illumina",
         "source": "NCBI",
         "Library_type": "SingleEnd",
         "publication_id": "none",
-        "string external_source_date": "not sure",
+        "external_source_date": "not sure",
+    }
+
+
+@pytest.fixture(scope="module")
+@pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
+def valid_params(
+    reads_refs: list[str], conditions: list[str], ws_id: int
+) -> dict[str, Any]:
+    # valid conditions/sample combos
+    return {
+        "sample_n_conditions": [
+            {"sample_id": [reads_refs[0]], "condition": conditions[0]},
+            {
+                "sample_id": [reads_refs[1], reads_refs[2]],
+                "condition": conditions[1],
+            },
+        ],
     }
 
 
@@ -34,20 +53,15 @@ def test_basic_save_and_get(
     context: dict[str, str | list],
     default_ws_name: str,
     ws_id: int,
+    valid_params: dict[str, Any],
 ) -> None:
-    set_name = "micromonas_rnaseq_test1_sampleset"
     n_items = 3  # three different reads_refs used
     # create the set object
     create_ss_params = {
         **create_sampleset_params,
-        "sampleset_id": set_name,
-        "sample_n_conditions": [
-            {"sample_id": [reads_refs[0]], "condition": conditions[0]},
-            {
-                "sample_id": [reads_refs[1], reads_refs[2]],
-                "condition": conditions[1],
-            },
-        ],
+        "ws_id": ws_id,
+        "sampleset_id": SET_NAME,
+        **valid_params,
     }
 
     # test a save
@@ -59,13 +73,13 @@ def test_basic_save_and_get(
     assert "set_info" in res
     assert len(res["set_info"]) == INFO_LENGTH
 
-    assert res["set_info"][1] == set_name
+    assert res["set_info"][1] == SET_NAME
     assert "num_samples" in res["set_info"][10]
     assert res["set_info"][10]["num_samples"] == str(n_items)
 
     # test get of that object
     d1 = set_api_client.get_reads_set_v1(
-        context, {"ref": default_ws_name + "/" + set_name}
+        context, {"ref": default_ws_name + "/" + SET_NAME}
     )[0]
     assert "data" in d1
     assert "info" in d1
@@ -127,27 +141,19 @@ def test_basic_save_and_get(
 @pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
 def test_create_sample_set_workspace_param(
     create_sampleset_params: dict[str, str],
-    reads_refs: list[str],
-    conditions: list[str],
     set_api_client: SetAPI,
     context: dict[str, str | list],
     default_ws_name: str,
     ws_id: int,
+    valid_params: dict[str, Any],
 ) -> None:
     """Check that we can use either a workspace ID or the workspace name as the 'ws_id' param."""
     set_name = "test_workspace_param_sampleset"
     ss_params = {
         **create_sampleset_params,
         "sampleset_id": set_name,
-        "sample_n_conditions": [
-            {"sample_id": [reads_refs[0]], "condition": conditions[0]},
-            {
-                "sample_id": [reads_refs[1], reads_refs[2]],
-                "condition": conditions[1],
-            },
-        ],
+        **valid_params,
     }
-    del ss_params["ws_id"]
 
     # workspace ID string in ws_id field
     sampleset_ws_id = set_api_client.create_sample_set(
@@ -189,12 +195,13 @@ def test_basic_save_and_get_condition_in_list(
     context: dict[str, str | list],
     ws_id: int,
 ) -> None:
-    set_name = "micromonas_rnaseq_test1_sampleset"
+    set_name = "create_sample_set_with_conditions"
     n_items = 3  # 3 reads_refs used
 
     # create the set object
     create_ss_params = {
         **create_sampleset_params,
+        "ws_id": ws_id,
         "sampleset_id": set_name,
         "sample_n_conditions": [
             {"sample_id": [reads_refs[0]], "condition": [conditions[0]]},
@@ -272,73 +279,108 @@ def test_basic_save_and_get_condition_in_list(
     assert item2["ref_path"] == res["set_ref"] + ";" + item2["ref"]
 
 
-@pytest.mark.skip("conditionset_ref not supported")
-@pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
-def test_unmatched_conditions(
-    create_sampleset_params: dict[str, str],
-    reads_refs: list[str],
-    conditions: list[str],
-    condition_set_ref: str,
-    set_api_client: SetAPI,
-    context: dict[str, str | list],
-    ws_id: int,
-) -> None:
-    # create the set object with unmatching conditions
-    create_ss_params = {
-        **create_sampleset_params,
-        "sampleset_id": "some name",
-        "sample_n_conditions": [
-            {"sample_id": [reads_refs[0]], "condition": "unmatching_condition"},
-            {
-                "sample_id": [reads_refs[1], reads_refs[2]],
-                "condition": conditions[1],
-            },
-        ],
-        "conditionset_ref": condition_set_ref,
-    }
-
-    # test a save
-    with pytest.raises(ValueError, match="ERROR: Given conditions"):
-        set_api_client.create_sample_set(context, create_ss_params)
-
-
+@pytest.mark.parametrize("condition", [None, 10, 1.23456, {}, set()])
 @pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
 def test_non_list_string_conditions(
     create_sampleset_params: dict[str, str],
     set_api_client: SetAPI,
     context: dict[str, str | list],
+    ws_id: int,
+    condition,
 ) -> None:
-    digital_condition = 10
     # create the set object with unmatching conditions
     create_ss_params = {
         **create_sampleset_params,
-        "sampleset_id": "some name",
-        "sample_n_conditions": [
-            {"sample_id": ["some_id"], "condition": digital_condition}
-        ],
+        "ws_id": ws_id,
+        "sampleset_id": SET_NAME,
+        "sample_n_conditions": [{"sample_id": ["some_id"], "condition": condition}],
     }
 
     with pytest.raises(
-        ValueError, match="ERROR: condition should be either a list or a string"
+        TypeError, match="ERROR: condition should be either a list or a string"
+    ):
+        set_api_client.create_sample_set(context, create_ss_params)
+
+
+@pytest.mark.parametrize("conditions", [[], ["condition_1", "condition_2"]])
+@pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
+def test_create_sample_set_incorrect_number_of_conditions(
+    create_sampleset_params: dict[str, str],
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    conditions: list[str],
+    ws_id: int,
+) -> None:
+    create_ss_params = {
+        **create_sampleset_params,
+        "ws_id": ws_id,
+        "sampleset_id": SET_NAME,
+        "sample_n_conditions": [{"sample_id": ["some_id"], "condition": conditions}],
+    }
+
+    with pytest.raises(
+        ValueError, match="ERROR: please select 1 condition per reads object"
+    ):
+        set_api_client.create_sample_set(context, create_ss_params)
+
+
+@pytest.mark.parametrize(
+    "sample_n_conditions",
+    [
+        # empty sample list
+        [],
+        # only one sample
+        [{"sample_id": ["some_id"], "condition": ["condition_1"]}],
+        # no samples!
+        [
+            {"sample_id": [], "condition": ["condition_1"]},
+            {"sample_id": [], "condition": ["condition_1"]},
+        ],
+    ],
+)
+@pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
+def test_create_sample_set_invalid_sample_quantity(
+    create_sampleset_params: dict[str, str],
+    set_api_client: SetAPI,
+    context: dict[str, str | list],
+    ws_id: int,
+    sample_n_conditions: list[dict[str, Any]],
+) -> None:
+    """Test that an invalid number of samples triggers an error."""
+    create_ss_params = {
+        **create_sampleset_params,
+        "ws_id": ws_id,
+        "sampleset_id": SET_NAME,
+        "sample_n_conditions": sample_n_conditions,
+    }
+
+    with pytest.raises(
+        ValueError,
+        match=r"This method takes two \(2\) or more RNASeq Samples.",
     ):
         set_api_client.create_sample_set(context, create_ss_params)
 
 
 @pytest.mark.parametrize("ws_id", ["default_ws_id"], indirect=True)
-def test_list_too_long_conditions(
+def test_create_sample_set_wrong_type(
     create_sampleset_params: dict[str, str],
     set_api_client: SetAPI,
     context: dict[str, str | list],
+    valid_params: dict[str, Any],
+    ws_id: int,
 ) -> None:
+    """Test a mismatch between item types and the Library_type parameter."""
     create_ss_params = {
         **create_sampleset_params,
-        "sampleset_id": "some name",
-        "sample_n_conditions": [
-            {"sample_id": ["some_id"], "condition": ["condition_1", "condition_2"]}
-        ],
+        "ws_id": ws_id,
+        "sampleset_id": SET_NAME,
+        **valid_params,
     }
-
+    del create_ss_params["Library_type"]
+    create_ss_params["Library_type"] = "PairedEnd"
+    err_msg = "Please add only PairedEnd typed objects in the Reads fields; you added an object of type KBaseFile.SingleEndLibrary."
     with pytest.raises(
-        ValueError, match="ERROR: please only select 1 condition per reads object"
+        ValueError,
+        match=err_msg,
     ):
         set_api_client.create_sample_set(context, create_ss_params)
